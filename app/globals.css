@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-obsidian-black text-platinum-bright font-body antialiased;
+  }
+  ::selection {
+    @apply bg-platinum/20 text-platinum-bright;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply bg-obsidian-panel border border-obsidian-border rounded-lg shadow-panel;
+  }
+}
