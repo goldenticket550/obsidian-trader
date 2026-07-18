@@ -82,8 +82,8 @@ export default function AlertsPage() {
                   <div className="text-sm text-platinum-bright">{event.message}</div>
                   <div className="text-xs text-platinum-dim mt-0.5">{event.type}</div>
                 </div>
-                <span className="text-xs text-platinum-dim font-mono shrink-0">
-                  {new Date(event.firedAt).toLocaleTimeString()}
+                <span className="text-xs text-platinum-dim font-mono shrink-0 text-right">
+                  scanned {new Date(event.firedAt).toLocaleTimeString()}
                 </span>
               </li>
             ))}

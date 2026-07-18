@@ -82,6 +82,19 @@ type-check. Fixed properly (not just patched around) with a narrowed `IntradayTi
 a real runtime type guard (`isIntradayTimeframe()`) instead of the previous unchecked cast — this
 is now both more correct and safer against malformed input, and shouldn't need re-fixing again.
 
+### Real bug found through actual use — alerts didn't distinguish scan time from market-data time (fixed)
+
+Testing the newly-working cron route on a Saturday (markets closed) surfaced genuine confusion:
+an alert fired with `fired_at` showing "just now," but the underlying price data was actually
+from Friday's close — there was no way to tell the difference from the alert alone. Root cause:
+`SetupResult` only tracked `lastUpdated` (when the scan ran), never when the underlying candle
+data was actually from. Fixed by adding `latestCandleTime`, computed directly from the most
+recent candle in `sessionCandles` — genuinely distinct from scan time, and correctly null when
+there's no candle data at all. Alert messages now include a `[market data as of ...]` suffix
+when available, and the setup detail panel shows both "Scanned {time}" and "Market data as of
+{time}" separately instead of one ambiguous timestamp. 5 new tests cover this (the scorer
+computing it correctly, alert messages including/omitting the suffix appropriately).
+
 ## Status: Phase 7 — AI explanations
 
 The AI layer from the original spec: plain-English setup explanations, end-of-day journal

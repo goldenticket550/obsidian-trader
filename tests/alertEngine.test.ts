@@ -99,4 +99,34 @@ describe("evaluateAlerts", () => {
     const events = evaluateAlerts(previous, current, disabledRules, NOW);
     expect(events.some((e) => e.type === "recovery_from_low")).toBe(false);
   });
+
+  // Regression test for a real bug found in production: alert messages
+  // had no way to show that the underlying market data was from an
+  // earlier session (e.g. a Saturday cron run using Friday's close),
+  // which was mistaken for the data being wrong/stale.
+  it("includes the market-data timestamp in the message when latestCandleTime is set", () => {
+    const previous = makeResult({
+      conditions: [{ id: "recovery_from_low", label: "x", required: true, state: "fail" }],
+    });
+    const current = makeResult({
+      conditions: [{ id: "recovery_from_low", label: "x", required: true, state: "pass" }],
+      latestCandleTime: "2026-07-17T20:05:00.000Z", // Friday close, while alert fires Saturday
+    });
+    const events = evaluateAlerts(previous, current, defaultAlertRules, NOW);
+    const event = events.find((e) => e.type === "recovery_from_low");
+    expect(event?.message).toContain("market data as of 2026-07-17T20:05:00.000Z");
+  });
+
+  it("omits the market-data suffix entirely when latestCandleTime is null", () => {
+    const previous = makeResult({
+      conditions: [{ id: "recovery_from_low", label: "x", required: true, state: "fail" }],
+    });
+    const current = makeResult({
+      conditions: [{ id: "recovery_from_low", label: "x", required: true, state: "pass" }],
+      latestCandleTime: null,
+    });
+    const events = evaluateAlerts(previous, current, defaultAlertRules, NOW);
+    const event = events.find((e) => e.type === "recovery_from_low");
+    expect(event?.message).not.toContain("market data as of");
+  });
 });

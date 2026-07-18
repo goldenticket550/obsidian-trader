@@ -38,5 +38,17 @@ export interface SetupResult {
   score: number;
   maxScore: number;
   conditions: SetupCondition[];
+  /** When this scan actually ran (wall-clock time), not when the underlying market data occurred. */
   lastUpdated: string; // ISO timestamp
+  /**
+   * When the most recent candle actually used in this calculation
+   * occurred, in market time — distinct from `lastUpdated`. When markets
+   * are closed, a scan can run "now" while the underlying data is from
+   * the last regular session; without this field, alerts and the UI had
+   * no way to distinguish "just calculated" from "based on Friday's
+   * close," which caused real confusion once background scanning made
+   * scan time and market time routinely diverge. Null only when there
+   * were no candles to calculate from at all.
+   */
+  latestCandleTime?: string | null;
 }

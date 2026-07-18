@@ -223,6 +223,9 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
     gapProximity: !!activeGap && currentPrice <= activeGap.upper,
   });
 
+  const lastCandle = sessionCandles[sessionCandles.length - 1];
+  const latestCandleTime = lastCandle ? new Date(lastCandle.time * 1000).toISOString() : null;
+
   return {
     symbol,
     timeframe,
@@ -233,6 +236,7 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
     maxScore,
     conditions,
     lastUpdated: now,
+    latestCandleTime,
   };
 }
 
@@ -273,5 +277,6 @@ function emptyResult(
     maxScore: 0,
     conditions: [],
     lastUpdated: now,
+    latestCandleTime: null,
   };
 }

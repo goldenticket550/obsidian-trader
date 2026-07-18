@@ -120,4 +120,40 @@ describe("scoreSetup", () => {
     });
     expect(result.quality).toBe("delayed");
   });
+
+  // Regression tests for a real bug found in production: alerts and the
+  // UI had no way to distinguish "just calculated from fresh data" from
+  // "calculated right now, but from Friday's closing candle because
+  // markets are closed" — both looked identical since only scan time
+  // (lastUpdated) was tracked, not the underlying market data's time.
+  it("computes latestCandleTime from the most recent session candle, distinct from 'now'", () => {
+    const candles = flatSeries(10, 100); // times 0, 300, 600, ... 2700 (seconds)
+    const result = scoreSetup({
+      symbol: "TEST",
+      timeframe: "5m",
+      sessionCandles: candles,
+      dailyCandles: [],
+      prevClose: 100,
+      config: defaultStrategyConfig,
+      now: "2026-07-19T12:00:00Z", // scan runs "now", far from the candle times
+      quality: "simulated",
+    });
+    const expectedCandleTime = new Date(candles[candles.length - 1].time * 1000).toISOString();
+    expect(result.latestCandleTime).toBe(expectedCandleTime);
+    expect(result.latestCandleTime).not.toBe(result.lastUpdated);
+  });
+
+  it("sets latestCandleTime to null when there are no candles to derive it from", () => {
+    const result = scoreSetup({
+      symbol: "TEST",
+      timeframe: "5m",
+      sessionCandles: [],
+      dailyCandles: [],
+      prevClose: 100,
+      config: defaultStrategyConfig,
+      now: "2026-01-01T00:00:00Z",
+      quality: "simulated",
+    });
+    expect(result.latestCandleTime).toBeNull();
+  });
 });

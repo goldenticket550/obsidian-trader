@@ -27,6 +27,18 @@ function makeEventId(): string {
 }
 
 /**
+ * Formats a suffix showing when the underlying market data is actually
+ * from, distinct from `firedAt` (when the alert/scan ran). Without this,
+ * an alert that fires from a Saturday cron run — using Friday's closing
+ * candle — looked identical to one based on data from moments ago,
+ * which caused real confusion (see README).
+ */
+function marketDataSuffix(result: SetupResult): string {
+  if (!result.latestCandleTime) return "";
+  return ` [market data as of ${result.latestCandleTime}]`;
+}
+
+/**
  * Compares a symbol/timeframe's previous and current SetupResult and
  * returns any alert events that should fire. `previous` is null on the
  * very first scan of a symbol — no alerts fire on that scan, since
@@ -58,7 +70,7 @@ export function evaluateAlerts(
           type: rule.type,
           symbol: current.symbol,
           timeframe: current.timeframe,
-          message: `${current.symbol} (${current.timeframe}) reached a score of ${current.score}/${current.maxScore}`,
+          message: `${current.symbol} (${current.timeframe}) reached a score of ${current.score}/${current.maxScore}${marketDataSuffix(current)}`,
           firedAt: now,
         });
       }
@@ -78,7 +90,7 @@ export function evaluateAlerts(
           type: rule.type,
           symbol: current.symbol,
           timeframe: current.timeframe,
-          message: `${current.symbol} (${current.timeframe}) setup invalidated: ${newlyInvalidated[0].label}`,
+          message: `${current.symbol} (${current.timeframe}) setup invalidated: ${newlyInvalidated[0].label}${marketDataSuffix(current)}`,
           firedAt: now,
         });
       }
@@ -100,7 +112,7 @@ export function evaluateAlerts(
         timeframe: current.timeframe,
         message: `${current.symbol} (${current.timeframe}) ${rule.label.toLowerCase()}${
           detail ? ` — ${detail}` : ""
-        }`,
+        }${marketDataSuffix(current)}`,
         firedAt: now,
       });
     }
