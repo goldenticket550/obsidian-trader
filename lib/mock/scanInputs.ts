@@ -1,4 +1,5 @@
 import type { Candle } from "@/types/candle";
+import { MOCK_SCAN_TIME } from "@/lib/scanner/scanService";
 import {
   flatSeries,
   fallingSeries,
@@ -13,6 +14,21 @@ export interface ScanInput {
   sessionCandles5m: Candle[];
   sessionCandles15m: Candle[];
   dailyCandles: Candle[];
+}
+
+const MOCK_SESSION_END_SECONDS = Math.floor(new Date(MOCK_SCAN_TIME).getTime() / 1000);
+
+/**
+ * Shifts a candle series so its most recent candle lands exactly at the
+ * deterministic mock "now" (MOCK_SCAN_TIME), preserving the spacing
+ * between candles. The fixture generators below all count time from 0,
+ * so without this every mock session's latestCandleTime resolved to
+ * January 1970 — this anchors it to a realistic date instead.
+ */
+function anchorToMockNow(candles: Candle[]): Candle[] {
+  if (candles.length === 0) return candles;
+  const offset = MOCK_SESSION_END_SECONDS - candles[candles.length - 1].time;
+  return candles.map((c) => ({ ...c, time: c.time + offset }));
 }
 
 function chain(...groups: Candle[][]): Candle[] {
@@ -97,32 +113,32 @@ export const mockScanInputs: ScanInput[] = [
     symbol: "NVDA",
     exchange: "NASDAQ",
     prevClose: 139.1,
-    sessionCandles5m: nvdaSeries5m(),
-    sessionCandles15m: nvdaSeries15m(),
+    sessionCandles5m: anchorToMockNow(nvdaSeries5m()),
+    sessionCandles15m: anchorToMockNow(nvdaSeries15m()),
     dailyCandles: dailyUptrend(120),
   },
   {
     symbol: "TSLA",
     exchange: "NASDAQ",
     prevClose: 276.6,
-    sessionCandles5m: tslaSeries5m(),
-    sessionCandles15m: tslaSeries15m(),
+    sessionCandles5m: anchorToMockNow(tslaSeries5m()),
+    sessionCandles15m: anchorToMockNow(tslaSeries15m()),
     dailyCandles: dailyUptrend(250),
   },
   {
     symbol: "AMD",
     exchange: "NASDAQ",
     prevClose: 142.7,
-    sessionCandles5m: amdSeries5m(),
-    sessionCandles15m: amdSeries15m(),
+    sessionCandles5m: anchorToMockNow(amdSeries5m()),
+    sessionCandles15m: anchorToMockNow(amdSeries15m()),
     dailyCandles: dailyUptrend(135),
   },
   {
     symbol: "AAPL",
     exchange: "NASDAQ",
     prevClose: 215.4,
-    sessionCandles5m: aaplSeries5m(),
-    sessionCandles15m: aaplSeries15m(),
+    sessionCandles5m: anchorToMockNow(aaplSeries5m()),
+    sessionCandles15m: anchorToMockNow(aaplSeries15m()),
     dailyCandles: dailyUptrend(205),
   },
 ];

@@ -122,7 +122,7 @@ export function SetupDetail({
           <div>Scanned {new Date(result.lastUpdated).toLocaleTimeString()}</div>
           {result.latestCandleTime && (
             <div>
-              Market data as of{" "}
+              Latest candle started{" "}
               {new Date(result.latestCandleTime).toLocaleString(undefined, {
                 month: "short",
                 day: "numeric",

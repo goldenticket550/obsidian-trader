@@ -91,8 +91,11 @@ from Friday's close — there was no way to tell the difference from the alert a
 data was actually from. Fixed by adding `latestCandleTime`, computed directly from the most
 recent candle in `sessionCandles` — genuinely distinct from scan time, and correctly null when
 there's no candle data at all. Alert messages now include a `[market data as of ...]` suffix
-when available, and the setup detail panel shows both "Scanned {time}" and "Market data as of
-{time}" separately instead of one ambiguous timestamp. 5 new tests cover this (the scorer
+when available, and the setup detail panel shows both "Scanned {time}" and "Latest candle
+started {time}" separately instead of one ambiguous timestamp. The label was worded "Latest
+candle started" rather than "as of" because `latestCandleTime` is the Alpaca bar's *open*
+timestamp — a 5m/15m candle covers `[time, time + duration)`, so the real edge of the data can
+be up to a full bar's duration newer than what's displayed. 5 new tests cover this (the scorer
 computing it correctly, alert messages including/omitting the suffix appropriately).
 
 ## Status: Phase 7 — AI explanations

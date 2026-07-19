@@ -156,4 +156,48 @@ describe("scoreSetup", () => {
     });
     expect(result.latestCandleTime).toBeNull();
   });
+
+  // Documentation/regression tests for Finding 2 of the Codex review of
+  // e6c5acd: latestCandleTime is the timestamp a candle STARTED (Alpaca bar
+  // semantics — a bar covers [time, time + duration)), not an "as of"
+  // instant of the latest price. The UI label was renamed from "Market data
+  // as of" to "Latest candle started" to reflect this; these tests pin the
+  // underlying semantics down so a future change can't silently drift back
+  // to implying the timestamp is the bar's close.
+  it("for a 5-minute timeframe, latestCandleTime is the candle's open, up to ~5 minutes behind the true edge of the data", () => {
+    const barOpen = "2026-07-19T14:35:00Z";
+    const barOpenSeconds = Math.floor(new Date(barOpen).getTime() / 1000);
+    const candles = flatSeries(3, 100, barOpenSeconds - 2 * 300); // last candle opens at barOpenSeconds
+    const result = scoreSetup({
+      symbol: "TEST",
+      timeframe: "5m",
+      sessionCandles: candles,
+      dailyCandles: [],
+      prevClose: 100,
+      config: defaultStrategyConfig,
+      // "now" is late in the still-forming bar — up to just under 5 minutes
+      // of real price action has happened since latestCandleTime.
+      now: "2026-07-19T14:39:59Z",
+      quality: "simulated",
+    });
+    expect(result.latestCandleTime).toBe("2026-07-19T14:35:00.000Z");
+  });
+
+  it("for a 15-minute timeframe, latestCandleTime is the candle's open, up to ~15 minutes behind the true edge of the data", () => {
+    const barOpen = "2026-07-19T14:15:00Z";
+    const barOpenSeconds = Math.floor(new Date(barOpen).getTime() / 1000);
+    const candles = flatSeries(3, 100, barOpenSeconds - 2 * 300);
+    const result = scoreSetup({
+      symbol: "TEST",
+      timeframe: "15m",
+      sessionCandles: candles,
+      dailyCandles: [],
+      prevClose: 100,
+      config: defaultStrategyConfig,
+      // "now" is late in the still-forming 15-minute bar.
+      now: "2026-07-19T14:29:59Z",
+      quality: "simulated",
+    });
+    expect(result.latestCandleTime).toBe("2026-07-19T14:15:00.000Z");
+  });
 });

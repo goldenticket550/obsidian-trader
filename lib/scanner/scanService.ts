@@ -24,8 +24,10 @@ function toWatchlistStatus(result: SetupResult): "red" | "yellow" | "green" {
 /** Deterministic placeholder "now" for mock/simulated scans, so results
  * don't vary between server and client renders. Phase 4 (live data) will
  * replace this with a real, client-only-computed timestamp once scanning
- * genuinely happens in real time. */
-const MOCK_SCAN_TIME = "2026-07-11T14:32:00Z";
+ * genuinely happens in real time. Exported so lib/mock/scanInputs.ts can
+ * anchor its candle timestamps to the same instant instead of drifting
+ * from the Unix epoch (see lib/mock/scanInputs.ts for why that matters). */
+export const MOCK_SCAN_TIME = "2026-07-11T14:32:00Z";
 
 export function scanWatchlist(
   inputs: ScanInput[],
