@@ -13,9 +13,9 @@ export function makeCandle(overrides: Partial<Candle> & { time: number }): Candl
 }
 
 /** A flat, low-volatility series — useful as a "nothing happening" baseline. */
-export function flatSeries(count: number, price = 100, startTime = 0): Candle[] {
+export function flatSeries(count: number, price = 100, startTime = 0, intervalSeconds = 300): Candle[] {
   return Array.from({ length: count }, (_, i) => ({
-    time: startTime + i * 300,
+    time: startTime + i * intervalSeconds,
     open: price,
     high: price + 0.1,
     low: price - 0.1,
@@ -25,14 +25,20 @@ export function flatSeries(count: number, price = 100, startTime = 0): Candle[] 
 }
 
 /** A steadily rising series, useful for EMA/SMA reclaim tests. */
-export function risingSeries(count: number, startPrice = 100, step = 0.5, startTime = 0): Candle[] {
+export function risingSeries(
+  count: number,
+  startPrice = 100,
+  step = 0.5,
+  startTime = 0,
+  intervalSeconds = 300
+): Candle[] {
   const candles: Candle[] = [];
   let price = startPrice;
   for (let i = 0; i < count; i++) {
     const open = price;
     const close = price + step;
     candles.push({
-      time: startTime + i * 300,
+      time: startTime + i * intervalSeconds,
       open,
       close,
       high: Math.max(open, close) + 0.1,
@@ -45,14 +51,20 @@ export function risingSeries(count: number, startPrice = 100, step = 0.5, startT
 }
 
 /** A falling series, mirror of risingSeries. */
-export function fallingSeries(count: number, startPrice = 100, step = 0.5, startTime = 0): Candle[] {
+export function fallingSeries(
+  count: number,
+  startPrice = 100,
+  step = 0.5,
+  startTime = 0,
+  intervalSeconds = 300
+): Candle[] {
   const candles: Candle[] = [];
   let price = startPrice;
   for (let i = 0; i < count; i++) {
     const open = price;
     const close = price - step;
     candles.push({
-      time: startTime + i * 300,
+      time: startTime + i * intervalSeconds,
       open,
       close,
       high: Math.max(open, close) + 0.1,

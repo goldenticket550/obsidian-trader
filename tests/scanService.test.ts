@@ -25,19 +25,21 @@ describe("scanWatchlist (mock mode)", () => {
     }
   });
 
-  it("anchors every symbol's latestCandleTime to the deterministic mock scan time, not an arbitrary date", () => {
+  // Regression test for a follow-up bug in the first fix (commit 639a940):
+  // anchoring reused the raw MOCK_SCAN_TIME (14:32 UTC) directly instead of
+  // flooring it to the candle's own interval boundary, so a 5-minute or
+  // 15-minute candle could claim to have opened mid-bar (e.g. 14:32
+  // instead of 14:30) — impossible for real market data. Both the 5m and
+  // 15m series must land on exactly 14:30 UTC, the boundary at or before
+  // MOCK_SCAN_TIME for their respective interval.
+  it("returns the exact mock candle time (2026-07-11T14:30:00.000Z) for every symbol and timeframe", () => {
+    expect(MOCK_SCAN_TIME).toBe("2026-07-11T14:32:00Z"); // guards the hardcoded expectation below
     const { resultsBySymbol } = scanWatchlist(mockScanInputs);
-    const mockNowMs = new Date(MOCK_SCAN_TIME).getTime();
 
     for (const symbol of Object.keys(resultsBySymbol)) {
       for (const timeframe of ["5m", "15m"] as const) {
         const result = resultsBySymbol[symbol][timeframe];
-        const candleTimeMs = new Date(result.latestCandleTime as string).getTime();
-        // The most recent mock candle should land exactly at (or, for
-        // shorter series, no earlier than) the mock "now" — never years
-        // away from it in either direction.
-        expect(candleTimeMs).toBeLessThanOrEqual(mockNowMs);
-        expect(mockNowMs - candleTimeMs).toBeLessThan(24 * 60 * 60 * 1000);
+        expect(result.latestCandleTime).toBe("2026-07-11T14:30:00.000Z");
       }
     }
   });

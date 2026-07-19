@@ -16,28 +16,47 @@ export interface ScanInput {
   dailyCandles: Candle[];
 }
 
-const MOCK_SESSION_END_SECONDS = Math.floor(new Date(MOCK_SCAN_TIME).getTime() / 1000);
+const FIVE_MIN_SECONDS = 300;
+const FIFTEEN_MIN_SECONDS = 900;
+
+const MOCK_SCAN_TIME_SECONDS = Math.floor(new Date(MOCK_SCAN_TIME).getTime() / 1000);
 
 /**
- * Shifts a candle series so its most recent candle lands exactly at the
- * deterministic mock "now" (MOCK_SCAN_TIME), preserving the spacing
- * between candles. The fixture generators below all count time from 0,
- * so without this every mock session's latestCandleTime resolved to
- * January 1970 — this anchors it to a realistic date instead.
+ * Floors a Unix timestamp (seconds) down to the most recent boundary of the
+ * given interval — e.g. flooring 14:32:00 to a 300-second (5-minute)
+ * interval gives 14:30:00. Unix epoch 0 is itself a UTC midnight, so every
+ * multiple of `intervalSeconds` counted from there lines up with real
+ * clock boundaries; this holds for whatever MOCK_SCAN_TIME is set to, not
+ * just its current value.
  */
-function anchorToMockNow(candles: Candle[]): Candle[] {
+export function floorToIntervalBoundary(epochSeconds: number, intervalSeconds: number): number {
+  return epochSeconds - (epochSeconds % intervalSeconds);
+}
+
+/**
+ * Shifts a candle series so its most recent candle lands exactly on the
+ * `intervalSeconds` boundary at or before the deterministic mock "now"
+ * (MOCK_SCAN_TIME), preserving the spacing between candles. The fixture
+ * generators below all count time from 0, so without this every mock
+ * session's latestCandleTime resolved to January 1970. Flooring to the
+ * candle's own interval — rather than reusing the raw scan time — matters
+ * too: a real 5-minute or 15-minute candle can only ever open on its own
+ * boundary, never mid-bar.
+ */
+function anchorToMockNow(candles: Candle[], intervalSeconds: number): Candle[] {
   if (candles.length === 0) return candles;
-  const offset = MOCK_SESSION_END_SECONDS - candles[candles.length - 1].time;
+  const anchor = floorToIntervalBoundary(MOCK_SCAN_TIME_SECONDS, intervalSeconds);
+  const offset = anchor - candles[candles.length - 1].time;
   return candles.map((c) => ({ ...c, time: c.time + offset }));
 }
 
-function chain(...groups: Candle[][]): Candle[] {
+function chain(intervalSeconds: number, ...groups: Candle[][]): Candle[] {
   let t = 0;
   const out: Candle[] = [];
   for (const group of groups) {
     for (const c of group) {
       out.push({ ...c, time: t });
-      t += 300;
+      t += intervalSeconds;
     }
   }
   return out;
@@ -58,10 +77,10 @@ function nvdaSeries5m(): Candle[] {
  * shows genuinely different results, not the same numbers twice.
  */
 function nvdaSeries15m(): Candle[] {
-  const decline = fallingSeries(4, 110, 2.5);
+  const decline = fallingSeries(4, 110, 2.5, 0, FIFTEEN_MIN_SECONDS);
   const lastClose = decline[decline.length - 1].close;
-  const rally = risingSeries(4, lastClose, 2.5);
-  return chain(decline, rally);
+  const rally = risingSeries(4, lastClose, 2.5, 0, FIFTEEN_MIN_SECONDS);
+  return chain(FIFTEEN_MIN_SECONDS, decline, rally);
 }
 
 /**
@@ -70,17 +89,17 @@ function nvdaSeries15m(): Candle[] {
  * or structure shift yet. Should land as "developing" (yellow).
  */
 function tslaSeries5m(): Candle[] {
-  const decline = fallingSeries(10, 275, 1.4); // ~5.6% decline
+  const decline = fallingSeries(10, 275, 1.4, 0, FIVE_MIN_SECONDS); // ~5.6% decline
   const lastClose = decline[decline.length - 1].close;
-  const smallBounce = risingSeries(2, lastClose, 0.8);
-  return chain(decline, smallBounce);
+  const smallBounce = risingSeries(2, lastClose, 0.8, 0, FIVE_MIN_SECONDS);
+  return chain(FIVE_MIN_SECONDS, decline, smallBounce);
 }
 
 function tslaSeries15m(): Candle[] {
-  const decline = fallingSeries(4, 275, 3.2);
+  const decline = fallingSeries(4, 275, 3.2, 0, FIFTEEN_MIN_SECONDS);
   const lastClose = decline[decline.length - 1].close;
-  const smallBounce = risingSeries(1, lastClose, 1.5);
-  return chain(decline, smallBounce);
+  const smallBounce = risingSeries(1, lastClose, 1.5, 0, FIFTEEN_MIN_SECONDS);
+  return chain(FIFTEEN_MIN_SECONDS, decline, smallBounce);
 }
 
 /**
@@ -88,20 +107,20 @@ function tslaSeries15m(): Candle[] {
  * threshold, and no real recovery. Should stay red.
  */
 function amdSeries5m(): Candle[] {
-  return fallingSeries(15, 143, 0.15); // well under the 2% decline threshold
+  return fallingSeries(15, 143, 0.15, 0, FIVE_MIN_SECONDS); // well under the 2% decline threshold
 }
 
 function amdSeries15m(): Candle[] {
-  return fallingSeries(6, 143, 0.3);
+  return fallingSeries(6, 143, 0.3, 0, FIFTEEN_MIN_SECONDS);
 }
 
 /** AAPL: a flat, uneventful session. Should stay red. */
 function aaplSeries5m(): Candle[] {
-  return flatSeries(15, 214.5);
+  return flatSeries(15, 214.5, 0, FIVE_MIN_SECONDS);
 }
 
 function aaplSeries15m(): Candle[] {
-  return flatSeries(6, 214.5);
+  return flatSeries(6, 214.5, 0, FIFTEEN_MIN_SECONDS);
 }
 
 function dailyUptrend(startPrice: number): Candle[] {
@@ -113,32 +132,32 @@ export const mockScanInputs: ScanInput[] = [
     symbol: "NVDA",
     exchange: "NASDAQ",
     prevClose: 139.1,
-    sessionCandles5m: anchorToMockNow(nvdaSeries5m()),
-    sessionCandles15m: anchorToMockNow(nvdaSeries15m()),
+    sessionCandles5m: anchorToMockNow(nvdaSeries5m(), FIVE_MIN_SECONDS),
+    sessionCandles15m: anchorToMockNow(nvdaSeries15m(), FIFTEEN_MIN_SECONDS),
     dailyCandles: dailyUptrend(120),
   },
   {
     symbol: "TSLA",
     exchange: "NASDAQ",
     prevClose: 276.6,
-    sessionCandles5m: anchorToMockNow(tslaSeries5m()),
-    sessionCandles15m: anchorToMockNow(tslaSeries15m()),
+    sessionCandles5m: anchorToMockNow(tslaSeries5m(), FIVE_MIN_SECONDS),
+    sessionCandles15m: anchorToMockNow(tslaSeries15m(), FIFTEEN_MIN_SECONDS),
     dailyCandles: dailyUptrend(250),
   },
   {
     symbol: "AMD",
     exchange: "NASDAQ",
     prevClose: 142.7,
-    sessionCandles5m: anchorToMockNow(amdSeries5m()),
-    sessionCandles15m: anchorToMockNow(amdSeries15m()),
+    sessionCandles5m: anchorToMockNow(amdSeries5m(), FIVE_MIN_SECONDS),
+    sessionCandles15m: anchorToMockNow(amdSeries15m(), FIFTEEN_MIN_SECONDS),
     dailyCandles: dailyUptrend(135),
   },
   {
     symbol: "AAPL",
     exchange: "NASDAQ",
     prevClose: 215.4,
-    sessionCandles5m: anchorToMockNow(aaplSeries5m()),
-    sessionCandles15m: anchorToMockNow(aaplSeries15m()),
+    sessionCandles5m: anchorToMockNow(aaplSeries5m(), FIVE_MIN_SECONDS),
+    sessionCandles15m: anchorToMockNow(aaplSeries15m(), FIFTEEN_MIN_SECONDS),
     dailyCandles: dailyUptrend(205),
   },
 ];

@@ -167,7 +167,10 @@ describe("scoreSetup", () => {
   it("for a 5-minute timeframe, latestCandleTime is the candle's open, up to ~5 minutes behind the true edge of the data", () => {
     const barOpen = "2026-07-19T14:35:00Z";
     const barOpenSeconds = Math.floor(new Date(barOpen).getTime() / 1000);
-    const candles = flatSeries(3, 100, barOpenSeconds - 2 * 300); // last candle opens at barOpenSeconds
+    // Genuinely 5-minute-spaced candles: last candle opens at barOpenSeconds.
+    const candles = flatSeries(3, 100, barOpenSeconds - 2 * 300, 300);
+    expect(candles[1].time - candles[0].time).toBe(300);
+    expect(candles[2].time - candles[1].time).toBe(300);
     const result = scoreSetup({
       symbol: "TEST",
       timeframe: "5m",
@@ -186,7 +189,12 @@ describe("scoreSetup", () => {
   it("for a 15-minute timeframe, latestCandleTime is the candle's open, up to ~15 minutes behind the true edge of the data", () => {
     const barOpen = "2026-07-19T14:15:00Z";
     const barOpenSeconds = Math.floor(new Date(barOpen).getTime() / 1000);
-    const candles = flatSeries(3, 100, barOpenSeconds - 2 * 300);
+    // Genuinely 15-minute-spaced candles (900s apart) — not the 5-minute
+    // spacing this fixture defaults to, which would silently pass this test
+    // without proving the 15m case is handled correctly.
+    const candles = flatSeries(3, 100, barOpenSeconds - 2 * 900, 900);
+    expect(candles[1].time - candles[0].time).toBe(900);
+    expect(candles[2].time - candles[1].time).toBe(900);
     const result = scoreSetup({
       symbol: "TEST",
       timeframe: "15m",
