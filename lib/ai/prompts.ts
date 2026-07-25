@@ -24,10 +24,14 @@ You will be given data that was already calculated by deterministic code (a rule
 - Keep responses concise and in plain English — this is read by a person making their own trading decisions, not a technical audience.`;
 
 export function buildExplainSetupPrompt(result: SetupResult): { system: string; user: string } {
-  const system = `${SAFETY_BASE}\n\nTask: explain why this setup is at its current stage, and what specifically is still missing before it would be fully confirmed. Reference the actual condition labels and details given.`;
+  const system = `${SAFETY_BASE}\n\nTask: explain this setup in three explicit parts, always in this order:
+1. WHY IT'S HERE — what's actually happened so far (reference the real passed conditions and their details)
+2. WHAT'S NEXT — specifically what still needs to happen for this to progress further (reference the real waiting/failed conditions)
+3. WHAT WOULD INVALIDATE IT — the specific condition that would weaken or break this setup (use the invalidation note given below if one is provided; if none is provided, say plainly that no clear invalidation level has formed yet)
+Keep each part to 1-2 sentences. Do not skip any of the three parts, even if brief.`;
 
   const conditionLines = result.conditions
-    .map((c) => `- ${c.label}: ${c.state}${c.detail ? ` (${c.detail})` : ""}`)
+    .map((c) => `- ${c.label} [${c.category ?? "supporting"}]: ${c.state}${c.detail ? ` (${c.detail})` : ""}`)
     .join("\n");
 
   const user = `Symbol: ${result.symbol}
@@ -35,12 +39,15 @@ Timeframe: ${result.timeframe}
 Data quality: ${result.quality}
 Current stage: ${result.stage}
 Status: ${result.status}
-Score: ${result.score}/${result.maxScore}
+Conviction level: ${result.convictionLevel ?? "unknown"}
+Entry status: ${result.entryStatus ?? "unknown"}
+Score: ${result.score.toFixed(1)}/10 (weighted — core signals count more than supporting ones)
+Invalidation note (already computed, do not invent your own): ${result.invalidationNote ?? "none yet — not enough has formed to define one"}
 
-Conditions:
+Conditions (grouped by weight tier — core signals matter most):
 ${conditionLines || "(none evaluated)"}
 
-Explain in 2-4 short sentences why this setup is where it is, and what would need to happen for it to progress. Do not recommend a trade.`;
+Write the three-part explanation now. Do not recommend a trade, and do not restate the entry status as if it were your own new conclusion — it was already computed; you're explaining it, not deciding it.`;
 
   return { system, user };
 }

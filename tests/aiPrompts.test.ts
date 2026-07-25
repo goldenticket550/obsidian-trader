@@ -39,9 +39,26 @@ describe("buildExplainSetupPrompt", () => {
   it("includes the actual result data in the user prompt", () => {
     const { user } = buildExplainSetupPrompt(sampleResult);
     expect(user).toContain("NVDA");
-    expect(user).toContain("6/11");
+    expect(user).toContain("6.0/10");
     expect(user).toContain("Recovery from session low");
     expect(user).toContain("$2.15 recovered");
+  });
+
+  it("includes the invalidation note when present, and says so plainly when absent", () => {
+    const withNote: SetupResult = { ...sampleResult, invalidationNote: "Would weaken on a close below $190." };
+    const { user: userWithNote } = buildExplainSetupPrompt(withNote);
+    expect(userWithNote).toContain("Would weaken on a close below $190.");
+
+    const withoutNote: SetupResult = { ...sampleResult, invalidationNote: null };
+    const { user: userWithoutNote } = buildExplainSetupPrompt(withoutNote);
+    expect(userWithoutNote).toContain("none yet");
+  });
+
+  it("instructs the model to cover why/what's-next/invalidation in every response", () => {
+    const { system } = buildExplainSetupPrompt(sampleResult);
+    expect(system).toMatch(/WHY IT'S HERE/);
+    expect(system).toMatch(/WHAT'S NEXT/);
+    expect(system).toMatch(/WHAT WOULD INVALIDATE/);
   });
 
   it("does not fabricate data for a result with no conditions evaluated", () => {

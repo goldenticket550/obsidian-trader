@@ -17,6 +17,22 @@ export type SetupStage =
 export type ConditionState = "pass" | "fail" | "waiting" | "invalidated";
 
 /**
+ * Weight tier, directly reflecting the spec's "not all signals are equal"
+ * principle: structural evidence (a confirmed structure shift) should
+ * count for more than a supporting confirmation (volume), which should
+ * count for more than background context. Used to compute a weighted
+ * score instead of one flat point per condition.
+ */
+export type ConditionCategory = "core" | "secondary" | "supporting" | "informational";
+
+export const CATEGORY_WEIGHT: Record<ConditionCategory, number> = {
+  core: 3,
+  secondary: 2,
+  supporting: 1,
+  informational: 0.5,
+};
+
+/**
  * One row in the setup checklist. Every condition must be traceable to a
  * concrete calculated value — no free-floating AI confidence scores.
  */
@@ -27,7 +43,28 @@ export interface SetupCondition {
   /** Human-readable calculated value, e.g. "$2.34 recovered from low" */
   detail?: string;
   required: boolean;
+  /** Weight tier used for the weighted score — defaults to "supporting" if omitted. */
+  category?: ConditionCategory;
 }
+
+/**
+ * A coarser, staged read of where the setup stands — think "how loudly
+ * should this be talking to me right now" rather than a single score.
+ * WATCH: a few early signs, not yet meaningful. DEVELOPING: real
+ * confluence building, most required conditions passing. CONFIRMED: all
+ * required conditions pass (matches "green" status). This never means
+ * "buy" — it's a volume knob on attention, not a trade signal.
+ */
+export type ConvictionLevel = "watch" | "developing" | "confirmed";
+
+/**
+ * Distinguishes "this setup is real" from "this setup is still a good
+ * place to get involved" — a technically valid setup can still be a bad
+ * place to enter if price has already run too far. Computed from price's
+ * distance from EMA/VWAP relative to recent volatility (ATR), never from
+ * a prediction of what happens next.
+ */
+export type EntryStatus = "actionable_now" | "wait_for_pullback" | "extended_do_not_chase" | "invalidated";
 
 export interface SetupResult {
   symbol: string;
@@ -51,4 +88,13 @@ export interface SetupResult {
    * were no candles to calculate from at all.
    */
   latestCandleTime?: string | null;
+  /** Optional so existing object literals across the codebase don't all need updating. Always populated by scoreSetup(). */
+  convictionLevel?: ConvictionLevel;
+  entryStatus?: EntryStatus;
+  /**
+   * A short, deterministic description of what would invalidate this
+   * setup at its current stage — e.g. "losing the recovered session low"
+   * — computed from already-known structural levels, never a prediction.
+   */
+  invalidationNote?: string | null;
 }

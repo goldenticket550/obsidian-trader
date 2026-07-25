@@ -56,6 +56,26 @@ export interface StrategyConfig {
     /** award points for 2-2 reversal or inside-bar-into-reclaim patterns */
     enabled: boolean;
   };
+  vwap: {
+    enabled: boolean;
+  };
+  pressure: {
+    minBodyPercent: number; // e.g. 0.6 = candle body is 60%+ of its range
+    minRelativeVolume: number; // e.g. 1.5 = 150% of recent average volume
+    lookback: number; // candles used to compute average volume for comparison
+  };
+  /**
+   * Governs entryStatus (actionable now vs. wait for pullback vs.
+   * extended-don't-chase). Extension is measured as price's distance
+   * from the 9 EMA relative to ATR, not a raw percentage — this scales
+   * naturally across low- and high-priced, low- and high-volatility
+   * stocks instead of needing a different fixed dollar/percent per stock.
+   */
+  extension: {
+    atrPeriod: number;
+    /** distance beyond this many ATRs from the EMA counts as "extended" */
+    extendedAtrMultiplier: number;
+  };
 }
 
 export const defaultStrategyConfig: StrategyConfig = {
@@ -104,5 +124,17 @@ export const defaultStrategyConfig: StrategyConfig = {
   },
   strat: {
     enabled: true,
+  },
+  vwap: {
+    enabled: true,
+  },
+  pressure: {
+    minBodyPercent: 0.6,
+    minRelativeVolume: 1.5,
+    lookback: 20,
+  },
+  extension: {
+    atrPeriod: 14,
+    extendedAtrMultiplier: 1.5,
   },
 };

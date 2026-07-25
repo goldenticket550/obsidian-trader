@@ -91,7 +91,7 @@ describe("processResultPersistent", () => {
   });
 
   it("records a surviving event when a real transition occurs with no cooldown history", async () => {
-    const previousResult = makeResult(6); // below the default score threshold (7)
+    const previousResult = makeResult(6); // below the 0-10 scale score threshold (7)
     const insertSpy = vi.fn(async () => ({ error: null }));
     const supabase = makeFakeSupabase({ snapshot: previousResult, onCooldown: false, insertSpy });
 

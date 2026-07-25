@@ -67,6 +67,8 @@ export const defaultAlertRules: AlertRule[] = [
     type: "score_threshold",
     label: "Setup score reached threshold",
     enabled: true,
+    // Score is now normalized to a fixed 0-10 scale (see scorer.ts) -
+    // 7 roughly matches "essentially all required conditions passing."
     scoreThreshold: 7,
     cooldownMs: FIVE_MIN,
   },

@@ -98,6 +98,100 @@ timestamp — a 5m/15m candle covers `[time, time + duration)`, so the real edge
 be up to a full bar's duration newer than what's displayed. 5 new tests cover this (the scorer
 computing it correctly, alert messages including/omitting the suffix appropriately).
 
+## Status: Phase 8 — Richer checklist, weighted scoring, entry quality (a scoped subset of a larger spec)
+
+You raised a real concern after using the tool for a while: the checklist didn't feel thorough
+enough to act on, and every condition counted equally regardless of how meaningful it actually
+was. You'd separately drafted a large 6-engine "Trader Scanner V2" spec (SPY/QQQ correlation,
+opening ranges, time-of-day RVOL, news/event risk, a full state machine, forward-performance
+analytics). Rather than build that whole thing — which is a genuinely separate, much bigger
+project, and premature before any real trade history exists to justify it — this milestone pulls
+out the highest-value pieces that were buildable on what already existed, and pairs them with a
+richer, always-available explanation layer.
+
+### What's new
+
+- **Weighted confluence scoring, normalized to a fixed 0-10 scale**: conditions are categorized
+  (`core`/`secondary`/`supporting`/`informational`, weights 3/2/1/0.5 — see `CATEGORY_WEIGHT` in
+  `types/setup.ts`). A confirmed structure shift counts far more than a volume confirmation,
+  instead of every condition being worth one flat point. The raw weighted total is then
+  normalized to always display as a score out of 10 (`maxScore` is always exactly `10`), per the
+  spec's own suggestion ("Score may be normalized to 0-10 or 0-100") — this was a deliberate
+  revision after the first version of this milestone shipped a raw, unnormalized ~21-point scale
+  that felt arbitrary and would have silently shifted every time a condition was added or
+  removed. Alert score-threshold and the risk settings' "minimum setup score" default were both
+  recalibrated to `7` and `6` respectively to match.
+- **`lib/indicators/vwap.ts`** (new): session VWAP calculator + reclaim detector, wired in as an
+  optional confirmation (`vwap_reclaim`), same "genuine reclaim, not just currently above"
+  pattern as the 9 EMA detector.
+- **`lib/indicators/atr.ts`** (new): true range / ATR, used specifically to power real extension
+  detection rather than a raw, stock-agnostic percentage.
+- **`lib/indicators/pressure.ts`** (new): buy/sell pressure classification from body size, close
+  position, and relative volume — deliberately labeled `strong_buy_pressure`/
+  `strong_sell_pressure`/`neutral`, never "institutional," per the spec's own caution that volume
+  alone can't prove who caused a move. Folded into the volume confirmation's detail text rather
+  than a new scored row, to avoid checklist clutter.
+- **Conviction level** (`watch` / `developing` / `confirmed`): a coarser, staged read of the
+  setup, computed from the ratio of required conditions passing — this is what "talks to you in
+  stages" instead of one static score.
+- **Entry status** (`actionable_now` / `wait_for_pullback` / `extended_do_not_chase` /
+  `invalidated`): distinguishes "this setup is real" from "this is still a good place to get
+  involved." Computed from price's distance from the 9 EMA relative to ATR — never a prediction,
+  purely a measure of how far price has already run. This is the piece built specifically to
+  address "not comfortable taking entries."
+- **Invalidation notes**: a short, deterministic sentence describing what would break the current
+  setup, computed from already-known structural levels (the session low, the EMA, the FVG
+  boundary) — never a prediction.
+- **`lib/strategies/conditionExplanations.ts`** (new): hand-written, NOT AI-generated "why this
+  matters" reasoning for every condition type — instant, free, always available regardless of
+  whether AI is configured. This is the direct answer to "the checklist doesn't explain why
+  conditions matter."
+- **Checklist UI**: now grouped by category (Core Signals / Secondary Confirmations / Supporting
+  Signals / Informational), each row showing its reasoning inline, plus conviction-level and
+  entry-status badges above the score.
+- **Sharpened AI explanation prompt**: now structured into three explicit required parts — why
+  it's here, what's next, what would invalidate it — using the real computed `invalidationNote`
+  rather than letting the model invent its own.
+
+### Deliberately NOT built (from the larger spec)
+
+SPY/QQQ/sector relative-strength context, opening range tracking (5m/15m/30m), time-of-day-
+adjusted RVOL, a full state machine with alert deduplication across states, news/event-risk
+flags, and forward-performance analytics (15/30/60-minute post-alert tracking). Each of these is
+real, standalone infrastructure — none of them reuse what exists today the way VWAP/ATR/pressure
+did. Worth reconsidering individually once there's real trade history to justify which (if any)
+actually improve decisions, rather than building all of it speculatively.
+
+### Known limitations in this milestone
+
+- Extension detection (`entryStatus`) only checks distance from the 9 EMA, not from VWAP or the
+  breakout level specifically, the way the original spec described — a reasonable first cut, not
+  the full picture.
+- The weighted score change is a real breaking change to the score *scale* (not the underlying
+  logic) — the very first version of this milestone used a raw ~21-point scale before being
+  revised to a normalized 0-10 scale; anyone with saved alert history from that brief window will
+  see a discontinuity.
+- `minSetupScore` (6) and the alert `scoreThreshold` (7) were set to preserve roughly the same
+  *proportion* (about 60-70%) as the old flat-count scale rather than an exact equivalent —
+  worth revisiting once you have a feel for the new 0-10 scale in practice.
+
+### UI polish pass (real usage feedback)
+
+Screenshot review of the live dashboard surfaced two things worth fixing:
+
+1. **The timestamp was there but too easy to miss** — tiny gray text tucked in the top-right
+   corner. Moved it into a clearly labeled row inside the new summary card ("Scanned 8:31 PM" /
+   "Latest candle started Fri, Jul 24, 4:25 PM"), with the weekday added so a Saturday-viewed
+   Friday close is unambiguous at a glance, not just at second read.
+2. **"Looks dated, not separated"** — addressed as a spacing/hierarchy problem, not a palette
+   problem: the app already has an established brand direction (black/charcoal, platinum, signal
+   colors) from Phase 1, so this wasn't about picking new colors. Score, conviction badge, entry
+   status, and timestamps are now combined into one visually distinct summary card with a
+   left border colored by status (red/yellow/green) — the single most important glance on the
+   panel, now the most visually weighted element instead of blending into the header. Checklist
+   rows got a colored left-accent per category (core signals brightest, informational dimmest)
+   and more generous spacing, so scanning the list doesn't read as one dense wall of text.
+
 ## Status: Phase 7 — AI explanations
 
 The AI layer from the original spec: plain-English setup explanations, end-of-day journal

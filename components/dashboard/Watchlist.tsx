@@ -58,13 +58,13 @@ export function Watchlist({
               <td className="px-3 py-3">
                 <span className="inline-flex items-center gap-2 font-mono">
                   <StatusDot status={s.status5m} />
-                  {s.score5m}
+                  {s.score5m.toFixed(1)}
                 </span>
               </td>
               <td className="px-3 py-3">
                 <span className="inline-flex items-center gap-2 font-mono">
                   <StatusDot status={s.status15m} />
-                  {s.score15m}
+                  {s.score15m.toFixed(1)}
                 </span>
               </td>
               <td className="px-3 py-3 text-platinum-dim text-xs">

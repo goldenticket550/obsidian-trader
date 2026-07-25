@@ -1,5 +1,13 @@
 import type { Candle, DataQuality, Timeframe } from "@/types/candle";
-import type { SetupCondition, SetupResult, SetupStage, SetupStatus } from "@/types/setup";
+import type {
+  ConvictionLevel,
+  EntryStatus,
+  SetupCondition,
+  SetupResult,
+  SetupStage,
+  SetupStatus,
+} from "@/types/setup";
+import { CATEGORY_WEIGHT } from "@/types/setup";
 import type { StrategyConfig } from "./config";
 import { detectIntradayDecline, detectRecoveryFromLow } from "@/lib/indicators/sessionDecline";
 import { detectConsecutiveBullish } from "@/lib/indicators/consecutiveBullish";
@@ -13,6 +21,10 @@ import {
 } from "@/lib/indicators/fairValueGap";
 import { detectVolumeConfirmation } from "@/lib/indicators/volumeConfirmation";
 import { detectStratConfirmation } from "@/lib/indicators/stratCandle";
+import { detectVwapReclaim } from "@/lib/indicators/vwap";
+import { calculateAtr } from "@/lib/indicators/atr";
+import { calculateEma } from "@/lib/indicators/movingAverages";
+import { classifyPressure } from "@/lib/indicators/pressure";
 
 export interface ScoreSetupInput {
   symbol: string;
@@ -44,9 +56,14 @@ export interface ScoreSetupInput {
 
 /**
  * Required conditions determine red/yellow/green. Optional conditions add
- * to the score but never block green. This mirrors the spec: a green
- * status means all REQUIRED rules pass — optional confirmations are extra
- * context, not gates.
+ * to the (weighted) score but never block green. This mirrors the spec: a
+ * green status means all REQUIRED rules pass — optional confirmations are
+ * extra context, not gates.
+ *
+ * Score is weighted by category (core/secondary/supporting/informational)
+ * rather than one flat point per condition — a confirmed structure shift
+ * says more than a volume confirmation, and the score should reflect that,
+ * per the "not all signals are equal" principle.
  */
 export function scoreSetup(input: ScoreSetupInput): SetupResult {
   const { symbol, timeframe, sessionCandles, dailyCandles, prevClose, config, now, quality } = input;
@@ -81,12 +98,30 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
     config.dailySma.period
   );
   const strat = config.strat.enabled ? detectStratConfirmation(sessionCandles) : null;
+  const vwap = config.vwap.enabled ? detectVwapReclaim(sessionCandles) : null;
+
+  // Buy/sell pressure on the most recent candle - folded into the volume
+  // confirmation detail text rather than its own scored row, per the
+  // "quality over quantity" UI principle - it's context on an existing
+  // condition, not a new independent signal.
+  const avgVolumeForPressure =
+    sessionCandles.length > 1
+      ? sessionCandles.slice(0, -1).reduce((sum, c) => sum + c.volume, 0) /
+        (sessionCandles.length - 1)
+      : 0;
+  const pressure = classifyPressure(
+    sessionCandles[sessionCandles.length - 1],
+    avgVolumeForPressure,
+    config.pressure.minBodyPercent,
+    config.pressure.minRelativeVolume
+  );
 
   const conditions: SetupCondition[] = [
     {
       id: "intraday_decline",
       label: "Significant intraday decline",
       required: true,
+      category: "informational",
       state: decline.passed ? "pass" : "fail",
       detail: `${(decline.declineFromOpenPct * 100).toFixed(1)}% from open, ${(
         decline.declineFromPrevClosePct * 100
@@ -96,6 +131,7 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       id: "recovery_from_low",
       label: "Recovery from session low",
       required: true,
+      category: "core",
       state: recovery.passed ? "pass" : "fail",
       detail: `$${recovery.dollarRecovery.toFixed(2)} (${(recovery.pctRecovery * 100).toFixed(
         1
@@ -105,6 +141,7 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       id: "consecutive_bullish",
       label: "Consecutive bullish candles",
       required: true,
+      category: "supporting",
       state: consecutive.passed ? "pass" : "fail",
       detail: `${consecutive.candleCount}-candle window, $${consecutive.totalMoveDollars.toFixed(
         2
@@ -114,6 +151,7 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       id: "liquidity_sweep",
       label: "Liquidity sweep (experimental)",
       required: true,
+      category: "core",
       state: sweep.passed ? "pass" : "fail",
       detail: sweep.passed
         ? `Swept ${sweep.sweptLevelSource} at $${sweep.sweptLevel?.toFixed(2)}`
@@ -123,6 +161,7 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       id: "structure_shift",
       label: "Bullish market-structure shift",
       required: true,
+      category: "core",
       state:
         structure.state === "confirmed" ? "pass" : structure.state === "invalidated" ? "invalidated" : "waiting",
       detail:
@@ -136,6 +175,7 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       id: "ema_reclaim",
       label: "9 EMA reclaim",
       required: true,
+      category: "secondary",
       state: emaReclaim.passed ? "pass" : "fail",
       detail:
         emaReclaim.emaValue !== null && emaReclaim.price !== null
@@ -148,6 +188,7 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       id: "fair_value_gap",
       label: "Valid bullish fair value gap",
       required: true,
+      category: "secondary",
       state: activeGap ? "pass" : "waiting",
       detail: activeGap
         ? `Gap $${activeGap.lower.toFixed(2)}–$${activeGap.upper.toFixed(2)}, ${activeGap.status}`
@@ -157,6 +198,7 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       id: "gap_proximity",
       label: "Price approaching or entering the gap",
       required: false,
+      category: "informational",
       state: activeGap && currentPrice <= activeGap.upper ? "pass" : "waiting",
       detail: activeGap ? `Current price $${currentPrice.toFixed(2)}` : "No gap selected",
     },
@@ -164,13 +206,17 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       id: "volume_confirmation",
       label: "Volume confirmation",
       required: false,
+      category: "supporting",
       state: volume.passed ? "pass" : "waiting",
-      detail: `${(volume.relativeVolumePct * 100).toFixed(0)}% of average volume`,
+      detail: `${(volume.relativeVolumePct * 100).toFixed(0)}% of average volume${
+        pressure.label !== "neutral" ? ` · ${pressure.label.replace(/_/g, " ")}` : ""
+      }`,
     },
     {
       id: "daily_sma_confirmation",
       label: "Above daily 20 SMA",
       required: false,
+      category: "secondary",
       state: dailySma.passed ? "pass" : "waiting",
       detail:
         dailySma.smaValue !== null
@@ -186,8 +232,25 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       id: "strat_confirmation",
       label: "Strat candle-type confirmation",
       required: false,
+      category: "supporting",
       state: strat.passed ? "pass" : "waiting",
       detail: strat.pattern ? strat.pattern : "No qualifying Strat pattern",
+    });
+  }
+
+  if (vwap) {
+    conditions.push({
+      id: "vwap_reclaim",
+      label: "VWAP reclaim",
+      required: false,
+      category: "secondary",
+      state: vwap.passed ? "pass" : "waiting",
+      detail:
+        vwap.vwapValue !== null && vwap.price !== null
+          ? `Price $${vwap.price.toFixed(2)} vs VWAP $${vwap.vwapValue.toFixed(2)} (${(
+              (vwap.distancePct ?? 0) * 100
+            ).toFixed(1)}%)`
+          : "Not enough candles for VWAP",
     });
   }
 
@@ -195,11 +258,20 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
   const requiredPassed = requiredConditions.filter((c) => c.state === "pass").length;
   const anyInvalidated = conditions.some((c) => c.state === "invalidated");
 
-  const optionalConditions = conditions.filter((c) => !c.required);
-  const optionalPassed = optionalConditions.filter((c) => c.state === "pass").length;
-
-  const score = requiredPassed + optionalPassed;
-  const maxScore = conditions.length;
+  // Weighted score: each passed condition contributes its category
+  // weight, not a flat 1 point - core signals (structure, sweep,
+  // recovery) count for more than supporting/informational ones.
+  // Normalized to a fixed 0-10 scale (per the spec's own suggestion:
+  // "Score may be normalized to 0-10 or 0-100") rather than showing raw
+  // weighted points, which topped out at an arbitrary-feeling number
+  // that would also shift any time a condition is added or removed.
+  const weightOf = (c: SetupCondition): number => CATEGORY_WEIGHT[c.category ?? "supporting"];
+  const rawScore = conditions
+    .filter((c) => c.state === "pass")
+    .reduce((sum, c) => sum + weightOf(c), 0);
+  const rawMaxScore = conditions.reduce((sum, c) => sum + weightOf(c), 0);
+  const score = rawMaxScore === 0 ? 0 : (rawScore / rawMaxScore) * 10;
+  const maxScore = 10;
 
   let status: SetupStatus;
   if (anyInvalidated) {
@@ -223,6 +295,36 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
     gapProximity: !!activeGap && currentPrice <= activeGap.upper,
   });
 
+  // Conviction level: a coarser "how loudly should this be talking to me"
+  // read than the raw score - WATCH for early signs, DEVELOPING once real
+  // confluence is building, CONFIRMED once every required condition
+  // passes (same moment status becomes green). This is what "talks to
+  // you in stages" instead of one static number.
+  const requiredRatio = requiredConditions.length === 0 ? 0 : requiredPassed / requiredConditions.length;
+  let convictionLevel: ConvictionLevel;
+  if (status === "green") {
+    convictionLevel = "confirmed";
+  } else if (requiredRatio >= 0.5 || requiredPassed >= 2) {
+    convictionLevel = "developing";
+  } else {
+    convictionLevel = "watch";
+  }
+
+  const entryStatus = determineEntryStatus({
+    sessionCandles,
+    anyInvalidated,
+    status,
+    config,
+  });
+
+  const invalidationNote = determineInvalidationNote({
+    structureTriggerLevel: structure.triggerSwingHigh,
+    sessionLow: recovery.sessionLow,
+    hasGap: !!activeGap,
+    emaValue: emaReclaim.emaValue,
+    status,
+  });
+
   const lastCandle = sessionCandles[sessionCandles.length - 1];
   const latestCandleTime = lastCandle ? new Date(lastCandle.time * 1000).toISOString() : null;
 
@@ -237,7 +339,78 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
     conditions,
     lastUpdated: now,
     latestCandleTime,
+    convictionLevel,
+    entryStatus,
+    invalidationNote,
   };
+}
+
+/**
+ * ACTIONABLE_NOW / WAIT_FOR_PULLBACK / EXTENDED_DO_NOT_CHASE /
+ * INVALIDATED — never a prediction, purely a description of how far
+ * price already sits from a reference level (9 EMA) relative to recent
+ * volatility (ATR). A technically valid setup can still be a bad place
+ * to get involved if price has already run too far from it.
+ */
+function determineEntryStatus(params: {
+  sessionCandles: Candle[];
+  anyInvalidated: boolean;
+  status: SetupStatus;
+  config: StrategyConfig;
+}): EntryStatus {
+  const { sessionCandles, anyInvalidated, status, config } = params;
+
+  if (anyInvalidated) return "invalidated";
+  if (status !== "green") return "wait_for_pullback";
+
+  const emaSeries = calculateEma(sessionCandles, config.emaReclaim.period);
+  const atrSeries = calculateAtr(sessionCandles, config.extension.atrPeriod);
+  const lastIndex = sessionCandles.length - 1;
+  const ema = emaSeries[lastIndex];
+  const atr = atrSeries[lastIndex];
+  const price = sessionCandles[lastIndex].close;
+
+  if (Number.isNaN(ema) || Number.isNaN(atr) || atr === 0) {
+    // Not enough data to judge extension - default to actionable rather
+    // than falsely warning about something we can't actually measure.
+    return "actionable_now";
+  }
+
+  const distanceInAtrs = Math.abs(price - ema) / atr;
+  if (distanceInAtrs > config.extension.extendedAtrMultiplier) {
+    return "extended_do_not_chase";
+  }
+
+  return "actionable_now";
+}
+
+/**
+ * A short, deterministic description of what would break the setup at
+ * its current stage - computed from levels already known, never a
+ * prediction of what price will do.
+ */
+function determineInvalidationNote(params: {
+  structureTriggerLevel: number | null;
+  sessionLow: number;
+  hasGap: boolean;
+  emaValue: number | null;
+  status: SetupStatus;
+}): string | null {
+  const { structureTriggerLevel, sessionLow, hasGap, emaValue, status } = params;
+
+  if (status === "red") return null;
+
+  if (status === "green") {
+    if (hasGap) return "Would weaken on a close back below the fair value gap's lower boundary.";
+    if (emaValue !== null) return `Would weaken on a close back below the 9 EMA ($${emaValue.toFixed(2)}).`;
+    return `Would weaken on a close back below the recovered session low ($${sessionLow.toFixed(2)}).`;
+  }
+
+  if (structureTriggerLevel !== null) {
+    return `Currently needs a close above $${structureTriggerLevel.toFixed(2)} to progress - failing to hold recent higher lows would weaken it instead.`;
+  }
+
+  return `Currently needs to hold above the session low ($${sessionLow.toFixed(2)}) to stay valid.`;
 }
 
 function determineStage(flags: {
@@ -278,5 +451,8 @@ function emptyResult(
     conditions: [],
     lastUpdated: now,
     latestCandleTime: null,
+    convictionLevel: "watch",
+    entryStatus: "wait_for_pullback",
+    invalidationNote: null,
   };
 }

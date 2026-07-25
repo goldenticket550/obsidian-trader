@@ -70,7 +70,7 @@ export function evaluateAlerts(
           type: rule.type,
           symbol: current.symbol,
           timeframe: current.timeframe,
-          message: `${current.symbol} (${current.timeframe}) reached a score of ${current.score}/${current.maxScore}${marketDataSuffix(current)}`,
+          message: `${current.symbol} (${current.timeframe}) reached a score of ${current.score.toFixed(1)}/${current.maxScore.toFixed(1)}${marketDataSuffix(current)}`,
           firedAt: now,
         });
       }
