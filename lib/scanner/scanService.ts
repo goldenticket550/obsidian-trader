@@ -141,17 +141,26 @@ export async function scanWatchlistWithProvider(
 
       const dailyCandles = seriesDaily.candles;
 
-      // FIX (Codex review): previous-close ambiguity. The old logic
-      // assumed the second-to-last daily candle was always "yesterday,"
-      // which only holds when the last daily candle represents today.
-      // findPreviousClose() determines this explicitly by trading date
-      // instead of by array position, so it's correct whether or not
-      // today's daily bar has been posted yet.
-      const prevClose =
-        findPreviousClose(dailyCandles, todayTradingDate) ??
-        dailyCandles[dailyCandles.length - 1]?.close ??
-        series5m.candles[series5m.candles.length - 1]?.close ??
-        0;
+      // FIX (Codex round 3): previous-close ambiguity. findPreviousClose()
+      // determines this explicitly by trading date instead of by array
+      // position, so it's correct whether or not today's daily bar has
+      // posted yet.
+      //
+      // FIX (Codex round 4): the old fallback, when findPreviousClose()
+      // returned null, substituted the latest daily candle's close —
+      // which could BE today's own (partial) bar, silently mislabeling
+      // "no previous close available" as "today equals yesterday" and
+      // corrupting decline-from-previous-close. Now genuinely unavailable
+      // history is treated as a real per-symbol failure (caught below,
+      // reported in `errors`, same mechanism as any other provider
+      // failure) rather than silently substituting a wrong value.
+      const prevClose = findPreviousClose(dailyCandles, todayTradingDate);
+      if (prevClose === null) {
+        throw new Error(
+          `Insufficient daily history to determine previous close for ${symbol} ` +
+            `(need at least one daily candle from before ${todayTradingDate})`
+        );
+      }
 
       const result5m = scoreSetup({
         symbol,

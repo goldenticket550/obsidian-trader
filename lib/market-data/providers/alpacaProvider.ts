@@ -78,6 +78,24 @@ export function computeStartDate(now: Date, timeframe: Timeframe, limit: number)
   return start.toISOString();
 }
 
+/**
+ * Computes how long to wait before the next retry attempt. Prefers the
+ * server's own Retry-After guidance (seconds, per HTTP spec) when
+ * present and parseable; otherwise falls back to exponential backoff
+ * (300ms, 600ms, 1200ms, ...). Extracted as its own pure function so this
+ * decision can be tested directly and instantly, without any real (or
+ * fake-timer) waiting.
+ */
+export function computeRetryDelayMs(attempt: number, retryAfterHeader: string | null): number {
+  if (retryAfterHeader !== null) {
+    const retryAfterSeconds = Number(retryAfterHeader);
+    if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds >= 0) {
+      return retryAfterSeconds * 1000;
+    }
+  }
+  return 300 * Math.pow(2, attempt);
+}
+
 export class AlpacaProvider implements MarketDataProvider {
   name = "alpaca";
 
@@ -102,38 +120,92 @@ export class AlpacaProvider implements MarketDataProvider {
   }
 
   /**
-   * Fetches with bounded retry for transient failures only (429 rate
-   * limit, 5xx server errors) — never retries 401/403 (auth is either
-   * right or it isn't, retrying won't fix it) or 4xx client errors other
-   * than 429 (a malformed request will fail the same way every time).
-   * Fixes a real bug (Codex review): previously a single transient
-   * failure on one symbol would immediately throw and take down the
-   * entire scan for every other symbol too.
+   * Fetches with bounded retry for transient failures — 429 rate limit,
+   * 5xx server errors, AND now (Codex round 4) genuine network
+   * exceptions (DNS failure, connection reset, timeout) and our own
+   * request timeout via AbortController. Never retries 401/403 (auth is
+   * either right or it isn't) or 4xx client errors other than 429 (a
+   * malformed request fails the same way every time).
+   *
+   * FIX (Codex round 4, rate-limit accounting): the rate limiter's
+   * canProceed()/recordRequest() now run INSIDE this loop, once per
+   * actual attempt — previously they ran once before calling this
+   * function, so a retry sequence could make up to 3 real HTTP requests
+   * while the local rate limiter only ever counted 1, materially
+   * underestimating real usage under repeated provider failures.
+   *
+   * FIX (Codex round 4, network exceptions): fetch() rejecting outright
+   * (not just returning a non-ok response) used to escape immediately
+   * with no retry. Now caught and retried the same as a 5xx, bounded by
+   * the same maxRetries so it can't retry forever.
+   *
+   * FIX (Codex round 4, Retry-After): when Alpaca's 429 response includes
+   * a Retry-After header, that's used as the actual wait time instead of
+   * our own exponential backoff guess.
    */
   private async fetchWithRetry(url: string, maxRetries = 2): Promise<Response> {
-    let lastResponse: Response | null = null;
+    let lastError: Error | null = null;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      const response = await fetch(url, {
-        headers: {
-          "APCA-API-KEY-ID": this.config.apiKeyId,
-          "APCA-API-SECRET-KEY": this.config.apiSecretKey,
-        },
-      });
+      if (!this.rateLimiter.canProceed()) {
+        const waitMs = this.rateLimiter.msUntilNextSlot();
+        throw new Error(
+          `Alpaca rate limit reached. Try again in ${Math.ceil(waitMs / 1000)}s. ` +
+            `Consider caching or reducing watchlist size.`
+        );
+      }
+      this.rateLimiter.recordRequest();
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), this.requestTimeoutMs);
+
+      let response: Response;
+      try {
+        response = await fetch(url, {
+          headers: {
+            "APCA-API-KEY-ID": this.config.apiKeyId,
+            "APCA-API-SECRET-KEY": this.config.apiSecretKey,
+          },
+          signal: controller.signal,
+        });
+      } catch (err) {
+        // Network failure or our own timeout abort - both transient,
+        // both worth retrying, neither retried past maxRetries.
+        lastError = err instanceof Error ? err : new Error(String(err));
+        if (attempt === maxRetries) {
+          throw new Error(
+            `Alpaca request failed after ${maxRetries + 1} attempt(s): ${lastError.message}`
+          );
+        }
+        await this.wait(computeRetryDelayMs(attempt, null));
+        continue;
+      } finally {
+        clearTimeout(timeoutId);
+      }
 
       const isTransient = response.status === 429 || response.status >= 500;
       if (response.ok || !isTransient || attempt === maxRetries) {
         return response;
       }
 
-      lastResponse = response;
-      const backoffMs = 300 * Math.pow(2, attempt); // 300ms, 600ms, ...
-      await new Promise((resolve) => setTimeout(resolve, backoffMs));
+      // Prefer the server's own Retry-After guidance over our fixed
+      // backoff when it's present (optional chaining: test doubles for
+      // Response often don't implement a real Headers object).
+      const retryAfterHeader = response.headers?.get?.("Retry-After") ?? null;
+      const backoffMs = computeRetryDelayMs(attempt, retryAfterHeader);
+
+      await this.wait(backoffMs);
     }
 
-    // Unreachable in practice (the loop always returns on its last
-    // iteration), but keeps TypeScript happy about a definite return.
-    return lastResponse as Response;
+    // Unreachable in practice (the loop always returns or throws on its
+    // final iteration), but keeps TypeScript happy about a definite return.
+    throw lastError ?? new Error("Alpaca request failed for an unknown reason.");
+  }
+
+  private requestTimeoutMs = 10_000;
+
+  private wait(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   async getCandles(params: GetCandlesParams): Promise<CandleSeries> {
@@ -143,14 +215,6 @@ export class AlpacaProvider implements MarketDataProvider {
 
     const cached = this.cache.get(cacheKey);
     if (cached) return cached;
-
-    if (!this.rateLimiter.canProceed()) {
-      const waitMs = this.rateLimiter.msUntilNextSlot();
-      throw new Error(
-        `Alpaca rate limit reached. Try again in ${Math.ceil(waitMs / 1000)}s. ` +
-          `Consider caching or reducing watchlist size.`
-      );
-    }
 
     const alpacaTimeframe = TIMEFRAME_TO_ALPACA[timeframe];
 
@@ -171,8 +235,6 @@ export class AlpacaProvider implements MarketDataProvider {
     url.searchParams.set("feed", this.config.feed ?? "iex");
     url.searchParams.set("adjustment", "raw");
     url.searchParams.set("start", computeStartDate(new Date(), timeframe, limit));
-
-    this.rateLimiter.recordRequest();
 
     const response = await this.fetchWithRetry(url.toString());
 

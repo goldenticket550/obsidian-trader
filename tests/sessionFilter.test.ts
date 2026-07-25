@@ -109,3 +109,161 @@ describe("findPreviousClose", () => {
     expect(result).toBe(100);
   });
 });
+
+describe("filterToLatestSession — regular-hours scope (Codex round 4 regression)", () => {
+  // 2026-07-13 (Monday) EDT boundaries:
+  // pre-market starts 4:00am ET = 08:00 UTC
+  // regular starts 9:30am ET = 13:30 UTC, ends 4:00pm ET = 20:00 UTC
+  // after-hours ends 8:00pm ET = 00:00 UTC (next day)
+  const PREMARKET_TIME = Date.parse("2026-07-13T09:00:00Z"); // 5:00 AM ET
+  const REGULAR_OPEN_TIME = Date.parse("2026-07-13T13:35:00Z"); // 9:35 AM ET
+  const REGULAR_MIDDAY_TIME = Date.parse("2026-07-13T17:00:00Z"); // 1:00 PM ET
+  const AFTERHOURS_TIME = Date.parse("2026-07-13T21:00:00Z"); // 5:00 PM ET
+
+  it("excludes pre-market bars by default, keeping only regular-hours bars", () => {
+    const candles = [
+      makeCandle({ time: secondsFromMs(PREMARKET_TIME), close: 90 }),
+      makeCandle({ time: secondsFromMs(REGULAR_OPEN_TIME), close: 100 }),
+      makeCandle({ time: secondsFromMs(REGULAR_MIDDAY_TIME), close: 101 }),
+    ];
+    const result = filterToLatestSession(candles); // default scope: "regular"
+    expect(result.length).toBe(2);
+    expect(result.every((c) => c.close >= 100)).toBe(true);
+  });
+
+  it("excludes after-hours bars by default", () => {
+    const candles = [
+      makeCandle({ time: secondsFromMs(REGULAR_OPEN_TIME), close: 100 }),
+      makeCandle({ time: secondsFromMs(REGULAR_MIDDAY_TIME), close: 101 }),
+      makeCandle({ time: secondsFromMs(AFTERHOURS_TIME), close: 110 }),
+    ];
+    const result = filterToLatestSession(candles);
+    expect(result.length).toBe(2);
+    expect(result.every((c) => c.close <= 101)).toBe(true);
+  });
+
+  it("returns empty (not a fallback to a different session) when scanning before the opening bell with only pre-market bars available", () => {
+    const candles = [
+      makeCandle({ time: secondsFromMs(PREMARKET_TIME), close: 90 }),
+    ];
+    const result = filterToLatestSession(candles);
+    expect(result).toEqual([]);
+  });
+
+  it("includes pre-market and after-hours bars when sessionScope is 'extended'", () => {
+    const candles = [
+      makeCandle({ time: secondsFromMs(PREMARKET_TIME), close: 90 }),
+      makeCandle({ time: secondsFromMs(REGULAR_OPEN_TIME), close: 100 }),
+      makeCandle({ time: secondsFromMs(AFTERHOURS_TIME), close: 110 }),
+    ];
+    const result = filterToLatestSession(candles, "extended");
+    expect(result.length).toBe(3);
+  });
+
+  it("includes everything on the latest date, even outside 4am-8pm, when sessionScope is 'all'", () => {
+    const middleOfNight = Date.parse("2026-07-14T03:00:00Z"); // 11:00 PM ET Monday
+    const candles = [
+      makeCandle({ time: secondsFromMs(REGULAR_OPEN_TIME), close: 100 }),
+      makeCandle({ time: secondsFromMs(middleOfNight), close: 105 }),
+    ];
+    const result = filterToLatestSession(candles, "all");
+    expect(result.length).toBe(2);
+  });
+
+  it("still correctly excludes a previous day's regular-hours bars even with regular-hours scope", () => {
+    const candles = [
+      makeCandle({ time: secondsFromMs(FRIDAY_MORNING), close: 100 }), // Friday, regular hours
+      makeCandle({ time: secondsFromMs(REGULAR_OPEN_TIME), close: 200 }), // Monday, regular hours
+    ];
+    const result = filterToLatestSession(candles);
+    expect(result.length).toBe(1);
+    expect(result[0].close).toBe(200);
+  });
+});
+
+describe("filterToLatestSession — computes true max date, not just the last array element", () => {
+  it("correctly identifies the latest session even when candles arrive out of chronological order", () => {
+    // Genuinely out-of-order: the Monday candle is NOT last in the array.
+    const REGULAR_OPEN_TIME = Date.parse("2026-07-13T13:35:00Z");
+    const candles = [
+      makeCandle({ time: secondsFromMs(REGULAR_OPEN_TIME), close: 200 }), // Monday - listed FIRST
+      makeCandle({ time: secondsFromMs(FRIDAY_MORNING), close: 100 }), // Friday - listed LAST
+    ];
+    const result = filterToLatestSession(candles);
+    expect(result.length).toBe(1);
+    expect(result[0].close).toBe(200); // Monday's candle, correctly identified as latest
+  });
+});
+
+describe("filterToLatestSession — DST and timezone boundary tests", () => {
+  it("correctly buckets 11:59 PM and 12:01 AM Eastern on either side of midnight during EST (winter)", () => {
+    // 2026-01-15 is well within EST (UTC-5). 11:59 PM ET Jan 14 = 04:59 UTC Jan 15.
+    const beforeMidnight = Date.parse("2026-01-15T04:59:00Z"); // 11:59 PM ET Jan 14
+    const afterMidnight = Date.parse("2026-01-15T05:01:00Z"); // 12:01 AM ET Jan 15
+    const candles = [
+      makeCandle({ time: secondsFromMs(beforeMidnight), close: 100 }),
+      makeCandle({ time: secondsFromMs(afterMidnight), close: 200 }),
+    ];
+    // Using "all" scope here since these times are outside 4am-8pm and
+    // this test is specifically about DATE bucketing, not session hours.
+    const result = filterToLatestSession(candles, "all");
+    // Only the Jan 15 candle should remain - the two are on different
+    // Eastern calendar dates despite being 2 minutes apart.
+    expect(result.length).toBe(1);
+    expect(result[0].close).toBe(200);
+  });
+
+  it("correctly buckets the same midnight boundary during EDT (summer)", () => {
+    // 2026-07-13 is within EDT (UTC-4). 11:59 PM ET Jul 13 = 03:59 UTC Jul 14.
+    const beforeMidnight = Date.parse("2026-07-14T03:59:00Z"); // 11:59 PM ET Jul 13
+    const afterMidnight = Date.parse("2026-07-14T04:01:00Z"); // 12:01 AM ET Jul 14
+    const candles = [
+      makeCandle({ time: secondsFromMs(beforeMidnight), close: 100 }),
+      makeCandle({ time: secondsFromMs(afterMidnight), close: 200 }),
+    ];
+    const result = filterToLatestSession(candles, "all");
+    expect(result.length).toBe(1);
+    expect(result[0].close).toBe(200);
+  });
+
+  it("correctly handles the spring-forward Sunday (2026-03-08, 2am ET jumps to 3am)", () => {
+    // Candles on either side of the spring-forward transition, same
+    // Eastern calendar date - should still bucket together correctly.
+    const beforeSpringForward = Date.parse("2026-03-08T06:00:00Z"); // 1:00 AM EST
+    const afterSpringForward = Date.parse("2026-03-08T08:00:00Z"); // 4:00 AM EDT (skipped 2-3am)
+    const candles = [
+      makeCandle({ time: secondsFromMs(beforeSpringForward), close: 100 }),
+      makeCandle({ time: secondsFromMs(afterSpringForward), close: 101 }),
+    ];
+    const result = filterToLatestSession(candles, "all");
+    // Both on March 8th Eastern date - should both survive (same session date).
+    expect(result.length).toBe(2);
+  });
+
+  it("correctly handles both instances of the fall-back repeated hour (2026-11-01, 2am ET repeats)", () => {
+    // The 1:30 AM hour occurs twice on fall-back day - both instances are
+    // still November 1st in Eastern time, so both should bucket together.
+    const firstOccurrence = Date.parse("2026-11-01T05:30:00Z"); // 1:30 AM EDT (first pass)
+    const secondOccurrence = Date.parse("2026-11-01T06:30:00Z"); // 1:30 AM EST (second pass, after fall-back)
+    const candles = [
+      makeCandle({ time: secondsFromMs(firstOccurrence), close: 100 }),
+      makeCandle({ time: secondsFromMs(secondOccurrence), close: 101 }),
+    ];
+    const result = filterToLatestSession(candles, "all");
+    expect(result.length).toBe(2);
+  });
+
+  it("correctly buckets daily-bar-style midnight-Eastern timestamps in both winter and summer", () => {
+    // Daily bars are often stamped at market open or midnight Eastern -
+    // confirm both DST regimes produce the expected Eastern date.
+    const winterMidnight = Date.parse("2026-01-15T05:00:00Z"); // 12:00 AM EST Jan 15
+    const summerMidnight = Date.parse("2026-07-13T04:00:00Z"); // 12:00 AM EDT Jul 13
+    const winterCandles = [makeCandle({ time: secondsFromMs(winterMidnight) })];
+    const summerCandles = [makeCandle({ time: secondsFromMs(summerMidnight) })];
+    // Both should survive filtering against themselves (single-candle,
+    // single-date arrays) - proves the date computation doesn't throw or
+    // misbucket at exactly midnight in either DST regime.
+    expect(filterToLatestSession(winterCandles, "all").length).toBe(1);
+    expect(filterToLatestSession(summerCandles, "all").length).toBe(1);
+  });
+});

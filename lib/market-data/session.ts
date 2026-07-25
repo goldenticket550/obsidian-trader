@@ -1,4 +1,54 @@
-import type { SessionInfo } from "./types";
+import type { SessionInfo, SessionType } from "./types";
+
+// US Eastern minute-of-day boundaries. Exported so other modules (like
+// sessionFilter.ts) can filter candles by the exact same regular-hours
+// definition used here, instead of redefining their own copy that could
+// drift out of sync.
+export const PRE_MARKET_START_MINUTES = 4 * 60; // 4:00 AM ET
+export const REGULAR_START_MINUTES = 9 * 60 + 30; // 9:30 AM ET
+export const REGULAR_END_MINUTES = 16 * 60; // 4:00 PM ET
+export const AFTER_HOURS_END_MINUTES = 20 * 60; // 8:00 PM ET
+
+/**
+ * Classifies a single timestamp into a session type, in US Eastern time.
+ * The timestamp-agnostic core of computeSessionInfo() below — extracted
+ * so candle-level filtering (sessionFilter.ts) can classify each
+ * candle's own timestamp, not just "right now."
+ *
+ * Same V1 limitation as computeSessionInfo: does not account for market
+ * holidays or early closes.
+ */
+export function getSessionTypeForTimestamp(timestamp: Date): SessionType {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: false,
+    weekday: "short",
+  }).formatToParts(timestamp);
+
+  const weekday = parts.find((p) => p.type === "weekday")?.value ?? "";
+  const hour = Number(parts.find((p) => p.type === "hour")?.value ?? "0");
+  const minute = Number(parts.find((p) => p.type === "minute")?.value ?? "0");
+  const minutesSinceMidnight = hour * 60 + minute;
+
+  const isWeekday = !["Sat", "Sun"].includes(weekday);
+  if (!isWeekday) return "closed";
+
+  if (minutesSinceMidnight >= REGULAR_START_MINUTES && minutesSinceMidnight < REGULAR_END_MINUTES) {
+    return "regular";
+  }
+  if (
+    minutesSinceMidnight >= PRE_MARKET_START_MINUTES &&
+    minutesSinceMidnight < REGULAR_START_MINUTES
+  ) {
+    return "pre-market";
+  }
+  if (minutesSinceMidnight >= REGULAR_END_MINUTES && minutesSinceMidnight < AFTER_HOURS_END_MINUTES) {
+    return "after-hours";
+  }
+  return "closed";
+}
 
 /**
  * Computes the current US equity market session from a UTC timestamp.
@@ -9,41 +59,6 @@ import type { SessionInfo } from "./types";
  * calendar endpoint is wired in (Alpaca and Polygon both expose one).
  */
 export function computeSessionInfo(now: Date = new Date()): SessionInfo {
-  // Convert to US Eastern time using the Intl API (handles DST correctly
-  // without pulling in a date library).
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York",
-    hour: "numeric",
-    minute: "numeric",
-    hour12: false,
-    weekday: "short",
-  }).formatToParts(now);
-
-  const weekday = parts.find((p) => p.type === "weekday")?.value ?? "";
-  const hour = Number(parts.find((p) => p.type === "hour")?.value ?? "0");
-  const minute = Number(parts.find((p) => p.type === "minute")?.value ?? "0");
-  const minutesSinceMidnight = hour * 60 + minute;
-
-  const isWeekday = !["Sat", "Sun"].includes(weekday);
-
-  const PRE_MARKET_START = 4 * 60; // 4:00 AM ET
-  const REGULAR_START = 9 * 60 + 30; // 9:30 AM ET
-  const REGULAR_END = 16 * 60; // 4:00 PM ET
-  const AFTER_HOURS_END = 20 * 60; // 8:00 PM ET
-
-  if (!isWeekday) {
-    return { isOpen: false, session: "closed", nextOpenTime: null };
-  }
-
-  if (minutesSinceMidnight >= REGULAR_START && minutesSinceMidnight < REGULAR_END) {
-    return { isOpen: true, session: "regular", nextOpenTime: null };
-  }
-  if (minutesSinceMidnight >= PRE_MARKET_START && minutesSinceMidnight < REGULAR_START) {
-    return { isOpen: false, session: "pre-market", nextOpenTime: null };
-  }
-  if (minutesSinceMidnight >= REGULAR_END && minutesSinceMidnight < AFTER_HOURS_END) {
-    return { isOpen: false, session: "after-hours", nextOpenTime: null };
-  }
-
-  return { isOpen: false, session: "closed", nextOpenTime: null };
+  const session = getSessionTypeForTimestamp(now);
+  return { isOpen: session === "regular", session, nextOpenTime: null };
 }

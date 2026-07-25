@@ -1,39 +1,58 @@
 import type { Candle } from "@/types/candle";
 import { getCurrentTradingDate } from "@/lib/risk/tradingDate";
+import { getSessionTypeForTimestamp } from "./session";
+
+export type SessionScope = "regular" | "extended" | "all";
 
 /**
  * Groups candles by their US Eastern trading date and keeps only the
- * MOST RECENT date's candles.
+ * MOST RECENT date's candles — AND, by default, restricts further to
+ * regular trading hours (9:30am-4:00pm ET) within that date.
  *
- * Fixes a real bug (Codex review): fetching "the last N candles" from a
- * multi-day lookback window can silently mix bars from previous trading
- * sessions in with the current one — for example, shortly after market
- * open there simply aren't 100 candles from today yet, so a naive "keep
- * the most recent 100" would pull in leftover candles from prior days.
- * Session-scoped calculations (VWAP, which is defined to reset every
- * session; session high/low; decline-from-open) are only meaningful
- * within a single session — mixing days doesn't just add noise, it
- * changes what the numbers actually mean.
+ * FIX (Codex review, two rounds): round 1 fixed cross-day contamination
+ * (candles from a previous trading day leaking in), but that alone
+ * wasn't sufficient — a candle array can still legitimately span a
+ * single Eastern calendar date while mixing pre-market (starting 4am
+ * ET), regular hours, and after-hours (until 8pm ET) bars together.
+ * Since this strategy's "session open," session low, VWAP, and volume
+ * averages are all defined relative to REGULAR trading hours, silently
+ * including pre/post-market bars in those calculations is a real form
+ * of contamination too, just within the same calendar day rather than
+ * across days. `sessionScope` defaults to `"regular"` for that reason —
+ * pass `"extended"` or `"all"` explicitly if you actually want
+ * pre/after-hours bars included.
  *
- * This works correctly both during live trading (the most recent date
- * present is today, so this correctly isolates today's candles so far)
- * and when markets are closed (the most recent date present is the last
- * real trading day, e.g. Friday's session on a Saturday scan) — it never
- * needs to know about holidays or calendars, it just groups by the
- * calendar date each candle actually occurred on and keeps the latest
- * group.
+ * "Latest date" is computed as the MAXIMUM trading date across every
+ * candle, not assumed from the last array element — a provider is
+ * expected to return bars in ascending order, but computing this
+ * explicitly means the function's own documentation ("keeps the most
+ * recent date") is actually true regardless of input order, not just
+ * true for the current provider's specific behavor.
  *
- * Only meaningful for intraday timeframes (5m/15m) — daily candles are
- * already one-per-session by definition and should not be filtered.
+ * If no candles remain after filtering (e.g. a scan run before the
+ * opening bell, with only pre-market bars available and `sessionScope:
+ * "regular"`), this correctly returns an empty array — callers already
+ * treat an empty candle series as "insufficient data" rather than
+ * silently substituting a different session's data.
  */
-export function filterToLatestSession(candles: Candle[]): Candle[] {
+export function filterToLatestSession(
+  candles: Candle[],
+  sessionScope: SessionScope = "regular"
+): Candle[] {
   if (candles.length === 0) return candles;
 
-  const latestDate = getCurrentTradingDate(new Date(candles[candles.length - 1].time * 1000));
+  const dates = candles.map((c) => getCurrentTradingDate(new Date(c.time * 1000)));
+  const latestDate = dates.reduce((max, d) => (d > max ? d : max), dates[0]);
 
-  return candles.filter(
-    (c) => getCurrentTradingDate(new Date(c.time * 1000)) === latestDate
-  );
+  return candles.filter((c, i) => {
+    if (dates[i] !== latestDate) return false;
+    if (sessionScope === "all") return true;
+
+    const sessionType = getSessionTypeForTimestamp(new Date(c.time * 1000));
+    if (sessionScope === "regular") return sessionType === "regular";
+    // "extended": anything except fully closed (keeps pre-market, regular, after-hours)
+    return sessionType !== "closed";
+  });
 }
 
 /**
@@ -52,7 +71,11 @@ export function filterToLatestSession(candles: Candle[]): Candle[] {
  * earlier than today, however many (or few) candles that takes.
  *
  * Returns null if no such candle exists (e.g. an empty or very short
- * daily series) — callers should have their own fallback for that case.
+ * daily series, or a newly-listed symbol) — callers must NOT substitute
+ * today's own (partial) close as a fallback, since that silently
+ * mislabels "no data" as "today equals yesterday," corrupting
+ * decline-from-previous-close calculations. Treat null as genuinely
+ * unavailable.
  */
 export function findPreviousClose(dailyCandles: Candle[], todayTradingDate: string): number | null {
   for (let i = dailyCandles.length - 1; i >= 0; i--) {

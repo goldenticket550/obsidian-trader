@@ -25,7 +25,9 @@ function isAuthorized(request: Request): boolean {
 
 interface UserScanResult {
   userId: string;
-  symbolsScanned?: number;
+  symbolsAttempted?: number;
+  symbolsSucceeded?: number;
+  symbolsFailed?: number;
   alertsFired?: number;
   symbolErrors?: { symbol: string; message: string }[];
   error?: string;
@@ -53,7 +55,7 @@ export async function GET(request: Request) {
     try {
       const symbols = await getWatchlistSymbols(supabase, watchlistId);
       if (symbols.length === 0) {
-        results.push({ userId, symbolsScanned: 0, alertsFired: 0 });
+        results.push({ userId, symbolsAttempted: 0, symbolsSucceeded: 0, symbolsFailed: 0, alertsFired: 0 });
         continue;
       }
 
@@ -73,9 +75,15 @@ export async function GET(request: Request) {
         }
       }
 
+      // FIX (Codex round 4): this used to report symbols.length (every
+      // symbol ATTEMPTED) as "symbolsScanned," which silently counted
+      // failed symbols as if they'd succeeded. Now reports attempted,
+      // succeeded, and failed as distinct, honest numbers.
       results.push({
         userId,
-        symbolsScanned: symbols.length,
+        symbolsAttempted: symbols.length,
+        symbolsSucceeded: scan.watchlist.length,
+        symbolsFailed: scan.errors.length,
         alertsFired,
         symbolErrors: scan.errors.length > 0 ? scan.errors : undefined,
       });

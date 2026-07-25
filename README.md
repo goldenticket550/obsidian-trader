@@ -399,6 +399,64 @@ conditions (recovery/structure-shift/EMA/VWAP/FVG) are measuring meaningfully in
 evidence or partially double-counting the same underlying move — which genuinely needs forward-
 performance data to answer, not more architecture.
 
+### Fourth independent Codex review — the session fix was real but incomplete, plus retry gaps
+
+Codex reviewed the round-3 data-pipeline fixes and found the direction was correct (cross-day
+contamination genuinely fixed, DST-safe date conversion confirmed) but flagged real gaps: the
+session fix didn't account for *time-of-day* contamination within a single calendar date, and
+the retry logic had real correctness gaps of its own.
+
+**High — "latest session" only filtered by calendar date, not by trading hours.**
+`filterToLatestSession()` correctly excluded previous *days*, but a candle array can still span a
+single Eastern date while mixing pre-market (from 4am ET), regular hours, and after-hours (until
+8pm ET) bars together — which is still contamination for calculations (VWAP, session open,
+volume averages) that are only meaningful within *regular* trading hours specifically. Fixed by
+adding a `sessionScope` parameter (`"regular"` | `"extended"` | `"all"`), defaulting to
+`"regular"`, reusing the exact same hour boundaries `session.ts` already used for
+`computeSessionInfo()` (extracted into a shared `getSessionTypeForTimestamp()` so both stay in
+sync instead of maintaining two copies of the same boundary logic). If a scan runs before the
+opening bell with only pre-market bars available, this now correctly returns an empty result
+(handled gracefully by the existing "insufficient data" paths) rather than silently substituting
+extended-hours data. 11 new tests, including the exact "scan before the opening bell" and
+"regular mixed with after-hours" scenarios Codex named.
+
+**Low (but fixed) — "latest date" assumed the last array element was newest.** Now computed as
+the actual maximum trading date across every candle, with a test using genuinely out-of-order
+input to prove it.
+
+**DST/timezone — confirmed correct, tests added anyway.** Codex's own analysis concluded the
+`Intl.DateTimeFormat`-based conversion is DST-safe (absolute Unix timestamps can't produce an
+ambiguous date), but requested explicit tests for the boundary cases regardless: 11:59pm/12:01am
+Eastern in both EST and EDT, the spring-forward Sunday, both instances of the fall-back repeated
+hour, and midnight-Eastern daily-bar timestamps in both DST regimes. All 6 added and passing.
+
+**Medium — thin daily history could still mislabel today's own close as "previous close."**
+When `findPreviousClose()` correctly returned null (no earlier daily bar available), the fallback
+substituted the *latest* daily candle — which could BE today's own partial bar, silently making
+decline-from-previous-close read as ~0% instead of correctly reporting the data as insufficient.
+Fixed: a null previous close now throws a descriptive error for that symbol, caught by the
+per-symbol isolation from round 3 and reported in `errors` — reuses the existing mechanism rather
+than inventing a new one. New test proves a symbol with only today's own daily bar is excluded,
+not silently mislabeled.
+
+**Medium — retry attempts didn't count against the rate limiter.** `recordRequest()` was called
+once before the whole retry sequence, but a retry sequence can make up to 3 real HTTP requests —
+only 1 was ever counted, materially underestimating real usage under repeated failures. Fixed by
+moving the rate-limit check and recording inside the retry loop, once per actual attempt.
+
+**Medium — network exceptions (not just non-ok responses) escaped without retry.** A rejected
+`fetch()` — DNS failure, connection reset, timeout — used to propagate immediately with no retry
+at all. Now caught and retried the same as a 5xx, bounded by the same `maxRetries`. Added a real
+request timeout via `AbortController` (10s) so a hung connection doesn't wait forever, and the
+timeout's own abort is treated as a retryable transient failure like any other network exception
+— never retried past `maxRetries`, so it can't loop forever. Also now honors a `Retry-After`
+header on 429 responses instead of always using the fixed exponential backoff — extracted into
+its own pure `computeRetryDelayMs()` function specifically so this could be tested directly and
+instantly, with zero real or fake-timer waiting involved. 9 new tests across both concerns.
+
+**Low — cron report's `symbolsScanned` silently included failures as if they'd succeeded.**
+Replaced with explicit `symbolsAttempted` / `symbolsSucceeded` / `symbolsFailed` fields.
+
 ## Status: Phase 7 — AI explanations
 
 The AI layer from the original spec: plain-English setup explanations, end-of-day journal
