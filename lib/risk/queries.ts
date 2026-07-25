@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { RiskSettings, DailyTradingStatus } from "@/types/risk";
-import { defaultRiskSettings } from "./defaults";
+import { defaultRiskSettings, clampMinSetupScore, validateMinSetupScore } from "./defaults";
 import { getCurrentTradingDate } from "./tradingDate";
 
 function toRiskSettings(row: Record<string, unknown>): RiskSettings {
@@ -9,7 +9,7 @@ function toRiskSettings(row: Record<string, unknown>): RiskSettings {
     maxLossPerDay: Number(row.max_loss_per_day),
     dailyProfitTarget: Number(row.daily_profit_target),
     maxRiskPerTrade: Number(row.max_risk_per_trade),
-    minSetupScore: row.min_setup_score as number,
+    minSetupScore: clampMinSetupScore(row.min_setup_score as number),
     minMinutesBetweenTrades: row.min_minutes_between_trades as number,
     allowedSessions: row.allowed_sessions as RiskSettings["allowedSessions"],
     blockAfterTarget: row.block_after_target as boolean,
@@ -52,9 +52,18 @@ export async function upsertRiskSettings(
   userId: string,
   settings: RiskSettings
 ): Promise<void> {
+  // Validate/clamp before writing - rejects NaN outright (a real client
+  // bug worth surfacing) and clamps any out-of-range value into 0-10, so
+  // it's impossible to ever save a value that would permanently fail the
+  // "minimum score" accountability check.
+  const validated: RiskSettings = {
+    ...settings,
+    minSetupScore: validateMinSetupScore(settings.minSetupScore),
+  };
+
   const { error } = await supabase
     .from("risk_settings")
-    .upsert(toDbRow(settings, userId), { onConflict: "user_id" });
+    .upsert(toDbRow(validated, userId), { onConflict: "user_id" });
 
   if (error) throw new Error(`Failed to save risk settings: ${error.message}`);
 }

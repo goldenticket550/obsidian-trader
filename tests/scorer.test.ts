@@ -1,7 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { scoreSetup } from "@/lib/strategies/scorer";
+import {
+  scoreSetup,
+  computeWeightedScore,
+  determineConvictionLevel,
+  determineEntryStatus,
+  determineInvalidationNote,
+} from "@/lib/strategies/scorer";
 import { defaultStrategyConfig } from "@/lib/strategies/config";
-import { flatSeries, textbookBullishReclaimSeries } from "@/lib/fixtures/candles";
+import { flatSeries, textbookBullishReclaimSeries, makeCandle } from "@/lib/fixtures/candles";
+import type { SetupCondition } from "@/types/setup";
 
 describe("scoreSetup", () => {
   it("returns an empty red result when there are no session candles", () => {
@@ -211,7 +218,13 @@ describe("scoreSetup", () => {
   });
 
   // Tests for weighted scoring, conviction level, entry status, and
-  // invalidation notes - the "richer checklist" upgrade.
+  // invalidation notes - the "richer checklist" upgrade. Rewritten after
+  // a Codex review found several of these could pass without proving
+  // their named behavior (conditional assertions that could execute
+  // zero real checks). Now using the exported pure functions directly
+  // with hand-built, deterministic inputs wherever possible, so these
+  // tests fail if the corresponding production logic is removed or
+  // reversed.
   it("normalizes the weighted score to a fixed 0-10 scale regardless of condition count", () => {
     const result = scoreSetup({
       symbol: "TEST",
@@ -228,133 +241,165 @@ describe("scoreSetup", () => {
     expect(result.score).toBeLessThanOrEqual(10);
   });
 
-  it("scores a setup with only core conditions passing higher than the same count of supporting-only passes", () => {
-    // Build two minimal condition sets by hand to isolate the weighting
-    // behavior itself, independent of any specific candle fixture.
-    const coreHeavy = scoreSetup({
-      symbol: "TEST",
-      timeframe: "5m",
-      sessionCandles: textbookBullishReclaimSeries(),
-      dailyCandles: flatSeries(25, 95),
-      prevClose: 110,
-      config: defaultStrategyConfig,
-      now: "2026-01-01T00:00:00Z",
-      quality: "simulated",
+  describe("computeWeightedScore", () => {
+    it("scores equal counts of higher-weight (core) conditions higher than lower-weight (supporting) ones", () => {
+      // Same mixed condition set in both cases (one core, one
+      // supporting) - only WHICH one passes differs. If a core
+      // condition passing counts for more than a supporting one, "core
+      // passes" must score strictly higher than "supporting passes."
+      const corePassing: SetupCondition[] = [
+        { id: "core1", label: "core1", state: "pass", required: true, category: "core" },
+        { id: "supporting1", label: "supporting1", state: "fail", required: true, category: "supporting" },
+      ];
+      const supportingPassing: SetupCondition[] = [
+        { id: "core1", label: "core1", state: "fail", required: true, category: "core" },
+        { id: "supporting1", label: "supporting1", state: "pass", required: true, category: "supporting" },
+      ];
+
+      const coreResult = computeWeightedScore(corePassing);
+      const supportingResult = computeWeightedScore(supportingPassing);
+
+      expect(coreResult.score).toBeGreaterThan(supportingResult.score);
+      // Concrete expected values: core weight 3, supporting weight 1,
+      // total weight 4 either way -> (3/4)*10=7.5 vs (1/4)*10=2.5.
+      expect(coreResult.score).toBeCloseTo(7.5, 5);
+      expect(supportingResult.score).toBeCloseTo(2.5, 5);
     });
-    const corePassed = coreHeavy.conditions.filter(
-      (c) => c.state === "pass" && c.category === "core"
-    );
-    const supportingPassed = coreHeavy.conditions.filter(
-      (c) => c.state === "pass" && c.category === "supporting"
-    );
-    // Sanity check the fixture actually exercises both tiers before
-    // asserting anything about their relative weight.
-    if (corePassed.length > 0 && supportingPassed.length > 0) {
-      expect(corePassed.length).toBeGreaterThan(0);
-    }
+
+    it("always returns maxScore of 10", () => {
+      const oneCondition: SetupCondition[] = [
+        { id: "a", label: "a", state: "pass", required: true, category: "informational" },
+      ];
+      const manyConditions: SetupCondition[] = Array.from({ length: 12 }, (_, i) => ({
+        id: `c${i}`,
+        label: `c${i}`,
+        state: "pass" as const,
+        required: true,
+        category: "core" as const,
+      }));
+      expect(computeWeightedScore(oneCondition).maxScore).toBe(10);
+      expect(computeWeightedScore(manyConditions).maxScore).toBe(10);
+    });
+
+    it("returns 0 for an empty condition list without dividing by zero", () => {
+      expect(computeWeightedScore([]).score).toBe(0);
+    });
   });
 
-  it("sets convictionLevel to 'confirmed' when status is green", () => {
-    // Flat series never goes green, so just check the invariant directly
-    // via the empty-result path, which forces a known status.
-    const result = scoreSetup({
-      symbol: "TEST",
-      timeframe: "5m",
-      sessionCandles: flatSeries(30, 100),
-      dailyCandles: flatSeries(25, 100),
-      prevClose: 100,
-      config: defaultStrategyConfig,
-      now: "2026-01-01T00:00:00Z",
-      quality: "simulated",
+  describe("determineConvictionLevel", () => {
+    it("returns 'confirmed' whenever status is green, regardless of the counts given", () => {
+      expect(determineConvictionLevel("green", 0, 0)).toBe("confirmed");
+      expect(determineConvictionLevel("green", 7, 7)).toBe("confirmed");
     });
-    if (result.status === "green") {
-      expect(result.convictionLevel).toBe("confirmed");
-    } else {
-      expect(result.convictionLevel).not.toBe("confirmed");
-    }
+
+    it("returns 'developing' once at least half of required conditions pass", () => {
+      expect(determineConvictionLevel("yellow", 4, 7)).toBe("developing");
+    });
+
+    it("returns 'developing' once at least 2 required conditions pass, even below half", () => {
+      expect(determineConvictionLevel("yellow", 2, 10)).toBe("developing");
+    });
+
+    it("returns 'watch' when few required conditions pass", () => {
+      expect(determineConvictionLevel("red", 0, 7)).toBe("watch");
+      expect(determineConvictionLevel("yellow", 1, 10)).toBe("watch");
+    });
   });
 
-  it("sets convictionLevel to 'watch' on a flat, uneventful session", () => {
-    const result = scoreSetup({
-      symbol: "TEST",
-      timeframe: "5m",
-      sessionCandles: flatSeries(30, 100),
-      dailyCandles: flatSeries(25, 100),
-      prevClose: 100,
-      config: defaultStrategyConfig,
-      now: "2026-01-01T00:00:00Z",
-      quality: "simulated",
+  describe("determineEntryStatus", () => {
+    it("directly produces 'invalidated' whenever anyInvalidated is true, regardless of status", () => {
+      const result = determineEntryStatus({
+        sessionCandles: flatSeries(20, 100),
+        anyInvalidated: true,
+        status: "green",
+        config: defaultStrategyConfig,
+      });
+      expect(result).toBe("invalidated");
     });
-    expect(result.convictionLevel).toBe("watch");
+
+    it("directly produces 'wait_for_pullback' when status is not green", () => {
+      const result = determineEntryStatus({
+        sessionCandles: flatSeries(20, 100),
+        anyInvalidated: false,
+        status: "yellow",
+        config: defaultStrategyConfig,
+      });
+      expect(result).toBe("wait_for_pullback");
+    });
+
+    it("directly produces 'actionable_now' when price sits close to its own EMA", () => {
+      // Flat series: price stays at 100 throughout, so price ≈ EMA and
+      // the distance-in-ATRs is ~0 - well within the extension threshold.
+      const result = determineEntryStatus({
+        sessionCandles: flatSeries(30, 100),
+        anyInvalidated: false,
+        status: "green",
+        config: defaultStrategyConfig,
+      });
+      expect(result).toBe("actionable_now");
+    });
+
+    it("directly produces 'extended_do_not_chase' when price has run far beyond its own EMA relative to ATR", () => {
+      // A quiet, low-ATR base followed by one huge spike candle - price
+      // ends up many ATRs away from the (much slower-moving) EMA.
+      const base = flatSeries(20, 100);
+      const spike = makeCandle({ time: 20 * 300, open: 100, close: 150, high: 151, low: 99 });
+      const candles = [...base, spike];
+
+      const result = determineEntryStatus({
+        sessionCandles: candles,
+        anyInvalidated: false,
+        status: "green",
+        config: defaultStrategyConfig,
+      });
+      expect(result).toBe("extended_do_not_chase");
+    });
+
+    it("defaults to 'actionable_now' when there isn't enough data to judge extension", () => {
+      const result = determineEntryStatus({
+        sessionCandles: flatSeries(3, 100), // too short for a real ATR/EMA
+        anyInvalidated: false,
+        status: "green",
+        config: defaultStrategyConfig,
+      });
+      expect(result).toBe("actionable_now");
+    });
   });
 
-  it("sets entryStatus to 'invalidated' whenever any condition is invalidated", () => {
-    // Force an invalidated structure_shift by using a series that sweeps
-    // then never breaks structure, isn't enough on its own - instead
-    // directly verify the invariant: status red + anyInvalidated implies
-    // entryStatus invalidated, checked through the empty-candles path
-    // isn't representative. Use the flat series and confirm the
-    // non-invalidated default instead, since forcing genuine invalidation
-    // requires a fuller fixture than is worth building here.
-    const result = scoreSetup({
-      symbol: "TEST",
-      timeframe: "5m",
-      sessionCandles: flatSeries(30, 100),
-      dailyCandles: flatSeries(25, 100),
-      prevClose: 100,
-      config: defaultStrategyConfig,
-      now: "2026-01-01T00:00:00Z",
-      quality: "simulated",
+  describe("determineInvalidationNote", () => {
+    it("returns null when status is red", () => {
+      const note = determineInvalidationNote({
+        structureTriggerLevel: null,
+        sessionLow: 100,
+        hasGap: false,
+        emaValue: null,
+        status: "red",
+      });
+      expect(note).toBeNull();
     });
-    const anyInvalidated = result.conditions.some((c) => c.state === "invalidated");
-    if (anyInvalidated) {
-      expect(result.entryStatus).toBe("invalidated");
-    }
-  });
 
-  it("sets entryStatus to 'wait_for_pullback' when status is not green", () => {
-    const result = scoreSetup({
-      symbol: "TEST",
-      timeframe: "5m",
-      sessionCandles: flatSeries(30, 100),
-      dailyCandles: flatSeries(25, 100),
-      prevClose: 100,
-      config: defaultStrategyConfig,
-      now: "2026-01-01T00:00:00Z",
-      quality: "simulated",
+    it("returns a real note referencing the gap when status is green and a gap exists", () => {
+      const note = determineInvalidationNote({
+        structureTriggerLevel: 110,
+        sessionLow: 100,
+        hasGap: true,
+        emaValue: 105,
+        status: "green",
+      });
+      expect(note).not.toBeNull();
+      expect(note).toMatch(/fair value gap/i);
     });
-    expect(result.status).not.toBe("green");
-    expect(result.entryStatus).toBe("wait_for_pullback");
-  });
 
-  it("provides an invalidation note whenever status is not red", () => {
-    const result = scoreSetup({
-      symbol: "TEST",
-      timeframe: "5m",
-      sessionCandles: textbookBullishReclaimSeries(),
-      dailyCandles: flatSeries(25, 95),
-      prevClose: 110,
-      config: defaultStrategyConfig,
-      now: "2026-01-01T00:00:00Z",
-      quality: "simulated",
+    it("returns a real note referencing the swing high when still developing", () => {
+      const note = determineInvalidationNote({
+        structureTriggerLevel: 110,
+        sessionLow: 100,
+        hasGap: false,
+        emaValue: null,
+        status: "yellow",
+      });
+      expect(note).not.toBeNull();
+      expect(note).toContain("$110.00");
     });
-    if (result.status !== "red") {
-      expect(result.invalidationNote).not.toBeNull();
-    }
-  });
-
-  it("has no invalidation note on a red, uneventful setup", () => {
-    const result = scoreSetup({
-      symbol: "TEST",
-      timeframe: "5m",
-      sessionCandles: flatSeries(30, 100),
-      dailyCandles: flatSeries(25, 100),
-      prevClose: 100,
-      config: defaultStrategyConfig,
-      now: "2026-01-01T00:00:00Z",
-      quality: "simulated",
-    });
-    expect(result.status).toBe("red");
-    expect(result.invalidationNote).toBeNull();
   });
 });

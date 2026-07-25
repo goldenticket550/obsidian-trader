@@ -319,10 +319,12 @@ export default function SettingsPage() {
               onChange={(v) => setRisk({ ...risk, maxRiskPerTrade: v })}
             />
             <NumberField
-              label="Minimum setup score to trade"
+              label="Minimum setup score to trade (0-10)"
               value={risk.minSetupScore}
               step={1}
-              onChange={(v) => setRisk({ ...risk, minSetupScore: Math.round(v) })}
+              min={0}
+              max={10}
+              onChange={(v) => setRisk({ ...risk, minSetupScore: Math.min(10, Math.max(0, Math.round(v))) })}
             />
             <NumberField
               label="Minimum minutes between trades"
@@ -375,11 +377,15 @@ function NumberField({
   value,
   onChange,
   step = 0.1,
+  min,
+  max,
 }: {
   label: string;
   value: number;
   onChange: (value: number) => void;
   step?: number;
+  min?: number;
+  max?: number;
 }) {
   return (
     <div className="flex items-center justify-between gap-4">
@@ -387,6 +393,8 @@ function NumberField({
       <input
         type="number"
         step={step}
+        min={min}
+        max={max}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
         className="w-28 bg-obsidian-charcoal border border-obsidian-border rounded px-2 py-1 text-sm text-right font-mono text-platinum-bright focus:outline-none focus:border-platinum-dim"

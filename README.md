@@ -192,6 +192,73 @@ Screenshot review of the live dashboard surfaced two things worth fixing:
    rows got a colored left-accent per category (core signals brightest, informational dimmest)
    and more generous spacing, so scanning the list doesn't read as one dense wall of text.
 
+### Recurring divergence bugs, now permanently synced into the source
+
+Across the last several merges, Claude Code caught my zips reintroducing two bugs it had already
+fixed locally, protecting the merge each time rather than blindly overwriting:
+
+1. **The "January 1970" bug** (`lib/fixtures/candles.ts`, `lib/mock/scanInputs.ts`): the mock
+   candle generators built `Candle.time` by counting up from `0` with no anchor to a real date.
+   Since `scoreSetup()` computes `latestCandleTime` as `new Date(candle.time * 1000)`, a `time`
+   of only a few thousand seconds resolved to a date a few hours after the Unix epoch — January
+   1970 — instead of anything close to the present.
+2. **The 15-minute spacing bug** (same two files): the fixture generators and the `chain()`
+   helper hardcoded a 300-second (5-minute) step with no way to pass a different interval, so
+   every "15-minute" mock series was actually spaced 5 minutes apart, identical to the 5-minute
+   series.
+
+Fixed with `anchorToMockNow()` (shifts a series so its most recent candle lands exactly on a
+real interval boundary at or before the deterministic mock scan time, preserving spacing) and a
+configurable `intervalSeconds` parameter threaded through `flatSeries`/`risingSeries`/
+`fallingSeries`/`chain`. `scanService.ts`'s `MOCK_SCAN_TIME` had to become exported so
+`scanInputs.ts` can anchor to the exact same timestamp rather than duplicating it. All three
+files are now permanently synced into this source — this shouldn't need protecting against on
+future merges.
+
+### Independent Codex review of Phase 8 (commit 08b5927) — 4 real findings, all fixed
+
+You had Codex do a second-opinion review of the weighted-scoring milestone. It found four
+genuine issues — not nitpicks — and I fixed all four:
+
+1. **Saved risk settings weren't migrated to the new 0-10 scale.** A `min_setup_score` saved
+   before the Phase 8 rescale (old scales went up to ~21) could sit above 10 — since no score can
+   ever reach that on the new scale, the "attempting a low-scoring setup" check would fail
+   **permanently**, every scan, forever. Fixed with `clampMinSetupScore()` (read path, falls back
+   to default rather than crashing) and `validateMinSetupScore()` (write path, rejects NaN/
+   Infinity outright rather than silently saving something broken) in `lib/risk/defaults.ts`, both
+   wired into `lib/risk/queries.ts`. Added `min={0} max={10}` to the Settings UI field. Added
+   migration `0006_clamp_min_setup_score.sql` — clamps any existing bad data, then adds a DB-level
+   `CHECK` constraint as defense in depth. 15 new tests covering legacy values, both boundaries
+   (0 and 10), and invalid input.
+2. **Pressure analysis ignored `config.pressure.lookback`.** It was averaging every preceding
+   candle in the whole session instead of just the configured 20-candle window, so old session
+   volume could distort a "is this candle's volume unusual right now" reading. Extracted into an
+   exported `computePressureAverageVolume()` and fixed to use only the configured lookback window
+   (excluding the current candle), gracefully falling back to whatever's available on shorter
+   histories. 5 new tests, including one that proves candles older than the lookback genuinely
+   don't affect the result.
+3. **VWAP reclaim could report stale, no-longer-true results.** `detectVwapReclaim()` searched
+   backward through the *entire* session for any historical crossing and returned `passed: true`
+   using *that old candle's* price/VWAP — even if price had since closed back below VWAP. Fixed
+   to first check whether the *current* candle is actually above VWAP; only then walks backward to
+   confirm the current above-VWAP streak traces back to a genuine cross (not just "the session
+   opened above VWAP"). Documented the exact validity semantics in the function's own comment. 5
+   new tests covering held reclaims, failed reclaims, always-above-no-genuine-reclaim, never
+   reclaims, and accurate current-value reporting in both outcomes.
+4. **Several Phase 8 tests could pass without proving their named behavior** — conditional
+   assertions (`if (x) { expect(...) }`) that could execute zero real checks depending on what a
+   candle fixture happened to produce. Fixed by extracting `computeWeightedScore()`,
+   `determineConvictionLevel()`, and `determineInvalidationNote()` as exported pure functions
+   (joining the already-exported `determineEntryStatus()`), then rewriting every flagged test to
+   call these directly with deterministic, hand-built inputs — unconditional assertions that fail
+   if the underlying logic is removed or reversed. Added the specifically-requested direct tests
+   for `actionable_now` and `extended_do_not_chase`.
+
+Net result: roughly 30+ new/rewritten tests across these four fixes (exact count TBD — I can't run
+the suite myself, that's what the verification step below is for), `tsc` clean by manual review.
+Committed locally per Codex's explicit instruction not to push until you've had a chance to
+review — the push is a separate step for you to trigger once you're satisfied.
+
 ## Status: Phase 7 — AI explanations
 
 The AI layer from the original spec: plain-English setup explanations, end-of-day journal

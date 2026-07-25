@@ -104,11 +104,7 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
   // confirmation detail text rather than its own scored row, per the
   // "quality over quantity" UI principle - it's context on an existing
   // condition, not a new independent signal.
-  const avgVolumeForPressure =
-    sessionCandles.length > 1
-      ? sessionCandles.slice(0, -1).reduce((sum, c) => sum + c.volume, 0) /
-        (sessionCandles.length - 1)
-      : 0;
+  const avgVolumeForPressure = computePressureAverageVolume(sessionCandles, config.pressure.lookback);
   const pressure = classifyPressure(
     sessionCandles[sessionCandles.length - 1],
     avgVolumeForPressure,
@@ -265,13 +261,7 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
   // "Score may be normalized to 0-10 or 0-100") rather than showing raw
   // weighted points, which topped out at an arbitrary-feeling number
   // that would also shift any time a condition is added or removed.
-  const weightOf = (c: SetupCondition): number => CATEGORY_WEIGHT[c.category ?? "supporting"];
-  const rawScore = conditions
-    .filter((c) => c.state === "pass")
-    .reduce((sum, c) => sum + weightOf(c), 0);
-  const rawMaxScore = conditions.reduce((sum, c) => sum + weightOf(c), 0);
-  const score = rawMaxScore === 0 ? 0 : (rawScore / rawMaxScore) * 10;
-  const maxScore = 10;
+  const { score, maxScore } = computeWeightedScore(conditions);
 
   let status: SetupStatus;
   if (anyInvalidated) {
@@ -300,15 +290,7 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
   // confluence is building, CONFIRMED once every required condition
   // passes (same moment status becomes green). This is what "talks to
   // you in stages" instead of one static number.
-  const requiredRatio = requiredConditions.length === 0 ? 0 : requiredPassed / requiredConditions.length;
-  let convictionLevel: ConvictionLevel;
-  if (status === "green") {
-    convictionLevel = "confirmed";
-  } else if (requiredRatio >= 0.5 || requiredPassed >= 2) {
-    convictionLevel = "developing";
-  } else {
-    convictionLevel = "watch";
-  }
+  const convictionLevel = determineConvictionLevel(status, requiredPassed, requiredConditions.length);
 
   const entryStatus = determineEntryStatus({
     sessionCandles,
@@ -346,13 +328,68 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
 }
 
 /**
+ * Average volume over the configured lookback window of candles
+ * immediately preceding the current one - never includes the current
+ * candle itself, and gracefully uses whatever's available if the session
+ * is shorter than the configured lookback.
+ *
+ * FIX (Codex review): this used to average EVERY preceding candle in the
+ * session regardless of `config.pressure.lookback`, so old session
+ * volume (e.g. the quiet open, hours ago) could distort a "is this
+ * candle's volume unusual right now" reading. Extracted as its own
+ * function so the windowing behavior can be proven directly and
+ * deterministically, independent of the rest of the scorer.
+ */
+export function computePressureAverageVolume(sessionCandles: Candle[], lookback: number): number {
+  const precedingCandles = sessionCandles.slice(0, -1);
+  const window = precedingCandles.slice(-lookback);
+  if (window.length === 0) return 0;
+  return window.reduce((sum, c) => sum + c.volume, 0) / window.length;
+}
+
+/**
+ * Sums each passed condition's category weight and normalizes to a fixed
+ * 0-10 scale. Extracted as its own exported function (rather than left
+ * inline) specifically so the weighting behavior can be tested directly
+ * and deterministically with hand-built condition sets, independent of
+ * any candle fixture or detector logic.
+ */
+export function computeWeightedScore(conditions: SetupCondition[]): { score: number; maxScore: number } {
+  const weightOf = (c: SetupCondition): number => CATEGORY_WEIGHT[c.category ?? "supporting"];
+  const rawScore = conditions
+    .filter((c) => c.state === "pass")
+    .reduce((sum, c) => sum + weightOf(c), 0);
+  const rawMaxScore = conditions.reduce((sum, c) => sum + weightOf(c), 0);
+  const score = rawMaxScore === 0 ? 0 : (rawScore / rawMaxScore) * 10;
+  return { score, maxScore: 10 };
+}
+
+/**
+ * WATCH / DEVELOPING / CONFIRMED - extracted as its own exported function
+ * for the same reason as computeWeightedScore: direct, deterministic
+ * testing without needing to reverse-engineer a candle fixture that
+ * happens to produce a particular required-conditions ratio.
+ */
+export function determineConvictionLevel(
+  status: SetupStatus,
+  requiredPassed: number,
+  requiredTotal: number
+): ConvictionLevel {
+  if (status === "green") return "confirmed";
+  const requiredRatio = requiredTotal === 0 ? 0 : requiredPassed / requiredTotal;
+  if (requiredRatio >= 0.5 || requiredPassed >= 2) return "developing";
+  return "watch";
+}
+
+/**
  * ACTIONABLE_NOW / WAIT_FOR_PULLBACK / EXTENDED_DO_NOT_CHASE /
  * INVALIDATED — never a prediction, purely a description of how far
  * price already sits from a reference level (9 EMA) relative to recent
  * volatility (ATR). A technically valid setup can still be a bad place
- * to get involved if price has already run too far from it.
+ * to get involved if price has already run too far from it. Exported for
+ * the same direct-testability reason as the two functions above.
  */
-function determineEntryStatus(params: {
+export function determineEntryStatus(params: {
   sessionCandles: Candle[];
   anyInvalidated: boolean;
   status: SetupStatus;
@@ -389,7 +426,7 @@ function determineEntryStatus(params: {
  * its current stage - computed from levels already known, never a
  * prediction of what price will do.
  */
-function determineInvalidationNote(params: {
+export function determineInvalidationNote(params: {
   structureTriggerLevel: number | null;
   sessionLow: number;
   hasGap: boolean;

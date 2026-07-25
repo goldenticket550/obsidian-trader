@@ -36,10 +36,30 @@ export interface VwapReclaimResult {
 }
 
 /**
- * Detects a VWAP reclaim: price was below session VWAP and closes back
- * above it. Same "reclaim, not just currently above" pattern as the 9
- * EMA reclaim detector — walks backward for the most recent genuine
- * cross rather than just checking the latest candle.
+ * Detects a VWAP reclaim that is CURRENTLY HELD: price genuinely crossed
+ * from below VWAP to above it at some point, AND has not closed back
+ * below VWAP since. Always reports the current price and current VWAP
+ * value, never a stale historical pair from whenever the crossing
+ * happened.
+ *
+ * Validity semantics (documented explicitly, per review): this is
+ * intentionally NOT "was there ever a reclaim in this session" — a
+ * reclaim that has since failed (price closed back below VWAP) reports
+ * `passed: false`, because a stale reclaim the market has already
+ * rejected is not meaningfully different from "never reclaimed" for
+ * scoring purposes. This condition type doesn't carry its own
+ * "invalidated" state in the UI (unlike structure_shift) — a failed
+ * reclaim simply stops passing and can be attempted again later in the
+ * session if price reclaims VWAP a second time.
+ *
+ * FIX (Codex review): the previous version walked backward through the
+ * ENTIRE session looking for any historical crossing and returned
+ * `passed: true` using THAT old candle's price/VWAP — meaning a reclaim
+ * from an hour ago that had since failed would still show as passing,
+ * with stale values to boot. Fixed to first check whether the CURRENT
+ * candle is above VWAP at all (if not, immediately not passing), then
+ * walk backward only to confirm that streak-of-being-above traces back
+ * to a genuine cross rather than the session simply opening above VWAP.
  */
 export function detectVwapReclaim(sessionCandles: Candle[]): VwapReclaimResult {
   const empty: VwapReclaimResult = {
@@ -52,28 +72,35 @@ export function detectVwapReclaim(sessionCandles: Candle[]): VwapReclaimResult {
   if (sessionCandles.length < 2) return empty;
 
   const vwapSeries = calculateVwap(sessionCandles);
+  const lastIndex = sessionCandles.length - 1;
+  const price = sessionCandles[lastIndex].close;
+  const vwapValue = vwapSeries[lastIndex];
+  const distancePct = vwapValue === 0 ? 0 : (price - vwapValue) / vwapValue;
 
-  for (let i = sessionCandles.length - 1; i >= 1; i--) {
-    const closedAbove = sessionCandles[i].close > vwapSeries[i];
+  const currentlyAbove = price > vwapValue;
+  if (!currentlyAbove) {
+    // Whatever happened earlier in the session, the reclaim (if any) is
+    // not currently being held - report accurate current values, not
+    // stale ones from wherever the last crossing was.
+    return { passed: false, vwapValue, price, distancePct };
+  }
+
+  // Walk backward while price stays above VWAP, looking for the moment
+  // it crossed up from below. If the streak breaks (price dips back
+  // below VWAP) before we find a genuine cross, this isn't a currently-
+  // held reclaim. If we reach the start of the series still above VWAP
+  // the whole way with no crossing ever found, that's "always been
+  // above" rather than a genuine reclaim - same "reclaim, not just
+  // currently above" distinction the 9 EMA detector makes.
+  for (let i = lastIndex; i >= 1; i--) {
+    const closedAboveHere = sessionCandles[i].close > vwapSeries[i];
+    if (!closedAboveHere) break;
+
     const prevClosedBelow = sessionCandles[i - 1].close < vwapSeries[i - 1];
-
-    if (closedAbove && prevClosedBelow) {
-      return {
-        passed: true,
-        vwapValue: vwapSeries[i],
-        price: sessionCandles[i].close,
-        distancePct: (sessionCandles[i].close - vwapSeries[i]) / vwapSeries[i],
-      };
+    if (prevClosedBelow) {
+      return { passed: true, vwapValue, price, distancePct };
     }
   }
 
-  const lastIndex = sessionCandles.length - 1;
-  const lastVwap = vwapSeries[lastIndex];
-  const lastPrice = sessionCandles[lastIndex].close;
-  return {
-    passed: false,
-    vwapValue: lastVwap,
-    price: lastPrice,
-    distancePct: (lastPrice - lastVwap) / lastVwap,
-  };
+  return { passed: false, vwapValue, price, distancePct };
 }
