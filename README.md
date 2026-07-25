@@ -457,6 +457,41 @@ instantly, with zero real or fake-timer waiting involved. 9 new tests across bot
 **Low — cron report's `symbolsScanned` silently included failures as if they'd succeeded.**
 Replaced with explicit `symbolsAttempted` / `symbolsSucceeded` / `symbolsFailed` fields.
 
+### Fifth independent Codex review — retry logic could stall the bounded cron route
+
+Codex reviewed round 4's retry fixes and approved four of five outright, but withheld approval on
+the fifth pending one real, important gap: **a large `Retry-After` value had no ceiling**, and
+the cron route has a hard 60-second execution limit. A response with `Retry-After: 60` would have
+consumed the route's *entire* remaining budget in a single wait — and since symbols are scanned
+sequentially, that could have silently starved every later symbol and every other user's scan too.
+
+**Fixed with three layers, not just one:**
+1. **`MAX_RETRY_DELAY_MS` (5 seconds)** — a hard cap on any single retry wait, regardless of
+   source (Retry-After or our own exponential backoff). A server's requested delay is guidance,
+   not a license to stall a bounded caller.
+2. **Real HTTP-date parsing** — `Retry-After` is permitted by spec to be either seconds or an
+   HTTP-date (e.g. `"Wed, 21 Oct 2015 07:28:00 GMT"`); the previous version only handled the
+   numeric form and silently fell back to backoff for a date-form header. New `parseRetryAfterMs()`
+   handles both, clamping a past date to 0 rather than a negative number.
+3. **Deadline-awareness end to end** — a capped 5-second delay, repeated across several symbols
+   in a sequential scan, could still meaningfully eat into a 60-second budget. Added an optional
+   `deadlineAt` (absolute epoch ms) to `GetCandlesParams`, threaded through
+   `scanWatchlistWithProvider()` and set by the cron route itself (route start time + 50 seconds,
+   a 10-second safety buffer below the actual 60s limit). If honoring a computed delay would push
+   past the deadline, the provider fails that one symbol immediately with a clear "would exceed
+   the remaining execution deadline" error — caught by the existing per-symbol isolation — instead
+   of waiting and risking the whole route timing out mid-scan.
+
+**Also fixed the low-severity finding**: the previous rate-limit-accounting test only checked
+`fetch` call count, which would still pass even if `recordRequest()` were accidentally deleted
+from the retry loop. `AlpacaProvider`'s constructor now accepts an optional injected `RateLimiter`
+(test-only dependency injection), so the test can assert directly on real consumed capacity via
+`RateLimiter.remaining()`.
+
+15 new tests: capped extreme values (both numeric and HTTP-date), a past HTTP-date, deadline
+enforcement (fails fast, doesn't wait), succeeding normally with a comfortable deadline, and the
+strengthened accounting test.
+
 ## Status: Phase 7 — AI explanations
 
 The AI layer from the original spec: plain-English setup explanations, end-of-day journal

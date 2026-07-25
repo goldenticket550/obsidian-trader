@@ -46,6 +46,16 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 
+  // FIX (Codex round 5): a single symbol's retry delays (even capped at
+  // MAX_RETRY_DELAY_MS each) could still add up across a sequential
+  // multi-symbol, multi-user scan and eat meaningfully into this route's
+  // maxDuration=60 budget, potentially starving every later symbol/user.
+  // Computing a real deadline here — with a safety buffer below the
+  // actual route limit — and threading it through to every provider call
+  // means a slow/failing symbol fails fast instead of risking that.
+  const routeStartedAt = Date.now();
+  const deadlineAt = routeStartedAt + (maxDuration - 10) * 1000; // 10s safety buffer
+
   const provider = getMarketDataProvider();
   const watchlists = await listAllWatchlists(supabase);
 
@@ -60,7 +70,13 @@ export async function GET(request: Request) {
       }
 
       const config = await getStrategyConfig(supabase, userId);
-      const scan = await scanWatchlistWithProvider(symbols, provider, config);
+      const scan = await scanWatchlistWithProvider(
+        symbols,
+        provider,
+        config,
+        new Date().toISOString(),
+        deadlineAt
+      );
 
       let alertsFired = 0;
       for (const symbolResults of Object.values(scan.resultsBySymbol)) {

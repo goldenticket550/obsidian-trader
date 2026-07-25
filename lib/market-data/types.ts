@@ -5,6 +5,16 @@ export interface GetCandlesParams {
   timeframe: Timeframe;
   /** How many most-recent candles to return. */
   limit?: number;
+  /**
+   * Absolute epoch ms after which a provider should stop retrying and
+   * fail fast instead of waiting — added specifically so a bounded
+   * execution environment (e.g. the cron route's 60-second Vercel
+   * function limit) can tell a provider "don't let a single retry delay
+   * consume the entire remaining budget." Optional; providers without a
+   * meaningful concept of retry delay (like the mock provider) simply
+   * ignore it.
+   */
+  deadlineAt?: number;
 }
 
 export type SessionType = "pre-market" | "regular" | "after-hours" | "closed";

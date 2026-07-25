@@ -79,21 +79,66 @@ export function computeStartDate(now: Date, timeframe: Timeframe, limit: number)
 }
 
 /**
- * Computes how long to wait before the next retry attempt. Prefers the
- * server's own Retry-After guidance (seconds, per HTTP spec) when
- * present and parseable; otherwise falls back to exponential backoff
- * (300ms, 600ms, 1200ms, ...). Extracted as its own pure function so this
- * decision can be tested directly and instantly, without any real (or
- * fake-timer) waiting.
+ * A single retry wait should never exceed this, regardless of what a
+ * Retry-After header requests. FIX (Codex round 5): a Retry-After of 60
+ * (or higher) would previously be honored literally, which could consume
+ * the ENTIRE 60-second budget of the cron route's serverless function in
+ * one wait — and since symbols are scanned sequentially, that could
+ * prevent every later symbol (and every other user, in the cron route)
+ * from being processed at all. 5 seconds is a reasonable ceiling for a
+ * background scan that needs to stay responsive across many symbols.
  */
-export function computeRetryDelayMs(attempt: number, retryAfterHeader: string | null): number {
-  if (retryAfterHeader !== null) {
-    const retryAfterSeconds = Number(retryAfterHeader);
-    if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds >= 0) {
-      return retryAfterSeconds * 1000;
-    }
+export const MAX_RETRY_DELAY_MS = 5_000;
+
+/**
+ * Parses a Retry-After header value per HTTP spec, which permits EITHER
+ * a number of seconds OR an HTTP-date (e.g. "Wed, 21 Oct 2015 07:28:00
+ * GMT"). FIX (Codex round 5): the previous version only handled the
+ * numeric form — a date-form header silently fell through to exponential
+ * backoff instead of being honored. Returns milliseconds until the
+ * requested time, or null if the header is absent/unparseable/already in
+ * the past (callers should fall back to exponential backoff in that case).
+ */
+export function parseRetryAfterMs(retryAfterHeader: string | null, now: number = Date.now()): number | null {
+  if (retryAfterHeader === null) return null;
+
+  // If the header parses as a plain number at all (even a negative one),
+  // it was clearly intended as delta-seconds, not an HTTP-date — don't
+  // fall through to Date.parse(), which is lenient enough to accept
+  // numeric-looking garbage like "-5" as a bogus valid date instead of
+  // correctly treating it as invalid input.
+  const seconds = Number(retryAfterHeader);
+  if (Number.isFinite(seconds)) {
+    return seconds >= 0 ? seconds * 1000 : null;
   }
-  return 300 * Math.pow(2, attempt);
+
+  const dateMs = Date.parse(retryAfterHeader);
+  if (!Number.isNaN(dateMs)) {
+    const delta = dateMs - now;
+    return delta > 0 ? delta : 0;
+  }
+
+  return null;
+}
+
+/**
+ * Computes how long to wait before the next retry attempt. Prefers the
+ * server's own Retry-After guidance (seconds or HTTP-date, per HTTP spec)
+ * when present and parseable; otherwise falls back to exponential backoff
+ * (300ms, 600ms, 1200ms, ...). Always capped at MAX_RETRY_DELAY_MS,
+ * regardless of source — a server-requested delay is guidance, not a
+ * license to stall a bounded-execution caller indefinitely. Extracted as
+ * its own pure function so this decision can be tested directly and
+ * instantly, without any real (or fake-timer) waiting.
+ */
+export function computeRetryDelayMs(
+  attempt: number,
+  retryAfterHeader: string | null,
+  now: number = Date.now()
+): number {
+  const parsed = parseRetryAfterMs(retryAfterHeader, now);
+  const rawDelay = parsed !== null ? parsed : 300 * Math.pow(2, attempt);
+  return Math.min(rawDelay, MAX_RETRY_DELAY_MS);
 }
 
 export class AlpacaProvider implements MarketDataProvider {
@@ -102,7 +147,17 @@ export class AlpacaProvider implements MarketDataProvider {
   private rateLimiter: RateLimiter;
   private cache = new TtlCache<CandleSeries>(CANDLE_CACHE_TTL_MS["5m"]);
 
-  constructor(private config: AlpacaProviderConfig) {
+  constructor(
+    private config: AlpacaProviderConfig,
+    /**
+     * Optional injected rate limiter — for tests only, so a test can
+     * assert on real consumed capacity (via RateLimiter.remaining())
+     * after a retry sequence, rather than only inferring accounting
+     * correctness indirectly from fetch call counts (which would still
+     * pass even if recordRequest() were accidentally removed).
+     */
+    rateLimiter?: RateLimiter
+  ) {
     if (!config.apiKeyId || !config.apiSecretKey) {
       throw new Error(
         "AlpacaProvider requires apiKeyId and apiSecretKey. Set ALPACA_API_KEY_ID and ALPACA_API_SECRET_KEY in your server environment."
@@ -110,7 +165,7 @@ export class AlpacaProvider implements MarketDataProvider {
     }
     // Free tier: 200 requests/minute. Paid (Algo Trader Plus): 10,000/min.
     const maxRequests = config.isPaidPlan ? 10_000 : 200;
-    this.rateLimiter = new RateLimiter(maxRequests, 60_000);
+    this.rateLimiter = rateLimiter ?? new RateLimiter(maxRequests, 60_000);
   }
 
   private dataQuality(): DataQuality {
@@ -121,29 +176,26 @@ export class AlpacaProvider implements MarketDataProvider {
 
   /**
    * Fetches with bounded retry for transient failures — 429 rate limit,
-   * 5xx server errors, AND now (Codex round 4) genuine network
-   * exceptions (DNS failure, connection reset, timeout) and our own
-   * request timeout via AbortController. Never retries 401/403 (auth is
-   * either right or it isn't) or 4xx client errors other than 429 (a
-   * malformed request fails the same way every time).
+   * 5xx server errors, genuine network exceptions (DNS failure,
+   * connection reset, timeout), and our own request timeout via
+   * AbortController. Never retries 401/403 (auth is either right or it
+   * isn't) or 4xx client errors other than 429 (a malformed request
+   * fails the same way every time).
    *
-   * FIX (Codex round 4, rate-limit accounting): the rate limiter's
-   * canProceed()/recordRequest() now run INSIDE this loop, once per
-   * actual attempt — previously they ran once before calling this
-   * function, so a retry sequence could make up to 3 real HTTP requests
-   * while the local rate limiter only ever counted 1, materially
-   * underestimating real usage under repeated provider failures.
-   *
-   * FIX (Codex round 4, network exceptions): fetch() rejecting outright
-   * (not just returning a non-ok response) used to escape immediately
-   * with no retry. Now caught and retried the same as a 5xx, bounded by
-   * the same maxRetries so it can't retry forever.
-   *
-   * FIX (Codex round 4, Retry-After): when Alpaca's 429 response includes
-   * a Retry-After header, that's used as the actual wait time instead of
-   * our own exponential backoff guess.
+   * FIX (Codex round 5, deadline-awareness): a capped Retry-After delay
+   * (MAX_RETRY_DELAY_MS) alone doesn't prevent a bounded-execution caller
+   * from being stalled — even a 5-second wait, repeated across a few
+   * symbols in a sequential scan, could still eat meaningfully into the
+   * cron route's 60-second budget. If a `deadlineAt` is provided and
+   * honoring the computed delay would push past it, this fails fast with
+   * a clear "not enough time remaining" error for just this symbol,
+   * instead of waiting and risking the whole route timing out mid-scan.
    */
-  private async fetchWithRetry(url: string, maxRetries = 2): Promise<Response> {
+  private async fetchWithRetry(
+    url: string,
+    deadlineAt: number | undefined,
+    maxRetries = 2
+  ): Promise<Response> {
     let lastError: Error | null = null;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -177,7 +229,9 @@ export class AlpacaProvider implements MarketDataProvider {
             `Alpaca request failed after ${maxRetries + 1} attempt(s): ${lastError.message}`
           );
         }
-        await this.wait(computeRetryDelayMs(attempt, null));
+        const delay = computeRetryDelayMs(attempt, null);
+        this.assertWithinDeadline(delay, deadlineAt, url);
+        await this.wait(delay);
         continue;
       } finally {
         clearTimeout(timeoutId);
@@ -192,14 +246,26 @@ export class AlpacaProvider implements MarketDataProvider {
       // backoff when it's present (optional chaining: test doubles for
       // Response often don't implement a real Headers object).
       const retryAfterHeader = response.headers?.get?.("Retry-After") ?? null;
-      const backoffMs = computeRetryDelayMs(attempt, retryAfterHeader);
+      const delay = computeRetryDelayMs(attempt, retryAfterHeader);
+      this.assertWithinDeadline(delay, deadlineAt, url);
 
-      await this.wait(backoffMs);
+      await this.wait(delay);
     }
 
     // Unreachable in practice (the loop always returns or throws on its
     // final iteration), but keeps TypeScript happy about a definite return.
     throw lastError ?? new Error("Alpaca request failed for an unknown reason.");
+  }
+
+  /** Throws a clear, distinct error if waiting `delayMs` would push past `deadlineAt`. */
+  private assertWithinDeadline(delayMs: number, deadlineAt: number | undefined, url: string): void {
+    if (deadlineAt === undefined) return;
+    if (Date.now() + delayMs > deadlineAt) {
+      throw new Error(
+        `Alpaca retry for ${url} would exceed the remaining execution deadline — ` +
+          `failing fast instead of risking the whole scan timing out. Try again later.`
+      );
+    }
   }
 
   private requestTimeoutMs = 10_000;
@@ -209,7 +275,7 @@ export class AlpacaProvider implements MarketDataProvider {
   }
 
   async getCandles(params: GetCandlesParams): Promise<CandleSeries> {
-    const { symbol, timeframe, limit = 100 } = params;
+    const { symbol, timeframe, limit = 100, deadlineAt } = params;
     const quality = this.dataQuality();
     const cacheKey = `${symbol}:${timeframe}:${limit}`;
 
@@ -236,7 +302,7 @@ export class AlpacaProvider implements MarketDataProvider {
     url.searchParams.set("adjustment", "raw");
     url.searchParams.set("start", computeStartDate(new Date(), timeframe, limit));
 
-    const response = await this.fetchWithRetry(url.toString());
+    const response = await this.fetchWithRetry(url.toString(), deadlineAt);
 
     if (!response.ok) {
       if (response.status === 429) {

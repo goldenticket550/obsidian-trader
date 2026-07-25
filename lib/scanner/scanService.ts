@@ -119,7 +119,15 @@ export async function scanWatchlistWithProvider(
   symbols: WatchedSymbol[],
   provider: MarketDataProvider,
   config: StrategyConfig = defaultStrategyConfig,
-  now: string = new Date().toISOString()
+  now: string = new Date().toISOString(),
+  /**
+   * Absolute epoch ms after which providers should stop retrying and
+   * fail fast (see GetCandlesParams.deadlineAt) — pass this from
+   * bounded-execution callers like the cron route so a single symbol's
+   * retry delays can't consume the entire route's time budget and starve
+   * every later symbol/user.
+   */
+  deadlineAt?: number
 ): Promise<ScanOutput> {
   const watchlist: WatchlistSymbol[] = [];
   const resultsBySymbol: Record<string, { "5m": SetupResult; "15m": SetupResult }> = {};
@@ -134,9 +142,9 @@ export async function scanWatchlistWithProvider(
     // failure is reported and skipped, not fatal to everyone else.
     try {
       const [series5m, series15m, seriesDaily] = await Promise.all([
-        provider.getCandles({ symbol, timeframe: "5m", limit: 100 }),
-        provider.getCandles({ symbol, timeframe: "15m", limit: 100 }),
-        provider.getCandles({ symbol, timeframe: "1d", limit: 30 }),
+        provider.getCandles({ symbol, timeframe: "5m", limit: 100, deadlineAt }),
+        provider.getCandles({ symbol, timeframe: "15m", limit: 100, deadlineAt }),
+        provider.getCandles({ symbol, timeframe: "1d", limit: 30, deadlineAt }),
       ]);
 
       const dailyCandles = seriesDaily.candles;

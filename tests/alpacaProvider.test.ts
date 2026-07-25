@@ -1,5 +1,13 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { mapAlpacaBar, AlpacaProvider, computeStartDate, computeRetryDelayMs } from "@/lib/market-data/providers/alpacaProvider";
+import {
+  mapAlpacaBar,
+  AlpacaProvider,
+  computeStartDate,
+  computeRetryDelayMs,
+  parseRetryAfterMs,
+  MAX_RETRY_DELAY_MS,
+} from "@/lib/market-data/providers/alpacaProvider";
+import { RateLimiter } from "@/lib/market-data/rateLimiter";
 
 describe("computeStartDate", () => {
   it("looks back several calendar days for intraday timeframes", () => {
@@ -149,7 +157,7 @@ describe("AlpacaProvider", () => {
       status: 200,
       statusText: "OK",
       json: async () => ({
-        bars: [{ t: "2026-07-11T14:30:00Z", o: 100, h: 101, l: 99, c: 100.5, v: 1000 }],
+        bars: [{ t: "2026-07-13T14:30:00Z", o: 100, h: 101, l: 99, c: 100.5, v: 1000 }],
         symbol: "AAPL",
         next_page_token: null,
       }),
@@ -323,24 +331,129 @@ describe("AlpacaProvider", () => {
     expect(callOptions.signal).toBeInstanceOf(AbortSignal);
   });
 
-  it("counts every actual retry attempt against the rate limiter, not just the first", async () => {
-    // 3 failed attempts (1 initial + 2 retries) should consume 3 units
-    // of rate-limit budget, not 1.
+  it("counts every actual retry attempt against the rate limiter, not just the first (Codex round 5 strengthened test)", async () => {
+    // FIX (Codex round 5): the previous version of this test only
+    // checked fetch call count, which would still pass even if
+    // recordRequest() were accidentally removed from the retry loop.
+    // This version injects a real RateLimiter and asserts directly on
+    // its consumed capacity.
     const mockFetch = vi.fn().mockResolvedValue({ ok: false, status: 500, statusText: "Server Error" });
     vi.stubGlobal("fetch", mockFetch);
 
-    const provider = new AlpacaProvider({ apiKeyId: "key", apiSecretKey: "secret" });
+    const rateLimiter = new RateLimiter(200, 60_000);
+    const provider = new AlpacaProvider({ apiKeyId: "key", apiSecretKey: "secret" }, rateLimiter);
+
+    expect(rateLimiter.remaining()).toBe(200);
     await expect(provider.getCandles({ symbol: "AAPL", timeframe: "5m" })).rejects.toThrow();
 
-    // Access the private rate limiter via a second symbol to confirm it
-    // actually recorded 3 requests, not 1 - a cache-busting second symbol
-    // avoids the getCandles-level cache from short-circuiting this check.
-    // We verify indirectly: after 3 failed attempts here, a 4th
-    // completely separate request should still be allowed (well under
-    // the 200/min free-tier limit) - this test's real point is just that
-    // fetch was actually called 3 times for the 3 accounted attempts.
+    // 1 initial attempt + 2 retries = 3 real requests, so exactly 3
+    // units of capacity should be consumed, not 1.
+    expect(rateLimiter.remaining()).toBe(197);
     expect(mockFetch).toHaveBeenCalledTimes(3);
   }, 10_000);
+
+  // Regression tests for a real gap found in a follow-up Codex review:
+  // a large or malformed Retry-After could stall a bounded-execution
+  // caller (like the 60-second cron route) far longer than intended.
+
+  it("caps an extreme Retry-After value at MAX_RETRY_DELAY_MS instead of honoring it literally", () => {
+    // Retry-After: 60 would otherwise consume the entire cron route's
+    // 60-second budget in a single wait.
+    expect(computeRetryDelayMs(0, "60")).toBe(MAX_RETRY_DELAY_MS);
+    expect(computeRetryDelayMs(0, "3600")).toBe(MAX_RETRY_DELAY_MS);
+  });
+
+  it("parses an HTTP-date-form Retry-After header, not just numeric seconds", () => {
+    const now = Date.parse("2026-07-13T12:00:00Z");
+    const futureDate = "Mon, 13 Jul 2026 12:00:05 GMT"; // 5 seconds later
+    const delay = computeRetryDelayMs(0, futureDate, now);
+    expect(delay).toBeCloseTo(5000, -2); // within ~100ms tolerance
+  });
+
+  it("falls back to exponential backoff when an HTTP-date Retry-After is already in the past", () => {
+    const now = Date.parse("2026-07-13T12:00:00Z");
+    const pastDate = "Mon, 13 Jul 2026 11:00:00 GMT"; // 1 hour in the past
+    const delay = computeRetryDelayMs(0, pastDate, now);
+    expect(delay).toBe(0); // parseRetryAfterMs clamps a past date to 0, not negative
+  });
+
+  it("caps an HTTP-date Retry-After far in the future at MAX_RETRY_DELAY_MS too", () => {
+    const now = Date.parse("2026-07-13T12:00:00Z");
+    const farFuture = "Tue, 14 Jul 2026 12:00:00 GMT"; // 24 hours later
+    const delay = computeRetryDelayMs(0, farFuture, now);
+    expect(delay).toBe(MAX_RETRY_DELAY_MS);
+  });
+
+  it("fails fast with a clear error instead of waiting when honoring a delay would exceed the deadline", async () => {
+    const now = Date.now();
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValue({ ok: false, status: 429, statusText: "Too Many Requests", headers: { get: () => "60" } });
+    vi.stubGlobal("fetch", mockFetch);
+
+    const provider = new AlpacaProvider({ apiKeyId: "key", apiSecretKey: "secret" });
+    // Deadline just 1 second away - even the capped 5s delay would exceed it.
+    const deadlineAt = now + 1000;
+
+    const start = Date.now();
+    await expect(
+      provider.getCandles({ symbol: "AAPL", timeframe: "5m", deadlineAt })
+    ).rejects.toThrow(/deadline/i);
+    const elapsed = Date.now() - start;
+
+    // Should fail almost immediately - NOT wait out even the capped delay.
+    expect(elapsed).toBeLessThan(1000);
+    expect(mockFetch).toHaveBeenCalledTimes(1); // failed fast, no retry attempted
+  });
+
+  it("succeeds normally when the deadline leaves comfortably enough time", async () => {
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: false, status: 500, statusText: "Server Error" })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        json: async () => ({
+          bars: [{ t: "2026-07-13T14:30:00Z", o: 100, h: 101, l: 99, c: 100.5, v: 1000 }],
+          symbol: "AAPL",
+          next_page_token: null,
+        }),
+      });
+    vi.stubGlobal("fetch", mockFetch);
+
+    const provider = new AlpacaProvider({ apiKeyId: "key", apiSecretKey: "secret" });
+    const deadlineAt = Date.now() + 30_000; // plenty of time
+
+    const series = await provider.getCandles({ symbol: "AAPL", timeframe: "5m", limit: 1, deadlineAt });
+    expect(series.candles.length).toBe(1);
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("parseRetryAfterMs", () => {
+  it("returns null when the header is absent", () => {
+    expect(parseRetryAfterMs(null)).toBeNull();
+  });
+
+  it("parses numeric seconds", () => {
+    expect(parseRetryAfterMs("5")).toBe(5000);
+    expect(parseRetryAfterMs("0")).toBe(0);
+  });
+
+  it("parses HTTP-date form relative to a given 'now'", () => {
+    const now = Date.parse("2026-07-13T12:00:00Z");
+    expect(parseRetryAfterMs("Mon, 13 Jul 2026 12:00:10 GMT", now)).toBe(10_000);
+  });
+
+  it("clamps a past HTTP-date to 0 rather than a negative number", () => {
+    const now = Date.parse("2026-07-13T12:00:00Z");
+    expect(parseRetryAfterMs("Mon, 13 Jul 2026 11:00:00 GMT", now)).toBe(0);
+  });
+
+  it("returns null for a genuinely unparseable value", () => {
+    expect(parseRetryAfterMs("not-a-real-value-at-all")).toBeNull();
+  });
 });
 
 describe("computeRetryDelayMs", () => {
