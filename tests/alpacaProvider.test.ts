@@ -162,4 +162,111 @@ describe("AlpacaProvider", () => {
 
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
+
+  // Regression tests for a real bug (Codex review): one transient
+  // failure used to immediately throw with no retry, which — combined
+  // with the lack of per-symbol isolation in scanWatchlistWithProvider —
+  // meant a single bad request could take down an entire scan.
+
+  it("retries a 500 error and succeeds on the second attempt", async () => {
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: false, status: 500, statusText: "Internal Server Error" })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        json: async () => ({
+          bars: [{ t: "2026-07-11T14:30:00Z", o: 100, h: 101, l: 99, c: 100.5, v: 1000 }],
+          symbol: "AAPL",
+          next_page_token: null,
+        }),
+      });
+    vi.stubGlobal("fetch", mockFetch);
+
+    const provider = new AlpacaProvider({ apiKeyId: "key", apiSecretKey: "secret" });
+    const series = await provider.getCandles({ symbol: "AAPL", timeframe: "5m", limit: 1 });
+
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+    expect(series.candles.length).toBe(1);
+  });
+
+  it("retries a 429 up to the max, then throws if it never succeeds", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({ ok: false, status: 429, statusText: "Too Many Requests" });
+    vi.stubGlobal("fetch", mockFetch);
+
+    const provider = new AlpacaProvider({ apiKeyId: "key", apiSecretKey: "secret" });
+    await expect(provider.getCandles({ symbol: "AAPL", timeframe: "5m" })).rejects.toThrow(/429/);
+
+    // Default maxRetries=2 means 3 total attempts (1 initial + 2 retries).
+    expect(mockFetch).toHaveBeenCalledTimes(3);
+  }, 10_000);
+
+  it("never retries a 401 - auth failures fail immediately", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({ ok: false, status: 401, statusText: "Unauthorized" });
+    vi.stubGlobal("fetch", mockFetch);
+
+    const provider = new AlpacaProvider({ apiKeyId: "bad", apiSecretKey: "bad" });
+    await expect(provider.getCandles({ symbol: "AAPL", timeframe: "5m" })).rejects.toThrow(
+      /authentication failed/i
+    );
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("never retries a 400 - client errors other than 429 fail immediately", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({ ok: false, status: 400, statusText: "Bad Request" });
+    vi.stubGlobal("fetch", mockFetch);
+
+    const provider = new AlpacaProvider({ apiKeyId: "key", apiSecretKey: "secret" });
+    await expect(provider.getCandles({ symbol: "AAPL", timeframe: "5m" })).rejects.toThrow(/400/);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("filters results to only the latest session before slicing to the requested limit", async () => {
+    // Two distinct trading days present in the raw response - only the
+    // later day's bars should survive in the final result.
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      json: async () => ({
+        bars: [
+          { t: "2026-07-10T14:00:00Z", o: 100, h: 101, l: 99, c: 100.5, v: 1000 }, // Friday
+          { t: "2026-07-10T14:05:00Z", o: 100.5, h: 101, l: 99, c: 100.7, v: 1000 }, // Friday
+          { t: "2026-07-13T14:00:00Z", o: 200, h: 201, l: 199, c: 200.5, v: 1000 }, // Monday
+        ],
+        symbol: "AAPL",
+        next_page_token: null,
+      }),
+    });
+    vi.stubGlobal("fetch", mockFetch);
+
+    const provider = new AlpacaProvider({ apiKeyId: "key", apiSecretKey: "secret" });
+    const series = await provider.getCandles({ symbol: "AAPL", timeframe: "5m", limit: 100 });
+
+    expect(series.candles.length).toBe(1);
+    expect(series.candles[0].close).toBe(200.5);
+  });
+
+  it("does NOT session-filter daily (1d) candles - each daily bar is already its own session", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      json: async () => ({
+        bars: [
+          { t: "2026-07-10T14:00:00Z", o: 100, h: 101, l: 99, c: 100.5, v: 1000 },
+          { t: "2026-07-13T14:00:00Z", o: 200, h: 201, l: 199, c: 200.5, v: 1000 },
+        ],
+        symbol: "AAPL",
+        next_page_token: null,
+      }),
+    });
+    vi.stubGlobal("fetch", mockFetch);
+
+    const provider = new AlpacaProvider({ apiKeyId: "key", apiSecretKey: "secret" });
+    const series = await provider.getCandles({ symbol: "AAPL", timeframe: "1d", limit: 100 });
+
+    expect(series.candles.length).toBe(2); // both days kept, unlike intraday
+  });
 });

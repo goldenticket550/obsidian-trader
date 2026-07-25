@@ -353,6 +353,52 @@ vars, a UI staging indicator — flagged as *documented but not yet built*) and 
 end-to-end verification checklist. Explicitly documentation only — no external accounts, cloud
 resources, or credentials were created while writing it.
 
+### Third independent Codex review — data pipeline integrity (the most architecturally significant round yet)
+
+This review went deeper than the previous two — instead of one bug in one detector function, it
+flagged that the underlying data pipeline feeding every detector could itself be corrupted. Of
+everything it raised, three were real, serious, and tractable enough to fix now; the rest is
+legitimate but bigger-scope future work (documented below, not built).
+
+**Fix 1 — session contamination (the most serious bug found in this whole project).**
+`alpacaProvider.ts` fetches across a 6-day lookback window, then kept only the most recent
+`limit` candles. Early in a session — say, the first 20 minutes after open — there simply aren't
+100 candles from *today* yet, so "keep the most recent 100" silently pulled in leftover candles
+from **previous trading days**. Since VWAP, session high/low, and decline-from-open are all
+defined relative to a single session, mixing days doesn't just add noise — it changes what those
+numbers mean entirely. Fixed with `filterToLatestSession()` (`lib/market-data/sessionFilter.ts`):
+groups candles by their real US Eastern trading date and keeps only the most recent date, applied
+right after fetching, before slicing to the caller's limit. Works correctly whether markets are
+open (isolates today's candles so far) or closed (isolates the last real trading day). 5 new
+tests, including the exact "fetch window spans a weekend" scenario that caused this.
+
+**Fix 2 — previous-close was positionally ambiguous.** The old logic assumed the second-to-last
+daily candle was always "yesterday" — only true when the last daily candle represents *today*.
+Before today's daily bar has posted, that assumption silently grabbed a close from two sessions
+ago instead of one. Fixed with `findPreviousClose()` (same file): walks backward from the end of
+the daily series and returns the first candle whose *actual trading date* is before today's,
+determined explicitly rather than assumed from array position. Correct in both cases without
+needing to know which one applies. 5 new tests.
+
+**Fix 3 — one bad symbol could fail the entire scan, and there was no retry for transient
+errors.** `scanWatchlistWithProvider()` had no per-symbol error isolation — one rate limit or bad
+ticker threw and took down every other symbol's real data with it. Fixed by wrapping each
+symbol's work in its own try/catch: a failure is now reported in a new `errors` field and that
+symbol is simply excluded — **never silently falls back to fabricated/simulated data pretending
+to be real**, per the explicit requirement. Surfaced in the dashboard as a visible red banner
+listing which symbols failed and why, and in the cron report's per-user results. Also added
+bounded retry with exponential backoff in `alpacaProvider.ts` for genuinely transient failures
+(429, 5xx) — never for auth failures or other 4xx errors, which won't succeed on retry regardless.
+9 new tests across both files.
+
+**Documented but deliberately not built this round** (real, but bigger scope — see the review
+itself for full reasoning): IEX vs. SIP confidence labeling, market holiday/early-close handling
+via Alpaca's real calendar endpoint (session.ts's existing documented limitation), closed-vs-
+developing-candle enforcement, and the methodological question of whether several scoring
+conditions (recovery/structure-shift/EMA/VWAP/FVG) are measuring meaningfully independent
+evidence or partially double-counting the same underlying move — which genuinely needs forward-
+performance data to answer, not more architecture.
+
 ## Status: Phase 7 — AI explanations
 
 The AI layer from the original spec: plain-English setup explanations, end-of-day journal

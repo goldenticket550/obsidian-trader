@@ -27,6 +27,7 @@ interface UserScanResult {
   userId: string;
   symbolsScanned?: number;
   alertsFired?: number;
+  symbolErrors?: { symbol: string; message: string }[];
   error?: string;
 }
 
@@ -72,7 +73,12 @@ export async function GET(request: Request) {
         }
       }
 
-      results.push({ userId, symbolsScanned: symbols.length, alertsFired });
+      results.push({
+        userId,
+        symbolsScanned: symbols.length,
+        alertsFired,
+        symbolErrors: scan.errors.length > 0 ? scan.errors : undefined,
+      });
     } catch (error) {
       // One user's failure (e.g. a bad symbol, a rate-limited provider
       // call) shouldn't abort scanning everyone else.

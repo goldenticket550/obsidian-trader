@@ -4,10 +4,21 @@ import { scoreSetup } from "@/lib/strategies/scorer";
 import { defaultStrategyConfig, type StrategyConfig } from "@/lib/strategies/config";
 import type { ScanInput } from "@/lib/mock/scanInputs";
 import type { MarketDataProvider } from "@/lib/market-data/types";
+import { findPreviousClose } from "@/lib/market-data/sessionFilter";
+import { getCurrentTradingDate } from "@/lib/risk/tradingDate";
 
 export interface ScanOutput {
   watchlist: WatchlistSymbol[];
   resultsBySymbol: Record<string, { "5m": SetupResult; "15m": SetupResult }>;
+  /**
+   * Symbols that failed to scan (provider errors, bad tickers, etc).
+   * FIX (Codex review): previously one bad symbol's error would throw
+   * and take down the ENTIRE scan, silently losing every other symbol's
+   * real data too. Now a failed symbol is reported here and simply
+   * excluded from watchlist/resultsBySymbol — it never falls back to
+   * fabricated/simulated data pretending to be real.
+   */
+  errors: { symbol: string; message: string }[];
 }
 
 function toWatchlistStatus(result: SetupResult): "red" | "yellow" | "green" {
@@ -89,7 +100,7 @@ export function scanWatchlist(
     });
   }
 
-  return { watchlist, resultsBySymbol };
+  return { watchlist, resultsBySymbol, errors: [] };
 }
 
 export interface WatchedSymbol {
@@ -112,71 +123,89 @@ export async function scanWatchlistWithProvider(
 ): Promise<ScanOutput> {
   const watchlist: WatchlistSymbol[] = [];
   const resultsBySymbol: Record<string, { "5m": SetupResult; "15m": SetupResult }> = {};
+  const errors: { symbol: string; message: string }[] = [];
+  const todayTradingDate = getCurrentTradingDate(new Date(now));
 
   for (const { symbol, exchange } of symbols) {
-    const [series5m, series15m, seriesDaily] = await Promise.all([
-      provider.getCandles({ symbol, timeframe: "5m", limit: 100 }),
-      provider.getCandles({ symbol, timeframe: "15m", limit: 100 }),
-      provider.getCandles({ symbol, timeframe: "1d", limit: 30 }),
-    ]);
+    // FIX (Codex review): one bad symbol (rate limit, malformed ticker,
+    // transient network error) used to throw and take down the ENTIRE
+    // scan, silently losing every other symbol's real data too.
+    // Isolating each symbol's work in its own try/catch means a single
+    // failure is reported and skipped, not fatal to everyone else.
+    try {
+      const [series5m, series15m, seriesDaily] = await Promise.all([
+        provider.getCandles({ symbol, timeframe: "5m", limit: 100 }),
+        provider.getCandles({ symbol, timeframe: "15m", limit: 100 }),
+        provider.getCandles({ symbol, timeframe: "1d", limit: 30 }),
+      ]);
 
-    const dailyCandles = seriesDaily.candles;
-    // Previous close = the daily candle before today's, if available;
-    // falls back to the most recent daily close, then to the current
-    // 5m price, so scoring degrades gracefully instead of throwing when
-    // history is thin (e.g. a newly-listed symbol or a quiet mock feed).
-    const prevClose =
-      dailyCandles.length >= 2
-        ? dailyCandles[dailyCandles.length - 2].close
-        : dailyCandles[dailyCandles.length - 1]?.close ??
-          series5m.candles[series5m.candles.length - 1]?.close ??
-          0;
+      const dailyCandles = seriesDaily.candles;
 
-    const result5m = scoreSetup({
-      symbol,
-      timeframe: "5m",
-      sessionCandles: series5m.candles,
-      dailyCandles,
-      prevClose,
-      config,
-      now,
-      quality: series5m.quality,
-    });
-    const result15m = scoreSetup({
-      symbol,
-      timeframe: "15m",
-      sessionCandles: series15m.candles,
-      dailyCandles,
-      prevClose,
-      config,
-      now,
-      quality: series15m.quality,
-    });
+      // FIX (Codex review): previous-close ambiguity. The old logic
+      // assumed the second-to-last daily candle was always "yesterday,"
+      // which only holds when the last daily candle represents today.
+      // findPreviousClose() determines this explicitly by trading date
+      // instead of by array position, so it's correct whether or not
+      // today's daily bar has been posted yet.
+      const prevClose =
+        findPreviousClose(dailyCandles, todayTradingDate) ??
+        dailyCandles[dailyCandles.length - 1]?.close ??
+        series5m.candles[series5m.candles.length - 1]?.close ??
+        0;
 
-    resultsBySymbol[symbol] = { "5m": result5m, "15m": result15m };
+      const result5m = scoreSetup({
+        symbol,
+        timeframe: "5m",
+        sessionCandles: series5m.candles,
+        dailyCandles,
+        prevClose,
+        config,
+        now,
+        quality: series5m.quality,
+      });
+      const result15m = scoreSetup({
+        symbol,
+        timeframe: "15m",
+        sessionCandles: series15m.candles,
+        dailyCandles,
+        prevClose,
+        config,
+        now,
+        quality: series15m.quality,
+      });
 
-    const last5m = series5m.candles[series5m.candles.length - 1];
-    const currentPrice = last5m?.close ?? prevClose;
-    const dailyChangePct = prevClose === 0 ? 0 : (currentPrice - prevClose) / prevClose;
-    const lows5m = series5m.candles.map((c) => c.low);
-    const sessionLow = lows5m.length > 0 ? Math.min(...lows5m) : currentPrice;
-    const distanceFromSessionLowPct =
-      sessionLow === 0 ? 0 : (currentPrice - sessionLow) / sessionLow;
-    const hasAnyPass = result5m.conditions.some((c) => c.state === "pass");
+      resultsBySymbol[symbol] = { "5m": result5m, "15m": result15m };
 
-    watchlist.push({
-      ticker: symbol,
-      exchange,
-      price: currentPrice,
-      dailyChangePct,
-      distanceFromSessionLowPct,
-      score5m: result5m.score,
-      score15m: result15m.score,
-      status5m: toWatchlistStatus(result5m),
-      status15m: toWatchlistStatus(result15m),
-      lastSignalTime: hasAnyPass ? result5m.lastUpdated : null,
-    });
+      const last5m = series5m.candles[series5m.candles.length - 1];
+      const currentPrice = last5m?.close ?? prevClose;
+      const dailyChangePct = prevClose === 0 ? 0 : (currentPrice - prevClose) / prevClose;
+      const lows5m = series5m.candles.map((c) => c.low);
+      const sessionLow = lows5m.length > 0 ? Math.min(...lows5m) : currentPrice;
+      const distanceFromSessionLowPct =
+        sessionLow === 0 ? 0 : (currentPrice - sessionLow) / sessionLow;
+      const hasAnyPass = result5m.conditions.some((c) => c.state === "pass");
+
+      watchlist.push({
+        ticker: symbol,
+        exchange,
+        price: currentPrice,
+        dailyChangePct,
+        distanceFromSessionLowPct,
+        score5m: result5m.score,
+        score15m: result15m.score,
+        status5m: toWatchlistStatus(result5m),
+        status15m: toWatchlistStatus(result15m),
+        lastSignalTime: hasAnyPass ? result5m.lastUpdated : null,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown scan error";
+      errors.push({ symbol, message });
+      // Deliberately do NOT push a watchlist row or a resultsBySymbol
+      // entry for this symbol — no fabricated/simulated data pretending
+      // to be real. The caller sees this symbol is simply absent, plus
+      // the explicit error explaining why.
+    }
   }
 
-  return { watchlist, resultsBySymbol };
+  return { watchlist, resultsBySymbol, errors };
 }

@@ -16,6 +16,7 @@ interface ScanApiResponse {
   watchlist: WatchlistSymbol[];
   resultsBySymbol: Record<string, { "5m": SetupResult; "15m": SetupResult }>;
   newAlerts: AlertEvent[];
+  errors: { symbol: string; message: string }[];
 }
 
 interface RiskApiResponse {
@@ -131,6 +132,23 @@ export default function DashboardPage() {
                   {a.message}
                 </div>
               ))}
+            </div>
+          )}
+
+          {data.errors.length > 0 && (
+            <div className="panel p-4 border-signal-red/30 text-sm space-y-1">
+              <div className="text-platinum-bright font-medium">
+                {data.errors.length} symbol{data.errors.length > 1 ? "s" : ""} failed to scan
+              </div>
+              {data.errors.map((e) => (
+                <div key={e.symbol} className="text-platinum-dim text-xs">
+                  <span className="font-mono text-signal-red">{e.symbol}</span>: {e.message}
+                </div>
+              ))}
+              <div className="text-platinum-dim text-xs pt-1">
+                These symbols are excluded from the watchlist below rather than shown with
+                fabricated data — everyone else's real data is unaffected.
+              </div>
             </div>
           )}
 

@@ -3,6 +3,7 @@ import type { GetCandlesParams, MarketDataProvider, SessionInfo } from "../types
 import { computeSessionInfo } from "../session";
 import { RateLimiter } from "../rateLimiter";
 import { TtlCache, CANDLE_CACHE_TTL_MS } from "../cache";
+import { filterToLatestSession } from "../sessionFilter";
 
 const ALPACA_DATA_BASE_URL = "https://data.alpaca.markets/v2";
 
@@ -100,6 +101,41 @@ export class AlpacaProvider implements MarketDataProvider {
     return feed === "iex" ? "realtime" : "delayed";
   }
 
+  /**
+   * Fetches with bounded retry for transient failures only (429 rate
+   * limit, 5xx server errors) — never retries 401/403 (auth is either
+   * right or it isn't, retrying won't fix it) or 4xx client errors other
+   * than 429 (a malformed request will fail the same way every time).
+   * Fixes a real bug (Codex review): previously a single transient
+   * failure on one symbol would immediately throw and take down the
+   * entire scan for every other symbol too.
+   */
+  private async fetchWithRetry(url: string, maxRetries = 2): Promise<Response> {
+    let lastResponse: Response | null = null;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      const response = await fetch(url, {
+        headers: {
+          "APCA-API-KEY-ID": this.config.apiKeyId,
+          "APCA-API-SECRET-KEY": this.config.apiSecretKey,
+        },
+      });
+
+      const isTransient = response.status === 429 || response.status >= 500;
+      if (response.ok || !isTransient || attempt === maxRetries) {
+        return response;
+      }
+
+      lastResponse = response;
+      const backoffMs = 300 * Math.pow(2, attempt); // 300ms, 600ms, ...
+      await new Promise((resolve) => setTimeout(resolve, backoffMs));
+    }
+
+    // Unreachable in practice (the loop always returns on its last
+    // iteration), but keeps TypeScript happy about a definite return.
+    return lastResponse as Response;
+  }
+
   async getCandles(params: GetCandlesParams): Promise<CandleSeries> {
     const { symbol, timeframe, limit = 100 } = params;
     const quality = this.dataQuality();
@@ -138,12 +174,7 @@ export class AlpacaProvider implements MarketDataProvider {
 
     this.rateLimiter.recordRequest();
 
-    const response = await fetch(url.toString(), {
-      headers: {
-        "APCA-API-KEY-ID": this.config.apiKeyId,
-        "APCA-API-SECRET-KEY": this.config.apiSecretKey,
-      },
-    });
+    const response = await this.fetchWithRetry(url.toString());
 
     if (!response.ok) {
       if (response.status === 429) {
@@ -157,10 +188,20 @@ export class AlpacaProvider implements MarketDataProvider {
 
     const data = (await response.json()) as AlpacaBarsResponse;
     const allCandles = (data.bars ?? []).map(mapAlpacaBar);
+
+    // FIX (Codex review): session contamination. Daily candles are
+    // already one-per-session by definition, so filtering doesn't apply
+    // to them - but for 5m/15m, a candle array spanning a multi-day
+    // lookback window must be trimmed down to a SINGLE session before
+    // slicing to `limit`, or session-scoped calculations (VWAP, session
+    // high/low, decline-from-open) silently mix days together. See
+    // filterToLatestSession()'s own comment for the full reasoning.
+    const sessionScoped = timeframe === "1d" ? allCandles : filterToLatestSession(allCandles);
+
     // Bars come back chronologically ascending, so the most recent ones
     // are at the end — keep only however many the caller actually asked
-    // for.
-    const candles = allCandles.slice(-limit);
+    // for, from within the correctly session-scoped set.
+    const candles = sessionScoped.slice(-limit);
 
     const series: CandleSeries = { symbol, timeframe, quality, candles };
     this.cache.set(cacheKey, series, CANDLE_CACHE_TTL_MS[timeframe]);
