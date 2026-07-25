@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies (from lockfile)
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Run test suite
+        run: npm test
+
+      # Build with placeholder, non-functional values for the two
+      # NEXT_PUBLIC_ vars only (these get inlined into the client bundle
+      # at build time either way, so they're not secrets - just enough
+      # for Next.js's build-time static analysis to have something to
+      # work with). Every other env var (Alpaca, Anthropic, Supabase
+      # service role, CRON_SECRET) is read only inside server-only route
+      # handlers at REQUEST time, never during the build itself - the
+      # app is designed to gracefully report "not configured" rather
+      # than crash when those are absent, and the build should succeed
+      # without them. If this build step ever fails because something
+      # unexpectedly needs a real secret at build time, that's a real
+      # bug worth knowing about, not something to work around by adding
+      # fake secrets here.
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://placeholder-ci-only.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder-anon-key-for-ci-build-only-not-a-real-secret"

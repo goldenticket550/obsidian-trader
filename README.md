@@ -259,6 +259,100 @@ the suite myself, that's what the verification step below is for), `tsc` clean b
 Committed locally per Codex's explicit instruction not to push until you've had a chance to
 review — the push is a separate step for you to trigger once you're satisfied.
 
+### Deploying migration 0006 — read this before assuming it's live
+
+**I have not applied this migration to your live Supabase database, and cannot** — I have no
+network access and no database credentials. Writing the migration file and committing it to git
+does **not** run it against your actual database. Pushing to GitHub does not run it either — a
+`git push` only updates your repository, it has no connection to Supabase at all. Someone (you)
+has to actually execute the SQL against the database, same as every other migration in this
+project.
+
+**To actually apply it:**
+1. Open your Supabase project dashboard → **SQL Editor**
+2. Open `supabase/migrations/0006_clamp_min_setup_score.sql`, copy its full contents
+3. Paste into a new query in the SQL Editor, click **Run**
+4. You should see a success message (or, if you've already run it once, the same success — it's
+   idempotent, safe to run more than once)
+
+**Verify it actually took effect** — run these as separate queries in the SQL Editor:
+
+```sql
+-- 1. Confirm no existing rows are out of range (should return 0 rows):
+select id, user_id, min_setup_score
+from risk_settings
+where min_setup_score < 0 or min_setup_score > 10;
+
+-- 2. Confirm the constraint exists (should return exactly 1 row):
+select conname
+from pg_constraint
+where conname = 'risk_settings_min_setup_score_range';
+
+-- 3. Confirm out-of-range writes are actually rejected - replace
+--    <your-user-id> with your real user id, then run this. It SHOULD
+--    fail with a constraint-violation error — that's success, not a bug:
+update risk_settings set min_setup_score = 15 where user_id = '<your-user-id>';
+```
+
+If query 3 does NOT error (i.e. it succeeds in setting 15), the constraint didn't apply
+correctly — stop and let me know rather than assuming it's fine.
+
+### Second independent Codex review (after commit 3bf6722) — 2 required fixes + 3 repository improvements
+
+A follow-up review of the previous fix commit found two more real behavioral bugs, plus three
+worthwhile repository/process improvements.
+
+**Required fix 1 — EMA reclaim had the exact same staleness bug as VWAP.** `detectEmaReclaim()`
+walked backward through the entire candle history for any historical crossing and returned
+`passed: true` using *that old candle's* price/EMA, even after price had since closed back below
+the EMA. Since EMA reclaim is a **required** setup condition (unlike VWAP, which is optional), a
+stale reclaim could keep a setup at yellow/green status indefinitely. Fixed with the identical
+"currently held" semantics as the VWAP fix: check whether the *current* candle is above the
+*current* EMA first, then walk backward only to confirm a genuine crossing. `reclaimTime` is
+preserved separately (the original crossing candle's timestamp) for UI/alert context, while
+`price`/`emaValue` always reflect the current candle, never a stale one. The optional stronger
+confirmations (`minReclaimBodySizeDollars`, `requireFollowThroughCandle`, `requireRisingSlope`)
+are still evaluated at the original crossing candle (they measure the crossing's quality);
+`minPctAboveEma` now uses the *current* distance (a present-state question, not a property of the
+crossing moment) — this distinction is documented directly in the function's own comment. A
+second genuine reclaim after an earlier one fails is now correctly found. 8 new tests, plus a
+scorer-level integration test proving a failed historical reclaim no longer counts as a passing
+required condition.
+
+**Required fix 2 — insufficient data was silently labeled "actionable now."** `determineEntryStatus()`
+returned `actionable_now` whenever EMA or ATR couldn't be calculated (too few candles, or a
+literal zero ATR) — indistinguishable from "we checked and it's genuinely fine," when the truth
+was "we couldn't check at all." Added a new, distinct `insufficient_data` entry status
+(`types/setup.ts`), styled neutrally in the UI (not green/yellow/red, since it isn't an
+assessment) with the label "Not Enough Data Yet." 5 new tests covering too-few-candles-for-EMA,
+enough-for-EMA-but-not-ATR, exactly-zero-ATR, and confirming both `invalidated` and
+`wait_for_pullback` still correctly take precedence over this new status.
+
+**Deployment requirement — migration 0006 documentation.** Added an explicit, honest section
+making clear that pushing this migration file to GitHub does **not** apply it to your live
+Supabase database, with the exact manual procedure and three verification queries (existing
+values in range, constraint exists, out-of-range writes actually rejected). I have not applied
+this migration myself and cannot — no network access, no database credentials.
+
+**Repository improvement 1 — GitHub Actions CI** (`.github/workflows/ci.yml`): runs on every push
+to `main` and every PR — installs from the lockfile (`npm ci`), type-checks, runs the full test
+suite, and runs a production build using placeholder (non-functional) values for only the two
+`NEXT_PUBLIC_` Supabase vars, since those get inlined into the client bundle at build time
+regardless. Every other secret (Alpaca, Anthropic, service role, cron) is read only inside
+server-only route handlers at request time, never during the build — no real secrets are ever
+needed in CI, and none are exposed.
+
+**Repository improvement 2 — stopped tracking `tsconfig.tsbuildinfo`.** Added `*.tsbuildinfo` to
+`.gitignore`. This is generated TypeScript incremental-compilation cache data, not real source —
+it regenerates automatically the next time `tsc` runs (`tsconfig.json` already has
+`"incremental": true`), so removing it from tracking loses nothing.
+
+**Repository improvement 3 — staging setup and verification plan** (`docs/STAGING.md`): documents
+a safe staging setup (separate Supabase project, Alpaca paper/read-only credentials, separate env
+vars, a UI staging indicator — flagged as *documented but not yet built*) and an 8-point
+end-to-end verification checklist. Explicitly documentation only — no external accounts, cloud
+resources, or credentials were created while writing it.
+
 ## Status: Phase 7 — AI explanations
 
 The AI layer from the original spec: plain-English setup explanations, end-of-day journal

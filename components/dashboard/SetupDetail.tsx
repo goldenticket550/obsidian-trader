@@ -65,6 +65,7 @@ const ENTRY_STATUS_LABEL: Record<EntryStatus, string> = {
   wait_for_pullback: "Wait For Pullback",
   extended_do_not_chase: "Extended — Do Not Chase",
   invalidated: "Invalidated",
+  insufficient_data: "Not Enough Data Yet",
 };
 
 const ENTRY_STATUS_CLASS: Record<EntryStatus, string> = {
@@ -72,6 +73,10 @@ const ENTRY_STATUS_CLASS: Record<EntryStatus, string> = {
   wait_for_pullback: "bg-signal-yellow/10 text-signal-yellow border-signal-yellow/30",
   extended_do_not_chase: "bg-signal-yellow/10 text-signal-yellow border-signal-yellow/30",
   invalidated: "bg-signal-red/10 text-signal-red border-signal-red/30",
+  // Deliberately neutral (not green/yellow/red) - this isn't a warning,
+  // it's a statement that no entry-quality assessment could be made at
+  // all, distinct from every other status here which IS an assessment.
+  insufficient_data: "bg-white/[0.06] text-platinum-dim border-obsidian-border",
 };
 
 function formatScanTime(iso: string): string {

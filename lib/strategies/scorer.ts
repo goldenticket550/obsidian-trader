@@ -408,9 +408,12 @@ export function determineEntryStatus(params: {
   const price = sessionCandles[lastIndex].close;
 
   if (Number.isNaN(ema) || Number.isNaN(atr) || atr === 0) {
-    // Not enough data to judge extension - default to actionable rather
-    // than falsely warning about something we can't actually measure.
-    return "actionable_now";
+    // FIX (Codex review): this used to return "actionable_now" here,
+    // which is unsafe and misleading — it looks identical to "checked,
+    // and it's fine" when the truth is "couldn't check at all." A
+    // distinct status makes the UI say exactly why no assessment is
+    // available, instead of silently implying a green light.
+    return "insufficient_data";
   }
 
   const distanceInAtrs = Math.abs(price - ema) / atr;

@@ -24,9 +24,13 @@ function toWatchlistStatus(result: SetupResult): "red" | "yellow" | "green" {
 /** Deterministic placeholder "now" for mock/simulated scans, so results
  * don't vary between server and client renders. Phase 4 (live data) will
  * replace this with a real, client-only-computed timestamp once scanning
- * genuinely happens in real time. Exported so lib/mock/scanInputs.ts can
- * anchor its candle timestamps to the same instant instead of drifting
- * from the Unix epoch (see lib/mock/scanInputs.ts for why that matters). */
+ * genuinely happens in real time.
+ *
+ * Must stay exported: lib/mock/scanInputs.ts imports this exact same
+ * value to anchor its mock candle series to a real, non-1970 date (see
+ * anchorToMockNow() there). Making this private again would either break
+ * that anchoring fix or force a duplicated, driftable copy of this
+ * timestamp in two files — export it, don't inline a second constant. */
 export const MOCK_SCAN_TIME = "2026-07-11T14:32:00Z";
 
 export function scanWatchlist(

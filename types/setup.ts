@@ -63,8 +63,21 @@ export type ConvictionLevel = "watch" | "developing" | "confirmed";
  * place to enter if price has already run too far. Computed from price's
  * distance from EMA/VWAP relative to recent volatility (ATR), never from
  * a prediction of what happens next.
+ *
+ * `insufficient_data` (Codex review fix): used specifically when there
+ * isn't enough candle history to calculate the EMA/ATR needed to judge
+ * extension at all — returning `actionable_now` in that case would be
+ * unsafe and misleading, since it looks identical to "we checked and
+ * it's fine" when the truth is "we couldn't check." This status is never
+ * trading advice — it's a statement about data availability, same as
+ * every other status here.
  */
-export type EntryStatus = "actionable_now" | "wait_for_pullback" | "extended_do_not_chase" | "invalidated";
+export type EntryStatus =
+  | "actionable_now"
+  | "wait_for_pullback"
+  | "extended_do_not_chase"
+  | "invalidated"
+  | "insufficient_data";
 
 export interface SetupResult {
   symbol: string;

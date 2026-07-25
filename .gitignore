@@ -4,3 +4,8 @@ node_modules
 .env*.local
 *.log
 .DS_Store
+# TypeScript incremental-compilation cache - generated automatically by
+# `tsc` (tsconfig.json has "incremental": true), not real source. Was
+# accidentally committed early on; removed from tracking, ignored going
+# forward.
+*.tsbuildinfo

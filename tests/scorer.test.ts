@@ -7,7 +7,7 @@ import {
   determineInvalidationNote,
 } from "@/lib/strategies/scorer";
 import { defaultStrategyConfig } from "@/lib/strategies/config";
-import { flatSeries, textbookBullishReclaimSeries, makeCandle } from "@/lib/fixtures/candles";
+import { flatSeries, textbookBullishReclaimSeries, makeCandle, fallingSeries, risingSeries } from "@/lib/fixtures/candles";
 import type { SetupCondition } from "@/types/setup";
 
 describe("scoreSetup", () => {
@@ -225,6 +225,37 @@ describe("scoreSetup", () => {
   // with hand-built, deterministic inputs wherever possible, so these
   // tests fail if the corresponding production logic is removed or
   // reversed.
+  it("no longer treats a failed historical EMA reclaim as a passing required condition (Codex regression)", () => {
+    const decline = fallingSeries(12, 110, 1);
+    const lastFallClose = decline[decline.length - 1].close;
+    const rally = risingSeries(15, lastFallClose, 1, decline.length * 300);
+    const beforeFail = [...decline, ...rally];
+
+    const last = beforeFail[beforeFail.length - 1];
+    const failCandle = makeCandle({
+      time: last.time + 300,
+      open: last.close,
+      close: last.close - 20,
+      high: last.close + 0.2,
+      low: last.close - 20.5,
+    });
+    const candles = [...beforeFail, failCandle];
+
+    const result = scoreSetup({
+      symbol: "TEST",
+      timeframe: "5m",
+      sessionCandles: candles,
+      dailyCandles: flatSeries(25, 95),
+      prevClose: 110,
+      config: defaultStrategyConfig,
+      now: "2026-01-01T00:00:00Z",
+      quality: "simulated",
+    });
+
+    const emaCondition = result.conditions.find((c) => c.id === "ema_reclaim");
+    expect(emaCondition?.state).not.toBe("pass");
+  });
+
   it("normalizes the weighted score to a fixed 0-10 scale regardless of condition count", () => {
     const result = scoreSetup({
       symbol: "TEST",
@@ -355,14 +386,69 @@ describe("scoreSetup", () => {
       expect(result).toBe("extended_do_not_chase");
     });
 
-    it("defaults to 'actionable_now' when there isn't enough data to judge extension", () => {
+    // Regression tests for a real bug (Codex review): this used to
+    // default to "actionable_now" when there wasn't enough data to judge
+    // extension - unsafe and misleading, since it looked identical to
+    // "checked, and it's fine." Now returns the distinct
+    // "insufficient_data" status instead.
+
+    it("returns 'insufficient_data' with too few candles for the EMA itself", () => {
       const result = determineEntryStatus({
-        sessionCandles: flatSeries(3, 100), // too short for a real ATR/EMA
+        sessionCandles: flatSeries(5, 100), // well under emaReclaim.period (9)
         anyInvalidated: false,
         status: "green",
         config: defaultStrategyConfig,
       });
-      expect(result).toBe("actionable_now");
+      expect(result).toBe("insufficient_data");
+    });
+
+    it("returns 'insufficient_data' with enough candles for the EMA but too few for the ATR", () => {
+      // emaReclaim.period defaults to 9 (needs ~9), extension.atrPeriod
+      // defaults to 14 (needs ~15) - 12 candles clears the first but not
+      // the second.
+      const result = determineEntryStatus({
+        sessionCandles: flatSeries(12, 100),
+        anyInvalidated: false,
+        status: "green",
+        config: defaultStrategyConfig,
+      });
+      expect(result).toBe("insufficient_data");
+    });
+
+    it("returns 'insufficient_data' when ATR is exactly zero", () => {
+      // A perfectly flat series with literally zero range on every
+      // candle (no wicks at all) - true range is 0 throughout, so ATR is
+      // exactly 0, not NaN. Must be treated the same as "can't measure."
+      const candles = Array.from({ length: 20 }, (_, i) =>
+        makeCandle({ time: i * 300, open: 100, high: 100, low: 100, close: 100 })
+      );
+      const result = determineEntryStatus({
+        sessionCandles: candles,
+        anyInvalidated: false,
+        status: "green",
+        config: defaultStrategyConfig,
+      });
+      expect(result).toBe("insufficient_data");
+    });
+
+    it("still returns 'invalidated' even when there's also insufficient data - invalidation takes precedence", () => {
+      const result = determineEntryStatus({
+        sessionCandles: flatSeries(3, 100), // insufficient data on its own
+        anyInvalidated: true,
+        status: "green",
+        config: defaultStrategyConfig,
+      });
+      expect(result).toBe("invalidated");
+    });
+
+    it("still returns 'wait_for_pullback' (not 'insufficient_data') for a non-green setup, regardless of data length", () => {
+      const result = determineEntryStatus({
+        sessionCandles: flatSeries(3, 100), // insufficient data on its own
+        anyInvalidated: false,
+        status: "yellow",
+        config: defaultStrategyConfig,
+      });
+      expect(result).toBe("wait_for_pullback");
     });
   });
 
