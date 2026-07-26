@@ -492,6 +492,51 @@ from the retry loop. `AlpacaProvider`'s constructor now accepts an optional inje
 enforcement (fails fast, doesn't wait), succeeding normally with a comfortable deadline, and the
 strengthened accounting test.
 
+### Two real bugs caught during round-5 verification, now permanently synced into source
+
+1. **A genuine logic bug in `parseRetryAfterMs()`** — for a negative numeric string like `"-5"`,
+   the numeric branch correctly rejected it (fails `seconds >= 0`), but then fell through to
+   `Date.parse("-5")`. JavaScript's notoriously lenient date parser accepts that as a valid (very
+   old, bogus) date rather than returning `NaN`, so it got silently clamped to `0` instead of
+   correctly falling back to exponential backoff. Fixed by checking `Number.isFinite(seconds)`
+   alone first — if the header parses as *any* finite number, it was clearly intended as the
+   numeric delta-seconds form, and an invalid one (negative) should return `null` rather than
+   ever reaching `Date.parse()`.
+2. **The recurring Saturday-sample-date issue, now fixed at every remaining occurrence.** Round 4
+   already fixed three instances of `2026-07-11` (a Saturday) breaking under the new regular-hours
+   filter; this round's own new tests reused the same stale date in a few more places. All
+   occurrences across the test file are now `2026-07-13` (a real Monday), matching every other
+   test in the file.
+
+### Sixth Codex review — narrow, final gap in the deadline implementation (Codex confirmed convergence)
+
+Codex explicitly confirmed the review is converging at this point — this round found one bounded
+gap in round 5's new deadline logic, not a new structural issue: **the deadline was checked
+before retry waits, but not before every fetch attempt itself, and each attempt still got the
+full 10-second timeout regardless of how little deadline budget actually remained.** Concretely:
+if the cron deadline was 2 seconds away and the computed retry delay was only 300ms, the wait
+would be allowed — but the subsequent fetch could then run for the full 10 seconds, blowing the
+overall deadline by ~8 seconds anyway. A later symbol's *initial* attempt could also start after
+the deadline had already effectively passed, since the old check only ran before waits.
+
+**Fixed with two changes:**
+1. **Deadline checked before every attempt**, including the very first one — not just before
+   retry waits. A symbol whose turn comes up after the deadline has already passed now fails
+   immediately, before spending any rate-limit budget or starting a fetch at all.
+2. **Each attempt's own abort timeout is capped** at `min(requestTimeoutMs, deadlineAt - Date.now()
+   - safetyMargin)` — the smaller of the normal 10-second ceiling and whatever time is actually
+   left. A `DEADLINE_SAFETY_MARGIN_MS` (500ms) is baked into every deadline check consistently,
+   leaving room for response parsing/cleanup after a fetch resolves right at the wire.
+
+`AlpacaProvider`'s constructor now also accepts an optional injected `requestTimeoutMs` (test-only,
+alongside the existing injected `RateLimiter`), letting tests use a tiny timeout and assert on
+real abort timing in milliseconds instead of needing to wait through anything close to the real
+10-second default. 4 new tests using a fetch mock that only resolves when its `AbortSignal`
+actually fires (rather than guessing behavior from a fetch that resolves instantly regardless of
+the signal): the no-deadline case still uses the full timeout, an already-past deadline fails with
+zero fetch calls, a single attempt's timeout is genuinely capped below the full ceiling, and a
+*retry* attempt's timeout is capped too, not just the initial one.
+
 ## Status: Phase 7 — AI explanations
 
 The AI layer from the original spec: plain-English setup explanations, end-of-day journal

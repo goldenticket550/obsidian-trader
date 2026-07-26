@@ -102,13 +102,15 @@ export const MAX_RETRY_DELAY_MS = 5_000;
 export function parseRetryAfterMs(retryAfterHeader: string | null, now: number = Date.now()): number | null {
   if (retryAfterHeader === null) return null;
 
-  // If the header parses as a plain number at all (even a negative one),
-  // it was clearly intended as delta-seconds, not an HTTP-date — don't
-  // fall through to Date.parse(), which is lenient enough to accept
-  // numeric-looking garbage like "-5" as a bogus valid date instead of
-  // correctly treating it as invalid input.
   const seconds = Number(retryAfterHeader);
   if (Number.isFinite(seconds)) {
+    // The header parsed as SOME number, so it was clearly intended as
+    // the numeric delta-seconds form, not an HTTP-date. A negative value
+    // is invalid — return null rather than falling through to
+    // Date.parse(), which is notoriously lenient and can accept a
+    // numeric-looking string as a bogus (very old) valid date instead of
+    // NaN (e.g. Date.parse("-5") does NOT return NaN), silently
+    // misclassifying an invalid numeric value as a valid HTTP-date.
     return seconds >= 0 ? seconds * 1000 : null;
   }
 
@@ -141,6 +143,16 @@ export function computeRetryDelayMs(
   return Math.min(rawDelay, MAX_RETRY_DELAY_MS);
 }
 
+/**
+ * Small positive buffer subtracted from the remaining deadline when
+ * computing both "is there any time left at all" and "how long should
+ * this attempt's own timeout be" — leaves room for response parsing and
+ * caller cleanup after a fetch resolves, so a request that technically
+ * finishes right at the deadline doesn't still blow the overall budget
+ * by the time its response body is read.
+ */
+const DEADLINE_SAFETY_MARGIN_MS = 500;
+
 export class AlpacaProvider implements MarketDataProvider {
   name = "alpaca";
 
@@ -156,7 +168,14 @@ export class AlpacaProvider implements MarketDataProvider {
      * correctness indirectly from fetch call counts (which would still
      * pass even if recordRequest() were accidentally removed).
      */
-    rateLimiter?: RateLimiter
+    rateLimiter?: RateLimiter,
+    /**
+     * Per-attempt request timeout ceiling — defaults to 10s in
+     * production. Test-only override, so deadline-related tests can use
+     * a tiny value (e.g. 50ms) and assert on abort behavior almost
+     * instantly instead of needing real multi-second waits.
+     */
+    private requestTimeoutMs: number = 10_000
   ) {
     if (!config.apiKeyId || !config.apiSecretKey) {
       throw new Error(
@@ -175,6 +194,21 @@ export class AlpacaProvider implements MarketDataProvider {
   }
 
   /**
+   * How long this specific attempt's own AbortController timeout should
+   * be — the smaller of the normal per-attempt ceiling (requestTimeoutMs)
+   * and whatever time is actually left before the deadline (minus the
+   * safety margin). Without this, a fetch could still run for the full
+   * 10s ceiling even with almost no deadline budget remaining, blowing
+   * through it by however much longer the fetch took than the budget
+   * allowed.
+   */
+  private computeAttemptTimeoutMs(deadlineAt: number | undefined): number {
+    if (deadlineAt === undefined) return this.requestTimeoutMs;
+    const remaining = deadlineAt - Date.now() - DEADLINE_SAFETY_MARGIN_MS;
+    return Math.max(0, Math.min(this.requestTimeoutMs, remaining));
+  }
+
+  /**
    * Fetches with bounded retry for transient failures — 429 rate limit,
    * 5xx server errors, genuine network exceptions (DNS failure,
    * connection reset, timeout), and our own request timeout via
@@ -190,6 +224,17 @@ export class AlpacaProvider implements MarketDataProvider {
    * honoring the computed delay would push past it, this fails fast with
    * a clear "not enough time remaining" error for just this symbol,
    * instead of waiting and risking the whole route timing out mid-scan.
+   *
+   * FIX (Codex round 6): round 5's deadline check only ran before RETRY
+   * waits — the initial attempt of a symbol could still start after the
+   * deadline had already effectively passed (if a prior symbol used up
+   * the remaining budget), and every attempt's fetch still got the FULL
+   * requestTimeoutMs regardless of how little time was actually left,
+   * meaning a slow-but-not-technically-erroring fetch could still blow
+   * through the deadline by many seconds even when the pre-wait check
+   * correctly allowed the attempt to start. Now the deadline is checked
+   * before EVERY attempt (not just before waits), and each attempt's own
+   * abort timeout is capped at whatever time genuinely remains.
    */
   private async fetchWithRetry(
     url: string,
@@ -199,6 +244,11 @@ export class AlpacaProvider implements MarketDataProvider {
     let lastError: Error | null = null;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      // Fail immediately if the deadline has already passed (or is about
+      // to, within the safety margin) — before spending any rate-limit
+      // budget or starting a fetch that couldn't possibly finish in time.
+      this.assertWithinDeadline(0, deadlineAt, url);
+
       if (!this.rateLimiter.canProceed()) {
         const waitMs = this.rateLimiter.msUntilNextSlot();
         throw new Error(
@@ -208,8 +258,9 @@ export class AlpacaProvider implements MarketDataProvider {
       }
       this.rateLimiter.recordRequest();
 
+      const attemptTimeoutMs = this.computeAttemptTimeoutMs(deadlineAt);
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), this.requestTimeoutMs);
+      const timeoutId = setTimeout(() => controller.abort(), attemptTimeoutMs);
 
       let response: Response;
       try {
@@ -257,18 +308,16 @@ export class AlpacaProvider implements MarketDataProvider {
     throw lastError ?? new Error("Alpaca request failed for an unknown reason.");
   }
 
-  /** Throws a clear, distinct error if waiting `delayMs` would push past `deadlineAt`. */
+  /** Throws a clear, distinct error if waiting `delayMs` would push past `deadlineAt` (with safety margin). */
   private assertWithinDeadline(delayMs: number, deadlineAt: number | undefined, url: string): void {
     if (deadlineAt === undefined) return;
-    if (Date.now() + delayMs > deadlineAt) {
+    if (Date.now() + delayMs + DEADLINE_SAFETY_MARGIN_MS > deadlineAt) {
       throw new Error(
-        `Alpaca retry for ${url} would exceed the remaining execution deadline — ` +
+        `Alpaca request for ${url} would exceed the remaining execution deadline — ` +
           `failing fast instead of risking the whole scan timing out. Try again later.`
       );
     }
   }
-
-  private requestTimeoutMs = 10_000;
 
   private wait(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));

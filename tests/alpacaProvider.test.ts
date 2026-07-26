@@ -34,7 +34,7 @@ describe("computeStartDate", () => {
 describe("mapAlpacaBar", () => {
   it("maps an Alpaca bar to our Candle shape", () => {
     const bar = {
-      t: "2026-07-11T14:30:00Z",
+      t: "2026-07-13T14:30:00Z",
       o: 100.1,
       h: 101.2,
       l: 99.8,
@@ -454,6 +454,130 @@ describe("parseRetryAfterMs", () => {
   it("returns null for a genuinely unparseable value", () => {
     expect(parseRetryAfterMs("not-a-real-value-at-all")).toBeNull();
   });
+
+  it("rejects a negative numeric string rather than misinterpreting it via Date.parse", () => {
+    // Regression test for a real bug found during verification:
+    // Date.parse("-5") does NOT return NaN (JS's lenient date parser
+    // accepts it as a bogus valid date), so a negative numeric string
+    // must be rejected BEFORE ever reaching Date.parse(), not after.
+    expect(parseRetryAfterMs("-5")).toBeNull();
+    expect(parseRetryAfterMs("-100")).toBeNull();
+  });
+});
+
+describe("fetchWithRetry deadline enforcement (Codex round 6)", () => {
+  /** A fetch mock that never resolves on its own - only rejects with an
+   * AbortError once its AbortSignal actually fires, mimicking real
+   * fetch+AbortController behavior. Lets these tests prove abort timing
+   * precisely instead of guessing from total elapsed time around a
+   * fetch that resolves instantly regardless of the signal. */
+  function makePendingUntilAbortFetch() {
+    return vi.fn((_url: string, options: { signal: AbortSignal }) => {
+      return new Promise((_resolve, reject) => {
+        options.signal.addEventListener("abort", () => {
+          reject(new DOMException("The operation was aborted.", "AbortError"));
+        });
+      });
+    });
+  }
+
+  it("still uses the normal (full) request timeout when no deadline is set", async () => {
+    const mockFetch = makePendingUntilAbortFetch();
+    vi.stubGlobal("fetch", mockFetch);
+
+    // Inject a short "full" timeout (100ms) purely so this test runs
+    // fast - the point is proving NO deadline-based capping occurs, not
+    // testing the literal production value of 10s.
+    const provider = new AlpacaProvider({ apiKeyId: "key", apiSecretKey: "secret" }, undefined, 100);
+
+    const start = Date.now();
+    await expect(provider.getCandles({ symbol: "AAPL", timeframe: "5m" })).rejects.toThrow();
+    const elapsed = Date.now() - start;
+
+    // A timeout abort is itself a retryable transient failure (see the
+    // round-4 network-exception fix), so the full sequence here is 3
+    // attempts x ~100ms timeout, plus the 300ms and 600ms backoff waits
+    // between them - roughly 1200ms total, NOT a single 100ms attempt.
+    expect(mockFetch).toHaveBeenCalledTimes(3);
+
+    // The lower bound is the assertion that actually matters: it proves
+    // each attempt waited out its full 100ms timeout rather than being
+    // capped shorter, which is what must NOT happen when no deadline is
+    // set. The upper bound just keeps the test honest about the total.
+    expect(elapsed).toBeGreaterThanOrEqual(90);
+    expect(elapsed).toBeLessThan(2500);
+  });
+
+  it("fails immediately with zero fetch calls when the deadline has already passed", async () => {
+    const mockFetch = makePendingUntilAbortFetch();
+    vi.stubGlobal("fetch", mockFetch);
+
+    const provider = new AlpacaProvider({ apiKeyId: "key", apiSecretKey: "secret" });
+    const deadlineAt = Date.now() - 1000; // already in the past
+
+    const start = Date.now();
+    await expect(
+      provider.getCandles({ symbol: "AAPL", timeframe: "5m", deadlineAt })
+    ).rejects.toThrow(/deadline/i);
+    const elapsed = Date.now() - start;
+
+    // Fails before ever attempting the first fetch - the deadline check
+    // now runs before EVERY attempt, including the initial one.
+    expect(mockFetch).not.toHaveBeenCalled();
+    expect(elapsed).toBeLessThan(200);
+  });
+
+  it("caps a single attempt's own timeout to the remaining deadline budget, shorter than the full request timeout", async () => {
+    const mockFetch = makePendingUntilAbortFetch();
+    vi.stubGlobal("fetch", mockFetch);
+
+    // Full timeout is a realistic 10s, but the deadline only leaves
+    // ~1.5s - 500ms safety margin = ~1s of actual budget for this
+    // attempt. If capping works, the abort fires around 1s, not 10s.
+    const provider = new AlpacaProvider({ apiKeyId: "key", apiSecretKey: "secret" }, undefined, 10_000);
+    const deadlineAt = Date.now() + 1500;
+
+    const start = Date.now();
+    await expect(
+      provider.getCandles({ symbol: "AAPL", timeframe: "5m", deadlineAt })
+    ).rejects.toThrow();
+    const elapsed = Date.now() - start;
+
+    expect(elapsed).toBeGreaterThanOrEqual(800);
+    expect(elapsed).toBeLessThan(3000); // nowhere near the full 10s
+  }, 5_000);
+
+  it("caps a RETRY attempt's timeout too, not just the initial attempt", async () => {
+    let callCount = 0;
+    const mockFetch = vi.fn((_url: string, options: { signal: AbortSignal }) => {
+      callCount++;
+      if (callCount === 1) {
+        // First attempt fails fast with a transient network error.
+        return Promise.reject(new Error("ECONNRESET"));
+      }
+      // Second attempt (the retry) hangs until its own abort fires.
+      return new Promise((_resolve, reject) => {
+        options.signal.addEventListener("abort", () => {
+          reject(new DOMException("The operation was aborted.", "AbortError"));
+        });
+      });
+    });
+    vi.stubGlobal("fetch", mockFetch);
+
+    const provider = new AlpacaProvider({ apiKeyId: "key", apiSecretKey: "secret" }, undefined, 10_000);
+    // Enough time for the first failure + a short backoff wait (300ms),
+    // but the RETRY's own remaining budget should still be well under 10s.
+    const deadlineAt = Date.now() + 2000;
+
+    const start = Date.now();
+    await expect(
+      provider.getCandles({ symbol: "AAPL", timeframe: "5m", deadlineAt })
+    ).rejects.toThrow();
+    const elapsed = Date.now() - start;
+
+    expect(callCount).toBe(2); // both the initial attempt and the retry happened
+    expect(elapsed).toBeLessThan(3000); // proves the retry's own timeout was capped, not the full 10s
+  }, 5_000);
 });
 
 describe("computeRetryDelayMs", () => {
