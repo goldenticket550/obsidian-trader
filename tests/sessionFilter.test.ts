@@ -142,12 +142,10 @@ describe("filterToLatestSession — regular-hours scope (Codex round 4 regressio
     expect(result.every((c) => c.close <= 101)).toBe(true);
   });
 
-  it("returns empty (not a fallback to a different session) when scanning before the opening bell with only pre-market bars available", () => {
-    const candles = [
-      makeCandle({ time: secondsFromMs(PREMARKET_TIME), close: 90 }),
-    ];
-    const result = filterToLatestSession(candles);
-    expect(result).toEqual([]);
+  it("returns empty when the ONLY candles available are pre-market", () => {
+    // Nothing in scope at all — genuinely insufficient data.
+    const candles = [makeCandle({ time: secondsFromMs(PREMARKET_TIME), close: 90 })];
+    expect(filterToLatestSession(candles)).toEqual([]);
   });
 
   it("includes pre-market and after-hours bars when sessionScope is 'extended'", () => {
@@ -178,6 +176,57 @@ describe("filterToLatestSession — regular-hours scope (Codex round 4 regressio
     const result = filterToLatestSession(candles);
     expect(result.length).toBe(1);
     expect(result[0].close).toBe(200);
+  });
+});
+
+describe("filterToLatestSession — a pre-market print must not destroy the prior session", () => {
+  // Found on the live dashboard: two of three watchlist symbols showed
+  // 0.0 scores and no candle during a pre-market scan, purely because
+  // they had ticked pre-market that morning. The third, which had not
+  // ticked, still showed Friday's session correctly.
+  const FRI_1550 = Date.parse("2026-07-24T19:50:00Z"); // Fri 3:50 PM ET
+  const FRI_1555 = Date.parse("2026-07-24T19:55:00Z"); // Fri 3:55 PM ET
+  const MON_0914 = Date.parse("2026-07-27T13:14:00Z"); // Mon 9:14 AM ET, pre-market
+  const MON_0935 = Date.parse("2026-07-27T13:35:00Z"); // Mon 9:35 AM ET, regular
+
+  const fridaySession = [
+    makeCandle({ time: secondsFromMs(FRI_1550), close: 207 }),
+    makeCandle({ time: secondsFromMs(FRI_1555), close: 207.07 }),
+  ];
+
+  it("keeps Friday's session when a single pre-market bar exists today", () => {
+    const candles = [...fridaySession, makeCandle({ time: secondsFromMs(MON_0914), close: 333 })];
+    const result = filterToLatestSession(candles);
+    expect(result).toHaveLength(2);
+    expect(result.every((c) => c.close < 300)).toBe(true);
+  });
+
+  it("gives the same answer whether or not the symbol ticked pre-market", () => {
+    // The inconsistency between symbols was the clearest signal of the bug.
+    const didNotTick = filterToLatestSession(fridaySession);
+    const didTick = filterToLatestSession([
+      ...fridaySession,
+      makeCandle({ time: secondsFromMs(MON_0914), close: 333 }),
+    ]);
+    expect(didTick.map((c) => c.close)).toEqual(didNotTick.map((c) => c.close));
+  });
+
+  it("switches to today once a real regular-hours candle exists", () => {
+    const candles = [
+      ...fridaySession,
+      makeCandle({ time: secondsFromMs(MON_0914), close: 333 }),
+      makeCandle({ time: secondsFromMs(MON_0935), close: 210 }),
+    ];
+    const result = filterToLatestSession(candles);
+    expect(result).toHaveLength(1);
+    expect(result[0].close).toBe(210);
+  });
+
+  it("still includes the pre-market bar under extended scope", () => {
+    const candles = [...fridaySession, makeCandle({ time: secondsFromMs(MON_0914), close: 333 })];
+    const result = filterToLatestSession(candles, "extended");
+    expect(result).toHaveLength(1);
+    expect(result[0].close).toBe(333);
   });
 });
 

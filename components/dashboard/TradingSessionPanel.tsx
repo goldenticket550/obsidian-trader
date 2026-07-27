@@ -52,7 +52,7 @@ export function TradingSessionPanel({
     settings && session && !settings.allowedSessions.includes(session.session as never);
 
   return (
-    <section className="panel px-4 py-3" aria-label="Trading session">
+    <section className="command-panel px-4 py-3" aria-label="Trading session">
       <div className="flex items-center justify-between gap-2 mb-2">
         <h2 className="card-heading">Trading session</h2>
         <details className="relative">

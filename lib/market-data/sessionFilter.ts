@@ -29,11 +29,24 @@ export type SessionScope = "regular" | "extended" | "all";
  * recent date") is actually true regardless of input order, not just
  * true for the current provider's specific behavor.
  *
- * If no candles remain after filtering (e.g. a scan run before the
- * opening bell, with only pre-market bars available and `sessionScope:
- * "regular"`), this correctly returns an empty array — callers already
- * treat an empty candle series as "insufficient data" rather than
- * silently substituting a different session's data.
+ * FIX (round 4 follow-up, found on the live dashboard): the scope filter
+ * must be applied BEFORE picking the latest date, not after. Picking the
+ * date first meant a single pre-market print today moved "latest date" to
+ * today, and the regular-hours filter then matched nothing — silently
+ * throwing away the previous session's complete, valid data. On a
+ * pre-market scan two watchlist symbols showed 0.0 scores and no candle
+ * purely because they had ticked pre-market, while a third symbol that
+ * happened not to tick still showed Friday's session correctly. Same
+ * situation, different answer, which is the tell.
+ *
+ * Filtering first means "the most recent date that actually HAS candles
+ * of the requested kind" — so the last completed regular session survives
+ * until a new one genuinely begins. Callers still surface the candle's
+ * real timestamp, so a Friday session viewed on Monday is labelled as
+ * Friday rather than passed off as current.
+ *
+ * If no candles match the scope at all, this still returns an empty array
+ * and callers still treat that as insufficient data.
  */
 export function filterToLatestSession(
   candles: Candle[],
@@ -41,18 +54,20 @@ export function filterToLatestSession(
 ): Candle[] {
   if (candles.length === 0) return candles;
 
-  const dates = candles.map((c) => getCurrentTradingDate(new Date(c.time * 1000)));
-  const latestDate = dates.reduce((max, d) => (d > max ? d : max), dates[0]);
-
-  return candles.filter((c, i) => {
-    if (dates[i] !== latestDate) return false;
+  const inScope = candles.filter((c) => {
     if (sessionScope === "all") return true;
-
     const sessionType = getSessionTypeForTimestamp(new Date(c.time * 1000));
     if (sessionScope === "regular") return sessionType === "regular";
-    // "extended": anything except fully closed (keeps pre-market, regular, after-hours)
+    // "extended": anything except fully closed (pre-market, regular, after-hours)
     return sessionType !== "closed";
   });
+
+  if (inScope.length === 0) return [];
+
+  const dates = inScope.map((c) => getCurrentTradingDate(new Date(c.time * 1000)));
+  const latestDate = dates.reduce((max, d) => (d > max ? d : max), dates[0]);
+
+  return inScope.filter((_, i) => dates[i] === latestDate);
 }
 
 /**

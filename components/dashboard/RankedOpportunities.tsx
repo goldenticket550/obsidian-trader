@@ -56,7 +56,7 @@ export function RankedOpportunities({
   const ranked = rankOpportunities(symbols);
 
   return (
-    <section className="panel overflow-hidden" aria-label="Ranked opportunities">
+    <section className="command-panel overflow-hidden" aria-label="Ranked opportunities">
       <div
         className="px-4 py-2.5 flex items-baseline justify-between gap-3"
         style={{ borderBottom: "1px solid var(--border)" }}

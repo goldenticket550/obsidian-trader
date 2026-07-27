@@ -45,7 +45,17 @@
 }
 
 @layer components {
+  /* Original panel, unchanged in shape, kept for /journal, /alerts,
+     /login and /settings. Those pages were never re-checked against the
+     Command Center restyle, so they keep the surface they were designed
+     against — only the underlying palette tokens moved with the theme. */
   .panel {
+    @apply bg-obsidian-panel border border-obsidian-border rounded-lg shadow-panel;
+  }
+
+  /* Command Center surface: tighter radius and a flatter shadow, scoped
+     to the dashboard so it can evolve without touching other pages. */
+  .command-panel {
     background: var(--panel);
     border: 1px solid var(--border);
     @apply rounded-md;

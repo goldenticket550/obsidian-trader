@@ -36,6 +36,44 @@ export function formatEasternDateTime(iso: string): string {
   })} ET`;
 }
 
+/** The event's calendar date in Eastern, as YYYY-MM-DD. */
+function easternDateKey(d: Date): string {
+  return d.toLocaleDateString("en-CA", { timeZone: ET_ZONE });
+}
+
+/**
+ * Timestamp for a discrete past event (an alert firing), where the event
+ * may be minutes or weeks old.
+ *
+ * A bare "8:31 PM ET" is only safe when the event is from today. Seen at
+ * 9:14 AM it silently described something from a previous day — the same
+ * date-less-timestamp failure as the candle labelling. So:
+ *   - today            -> "6:16 PM ET"
+ *   - within a week    -> "Fri 8:31 PM ET"
+ *   - older than that  -> "Fri Jul 24, 8:31 PM ET"
+ *
+ * The third case matters because a weekday alone repeats every seven
+ * days; "Fri" on a three-week-old event is just as ambiguous as no date.
+ */
+export function formatEventTime(iso: string, now: number = Date.now()): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "Unavailable";
+
+  const time = formatEasternTime(iso);
+  if (easternDateKey(d) === easternDateKey(new Date(now))) return time;
+
+  const weekday = d.toLocaleString("en-US", { timeZone: ET_ZONE, weekday: "short" });
+  const withinAWeek = now - d.getTime() < 7 * 24 * 60 * 60 * 1000;
+  if (withinAWeek) return `${weekday} ${time}`;
+
+  const monthDay = d.toLocaleString("en-US", {
+    timeZone: ET_ZONE,
+    month: "short",
+    day: "numeric",
+  });
+  return `${weekday} ${monthDay}, ${time}`;
+}
+
 export const DATA_QUALITY_LABEL: Record<DataQuality, string> = {
   simulated: "Simulated data",
   delayed: "Delayed data",

@@ -19,7 +19,7 @@ export function MarketContextPanel({
     stamps.length > 0 && stamps.every((s) => s === stamps[0]) ? stamps[0] : null;
 
   return (
-    <section className="panel px-4 py-3" aria-label="Market context">
+    <section className="command-panel px-4 py-3" aria-label="Market context">
       <h2 className="card-heading mb-2">Market context</h2>
 
       {loading && (

@@ -5,6 +5,7 @@ import {
   describeFeed,
   formatEasternTime,
   formatEasternDateTime,
+  formatEventTime,
   latestCandleLabel,
   scannedLabel,
   DATA_QUALITY_LABEL,
@@ -99,6 +100,51 @@ describe("candleAgeLabel", () => {
   it("returns null rather than a fake age when there is no candle", () => {
     expect(candleAgeLabel(null, now)).toBeNull();
     expect(candleAgeLabel("garbage", now)).toBeNull();
+  });
+});
+
+describe("formatEventTime — an event from another day must say so", () => {
+  // The bug this exists to prevent, taken from the live dashboard: the
+  // action queue rendered "8:31 PM ET" while the browser clock read
+  // 9:14 AM. 8:31 PM had not happened yet that day, so the event was
+  // necessarily older — but nothing on screen said which day.
+  const nowEt914am = Date.parse("2026-07-27T13:14:00Z"); // Mon 9:14 AM ET
+
+  it("prefixes the weekday for a previous-day event, and omits it for a same-day event", () => {
+    const yesterdayEvening = "2026-07-25T00:31:00Z"; // Fri Jul 24, 8:31 PM ET
+    const earlierToday = "2026-07-27T12:45:00Z"; // Mon Jul 27, 8:45 AM ET
+
+    const older = formatEventTime(yesterdayEvening, nowEt914am);
+    const today = formatEventTime(earlierToday, nowEt914am);
+
+    expect(older).toBe("Fri 8:31 PM ET");
+    expect(today).toBe("8:45 AM ET");
+
+    // The distinguishing property: one carries a day, the other doesn't.
+    expect(older).toMatch(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b/);
+    expect(today).not.toMatch(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b/);
+  });
+
+  it("treats an event from earlier the same ET day as today, not as older", () => {
+    // 4:05 AM ET the same morning — same calendar day, so time-only.
+    expect(formatEventTime("2026-07-27T08:05:00Z", nowEt914am)).toBe("4:05 AM ET");
+  });
+
+  it("treats an event just after ET midnight as a different day", () => {
+    // 11:50 PM ET Sunday is a different Eastern date from Monday morning,
+    // even though it is under 10 hours earlier.
+    expect(formatEventTime("2026-07-27T03:50:00Z", nowEt914am)).toBe("Sun 11:50 PM ET");
+  });
+
+  it("adds the month and day once a weekday alone would be ambiguous", () => {
+    // Three weeks back: "Fri" repeats every seven days, so weekday alone
+    // is no better than no date at all.
+    const threeWeeksAgo = "2026-07-04T00:31:00Z"; // Fri Jul 3, 8:31 PM ET
+    expect(formatEventTime(threeWeeksAgo, nowEt914am)).toBe("Fri Jul 3, 8:31 PM ET");
+  });
+
+  it("says Unavailable rather than NaN for an unparseable timestamp", () => {
+    expect(formatEventTime("not-a-date", nowEt914am)).toBe("Unavailable");
   });
 });
 

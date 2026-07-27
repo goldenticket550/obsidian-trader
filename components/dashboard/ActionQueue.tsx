@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { AlertEvent } from "@/lib/alerts/types";
 import type { SetupResult } from "@/types/setup";
 import { triageAlerts, type TriageBucket } from "@/lib/alerts/triage";
-import { formatEasternTime } from "@/lib/market-data/freshness";
+import { formatEventTime } from "@/lib/market-data/freshness";
 
 const BUCKET_ACCENT: Record<TriageBucket, string> = {
   risk_review: "var(--amber)",
@@ -61,7 +61,7 @@ export function ActionQueue({
   const groups = triageAlerts(alerts);
 
   return (
-    <section className="panel flex flex-col" aria-label="Action queue">
+    <section className="command-panel flex flex-col" aria-label="Action queue">
       <div
         className="px-4 py-2.5 flex items-center justify-between shrink-0"
         style={{ borderBottom: "1px solid var(--border)" }}
@@ -88,15 +88,16 @@ export function ActionQueue({
         </p>
       )}
 
-      {/* Own scroll region: the queue can legitimately hold dozens of
-          events, and letting that set page height buries everything else.
-          tabIndex makes it keyboard-scrollable. */}
+      {/* Own scroll region on xl only, where the queue is a fixed side
+          column and its length would otherwise set page height. Below xl
+          it participates in normal page flow — a nested scroll box inside
+          an already-scrolling phone page is worse than a long list. */}
       {!loading && !error && (
         <div
-          className="overflow-y-auto max-h-[calc(100vh-230px)] min-h-[200px] focus:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-accent-champagne"
+          className="xl:overflow-y-auto xl:max-h-[calc(100vh-190px)] focus:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-accent-champagne"
           tabIndex={0}
           role="region"
-          aria-label="Alert events, scrollable"
+          aria-label="Alert events"
         >
           {groups.map((group) => (
             <div key={group.bucket} style={{ borderBottom: "1px solid var(--border-soft)" }}>
@@ -150,16 +151,23 @@ export function ActionQueue({
                             {TYPE_LABEL[event.type] ?? event.type}
                           </span>
                         </span>
+                        {/* Dated once the event is not from today — a bare
+                            "8:31 PM ET" seen at 9:14 AM described a
+                            previous day with nothing to say so. */}
                         <span
                           className="text-[9px] font-mono tabular shrink-0"
                           style={{ color: "var(--text-muted)" }}
                         >
-                          {formatEasternTime(event.firedAt)}
+                          {formatEventTime(event.firedAt)}
                         </span>
                       </div>
 
+                      {/* Clamped to two lines, but `title` keeps the full
+                          message reachable — a truncated alert must never
+                          be the only copy of what happened. */}
                       <p
                         className="text-[11px] mt-0.5 leading-snug line-clamp-2"
+                        title={body}
                         style={{ color: "var(--text-secondary)" }}
                       >
                         {body}
@@ -170,7 +178,7 @@ export function ActionQueue({
                           {/* The fallback is the raw ISO string lifted out
                               of the stored message — format it rather than
                               dumping 2026-07-24T20:55:00.000Z on screen. */}
-                          Latest candle {formatEasternTime(candleTime ?? marketData!)}
+                          Latest candle {formatEventTime(candleTime ?? marketData!)}
                         </p>
                       )}
                     </li>

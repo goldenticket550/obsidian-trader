@@ -36,7 +36,7 @@ export function AccountRiskPanel({
 }) {
   if (!settings || !status) {
     return (
-      <section className="panel px-4 py-3" aria-label="Account and risk">
+      <section className="command-panel px-4 py-3" aria-label="Account and risk">
         <h2 className="card-heading mb-2">Account &amp; risk</h2>
         <p className="text-[12px]" style={{ color: "var(--text-muted)" }}>
           Unavailable
@@ -50,7 +50,7 @@ export function AccountRiskPanel({
   const remainingLoss = Math.max(0, settings.maxLossPerDay - lossUsed);
 
   return (
-    <section className="panel px-4 py-3" aria-label="Account and risk">
+    <section className="command-panel px-4 py-3" aria-label="Account and risk">
       <h2 className="card-heading mb-2">Account &amp; risk</h2>
 
       <div className="flex items-baseline justify-between gap-3 mb-2">

@@ -130,7 +130,7 @@ export function SignalRow({
         {cards.map((card) => {
           const color = ACCENT[card.key] ?? "var(--text)";
           return (
-            <div key={card.key} className="panel px-3.5 py-3 flex items-center gap-3 min-h-[74px]">
+            <div key={card.key} className="command-panel px-3.5 py-3 flex items-center gap-3 min-h-[74px]">
               <span
                 className="shrink-0 flex items-center justify-center h-8 w-8 rounded"
                 style={{ background: "var(--panel-raised)" }}

@@ -227,13 +227,13 @@ export default function DashboardPage() {
       />
 
       {scanError && (
-        <div className="panel p-4 border-signal-red/40 text-sm text-signal-red">
+        <div className="command-panel p-4 border-signal-red/40 text-sm text-signal-red">
           Scan failed: {scanError}
         </div>
       )}
 
       {scan && scan.errors.length > 0 && (
-        <div className="panel p-4 border-signal-red/30 text-sm space-y-1">
+        <div className="command-panel p-4 border-signal-red/30 text-sm space-y-1">
           <div className="text-platinum-bright font-medium">
             {scan.errors.length} symbol{scan.errors.length > 1 ? "s" : ""} failed to scan
           </div>
