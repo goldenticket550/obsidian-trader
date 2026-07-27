@@ -23,6 +23,11 @@ export async function GET() {
     const events = await getRecentAlertEvents(supabase, user.id, 100);
     return NextResponse.json({ events });
   } catch (error) {
+    // Log the full error (with stack) server-side so it lands in Vercel's
+    // function logs — the response body only carries the message string, so
+    // without this the real cause is invisible in Observability. No user id,
+    // token, or PII is logged, only the DB/library error itself.
+    console.error("[api/alerts] getRecentAlertEvents failed:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
