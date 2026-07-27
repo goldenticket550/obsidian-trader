@@ -1,0 +1,159 @@
+import { describe, it, expect } from "vitest";
+import {
+  candleStaleness,
+  candleAgeLabel,
+  describeFeed,
+  formatEasternTime,
+  formatEasternDateTime,
+  latestCandleLabel,
+  scannedLabel,
+  DATA_QUALITY_LABEL,
+} from "@/lib/market-data/freshness";
+
+describe("formatEasternTime", () => {
+  it("renders a UTC instant in Eastern time with an explicit ET suffix", () => {
+    // 17:35 UTC on a July date = 1:35 PM EDT.
+    expect(formatEasternTime("2026-07-27T17:35:00Z")).toBe("1:35 PM ET");
+  });
+
+  it("uses EST rather than EDT in winter", () => {
+    // 17:35 UTC in January = 12:35 PM EST.
+    expect(formatEasternTime("2026-01-15T17:35:00Z")).toBe("12:35 PM ET");
+  });
+
+  it("says Unavailable for an unparseable timestamp instead of NaN", () => {
+    expect(formatEasternTime("not-a-date")).toBe("Unavailable");
+  });
+});
+
+describe("formatEasternDateTime", () => {
+  it("includes the weekday so a Friday close viewed on Saturday is obvious", () => {
+    const out = formatEasternDateTime("2026-07-24T20:00:00Z");
+    expect(out).toMatch(/^Fri, Jul 24/);
+    expect(out).toMatch(/ET$/);
+  });
+
+  it("says Unavailable for an unparseable timestamp", () => {
+    expect(formatEasternDateTime("nope")).toBe("Unavailable");
+  });
+});
+
+describe("candleStaleness", () => {
+  const now = Date.parse("2026-07-27T18:00:00Z");
+
+  it("treats a candle from within the last 15 minutes as current", () => {
+    expect(candleStaleness("2026-07-27T17:50:00Z", now)).toBe("current");
+  });
+
+  it("treats a candle under an hour old as recent", () => {
+    expect(candleStaleness("2026-07-27T17:20:00Z", now)).toBe("recent");
+  });
+
+  it("treats anything older than an hour as stale", () => {
+    expect(candleStaleness("2026-07-27T14:00:00Z", now)).toBe("stale");
+  });
+
+  it("reports unavailable for null, undefined, or garbage rather than guessing", () => {
+    expect(candleStaleness(null, now)).toBe("unavailable");
+    expect(candleStaleness(undefined, now)).toBe("unavailable");
+    expect(candleStaleness("not-a-date", now)).toBe("unavailable");
+  });
+});
+
+describe("honest freshness labels", () => {
+  it("labels candle time and scan time with different words", () => {
+    const candle = latestCandleLabel("2026-07-27T17:35:00Z");
+    const scan = scannedLabel("2026-07-27T18:00:00Z");
+    expect(candle).toBe("Latest candle: 1:35 PM ET");
+    expect(scan).toBe("Scanned 2:00 PM ET");
+    expect(candle).not.toBe(scan);
+  });
+
+  it("never claims a candle time when there is no candle", () => {
+    expect(latestCandleLabel(null)).toBe("Latest candle: Unavailable");
+    expect(latestCandleLabel(undefined)).toBe("Latest candle: Unavailable");
+  });
+
+  it("never uses the phrase 'data live' for any quality", () => {
+    for (const label of Object.values(DATA_QUALITY_LABEL)) {
+      expect(label.toLowerCase()).not.toContain("live");
+    }
+  });
+
+  it("labels simulated data as simulated, never as real-time", () => {
+    expect(DATA_QUALITY_LABEL.simulated).toBe("Simulated data");
+    expect(DATA_QUALITY_LABEL.delayed).toBe("Delayed data");
+    expect(DATA_QUALITY_LABEL.realtime).toBe("Real-time data");
+  });
+});
+
+describe("candleAgeLabel", () => {
+  const now = Date.parse("2026-07-25T06:18:00Z");
+
+  it("reports minutes, hours, and days at the right scales", () => {
+    expect(candleAgeLabel("2026-07-25T05:48:00Z", now)).toBe("30m old");
+    expect(candleAgeLabel("2026-07-24T20:18:00Z", now)).toBe("10h old");
+    expect(candleAgeLabel("2026-07-22T06:18:00Z", now)).toBe("3d old");
+  });
+
+  it("returns null rather than a fake age when there is no candle", () => {
+    expect(candleAgeLabel(null, now)).toBeNull();
+    expect(candleAgeLabel("garbage", now)).toBeNull();
+  });
+});
+
+describe("formatEasternTime — raw ISO must never reach the screen", () => {
+  it("formats the exact ISO string the alert engine embeds in messages", () => {
+    // Regression: the action queue fell back to the raw timestamp lifted
+    // out of "[market data as of 2026-07-24T20:55:00.000Z]" and rendered
+    // it verbatim next to properly formatted siblings.
+    const embedded = "2026-07-24T20:55:00.000Z";
+    const out = formatEasternTime(embedded);
+    expect(out).toBe("4:55 PM ET");
+    // No ISO-8601 shape survives into the rendered string. (Checking for
+    // a bare "T" would false-positive on the "ET" suffix.)
+    expect(out).not.toMatch(/\d{4}-\d{2}-\d{2}T/);
+    expect(out).not.toMatch(/\d{2}:\d{2}:\d{2}/);
+  });
+});
+
+describe("describeFeed", () => {
+  // Regression test for a real defect seen on the live dashboard: a green
+  // "Real-time data" badge at 2:18 AM ET on a Saturday, sitting above a
+  // candle from Friday 3:55 PM. The feed was real-time; the data was not.
+  const saturdayEarlyAm = Date.parse("2026-07-25T06:18:00Z"); // 2:18 AM ET
+  const fridayClose = "2026-07-24T19:55:00Z"; // 3:55 PM ET Friday
+
+  it("does not claim plain 'Real-time data' over a ten-hour-old candle", () => {
+    const status = describeFeed("realtime", fridayClose, saturdayEarlyAm);
+    expect(status.label).not.toBe("Real-time data");
+    expect(status.label).toMatch(/10h old/);
+    expect(status.staleness).toBe("stale");
+  });
+
+  it("still credits the feed as real-time while qualifying the data age", () => {
+    const status = describeFeed("realtime", fridayClose, saturdayEarlyAm);
+    expect(status.label).toMatch(/Real-time feed/);
+  });
+
+  it("uses the plain quality label when the data really is current", () => {
+    const status = describeFeed("realtime", "2026-07-25T06:10:00Z", saturdayEarlyAm);
+    expect(status.label).toBe("Real-time data");
+    expect(status.staleness).toBe("current");
+  });
+
+  it("reports no candle rather than implying freshness", () => {
+    const status = describeFeed("realtime", null, saturdayEarlyAm);
+    expect(status.label).toMatch(/no candle/);
+    expect(status.staleness).toBe("unavailable");
+  });
+
+  it("reports unavailable when there is no quality at all", () => {
+    expect(describeFeed(null, null, saturdayEarlyAm).staleness).toBe("unavailable");
+  });
+
+  it("never labels simulated data as real-time, stale or not", () => {
+    const status = describeFeed("simulated", fridayClose, saturdayEarlyAm);
+    expect(status.label.toLowerCase()).not.toContain("real-time");
+  });
+});

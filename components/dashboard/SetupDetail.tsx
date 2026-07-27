@@ -3,8 +3,9 @@
 import { useState } from "react";
 import type { SetupResult, ConditionState, ConditionCategory, ConvictionLevel, EntryStatus } from "@/types/setup";
 import { buildTradingViewUrl } from "@/lib/tradingview";
-import { SetupStageTimeline } from "./SetupStageTimeline";
+import { StageProgression } from "./StageProgression";
 import { conditionExplanations } from "@/lib/strategies/conditionExplanations";
+import { formatEasternTime, formatEasternDateTime, describeFeed } from "@/lib/market-data/freshness";
 
 const STATE_LABEL: Record<ConditionState, string> = {
   pass: "Pass",
@@ -13,84 +14,58 @@ const STATE_LABEL: Record<ConditionState, string> = {
   invalidated: "Invalidated",
 };
 
-const STATE_CLASS: Record<ConditionState, string> = {
-  pass: "text-signal-green",
-  fail: "text-signal-red",
-  waiting: "text-signal-yellow",
-  invalidated: "text-signal-red",
-};
-
-const STATUS_DOT_CLASS: Record<"red" | "yellow" | "green", string> = {
-  red: "bg-signal-red",
-  yellow: "bg-signal-yellow",
-  green: "bg-signal-green",
-};
-
-const STATUS_BORDER_CLASS: Record<"red" | "yellow" | "green", string> = {
-  red: "border-l-signal-red",
-  yellow: "border-l-signal-yellow",
-  green: "border-l-signal-green",
+const STATE_COLOR: Record<ConditionState, string> = {
+  pass: "var(--green)",
+  fail: "var(--red)",
+  waiting: "var(--amber)",
+  invalidated: "var(--red)",
 };
 
 const CATEGORY_ORDER: ConditionCategory[] = ["core", "secondary", "supporting", "informational"];
 const CATEGORY_LABEL: Record<ConditionCategory, string> = {
-  core: "Core Signals",
-  secondary: "Secondary Confirmations",
-  supporting: "Supporting Signals",
+  core: "Core signals",
+  secondary: "Secondary confirmations",
+  supporting: "Supporting signals",
   informational: "Informational",
-};
-// Left-edge accent per category - a quiet visual cue for "how much this
-// row should matter to you" that doesn't rely on reading every label.
-const CATEGORY_BORDER_CLASS: Record<ConditionCategory, string> = {
-  core: "border-l-platinum-bright",
-  secondary: "border-l-platinum",
-  supporting: "border-l-platinum-dim",
-  informational: "border-l-obsidian-border",
 };
 
 const CONVICTION_LABEL: Record<ConvictionLevel, string> = {
-  watch: "👀 WATCH",
-  developing: "🔥 DEVELOPING",
-  confirmed: "✅ CONFIRMED",
+  watch: "Watch",
+  developing: "Developing",
+  confirmed: "Confirmed",
 };
 
-const CONVICTION_CLASS: Record<ConvictionLevel, string> = {
-  watch: "bg-white/[0.06] text-platinum-dim border-obsidian-border",
-  developing: "bg-signal-yellow/10 text-signal-yellow border-signal-yellow/30",
-  confirmed: "bg-signal-green/10 text-signal-green border-signal-green/30",
+const CONVICTION_COLOR: Record<ConvictionLevel, string> = {
+  watch: "var(--text-muted)",
+  developing: "var(--amber)",
+  confirmed: "var(--green)",
 };
 
-const ENTRY_STATUS_LABEL: Record<EntryStatus, string> = {
-  actionable_now: "Actionable Now",
-  wait_for_pullback: "Wait For Pullback",
-  extended_do_not_chase: "Extended — Do Not Chase",
+const ENTRY_LABEL: Record<EntryStatus, string> = {
+  actionable_now: "Actionable now",
+  wait_for_pullback: "Wait for pullback",
+  extended_do_not_chase: "Extended — do not chase",
   invalidated: "Invalidated",
-  insufficient_data: "Not Enough Data Yet",
+  insufficient_data: "Not enough data yet",
 };
 
-const ENTRY_STATUS_CLASS: Record<EntryStatus, string> = {
-  actionable_now: "bg-signal-green/10 text-signal-green border-signal-green/30",
-  wait_for_pullback: "bg-signal-yellow/10 text-signal-yellow border-signal-yellow/30",
-  extended_do_not_chase: "bg-signal-yellow/10 text-signal-yellow border-signal-yellow/30",
-  invalidated: "bg-signal-red/10 text-signal-red border-signal-red/30",
-  // Deliberately neutral (not green/yellow/red) - this isn't a warning,
-  // it's a statement that no entry-quality assessment could be made at
-  // all, distinct from every other status here which IS an assessment.
-  insufficient_data: "bg-white/[0.06] text-platinum-dim border-obsidian-border",
+const ENTRY_COLOR: Record<EntryStatus, string> = {
+  actionable_now: "var(--green)",
+  wait_for_pullback: "var(--amber)",
+  extended_do_not_chase: "var(--amber)",
+  invalidated: "var(--red)",
+  insufficient_data: "var(--text-muted)",
 };
 
-function formatScanTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
-}
-
-function formatCandleTime(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-baseline justify-between gap-2 py-[3px]">
+      <span className="text-[10px] shrink-0" style={{ color: "var(--text-muted)" }}>
+        {label}
+      </span>
+      <span className="text-[11px] text-right min-w-0">{children}</span>
+    </div>
+  );
 }
 
 export function SetupDetail({
@@ -98,23 +73,26 @@ export function SetupDetail({
   exchange,
   timeframe,
   onTimeframeChange,
+  scoreThreshold,
+  score5m,
+  score15m,
 }: {
   result: SetupResult | null;
   exchange: string;
   timeframe: "5m" | "15m";
   onTimeframeChange: (tf: "5m" | "15m") => void;
+  /** Configured minimum from risk settings; drives "Score qualified". */
+  scoreThreshold: number;
+  score5m: number;
+  score15m: number;
+  /** Retained for API compatibility with the previous panel usage. */
+  embedded?: boolean;
 }) {
   const [explanation, setExplanation] = useState<string | null>(null);
   const [explaining, setExplaining] = useState(false);
   const [explainError, setExplainError] = useState<string | null>(null);
 
-  if (!result) {
-    return (
-      <section className="panel p-6 flex items-center justify-center text-platinum-dim text-sm">
-        Select a symbol from the watchlist to see its checklist.
-      </section>
-    );
-  }
+  if (!result) return null;
 
   async function handleExplain() {
     setExplaining(true);
@@ -133,12 +111,23 @@ export function SetupDetail({
       setExplaining(false);
       return;
     }
-
     setExplanation(json.explanation);
     setExplaining(false);
   }
 
   const tvUrl = buildTradingViewUrl(result.symbol, exchange, result.timeframe);
+  const invalidated = result.conditions.some((c) => c.state === "invalidated");
+  const feed = describeFeed(result.quality, result.latestCandleTime, Date.now());
+
+  // Drawer shows only what's currently actionable; the exhaustive
+  // checklist lives behind a disclosure so the drawer stays short.
+  const notable = result.conditions
+    .filter((c) => c.state === "pass" || c.state === "waiting" || c.state === "invalidated")
+    .sort((a, b) => {
+      const rank = { invalidated: 0, waiting: 1, pass: 2, fail: 3 } as Record<string, number>;
+      return (rank[a.state] ?? 9) - (rank[b.state] ?? 9);
+    })
+    .slice(0, 6);
 
   const grouped = CATEGORY_ORDER.map((category) => ({
     category,
@@ -146,182 +135,267 @@ export function SetupDetail({
   })).filter((g) => g.conditions.length > 0);
 
   return (
-    <section className="panel overflow-hidden">
-      {/* Header: ticker, stage, timeframe toggle, chart link */}
-      <div className="px-6 py-5 flex items-center justify-between">
+    <div className="panel-muted px-4 py-3" style={{ borderTop: "1px solid var(--border-soft)" }}>
+      <div className="grid grid-cols-1 lg:grid-cols-[200px_minmax(0,1fr)_220px] gap-4">
+        {/* LEFT — scores, conviction, entry */}
         <div>
-          <h2 className="text-base font-display text-platinum-bright">
-            {result.symbol} <span className="text-platinum-dim font-normal">· {result.timeframe} Setup</span>
-          </h2>
-          <p className="text-xs text-platinum-dim mt-1">
-            Stage <span className="text-platinum">{result.stage.replace(/_/g, " ")}</span>
-            {" · "}
-            {result.quality === "simulated" ? "Simulated data" : result.quality}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex rounded border border-obsidian-border overflow-hidden text-xs">
-            {(["5m", "15m"] as const).map((tf) => (
-              <button
-                key={tf}
-                onClick={() => onTimeframeChange(tf)}
-                className={`px-3 py-1.5 transition-colors ${
-                  timeframe === tf
-                    ? "bg-white/[0.08] text-platinum-bright"
-                    : "text-platinum-dim hover:text-platinum"
-                }`}
-              >
-                {tf}
-              </button>
-            ))}
-          </div>
-          <a
-            href={tvUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs px-3 py-1.5 border border-obsidian-border rounded text-platinum hover:border-platinum-dim transition-colors"
-          >
-            Open in TradingView ↗
-          </a>
-        </div>
-      </div>
-
-      {/* Summary card: score, conviction, entry status, and timestamps all
-          together as one visually distinct "headline" block, with a left
-          border colored by status - the single most important glance on
-          this panel, so it gets the most visual weight. */}
-      <div
-        className={`mx-6 mb-5 rounded-lg border border-obsidian-border ${STATUS_BORDER_CLASS[result.status]} border-l-4 bg-white/[0.02] px-5 py-4`}
-      >
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="flex items-baseline gap-1">
-              <span className={`inline-block h-2.5 w-2.5 rounded-full ${STATUS_DOT_CLASS[result.status]} mr-1`} />
-              <span className="font-mono text-3xl text-platinum-bright leading-none">
-                {result.score.toFixed(1)}
-              </span>
-              <span className="text-sm text-platinum-dim">/ 10</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {result.convictionLevel && (
-                <span
-                  className={`text-xs font-medium px-2.5 py-1 rounded border ${CONVICTION_CLASS[result.convictionLevel]}`}
+          <div className="flex items-center justify-between mb-2">
+            <span className="card-heading">Timeframe</span>
+            <div
+              className="flex rounded overflow-hidden text-[10px]"
+              style={{ border: "1px solid var(--border)" }}
+              role="group"
+              aria-label="Timeframe"
+            >
+              {(["5m", "15m"] as const).map((tf) => (
+                <button
+                  key={tf}
+                  onClick={() => onTimeframeChange(tf)}
+                  aria-pressed={timeframe === tf}
+                  className="px-2 py-0.5 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-accent-champagne"
+                  style={
+                    timeframe === tf
+                      ? { background: "var(--amber-soft)", color: "var(--amber)" }
+                      : { color: "var(--text-muted)" }
+                  }
                 >
+                  {tf}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-baseline gap-3 mb-2">
+            <span>
+              <span className="block text-[9px]" style={{ color: "var(--text-muted)" }}>
+                5m
+              </span>
+              <span
+                className="font-mono tabular text-[20px] leading-none"
+                style={{ color: timeframe === "5m" ? "var(--text)" : "var(--text-muted)" }}
+              >
+                {score5m.toFixed(1)}
+              </span>
+            </span>
+            <span>
+              <span className="block text-[9px]" style={{ color: "var(--text-muted)" }}>
+                15m
+              </span>
+              <span
+                className="font-mono tabular text-[20px] leading-none"
+                style={{ color: timeframe === "15m" ? "var(--text)" : "var(--text-muted)" }}
+              >
+                {score15m.toFixed(1)}
+              </span>
+            </span>
+            <span className="text-[10px] self-end pb-0.5" style={{ color: "var(--text-muted)" }}>
+              / 10
+            </span>
+          </div>
+
+          <div style={{ borderTop: "1px solid var(--border-soft)" }} className="pt-1.5">
+            {result.convictionLevel && (
+              <Field label="Rules-based conviction">
+                <span style={{ color: CONVICTION_COLOR[result.convictionLevel] }}>
                   {CONVICTION_LABEL[result.convictionLevel]}
                 </span>
-              )}
-              {result.entryStatus && (
-                <span
-                  className={`text-xs font-medium px-2.5 py-1 rounded border ${ENTRY_STATUS_CLASS[result.entryStatus]}`}
-                >
-                  {ENTRY_STATUS_LABEL[result.entryStatus]}
+              </Field>
+            )}
+            {result.entryStatus && (
+              <Field label="Entry status">
+                <span style={{ color: ENTRY_COLOR[result.entryStatus] }}>
+                  {ENTRY_LABEL[result.entryStatus]}
                 </span>
-              )}
-            </div>
-          </div>
-
-          {/* Timestamps - moved out of the tiny corner text from before and
-              given their own clearly labeled, readable row. */}
-          <div className="text-xs text-platinum-dim space-y-0.5 text-right shrink-0">
-            <div>
-              <span className="text-platinum-dim/60">Scanned</span>{" "}
-              <span className="text-platinum">{formatScanTime(result.lastUpdated)}</span>
-            </div>
-            {result.latestCandleTime && (
-              <div>
-                <span className="text-platinum-dim/60">Latest candle started</span>{" "}
-                <span className="text-platinum">{formatCandleTime(result.latestCandleTime)}</span>
-              </div>
+              </Field>
             )}
           </div>
         </div>
 
-        {result.invalidationNote && (
-          <div className="mt-4 pt-4 border-t border-obsidian-border/60">
-            <div className="text-[11px] uppercase tracking-wider text-platinum-dim mb-1">
-              Invalidation Watch
+        {/* CENTER — stage progression + notable conditions */}
+        <div className="min-w-0">
+          <StageProgression
+            stage={result.stage}
+            score={result.score}
+            scoreThreshold={scoreThreshold}
+            invalidated={invalidated}
+          />
+
+          <ul className="mt-3 space-y-1">
+            {notable.map((c) => (
+              <li
+                key={c.id}
+                className="flex items-baseline justify-between gap-3 text-[11px] py-[2px]"
+              >
+                <span className="min-w-0">
+                  <span style={{ color: "var(--text-secondary)" }}>{c.label}</span>
+                  {c.detail && (
+                    <span className="ml-1.5" style={{ color: "var(--text-muted)" }}>
+                      {c.detail}
+                    </span>
+                  )}
+                </span>
+                <span
+                  className="font-mono text-[10px] shrink-0"
+                  style={{ color: STATE_COLOR[c.state] }}
+                >
+                  {STATE_LABEL[c.state]}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* RIGHT — provenance, invalidation, actions */}
+        <div className="min-w-0">
+          <span className="card-heading block mb-1.5">Provenance</span>
+          <Field label="Scanned">
+            <span className="font-mono tabular" style={{ color: "var(--text-secondary)" }}>
+              {formatEasternTime(result.lastUpdated)}
+            </span>
+          </Field>
+          <Field label="Latest candle">
+            <span className="font-mono tabular" style={{ color: "var(--text-secondary)" }}>
+              {result.latestCandleTime
+                ? formatEasternDateTime(result.latestCandleTime)
+                : "Unavailable"}
+            </span>
+          </Field>
+          <Field label="Data quality">
+            {/* Same rule as the page header: the feed being real-time
+                capable says nothing about how old this candle is. */}
+            <span
+              style={{
+                color: feed.staleness === "current" ? "var(--text-secondary)" : "var(--amber)",
+              }}
+            >
+              {feed.label}
+            </span>
+          </Field>
+
+          {result.invalidationNote && (
+            <div
+              className="mt-2 pt-2 text-[10px] leading-snug"
+              style={{ borderTop: "1px solid var(--border-soft)", color: "var(--text-muted)" }}
+            >
+              <span className="block mb-0.5" style={{ color: "var(--red)" }}>
+                Invalidation watch
+              </span>
+              {result.invalidationNote}
             </div>
-            <div className="text-xs text-platinum-dim">{result.invalidationNote}</div>
+          )}
+
+          <div className="flex flex-wrap gap-1.5 mt-2.5">
+            <button onClick={handleExplain} disabled={explaining} className="btn-primary">
+              {explaining ? "Thinking…" : "Review setup"}
+            </button>
+            <a
+              href={tvUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary inline-block"
+            >
+              TradingView ↗
+            </a>
           </div>
-        )}
+        </div>
       </div>
 
-      <div className="px-1">
-        <SetupStageTimeline currentStage={result.stage} />
-      </div>
+      {(explainError || explanation) && (
+        <div className="mt-3 pt-2" style={{ borderTop: "1px solid var(--border-soft)" }}>
+          {explainError && (
+            <p className="text-[11px]" style={{ color: "var(--red)" }}>
+              {explainError}
+            </p>
+          )}
+          {explanation && (
+            <p
+              className="text-[11px] leading-relaxed pl-2.5"
+              style={{ borderLeft: "2px solid var(--border)", color: "var(--text-secondary)" }}
+            >
+              {explanation}
+            </p>
+          )}
+        </div>
+      )}
 
-      {/* Checklist: grouped by category, each section with its own left
-          accent color and generous spacing between rows so it doesn't
-          read as one dense wall of text. */}
-      <div className="border-t border-obsidian-border mt-2">
-        {grouped.map((group) => (
-          <div key={group.category} className="py-4 border-b border-obsidian-border/60 last:border-0">
-            <div className="px-6 pb-3 text-[11px] font-medium uppercase tracking-wider text-platinum-dim">
-              {CATEGORY_LABEL[group.category]}
-            </div>
-            <ul className="space-y-3 px-6">
-              {group.conditions.map((c) => {
-                const conditionInfo = conditionExplanations[c.id];
-                const reasoning =
-                  c.state === "pass" || c.state === "waiting"
-                    ? conditionInfo?.whyItMatters
-                    : conditionInfo?.whatItMeans ?? conditionInfo?.whyItMatters;
-                const watchFor = c.state === "waiting" ? conditionInfo?.whatToWatchFor : undefined;
+      {/* Full checklist stays collapsed by default — rendering all twelve
+          conditions with their reasoning was what made the drawer push
+          every other opportunity off-screen. */}
+      <details className="mt-2.5" style={{ borderTop: "1px solid var(--border-soft)" }}>
+        <summary
+          className="btn-secondary inline-block mt-2.5 cursor-pointer list-none select-none"
+          style={{ width: "fit-content" }}
+        >
+          View full checklist ({result.conditions.length})
+        </summary>
 
-                return (
-                  <li
-                    key={c.id}
-                    className={`rounded border-l-2 ${CATEGORY_BORDER_CLASS[group.category]} bg-white/[0.015] pl-4 pr-4 py-3`}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <div className="text-sm text-platinum-bright">
+        <div className="mt-2.5 grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-3">
+          {grouped.map((group) => (
+            <div key={group.category}>
+              <div className="card-heading mb-1">{CATEGORY_LABEL[group.category]}</div>
+              <ul className="space-y-1.5">
+                {group.conditions.map((c) => {
+                  const info = conditionExplanations[c.id];
+                  const reasoning =
+                    c.state === "pass" || c.state === "waiting"
+                      ? info?.whyItMatters
+                      : info?.whatItMeans ?? info?.whyItMatters;
+                  const watchFor = c.state === "waiting" ? info?.whatToWatchFor : undefined;
+
+                  return (
+                    <li key={c.id} className="text-[11px]">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span style={{ color: "var(--text-secondary)" }}>
                           {c.label}
                           {!c.required && (
-                            <span className="ml-2 text-[10px] uppercase text-platinum-dim">optional</span>
+                            <span
+                              className="ml-1.5 text-[9px] uppercase"
+                              style={{ color: "var(--text-muted)" }}
+                            >
+                              optional
+                            </span>
                           )}
+                        </span>
+                        <span
+                          className="font-mono text-[10px] shrink-0"
+                          style={{ color: STATE_COLOR[c.state] }}
+                        >
+                          {STATE_LABEL[c.state]}
+                        </span>
+                      </div>
+                      {c.detail && (
+                        <div className="text-[10px] mt-0.5" style={{ color: "var(--text-muted)" }}>
+                          {c.detail}
                         </div>
-                        {c.detail && <div className="text-xs text-platinum-dim mt-0.5">{c.detail}</div>}
-                      </div>
-                      <span className={`text-xs font-mono shrink-0 ${STATE_CLASS[c.state]}`}>
-                        {STATE_LABEL[c.state]}
-                      </span>
-                    </div>
-                    {reasoning && (
-                      <div className="text-xs text-platinum-dim mt-2 leading-relaxed opacity-70">
-                        {reasoning}
-                      </div>
-                    )}
-                    {watchFor && (
-                      <div className="text-xs text-platinum-dim mt-1.5 italic opacity-50">{watchFor}</div>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
-      </div>
+                      )}
+                      {reasoning && (
+                        <div
+                          className="text-[10px] mt-0.5 leading-snug"
+                          style={{ color: "var(--text-muted)", opacity: 0.8 }}
+                        >
+                          {reasoning}
+                        </div>
+                      )}
+                      {watchFor && (
+                        <div
+                          className="text-[10px] mt-0.5 italic"
+                          style={{ color: "var(--text-muted)", opacity: 0.65 }}
+                        >
+                          {watchFor}
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </details>
 
-      <div className="px-6 py-5 border-t border-obsidian-border">
-        <button
-          onClick={handleExplain}
-          disabled={explaining}
-          className="text-xs bg-white/[0.08] hover:bg-white/[0.12] disabled:opacity-50 border border-obsidian-border rounded px-3 py-1.5 text-platinum-bright transition-colors"
-        >
-          {explaining ? "Thinking…" : "Explain this setup (AI)"}
-        </button>
-        {explainError && <div className="text-xs text-signal-red mt-2">{explainError}</div>}
-        {explanation && (
-          <div className="mt-3 text-sm text-platinum-dim leading-relaxed border-l-2 border-obsidian-border pl-3">
-            {explanation}
-          </div>
-        )}
-      </div>
-
-      <div className="px-6 py-3 text-[11px] text-platinum-dim border-t border-obsidian-border">
+      <p className="mt-2.5 text-[10px]" style={{ color: "var(--text-muted)" }}>
         A green status means this setup is ready for manual review — it is never a buy signal.
-      </div>
-    </section>
+      </p>
+    </div>
   );
 }

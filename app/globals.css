@@ -3,19 +3,103 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --page: #070a0c;
+    --panel: #0f171c;
+    --panel-raised: #141d22;
+    --panel-muted: #10161a;
+    --border: #263139;
+    --border-soft: rgba(255, 255, 255, 0.07);
+    --text: #e8eaed;
+    --text-secondary: #a2a9b1;
+    --text-muted: #737c85;
+    --amber: #d6a63f;
+    --amber-soft: rgba(214, 166, 63, 0.12);
+    --green: #45c58a;
+    --red: #e05252;
+    --violet: #a56bea;
+    --blue: #4da3e5;
+  }
+
   html {
     color-scheme: dark;
   }
+
   body {
-    @apply bg-obsidian-black text-platinum-bright font-body antialiased;
+    background: var(--page);
+    color: var(--text);
+    @apply font-body antialiased;
   }
+
   ::selection {
-    @apply bg-platinum/20 text-platinum-bright;
+    background: var(--amber-soft);
+    color: var(--text);
+  }
+
+  /* Financial figures and clock times must not shift width between
+     renders — a price column that jitters as digits change is unreadable. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
   }
 }
 
 @layer components {
   .panel {
-    @apply bg-obsidian-panel border border-obsidian-border rounded-lg shadow-panel;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    @apply rounded-md;
+    box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.02) inset,
+      0 6px 20px -14px rgba(0, 0, 0, 0.8);
+  }
+
+  /* Nested surface inside a panel — the expanded drawer, metric tiles. */
+  .panel-raised {
+    background: var(--panel-raised);
+    border: 1px solid var(--border-soft);
+    @apply rounded;
+  }
+
+  .panel-muted {
+    background: var(--panel-muted);
+  }
+
+  /* Section heading used across every card so hierarchy stays uniform. */
+  .card-heading {
+    @apply text-[10px] uppercase tracking-[0.14em];
+    color: var(--text-muted);
+  }
+
+  .btn-secondary {
+    background: var(--panel-raised);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    @apply text-[11px] rounded px-2.5 py-1.5 transition-colors;
+  }
+  .btn-secondary:hover:not(:disabled) {
+    border-color: var(--text-muted);
+    color: var(--text);
+  }
+
+  .btn-primary {
+    background: var(--amber-soft);
+    border: 1px solid rgba(214, 166, 63, 0.4);
+    color: var(--amber);
+    @apply text-[11px] rounded px-2.5 py-1.5 transition-colors;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: rgba(214, 166, 63, 0.2);
+    border-color: var(--amber);
+  }
+
+  .btn-secondary:disabled,
+  .btn-primary:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  .btn-secondary:focus-visible,
+  .btn-primary:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 1px;
   }
 }

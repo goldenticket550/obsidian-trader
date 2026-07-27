@@ -1,0 +1,258 @@
+"use client";
+
+import { useState } from "react";
+import type { WatchlistSymbol } from "@/types/watchlist";
+import type { SetupResult } from "@/types/setup";
+import { SetupDetail } from "./SetupDetail";
+import { rankOpportunities, RANKING_RULE_DESCRIPTION } from "@/lib/scanner/ranking";
+import { formatEasternTime } from "@/lib/market-data/freshness";
+
+const STATUS_DOT: Record<"red" | "yellow" | "green", string> = {
+  red: "var(--red)",
+  yellow: "var(--amber)",
+  green: "var(--green)",
+};
+
+const ENTRY_SHORT: Record<string, string> = {
+  actionable_now: "Actionable",
+  wait_for_pullback: "Wait pullback",
+  extended_do_not_chase: "Extended",
+  invalidated: "Invalidated",
+  insufficient_data: "No data",
+};
+
+const ENTRY_COLOR: Record<string, string> = {
+  actionable_now: "var(--green)",
+  wait_for_pullback: "var(--amber)",
+  extended_do_not_chase: "var(--amber)",
+  invalidated: "var(--red)",
+  insufficient_data: "var(--text-muted)",
+};
+
+/** `dailyChangePct` / `distanceFromSessionLowPct` are stored as fractions
+ * (0.0165 = 1.65%), matching every indicator in lib/. */
+function formatPct(fraction: number, withSign = false): string {
+  const pct = fraction * 100;
+  return `${withSign && pct > 0 ? "+" : ""}${pct.toFixed(1)}%`;
+}
+
+const COLS =
+  "grid grid-cols-[26px_minmax(74px,1fr)_88px_72px_46px_46px_minmax(104px,1.1fr)_86px_30px] gap-2 items-center";
+
+export function RankedOpportunities({
+  symbols,
+  resultsBySymbol,
+  loading,
+  scoreThreshold,
+}: {
+  symbols: WatchlistSymbol[];
+  resultsBySymbol: Record<string, { "5m": SetupResult; "15m": SetupResult }>;
+  loading: boolean;
+  scoreThreshold: number;
+}) {
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [timeframes, setTimeframes] = useState<Record<string, "5m" | "15m">>({});
+
+  const ranked = rankOpportunities(symbols);
+
+  return (
+    <section className="panel overflow-hidden" aria-label="Ranked opportunities">
+      <div
+        className="px-4 py-2.5 flex items-baseline justify-between gap-3"
+        style={{ borderBottom: "1px solid var(--border)" }}
+      >
+        <div className="flex items-center gap-1.5">
+          <h2 className="card-heading">Ranked opportunities</h2>
+          <span
+            tabIndex={0}
+            role="img"
+            aria-label={RANKING_RULE_DESCRIPTION}
+            title={RANKING_RULE_DESCRIPTION}
+            className="inline-flex items-center justify-center h-3.5 w-3.5 rounded-full text-[9px] cursor-help focus:outline-none focus-visible:ring-1 focus-visible:ring-accent-champagne"
+            style={{ border: "1px solid var(--border)", color: "var(--text-muted)" }}
+          >
+            i
+          </span>
+        </div>
+        <span className="text-[10px]" style={{ color: "var(--text-muted)" }}>
+          {symbols.length} symbols
+        </span>
+      </div>
+
+      {loading && (
+        <p className="px-4 py-8 text-[12px]" style={{ color: "var(--text-muted)" }}>
+          Scanning…
+        </p>
+      )}
+
+      {!loading && ranked.length === 0 && (
+        <p className="px-4 py-8 text-[12px] text-center" style={{ color: "var(--text-muted)" }}>
+          No symbols scanned successfully.
+        </p>
+      )}
+
+      {!loading && ranked.length > 0 && (
+        <div className="overflow-x-auto">
+          <div className="min-w-[600px]">
+            <div
+              className={`${COLS} px-4 py-1.5 text-[10px] uppercase tracking-[0.1em]`}
+              style={{ borderBottom: "1px solid var(--border)", color: "var(--text-secondary)" }}
+            >
+              <span>#</span>
+              <span>Ticker</span>
+              <span className="text-right">Price</span>
+              <span className="text-right">Chg</span>
+              <span className="text-right">5m</span>
+              <span className="text-right">15m</span>
+              <span>Stage / entry</span>
+              <span className="text-right">Candle</span>
+              <span />
+            </div>
+
+            {ranked.map((s, index) => {
+              const isOpen = expanded === s.ticker;
+              const timeframe = timeframes[s.ticker] ?? "5m";
+              const detail = resultsBySymbol[s.ticker]?.[timeframe] ?? null;
+              const row = resultsBySymbol[s.ticker]?.["5m"] ?? null;
+              const entry = row?.entryStatus;
+              const panelId = `setup-${s.ticker}`;
+              // No candle => price is a previous-close fallback, not a quote.
+              const hasCandle = !!row?.latestCandleTime;
+
+              return (
+                <div
+                  key={s.ticker}
+                  style={
+                    isOpen
+                      ? {
+                          background: "rgba(214,166,63,0.05)",
+                          borderTop: "1px solid rgba(214,166,63,0.35)",
+                          borderBottom: "1px solid rgba(214,166,63,0.35)",
+                        }
+                      : { borderBottom: "1px solid var(--border-soft)" }
+                  }
+                >
+                  {/* Row is a plain container, not a button — the expand
+                      control is its own element, so nothing interactive
+                      ends up nested inside anything interactive. */}
+                  <div className={`${COLS} px-4 py-2 text-[13px] hover:bg-white/[0.02] transition-colors`}>
+                    <span
+                      className="font-mono tabular text-[10px]"
+                      style={{ color: isOpen ? "var(--amber)" : "var(--text-muted)" }}
+                    >
+                      {index + 1}
+                    </span>
+
+                    <span className="flex items-center gap-1.5 min-w-0">
+                      <span
+                        className="inline-block h-1.5 w-1.5 rounded-full shrink-0"
+                        style={{ background: STATUS_DOT[s.status5m] }}
+                        aria-hidden="true"
+                      />
+                      <span className="font-mono truncate" style={{ color: "var(--text)" }}>
+                        {s.ticker}
+                      </span>
+                    </span>
+
+                    {/* With no session candle the scanner falls back to the
+                        previous close, which makes the change mechanically
+                        0.0%. Rendering that as a normal quote would imply a
+                        flat live market rather than absent data. */}
+                    <span
+                      className="font-mono tabular text-[12px] text-right"
+                      style={{ color: hasCandle ? "var(--text)" : "var(--text-muted)" }}
+                      title={hasCandle ? undefined : "Previous close — no session candle yet"}
+                    >
+                      ${s.price.toFixed(2)}
+                    </span>
+
+                    <span
+                      className="font-mono tabular text-[12px] text-right"
+                      style={{
+                        color: !hasCandle
+                          ? "var(--text-muted)"
+                          : s.dailyChangePct < 0
+                          ? "var(--red)"
+                          : "var(--green)",
+                      }}
+                      title={hasCandle ? undefined : "No session candle to compare against"}
+                    >
+                      {hasCandle ? formatPct(s.dailyChangePct, true) : "—"}
+                    </span>
+
+                    <span
+                      className="font-mono tabular text-right"
+                      style={{ color: "var(--text)" }}
+                    >
+                      {s.score5m.toFixed(1)}
+                    </span>
+                    <span
+                      className="font-mono tabular text-right text-[12px]"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
+                      {s.score15m.toFixed(1)}
+                    </span>
+
+                    <span className="min-w-0 text-[11px] leading-tight">
+                      <span className="block truncate" style={{ color: "var(--text-secondary)" }}>
+                        {row ? row.stage.replace(/_/g, " ") : "—"}
+                      </span>
+                      {entry && (
+                        <span
+                          className="block truncate"
+                          style={{ color: ENTRY_COLOR[entry] ?? "var(--text-muted)" }}
+                        >
+                          {ENTRY_SHORT[entry] ?? entry}
+                        </span>
+                      )}
+                    </span>
+
+                    {/* Candle time deliberately adjacent to price so the
+                        price is never read as a live quote. */}
+                    <span
+                      className="text-[10px] font-mono tabular text-right"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      {row?.latestCandleTime ? formatEasternTime(row.latestCandleTime) : "—"}
+                    </span>
+
+                    <button
+                      onClick={() => setExpanded(isOpen ? null : s.ticker)}
+                      aria-expanded={isOpen}
+                      aria-controls={panelId}
+                      aria-label={`${isOpen ? "Collapse" : "Expand"} ${s.ticker} setup detail`}
+                      className="justify-self-end h-6 w-6 rounded flex items-center justify-center text-[10px] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-accent-champagne"
+                      style={{
+                        border: "1px solid var(--border)",
+                        color: isOpen ? "var(--amber)" : "var(--text-muted)",
+                      }}
+                    >
+                      {isOpen ? "▾" : "▸"}
+                    </button>
+                  </div>
+
+                  {isOpen && detail && (
+                    <div id={panelId}>
+                      <SetupDetail
+                        result={detail}
+                        exchange={s.exchange}
+                        timeframe={timeframe}
+                        onTimeframeChange={(tf) =>
+                          setTimeframes((prev) => ({ ...prev, [s.ticker]: tf }))
+                        }
+                        embedded
+                        scoreThreshold={scoreThreshold}
+                        score5m={s.score5m}
+                        score15m={s.score15m}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}

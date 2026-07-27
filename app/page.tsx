@@ -1,15 +1,23 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { Watchlist } from "@/components/dashboard/Watchlist";
-import { SetupDetail } from "@/components/dashboard/SetupDetail";
-import { AccountSummary } from "@/components/dashboard/AccountSummary";
-import { AccountabilityPanel } from "@/components/dashboard/AccountabilityPanel";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import type { WatchlistSymbol, AccountSummary as AccountSummaryType, AccountabilityChecks } from "@/types/watchlist";
+import { SignalRow } from "@/components/dashboard/SignalRow";
+import { AccountRiskPanel } from "@/components/dashboard/AccountRiskPanel";
+import { TradingSessionPanel } from "@/components/dashboard/TradingSessionPanel";
+import { MarketContextPanel } from "@/components/dashboard/MarketContextPanel";
+import { RankedOpportunities } from "@/components/dashboard/RankedOpportunities";
+import { ActionQueue } from "@/components/dashboard/ActionQueue";
+import type { WatchlistSymbol, AccountabilityChecks } from "@/types/watchlist";
 import type { SetupResult } from "@/types/setup";
+import type { DataQuality } from "@/types/candle";
+import type { SessionInfo } from "@/lib/market-data/types";
+import type { MarketContextQuote } from "@/lib/market-data/marketContext";
 import type { AlertEvent } from "@/lib/alerts/types";
 import type { RiskSettings, DailyTradingStatus } from "@/types/risk";
+import type { SignalWindow } from "@/lib/alerts/signalCounts";
+import { dedupeAlerts } from "@/lib/alerts/triage";
+import { describeFeed, latestCandleLabel, scannedLabel } from "@/lib/market-data/freshness";
 
 interface ScanApiResponse {
   provider: string;
@@ -23,44 +31,69 @@ interface RiskApiResponse {
   settings: RiskSettings;
   status: DailyTradingStatus;
   checks: AccountabilityChecks;
+  session?: SessionInfo;
 }
 
-function toAccountSummary(risk: RiskApiResponse): AccountSummaryType {
-  let accountabilityStatus: AccountSummaryType["accountabilityStatus"] = "on_track";
-  if (risk.checks.dailyGoalReached) accountabilityStatus = "target_hit";
-  else if (risk.checks.dailyLossLimitReached) accountabilityStatus = "over_limit";
-  else if (risk.checks.tradesRemaining === 0) accountabilityStatus = "at_limit";
-
-  return {
-    tradingDate: risk.status.tradeDate,
-    dailyTradeLimit: risk.settings.maxTradesPerDay,
-    tradesTakenToday: risk.status.tradesTaken,
-    dailyRealizedPnl: risk.status.realizedPnl,
-    dailyMaxLoss: -risk.settings.maxLossPerDay,
-    accountabilityStatus,
-  };
-}
+/** Fallback only for the stage-progression threshold before risk settings
+ * load. Mirrors defaultRiskSettings.minSetupScore; not a displayed value. */
+const FALLBACK_SCORE_THRESHOLD = 6;
 
 export default function DashboardPage() {
-  const [selected, setSelected] = useState<string | null>("NVDA");
-  const [timeframe, setTimeframe] = useState<"5m" | "15m">("5m");
-  const [data, setData] = useState<ScanApiResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [scan, setScan] = useState<ScanApiResponse | null>(null);
+  const [scanError, setScanError] = useState<string | null>(null);
   const [risk, setRisk] = useState<RiskApiResponse | null>(null);
+  const [alerts, setAlerts] = useState<AlertEvent[] | null>(null);
+  const [alertsError, setAlertsError] = useState<string | null>(null);
+  const [context, setContext] = useState<MarketContextQuote[] | null>(null);
+  const [contextError, setContextError] = useState<string | null>(null);
+  const [signalWindow, setSignalWindow] = useState<SignalWindow>("recent");
 
-  const selectedResult = selected ? data?.resultsBySymbol[selected]?.[timeframe] ?? null : null;
+  const topScore = useMemo(() => {
+    if (!scan) return null;
+    const scores = scan.watchlist.map((s) => Math.max(s.score5m, s.score15m));
+    return scores.length > 0 ? Math.max(...scores) : null;
+  }, [scan]);
+
+  const dataQuality: DataQuality | null = useMemo(() => {
+    if (!scan) return null;
+    return Object.values(scan.resultsBySymbol)[0]?.["5m"]?.quality ?? null;
+  }, [scan]);
+
+  /** Scan time comes from the results themselves, not the browser clock —
+   * refreshing the page must never look like a newer scan. */
+  const scanTime = useMemo(() => {
+    if (!scan) return null;
+    return Object.values(scan.resultsBySymbol)[0]?.["5m"]?.lastUpdated ?? null;
+  }, [scan]);
+
+  /** Newest candle across every scanned symbol — the true edge of the
+   * market data, which is a different question from feed capability. */
+  const newestCandleTime = useMemo(() => {
+    if (!scan) return null;
+    const times = Object.values(scan.resultsBySymbol)
+      .map((r) => r["5m"]?.latestCandleTime)
+      .filter((t): t is string => !!t);
+    if (times.length === 0) return null;
+    return times.reduce((a, b) => (new Date(a) > new Date(b) ? a : b));
+  }, [scan]);
+
+  /** Freshly-fired events merged with persisted history, deduped by id. */
+  const allAlerts = useMemo(
+    () => dedupeAlerts([...(scan?.newAlerts ?? []), ...(alerts ?? [])]),
+    [scan, alerts]
+  );
 
   const fetchRisk = useCallback(() => {
-    const scoreParam = selectedResult ? `?selectedScore=${selectedResult.score}` : "";
+    const scoreParam = topScore !== null ? `?selectedScore=${topScore.toFixed(2)}` : "";
     fetch(`/api/risk/status${scoreParam}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((json) => {
         if (json) setRisk(json);
       })
       .catch(() => {
-        // Non-fatal — the dashboard still works without the risk panel.
+        // Non-fatal: the rest of the dashboard still works without it.
       });
-  }, [selectedResult]);
+  }, [topScore]);
 
   useEffect(() => {
     let cancelled = false;
@@ -71,10 +104,34 @@ export default function DashboardPage() {
         return res.json();
       })
       .then((json: ScanApiResponse) => {
-        if (!cancelled) setData(json);
+        if (!cancelled) setScan(json);
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof Error ? err.message : "Unknown error");
+        if (!cancelled) setScanError(err instanceof Error ? err.message : "Unknown error");
+      });
+
+    fetch("/api/alerts")
+      .then((res) => {
+        if (!res.ok) throw new Error(`Alerts request failed: ${res.status}`);
+        return res.json();
+      })
+      .then((json: { events: AlertEvent[] }) => {
+        if (!cancelled) setAlerts(json.events ?? []);
+      })
+      .catch((err) => {
+        if (!cancelled) setAlertsError(err instanceof Error ? err.message : "Unknown error");
+      });
+
+    fetch("/api/market-context")
+      .then((res) => {
+        if (!res.ok) throw new Error(`Market context failed: ${res.status}`);
+        return res.json();
+      })
+      .then((json: { quotes: MarketContextQuote[] }) => {
+        if (!cancelled) setContext(json.quotes ?? []);
+      })
+      .catch((err) => {
+        if (!cancelled) setContextError(err instanceof Error ? err.message : "Unknown error");
       });
 
     return () => {
@@ -86,89 +143,149 @@ export default function DashboardPage() {
     fetchRisk();
   }, [fetchRisk]);
 
-  const watchlist = data?.watchlist ?? [];
-  const selectedSymbol = watchlist.find((s) => s.ticker === selected) ?? null;
+  const scoreThreshold = risk?.settings.minSetupScore ?? FALLBACK_SCORE_THRESHOLD;
+
+  // Badge reflects how old the DATA is, not what the feed is capable of.
+  const feed = describeFeed(dataQuality, newestCandleTime, Date.now());
 
   return (
-    <div className="space-y-6">
-      {risk && (
-        <div className="space-y-2">
-          <AccountSummary summary={toAccountSummary(risk)} />
-          <div className="flex justify-end">
-            <Link
-              href="/journal"
-              className="text-xs bg-white/[0.08] hover:bg-white/[0.12] border border-obsidian-border rounded px-3 py-1.5 text-platinum-bright transition-colors"
-            >
-              Log a trade in your journal →
-            </Link>
-          </div>
-        </div>
-      )}
+    <div className="space-y-3">
+      {/* Status group. No "Real-time data" badge: the dot reports PROVIDER
+          CONNECTIVITY, and scan time / candle time are shown as separate
+          labelled values so neither can be mistaken for the other. Green
+          is reserved for a genuinely current candle. */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div
+          className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] uppercase tracking-[0.1em] px-3 py-1.5 rounded"
+          style={{ background: "var(--panel)", border: "1px solid var(--border)" }}
+        >
+          <span className="flex items-center gap-1.5">
+            <span
+              className="h-1.5 w-1.5 rounded-full"
+              style={{
+                background: scan
+                  ? feed.staleness === "current"
+                    ? "var(--green)"
+                    : "var(--amber)"
+                  : "var(--text-muted)",
+              }}
+              aria-hidden="true"
+            />
+            <span style={{ color: "var(--text-secondary)" }}>
+              {scan ? scan.provider : "Connecting"}
+            </span>
+          </span>
 
-      {error && (
+          {scanTime && (
+            <>
+              <span aria-hidden="true" style={{ color: "var(--border)" }}>
+                ·
+              </span>
+              <span style={{ color: "var(--text-muted)" }}>
+                {scannedLabel(scanTime).replace("Scanned ", "Scanned ")}
+              </span>
+            </>
+          )}
+
+          {newestCandleTime && (
+            <>
+              <span aria-hidden="true" style={{ color: "var(--border)" }}>
+                ·
+              </span>
+              <span
+                style={{
+                  color: feed.staleness === "current" ? "var(--text-secondary)" : "var(--amber)",
+                }}
+              >
+                {latestCandleLabel(newestCandleTime)}
+              </span>
+            </>
+          )}
+
+          {risk?.session && (
+            <>
+              <span aria-hidden="true" style={{ color: "var(--border)" }}>
+                ·
+              </span>
+              <span style={{ color: "var(--text-muted)" }}>
+                {risk.session.session.replace(/-/g, " ")}
+              </span>
+            </>
+          )}
+        </div>
+
+        <Link href="/journal" className="btn-secondary">
+          Log a trade →
+        </Link>
+      </div>
+
+      <SignalRow
+        events={allAlerts}
+        window={signalWindow}
+        onWindowChange={setSignalWindow}
+        loading={alerts === null && !alertsError}
+      />
+
+      {scanError && (
         <div className="panel p-4 border-signal-red/40 text-sm text-signal-red">
-          Scan failed: {error}
+          Scan failed: {scanError}
         </div>
       )}
 
-      {!data && !error && (
-        <div className="panel p-6 text-sm text-platinum-dim">Scanning watchlist…</div>
+      {scan && scan.errors.length > 0 && (
+        <div className="panel p-4 border-signal-red/30 text-sm space-y-1">
+          <div className="text-platinum-bright font-medium">
+            {scan.errors.length} symbol{scan.errors.length > 1 ? "s" : ""} failed to scan
+          </div>
+          {scan.errors.map((e) => (
+            <div key={e.symbol} className="text-platinum-dim text-xs">
+              <span className="font-mono text-signal-red">{e.symbol}</span>: {e.message}
+            </div>
+          ))}
+          <div className="text-platinum-dim text-xs pt-1">
+            Excluded from the list below rather than shown with fabricated data.
+          </div>
+        </div>
       )}
 
-      {data && (
-        <>
-          <div className="text-xs text-platinum-dim">
-            Data provider: <span className="text-platinum">{data.provider}</span>
-            {data.provider === "mock" && " — simulated data, no live keys configured"}
-          </div>
-
-          {data.newAlerts.length > 0 && (
-            <div className="panel p-4 border-signal-green/30 text-sm space-y-1">
-              <div className="text-platinum-bright font-medium">
-                {data.newAlerts.length} new alert{data.newAlerts.length > 1 ? "s" : ""}
-              </div>
-              {data.newAlerts.map((a) => (
-                <div key={a.id} className="text-platinum-dim text-xs">
-                  {a.message}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {data.errors.length > 0 && (
-            <div className="panel p-4 border-signal-red/30 text-sm space-y-1">
-              <div className="text-platinum-bright font-medium">
-                {data.errors.length} symbol{data.errors.length > 1 ? "s" : ""} failed to scan
-              </div>
-              {data.errors.map((e) => (
-                <div key={e.symbol} className="text-platinum-dim text-xs">
-                  <span className="font-mono text-signal-red">{e.symbol}</span>: {e.message}
-                </div>
-              ))}
-              <div className="text-platinum-dim text-xs pt-1">
-                These symbols are excluded from the watchlist below rather than shown with
-                fabricated data — everyone else's real data is unaffected.
-              </div>
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-            <div className="lg:col-span-2 space-y-6">
-              <Watchlist symbols={watchlist} selected={selected} onSelect={setSelected} />
-            </div>
-            <div className="space-y-6">
-              {risk && <AccountabilityPanel checks={risk.checks} />}
-            </div>
-          </div>
-
-          <SetupDetail
-            result={selectedResult}
-            exchange={selectedSymbol?.exchange ?? "NASDAQ"}
-            timeframe={timeframe}
-            onTimeframeChange={setTimeframe}
+      {/* Left compact, centre dominant, queue readable but not dominant.
+          All three columns start at the same vertical position. */}
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(230px,0.78fr)_minmax(620px,2.65fr)_minmax(300px,1fr)] gap-3 items-start">
+        <div className="space-y-3">
+          <AccountRiskPanel
+            settings={risk?.settings ?? null}
+            status={risk?.status ?? null}
+            checks={risk?.checks ?? null}
           />
-        </>
-      )}
+          <TradingSessionPanel
+            session={risk?.session ?? null}
+            settings={risk?.settings ?? null}
+          />
+          <MarketContextPanel
+            quotes={context}
+            loading={context === null && !contextError}
+            error={contextError}
+          />
+        </div>
+
+        <div className="min-w-0">
+          <RankedOpportunities
+            symbols={scan?.watchlist ?? []}
+            resultsBySymbol={scan?.resultsBySymbol ?? {}}
+            loading={scan === null && !scanError}
+            scoreThreshold={scoreThreshold}
+          />
+        </div>
+
+        <div className="min-w-0">
+          <ActionQueue
+            alerts={allAlerts}
+            resultsBySymbol={scan?.resultsBySymbol ?? {}}
+            loading={alerts === null && !alertsError}
+            error={alertsError}
+          />
+        </div>
+      </div>
     </div>
   );
 }
