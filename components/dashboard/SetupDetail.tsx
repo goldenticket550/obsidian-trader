@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { SetupResult, ConditionState, ConditionCategory, ConvictionLevel, EntryStatus } from "@/types/setup";
 import { buildTradingViewUrl } from "@/lib/tradingview";
 import { StageProgression } from "./StageProgression";
@@ -92,6 +92,15 @@ export function SetupDetail({
   const [explaining, setExplaining] = useState(false);
   const [explainError, setExplainError] = useState<string | null>(null);
 
+  // The full checklist is a collapsed disclosure by default. Collapse it
+  // again whenever the selection changes (different symbol or timeframe),
+  // so an expanded panel of stale details never stays associated with a
+  // newly selected setup.
+  const [checklistOpen, setChecklistOpen] = useState(false);
+  useEffect(() => {
+    setChecklistOpen(false);
+  }, [result?.symbol, timeframe]);
+
   if (!result) return null;
 
   async function handleExplain() {
@@ -118,6 +127,9 @@ export function SetupDetail({
   const tvUrl = buildTradingViewUrl(result.symbol, exchange, result.timeframe);
   const invalidated = result.conditions.some((c) => c.state === "invalidated");
   const feed = describeFeed(result.quality, result.latestCandleTime, Date.now());
+
+  // Stable id for the disclosure region aria-controls points at.
+  const checklistRegionId = `full-checklist-${result.symbol}-${result.timeframe}`;
 
   // Drawer shows only what's currently actionable; the exhaustive
   // checklist lives behind a disclosure so the drawer stays short.
@@ -318,18 +330,30 @@ export function SetupDetail({
         </div>
       )}
 
-      {/* Full checklist stays collapsed by default — rendering all twelve
-          conditions with their reasoning was what made the drawer push
-          every other opportunity off-screen. */}
-      <details className="mt-2.5" style={{ borderTop: "1px solid var(--border-soft)" }}>
-        <summary
-          className="btn-secondary inline-block mt-2.5 cursor-pointer list-none select-none"
+      {/* Full checklist is a controlled disclosure, collapsed by default —
+          rendering all twelve conditions with their reasoning was what made
+          the drawer push every other opportunity off-screen. A real button
+          (not a <summary>) so the label can honestly say "View" vs "Hide"
+          and expose aria-expanded/aria-controls. */}
+      <div className="mt-2.5" style={{ borderTop: "1px solid var(--border-soft)" }}>
+        <button
+          type="button"
+          onClick={() => setChecklistOpen((open) => !open)}
+          aria-expanded={checklistOpen}
+          aria-controls={checklistRegionId}
+          className="btn-secondary inline-block mt-2.5 cursor-pointer select-none focus:outline-none focus-visible:ring-1 focus-visible:ring-accent-champagne"
           style={{ width: "fit-content" }}
         >
-          View full checklist ({result.conditions.length})
-        </summary>
+          {checklistOpen ? "Hide full checklist" : `View full checklist (${result.conditions.length})`}
+        </button>
 
-        <div className="mt-2.5 grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-3">
+        {/* One region, toggled with `hidden` — never a second copy, and no
+            refetch/recalc on open (the disclosure only flips local state). */}
+        <div
+          id={checklistRegionId}
+          hidden={!checklistOpen}
+          className="mt-2.5 grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-3"
+        >
           {grouped.map((group) => (
             <div key={group.category}>
               <div className="card-heading mb-1">{CATEGORY_LABEL[group.category]}</div>
@@ -391,7 +415,7 @@ export function SetupDetail({
             </div>
           ))}
         </div>
-      </details>
+      </div>
 
       <p className="mt-2.5 text-[10px]" style={{ color: "var(--text-muted)" }}>
         A green status means this setup is ready for manual review — it is never a buy signal.

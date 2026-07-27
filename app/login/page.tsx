@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { browserAuthOrigin, safeNextPath } from "@/lib/auth/origin";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -14,7 +15,20 @@ export default function LoginPage() {
     setErrorMessage(null);
 
     const supabase = createClient();
-    const redirectTo = `${window.location.origin}/auth/callback`;
+
+    // Prefer the configured canonical URL so the magic link never points at
+    // localhost in production (see lib/auth/origin.ts). NEXT_PUBLIC_SITE_URL
+    // must stay a static literal for Next to inline it into the browser.
+    const origin = browserAuthOrigin(process.env.NEXT_PUBLIC_SITE_URL, window.location.origin);
+
+    // Carry a validated, same-origin post-auth destination (set by the
+    // middleware as ?redirectTo=…) through to the callback. Anything external
+    // collapses to "/".
+    const next = safeNextPath(new URLSearchParams(window.location.search).get("redirectTo"));
+    const redirectTo =
+      next === "/"
+        ? `${origin}/auth/callback`
+        : `${origin}/auth/callback?redirectTo=${encodeURIComponent(next)}`;
 
     const { error } = await supabase.auth.signInWithOtp({
       email,

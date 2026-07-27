@@ -28,6 +28,13 @@ const SIGNAL_DEFINITIONS: { key: string; label: string; type: AlertType }[] = [
 export type SignalWindow = "recent" | "last_60m";
 
 /**
+ * The dashboard's default window. 60 minutes, so a Monday-morning view isn't
+ * dominated by Friday's alerts; "recent" (the full loaded set) stays a
+ * user-selectable option.
+ */
+export const DEFAULT_SIGNAL_WINDOW: SignalWindow = "last_60m";
+
+/**
  * The API returns at most ALERT_FETCH_LIMIT events with no date filter,
  * so the unfiltered view CANNOT honestly be called "Events today" — a
  * busy day would silently truncate and the label would overstate what
@@ -43,13 +50,29 @@ export const SIGNAL_WINDOW_LABEL: Record<SignalWindow, string> = {
 };
 
 /**
- * Filters events to the requested window. "recent" applies no time filter
- * at all — it counts exactly the events that were loaded, which is the
- * only honest thing to do given the API's flat limit. Events with an
- * unparseable `firedAt` are excluded from the timed window rather than
- * silently counted.
+ * Filters events to the requested window — the single source of truth for
+ * "which events are in scope", used by BOTH the headline counts and the
+ * action queue so the two can never disagree.
+ *
+ * "recent" applies no time filter at all — it returns exactly the events
+ * that were loaded, which is the only honest thing to do given the API's
+ * flat limit.
+ *
+ * "last_60m" keeps events whose `firedAt` is within the previous 60
+ * minutes of `now`. `now` is passed in (never read from the clock here) so
+ * the function is pure and tests are deterministic.
+ *
+ * Boundary: an event fired EXACTLY 60 minutes ago is INCLUDED (the test is
+ * `t >= now - 60min`). Future-dated events (`t > now`) are excluded, and an
+ * unparseable `firedAt` is excluded from the timed window rather than
+ * silently counted — an invalid timestamp must never crash or inflate a
+ * count.
  */
-export function eventsInWindow(events: AlertEvent[], window: SignalWindow, now: number): AlertEvent[] {
+export function filterEventsByWindow(
+  events: AlertEvent[],
+  window: SignalWindow,
+  now: number
+): AlertEvent[] {
   if (window === "last_60m") {
     const cutoff = now - 60 * 60 * 1000;
     return events.filter((e) => {
@@ -67,7 +90,7 @@ export function computeSignalCards(
   window: SignalWindow,
   now: number
 ): SignalCard[] {
-  const scoped = eventsInWindow(events, window, now);
+  const scoped = filterEventsByWindow(events, window, now);
   return SIGNAL_DEFINITIONS.map((def) => ({
     ...def,
     count: scoped.filter((e) => e.type === def.type).length,

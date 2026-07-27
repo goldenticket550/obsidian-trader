@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import {
   computeSignalCards,
-  eventsInWindow,
+  filterEventsByWindow,
+  DEFAULT_SIGNAL_WINDOW,
   SIGNAL_WINDOW_LABEL,
   ALERT_FETCH_LIMIT,
 } from "@/lib/alerts/signalCounts";
@@ -21,13 +22,29 @@ function makeEvent(type: AlertType, firedAt: string): AlertEvent {
 
 const NOW = Date.parse("2026-07-27T18:00:00Z");
 
-describe("eventsInWindow", () => {
+describe("DEFAULT_SIGNAL_WINDOW", () => {
+  it("defaults the dashboard to the last 60 minutes, not the full recent set", () => {
+    expect(DEFAULT_SIGNAL_WINDOW).toBe("last_60m");
+  });
+});
+
+describe("filterEventsByWindow", () => {
   it("keeps only events from the last 60 minutes", () => {
     const events = [
       makeEvent("liquidity_sweep", "2026-07-27T17:30:00Z"), // 30m ago
       makeEvent("liquidity_sweep", "2026-07-27T16:30:00Z"), // 90m ago
     ];
-    expect(eventsInWindow(events, "last_60m", NOW).length).toBe(1);
+    expect(filterEventsByWindow(events, "last_60m", NOW).length).toBe(1);
+  });
+
+  it("includes an event exactly 60 minutes old (inclusive boundary)", () => {
+    const events = [makeEvent("ema_reclaim", "2026-07-27T17:00:00Z")]; // exactly 60m before NOW
+    expect(filterEventsByWindow(events, "last_60m", NOW)).toHaveLength(1);
+  });
+
+  it("excludes an event 60 minutes and one second old", () => {
+    const events = [makeEvent("ema_reclaim", "2026-07-27T16:59:59Z")]; // 60m01s before NOW
+    expect(filterEventsByWindow(events, "last_60m", NOW)).toEqual([]);
   });
 
   it("applies no time filter for 'recent' — it counts exactly what was loaded", () => {
@@ -38,24 +55,42 @@ describe("eventsInWindow", () => {
       makeEvent("ema_reclaim", "2026-07-26T23:00:00Z"),
       makeEvent("ema_reclaim", "2020-01-01T00:00:00Z"),
     ];
-    expect(eventsInWindow(events, "recent", NOW).length).toBe(3);
+    expect(filterEventsByWindow(events, "recent", NOW).length).toBe(3);
   });
 
   it("excludes future-dated events from the 60-minute window", () => {
     const events = [makeEvent("score_threshold", "2026-07-27T19:00:00Z")];
-    expect(eventsInWindow(events, "last_60m", NOW)).toEqual([]);
+    expect(filterEventsByWindow(events, "last_60m", NOW)).toEqual([]);
   });
 
   it("excludes an unparseable timestamp from the timed window rather than counting it", () => {
     const events = [makeEvent("score_threshold", "not-a-date")];
-    expect(eventsInWindow(events, "last_60m", NOW)).toEqual([]);
+    expect(filterEventsByWindow(events, "last_60m", NOW)).toEqual([]);
     // "recent" is explicitly unfiltered, so it still reflects the loaded
     // set — it makes no time claim to violate.
-    expect(eventsInWindow(events, "recent", NOW)).toHaveLength(1);
+    expect(filterEventsByWindow(events, "recent", NOW)).toHaveLength(1);
   });
 
   it("returns nothing for an empty input", () => {
-    expect(eventsInWindow([], "recent", NOW)).toEqual([]);
+    expect(filterEventsByWindow([], "recent", NOW)).toEqual([]);
+  });
+
+  it("feeds the counts and the queue from the SAME filtered collection", () => {
+    // The dashboard passes filterEventsByWindow(...) to the ActionQueue and
+    // computeSignalCards calls it internally — this guards that both derive
+    // from one identical windowed set, so counts and queue can never drift.
+    const events = [
+      makeEvent("liquidity_sweep", "2026-07-27T17:45:00Z"), // in window
+      makeEvent("structure_shift", "2026-07-27T17:50:00Z"), // in window
+      makeEvent("liquidity_sweep", "2026-07-27T09:00:00Z"), // out of window
+    ];
+    const queueSource = filterEventsByWindow(events, "last_60m", NOW);
+    const cards = computeSignalCards(events, "last_60m", NOW);
+    const cardTotal = cards.reduce((sum, c) => sum + c.count, 0);
+    // Every windowed event here is a headline type, so the queue length and
+    // the summed card counts match exactly — same collection, same window.
+    expect(queueSource).toHaveLength(2);
+    expect(cardTotal).toBe(queueSource.length);
   });
 });
 

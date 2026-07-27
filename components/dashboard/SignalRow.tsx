@@ -73,16 +73,20 @@ function SignalIcon({ kind, color }: { kind: string; color: string }) {
 export function SignalRow({
   events,
   window,
+  now = Date.now(),
   onWindowChange,
   loading,
 }: {
   events: AlertEvent[];
   window: SignalWindow;
+  /** Shared with the ActionQueue so counts and queue filter identically.
+   * Defaults to the current time when rendered standalone. */
+  now?: number;
   onWindowChange: (w: SignalWindow) => void;
   loading: boolean;
 }) {
   // Pure count over the events actually held — no projection anywhere.
-  const cards = computeSignalCards(events, window, Date.now());
+  const cards = computeSignalCards(events, window, now);
 
   return (
     <section aria-label="Signal counts">

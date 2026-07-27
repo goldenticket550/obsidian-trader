@@ -22,7 +22,7 @@ describe("quoteFromDailyCandles", () => {
   it("leaves changePct null with only one candle rather than reporting a flat 0%", () => {
     // With no prior close we don't know the change. Showing 0% would read
     // as "unchanged", which is a different and false claim.
-    const q = quoteFromDailyCandles("USO", "USO Oil", [makeCandle({ time: MON, close: 78 })], "delayed");
+    const q = quoteFromDailyCandles("USO", "USO ETF", [makeCandle({ time: MON, close: 78 })], "delayed");
     expect(q.price).toBe(78);
     expect(q.changePct).toBeNull();
   });
@@ -70,7 +70,7 @@ describe("MARKET_CONTEXT_SYMBOLS", () => {
     expect(MARKET_CONTEXT_SYMBOLS.map((s) => s.symbol)).toEqual(["USO", "SPY", "IWM"]);
   });
 
-  it("labels USO as an oil proxy rather than implying spot crude", () => {
-    expect(MARKET_CONTEXT_SYMBOLS.find((s) => s.symbol === "USO")?.label).toBe("USO Oil");
+  it("labels USO as an ETF rather than implying spot crude", () => {
+    expect(MARKET_CONTEXT_SYMBOLS.find((s) => s.symbol === "USO")?.label).toBe("USO ETF");
   });
 });

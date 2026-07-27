@@ -12,7 +12,7 @@ import type { DataQuality } from "@/types/candle";
  * failure mode this module is built to avoid.
  */
 export const MARKET_CONTEXT_SYMBOLS = [
-  { symbol: "USO", label: "USO Oil" },
+  { symbol: "USO", label: "USO ETF" },
   { symbol: "SPY", label: "SPY" },
   { symbol: "IWM", label: "IWM" },
 ] as const;

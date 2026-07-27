@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { AlertEvent } from "@/lib/alerts/types";
 import type { SetupResult } from "@/types/setup";
 import { triageAlerts, type TriageBucket } from "@/lib/alerts/triage";
+import type { SignalWindow } from "@/lib/alerts/signalCounts";
 import { formatEventTime } from "@/lib/market-data/freshness";
 
 const BUCKET_ACCENT: Record<TriageBucket, string> = {
@@ -49,16 +50,28 @@ function splitMessage(message: string): { body: string; marketData: string | nul
 
 export function ActionQueue({
   alerts,
+  window,
   resultsBySymbol,
   loading,
   error,
 }: {
+  /** Already filtered to the selected window by the dashboard — the same
+   * collection the headline counts are computed from. */
   alerts: AlertEvent[];
+  window: SignalWindow;
   resultsBySymbol: Record<string, { "5m": SetupResult; "15m": SetupResult }>;
   loading: boolean;
   error: string | null;
 }) {
   const groups = triageAlerts(alerts);
+  const isEmpty = alerts.length === 0;
+
+  // Honest calm state for an empty window — never backfilled with older
+  // events. The 60-minute copy is explicit about the window it reflects.
+  const emptyCopy =
+    window === "last_60m"
+      ? "No alerts recorded in the last 60 minutes."
+      : "No recent alerts recorded.";
 
   return (
     <section className="command-panel flex flex-col" aria-label="Action queue">
@@ -92,7 +105,13 @@ export function ActionQueue({
           column and its length would otherwise set page height. Below xl
           it participates in normal page flow — a nested scroll box inside
           an already-scrolling phone page is worse than a long list. */}
-      {!loading && !error && (
+      {!loading && !error && isEmpty && (
+        <p className="px-4 py-5 text-[12px]" style={{ color: "var(--text-muted)" }}>
+          {emptyCopy}
+        </p>
+      )}
+
+      {!loading && !error && !isEmpty && (
         <div
           className="xl:overflow-y-auto xl:max-h-[calc(100vh-190px)] focus:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-accent-champagne"
           tabIndex={0}

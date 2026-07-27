@@ -810,9 +810,19 @@ build. Caught here only because it was tested against the real dev server.
 2. Copy the Project URL and anon/public key into `.env.local` as `NEXT_PUBLIC_SUPABASE_URL` /
    `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 3. In the Supabase SQL Editor, run `supabase/migrations/0001_watchlist_and_config.sql`
-4. In Authentication → URL Configuration, add `http://localhost:3000/auth/callback` as a
-   redirect URL
-5. Restart the dev server — you should be redirected to `/login` on your next visit
+4. In Authentication → URL Configuration:
+   - **Site URL**: set to your production HTTPS URL (e.g. `https://obsidian-trader.vercel.app`)
+     once deployed — **not** `http://localhost:3000`. Supabase falls back to the Site URL
+     whenever `emailRedirectTo` isn't allow-listed, so a localhost Site URL makes every
+     production magic link redirect to `localhost:3000/?code=…` (the code never reaches
+     `/auth/callback` and sign-in silently fails).
+   - **Redirect URLs**: add `http://localhost:3000/auth/callback` (local dev) **and**
+     `https://<your-production-domain>/auth/callback`. For Vercel preview deployments, add
+     `https://*.vercel.app/auth/callback` if you want previews to sign in too.
+5. Set `NEXT_PUBLIC_SITE_URL` to that same production HTTPS URL in your deploy environment
+   (Vercel → Project → Environment Variables). Leave it unset locally. This makes the magic
+   link deterministic; the code never redirects to localhost in production.
+6. Restart the dev server — you should be redirected to `/login` on your next visit
 
 ### What's new
 

@@ -15,7 +15,7 @@ import type { SessionInfo } from "@/lib/market-data/types";
 import type { MarketContextQuote } from "@/lib/market-data/marketContext";
 import type { AlertEvent } from "@/lib/alerts/types";
 import type { RiskSettings, DailyTradingStatus } from "@/types/risk";
-import type { SignalWindow } from "@/lib/alerts/signalCounts";
+import { DEFAULT_SIGNAL_WINDOW, filterEventsByWindow, type SignalWindow } from "@/lib/alerts/signalCounts";
 import { dedupeAlerts } from "@/lib/alerts/triage";
 import { describeFeed, latestCandleLabel, scannedLabel } from "@/lib/market-data/freshness";
 
@@ -46,7 +46,9 @@ export default function DashboardPage() {
   const [alertsError, setAlertsError] = useState<string | null>(null);
   const [context, setContext] = useState<MarketContextQuote[] | null>(null);
   const [contextError, setContextError] = useState<string | null>(null);
-  const [signalWindow, setSignalWindow] = useState<SignalWindow>("recent");
+  // Default to the last 60 minutes so a Monday view isn't dominated by
+  // Friday's alerts. "Recent" (the full loaded set) stays user-selectable.
+  const [signalWindow, setSignalWindow] = useState<SignalWindow>(DEFAULT_SIGNAL_WINDOW);
 
   const topScore = useMemo(() => {
     if (!scan) return null;
@@ -81,6 +83,15 @@ export default function DashboardPage() {
   const allAlerts = useMemo(
     () => dedupeAlerts([...(scan?.newAlerts ?? []), ...(alerts ?? [])]),
     [scan, alerts]
+  );
+
+  /** Single `now` and single windowed collection shared by BOTH the headline
+   * counts and the action queue, so the selected window can never apply to
+   * one but not the other. Recomputed only when the data or window changes. */
+  const windowNow = useMemo(() => Date.now(), [allAlerts, signalWindow]);
+  const windowedAlerts = useMemo(
+    () => filterEventsByWindow(allAlerts, signalWindow, windowNow),
+    [allAlerts, signalWindow, windowNow]
   );
 
   const fetchRisk = useCallback(() => {
@@ -222,6 +233,7 @@ export default function DashboardPage() {
       <SignalRow
         events={allAlerts}
         window={signalWindow}
+        now={windowNow}
         onWindowChange={setSignalWindow}
         loading={alerts === null && !alertsError}
       />
@@ -279,7 +291,8 @@ export default function DashboardPage() {
 
         <div className="min-w-0">
           <ActionQueue
-            alerts={allAlerts}
+            alerts={windowedAlerts}
+            window={signalWindow}
             resultsBySymbol={scan?.resultsBySymbol ?? {}}
             loading={alerts === null && !alertsError}
             error={alertsError}
