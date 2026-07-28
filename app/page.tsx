@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { SignalRow } from "@/components/dashboard/SignalRow";
 import { AccountRiskPanel } from "@/components/dashboard/AccountRiskPanel";
@@ -38,6 +38,11 @@ interface RiskApiResponse {
  * load. Mirrors defaultRiskSettings.minSetupScore; not a displayed value. */
 const FALLBACK_SCORE_THRESHOLD = 6;
 
+/** How often the dashboard re-runs its scan in the background, measured from
+ * the client. 60s matches the shortest candle timeframe (5m) comfortably
+ * without hammering the provider or its cache. */
+const AUTO_REFRESH_INTERVAL_MS = 60_000;
+
 export default function DashboardPage() {
   const [scan, setScan] = useState<ScanApiResponse | null>(null);
   const [scanError, setScanError] = useState<string | null>(null);
@@ -49,6 +54,13 @@ export default function DashboardPage() {
   // Default to the last 60 minutes so a Monday view isn't dominated by
   // Friday's alerts. "Recent" (the full loaded set) stays user-selectable.
   const [signalWindow, setSignalWindow] = useState<SignalWindow>(DEFAULT_SIGNAL_WINDOW);
+
+  // Synchronous guard: at most one dashboard scan in flight at a time. A ref
+  // (not state) so two callbacks in the same tick can't both pass the check.
+  const scanInFlightRef = useRef(false);
+  // Guards against applying results after unmount (the existing scan used no
+  // AbortController, so we gate setState rather than aborting the request).
+  const mountedRef = useRef(true);
 
   const topScore = useMemo(() => {
     if (!scan) return null;
@@ -106,49 +118,138 @@ export default function DashboardPage() {
       });
   }, [topScore]);
 
+  /**
+   * The single dashboard scan path, shared by the initial load and every
+   * background refresh — same three requests, same state setters, so there is
+   * no second implementation to drift.
+   *
+   * `mode` only changes FAILURE handling: the initial load keeps the existing
+   * visible error behaviour, while a background failure keeps the last good
+   * data on screen and merely logs. Success always applies through the normal
+   * setters (so "Scanned {time}" updates and the loading state clears), and we
+   * never reset data to null, so a refresh never flashes a loading state.
+   *
+   * Only stable setters/refs are referenced, so this callback is stable and
+   * the scheduling effect below is never recreated by routine data updates.
+   */
+  const runScan = useCallback(async (mode: "initial" | "background") => {
+    // Synchronous overlap guard — two callbacks in the same tick can't both
+    // start, and interval/visibility refreshes skip while one is in flight.
+    if (scanInFlightRef.current) return;
+    scanInFlightRef.current = true;
+
+    const applyIfMounted = (fn: () => void) => {
+      if (mountedRef.current) fn();
+    };
+    const handleError = (
+      label: string,
+      setError: (message: string | null) => void,
+      err: unknown
+    ) => {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      if (mode === "initial") {
+        applyIfMounted(() => setError(message));
+      } else {
+        // Background failure: preserve last-known-good data, don't disrupt the
+        // dashboard, don't touch the scan timestamp. Log the message only —
+        // never response bodies, tokens, or cookies.
+        console.error(`[dashboard] background ${label} refresh failed: ${message}`);
+      }
+    };
+
+    try {
+      await Promise.allSettled([
+        (async () => {
+          try {
+            const res = await fetch("/api/scan");
+            if (!res.ok) throw new Error(`Scan request failed: ${res.status}`);
+            const json = (await res.json()) as ScanApiResponse;
+            applyIfMounted(() => {
+              setScan(json);
+              setScanError(null);
+            });
+          } catch (err) {
+            handleError("scan", setScanError, err);
+          }
+        })(),
+        (async () => {
+          try {
+            const res = await fetch("/api/alerts");
+            if (!res.ok) throw new Error(`Alerts request failed: ${res.status}`);
+            const json = (await res.json()) as { events: AlertEvent[] };
+            applyIfMounted(() => {
+              setAlerts(json.events ?? []);
+              setAlertsError(null);
+            });
+          } catch (err) {
+            handleError("alerts", setAlertsError, err);
+          }
+        })(),
+        (async () => {
+          try {
+            const res = await fetch("/api/market-context");
+            if (!res.ok) throw new Error(`Market context failed: ${res.status}`);
+            const json = (await res.json()) as { quotes: MarketContextQuote[] };
+            applyIfMounted(() => {
+              setContext(json.quotes ?? []);
+              setContextError(null);
+            });
+          } catch (err) {
+            handleError("market context", setContextError, err);
+          }
+        })(),
+      ]);
+    } finally {
+      // Always release the guard — after success, failure, or partial failure.
+      scanInFlightRef.current = false;
+    }
+  }, []);
+
   useEffect(() => {
-    let cancelled = false;
+    mountedRef.current = true;
 
-    fetch("/api/scan")
-      .then((res) => {
-        if (!res.ok) throw new Error(`Scan request failed: ${res.status}`);
-        return res.json();
-      })
-      .then((json: ScanApiResponse) => {
-        if (!cancelled) setScan(json);
-      })
-      .catch((err) => {
-        if (!cancelled) setScanError(err instanceof Error ? err.message : "Unknown error");
-      });
+    // Initial load — same path as every refresh. Runs regardless of tab
+    // visibility, preserving the pre-existing on-mount fetch behaviour.
+    void runScan("initial");
 
-    fetch("/api/alerts")
-      .then((res) => {
-        if (!res.ok) throw new Error(`Alerts request failed: ${res.status}`);
-        return res.json();
-      })
-      .then((json: { events: AlertEvent[] }) => {
-        if (!cancelled) setAlerts(json.events ?? []);
-      })
-      .catch((err) => {
-        if (!cancelled) setAlertsError(err instanceof Error ? err.message : "Unknown error");
-      });
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    const startSchedule = () => {
+      if (intervalId === null) {
+        intervalId = setInterval(() => {
+          // Never scan a hidden tab; the schedule is also paused on hide below.
+          if (document.visibilityState === "visible") void runScan("background");
+        }, AUTO_REFRESH_INTERVAL_MS);
+      }
+    };
+    const stopSchedule = () => {
+      if (intervalId !== null) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    };
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        // Promptly refresh on resume (the in-flight guard skips it if a scan
+        // is already running), then resume the 60s schedule.
+        void runScan("background");
+        startSchedule();
+      } else {
+        stopSchedule();
+      }
+    };
 
-    fetch("/api/market-context")
-      .then((res) => {
-        if (!res.ok) throw new Error(`Market context failed: ${res.status}`);
-        return res.json();
-      })
-      .then((json: { quotes: MarketContextQuote[] }) => {
-        if (!cancelled) setContext(json.quotes ?? []);
-      })
-      .catch((err) => {
-        if (!cancelled) setContextError(err instanceof Error ? err.message : "Unknown error");
-      });
+    // Only schedule while visible; a tab opened in the background waits until
+    // it is shown. `startSchedule` installs the interval WITHOUT firing an
+    // immediate extra scan on top of the initial load.
+    if (document.visibilityState === "visible") startSchedule();
+    document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
-      cancelled = true;
+      mountedRef.current = false;
+      stopSchedule();
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, []);
+  }, [runScan]);
 
   useEffect(() => {
     fetchRisk();
