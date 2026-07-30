@@ -23,6 +23,9 @@ function makeFakeSupabase(opts: {
   onCooldown?: boolean;
   insertSpy?: ReturnType<typeof vi.fn>;
   upsertSpy?: ReturnType<typeof vi.fn>;
+  /** Receives the cooldown cutoff passed to `.gte("fired_at", …)`, so a
+   *  test can prove which cooldown window a rule actually used. */
+  onGte?: (column: string, value: string) => void;
 }) {
   const insertSpy = opts.insertSpy ?? vi.fn(async () => ({ error: null }));
   const upsertSpy = opts.upsertSpy ?? vi.fn(async () => ({ error: null }));
@@ -53,14 +56,17 @@ function makeFakeSupabase(opts: {
               eq: vi.fn(() => ({
                 eq: vi.fn(() => ({
                   eq: vi.fn(() => ({
-                    gte: vi.fn(() => ({
-                      limit: vi.fn(() => ({
-                        maybeSingle: vi.fn(async () => ({
-                          data: opts.onCooldown ? { id: "existing" } : null,
-                          error: null,
+                    gte: vi.fn((column: string, value: string) => {
+                      opts.onGte?.(column, value);
+                      return {
+                        limit: vi.fn(() => ({
+                          maybeSingle: vi.fn(async () => ({
+                            data: opts.onCooldown ? { id: "existing" } : null,
+                            error: null,
+                          })),
                         })),
-                      })),
-                    })),
+                      };
+                    }),
                   })),
                 })),
               })),
@@ -211,5 +217,83 @@ describe("getRecentAlertEvents", () => {
     expect(events.length).toBe(1);
     expect(events[0].id).toBe("evt_1");
     expect(events[0].type).toBe("score_threshold");
+  });
+});
+
+describe("entered_developing cooldown — flapping cannot spam alerts", () => {
+  function atConviction(level: "watch" | "developing" | "confirmed"): SetupResult {
+    return {
+      ...makeResult(4),
+      convictionLevel: level,
+      conditions: [
+        { id: "req_0", label: "Required 0", required: true, state: "pass" },
+        { id: "req_1", label: "Required 1", required: true, state: "pass" },
+        { id: "req_2", label: "Required 2", required: true, state: "fail" },
+      ],
+    };
+  }
+
+  it("fires the early alert on a real watch -> developing transition", async () => {
+    const insertSpy = vi.fn(async () => ({ error: null }));
+    const supabase = makeFakeSupabase({
+      snapshot: atConviction("watch"),
+      onCooldown: false,
+      insertSpy,
+    });
+
+    const events = await processResultPersistent(
+      supabase,
+      "user_1",
+      atConviction("developing"),
+      defaultAlertRules
+    );
+    expect(events.some((e) => e.type === "entered_developing")).toBe(true);
+    expect(insertSpy).toHaveBeenCalled();
+  });
+
+  it("suppresses a re-fire while the rule is still on cooldown", async () => {
+    // The flapping case: conviction dropped to watch and came back inside
+    // the window. The engine legitimately re-detects the transition; the
+    // cooldown is what stops it reaching the user.
+    const insertSpy = vi.fn(async () => ({ error: null }));
+    const supabase = makeFakeSupabase({
+      snapshot: atConviction("watch"),
+      onCooldown: true,
+      insertSpy,
+    });
+
+    const events = await processResultPersistent(
+      supabase,
+      "user_1",
+      atConviction("developing"),
+      defaultAlertRules
+    );
+    expect(events.some((e) => e.type === "entered_developing")).toBe(false);
+    expect(insertSpy).not.toHaveBeenCalled();
+  });
+
+  it("checks cooldown against a 15-minute window, not the 5-minute confirmed-tier one", async () => {
+    // Proves the rule's own cooldownMs is what reaches the query — a
+    // regression to FIVE_MIN here would silently restore the spam.
+    const cutoffs: string[] = [];
+    const now = new Date("2026-07-30T17:00:00.000Z");
+    const supabase = makeFakeSupabase({
+      snapshot: atConviction("watch"),
+      onCooldown: false,
+      onGte: (column, value) => {
+        if (column === "fired_at") cutoffs.push(value);
+      },
+    });
+
+    await processResultPersistent(
+      supabase,
+      "user_1",
+      atConviction("developing"),
+      defaultAlertRules,
+      now
+    );
+
+    expect(cutoffs).toContain("2026-07-30T16:45:00.000Z"); // now - 15 min
+    expect(cutoffs).not.toContain("2026-07-30T16:55:00.000Z"); // would be now - 5 min
   });
 });

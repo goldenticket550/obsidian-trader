@@ -3,6 +3,23 @@ import type { AlertRule } from "./types";
 const FIVE_MIN = 5 * 60_000;
 
 /**
+ * Cooldown for the early-tier `entered_developing` rule only. Longer than
+ * the FIVE_MIN every confirmed-tier rule uses, because the watch <->
+ * developing boundary is genuinely easy to oscillate across:
+ * determineConvictionLevel promotes on `requiredRatio >= 0.5 ||
+ * requiredPassed >= 2`, so a single required condition flickering
+ * pass/fail flips conviction back and forth and would re-fire this alert
+ * every scan at a 5-minute cooldown.
+ *
+ * 15 minutes is 3 candles on the 5m timeframe and 1 on the 15m, so a
+ * genuine re-entry after a real move still gets through, while flapping
+ * inside one candle's worth of noise does not. This does not delay
+ * anything: the confirmed-tier alerts keep their own independent
+ * FIVE_MIN cooldowns and are unaffected by this value.
+ */
+const FIFTEEN_MIN = 15 * 60_000;
+
+/**
  * Default rule set covering every alert type from the spec. Note:
  * "price approaching a gap" and "price entering the gap" are merged into
  * a single `fair_value_gap_proximity` rule, since both map to the same
@@ -78,5 +95,12 @@ export const defaultAlertRules: AlertRule[] = [
     label: "Setup invalidated",
     enabled: true,
     cooldownMs: FIVE_MIN,
+  },
+  {
+    id: "entered_developing",
+    type: "entered_developing",
+    label: "Setup entered developing conviction",
+    enabled: true,
+    cooldownMs: FIFTEEN_MIN,
   },
 ];

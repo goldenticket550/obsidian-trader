@@ -16,7 +16,14 @@ export type AlertType =
   | "fair_value_gap_created"
   | "fair_value_gap_proximity"
   | "score_threshold"
-  | "setup_invalidated";
+  | "setup_invalidated"
+  /**
+   * Early tier. Fires the moment convictionLevel first reaches
+   * "developing", ahead of the confirmed-tier types above. It reads the
+   * convictionLevel the scorer already computed and changes nothing about
+   * how it is computed, nor what any other alert requires.
+   */
+  | "entered_developing";
 
 export interface AlertRule {
   id: string;

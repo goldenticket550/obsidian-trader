@@ -20,6 +20,10 @@ const BUCKET_FOR_TYPE: Record<AlertType, TriageBucket> = {
   fair_value_gap_created: "monitor",
   liquidity_sweep: "monitor",
   ema_reclaim: "monitor",
+  // Early tier belongs in Monitor, never risk_review: "developing" is
+  // explicitly not a confirmed setup, and this bucket's own empty copy
+  // ("Nothing developing.") already describes exactly this.
+  entered_developing: "monitor",
 
   recovery_from_low: "informational",
   consecutive_bullish: "informational",

@@ -24,6 +24,11 @@ const TYPE_ACCENT: Record<string, string> = {
   fair_value_gap_proximity: "var(--amber)",
   recovery_from_low: "var(--text-muted)",
   consecutive_bullish: "var(--text-muted)",
+  // Amber reads as "forming, not resolved" and is deliberately NOT the
+  // green used by the confirmed tier (score_threshold, liquidity_sweep),
+  // so an early heads-up can never be mistaken at a glance for a
+  // confirmed setup.
+  entered_developing: "var(--amber)",
 };
 
 const TYPE_LABEL: Record<string, string> = {
@@ -36,6 +41,10 @@ const TYPE_LABEL: Record<string, string> = {
   ema_reclaim: "EMA reclaim",
   recovery_from_low: "Recovery from low",
   consecutive_bullish: "Consecutive bullish",
+  // Renders uppercase as "EARLY · DEVELOPING". The leading word is the
+  // point: every other badge names what happened, this one leads with
+  // the fact that it is a heads-up rather than a confirmation.
+  entered_developing: "Early · developing",
 };
 
 /** The alert engine appends the market-data time as text; lift it out so

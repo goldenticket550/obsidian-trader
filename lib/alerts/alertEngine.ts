@@ -97,6 +97,39 @@ export function evaluateAlerts(
       continue;
     }
 
+    if (rule.type === "entered_developing") {
+      // Early tier: fires the moment conviction first reaches
+      // "developing". Strictly a transition INTO that specific level —
+      // which gives each required behaviour for free:
+      //   watch -> developing      fires
+      //   watch -> confirmed       does NOT fire (current isn't
+      //                            "developing"; the confirmed-tier
+      //                            alerts already cover that jump)
+      //   developing -> developing does NOT fire (previous already was)
+      //   confirmed -> developing  does NOT fire on a repeat, only once
+      //                            per entry, same as every other edge
+      // No previous snapshot is handled by the `if (!previous)` guard at
+      // the top, matching every existing type's convention.
+      const wasDeveloping = previous.convictionLevel === "developing";
+      const isDeveloping = current.convictionLevel === "developing";
+      if (!wasDeveloping && isDeveloping) {
+        // Both numbers are read off the conditions the scorer already
+        // computed — nothing here re-derives or estimates conviction.
+        const required = current.conditions.filter((c) => c.required);
+        const passed = required.filter((c) => c.state === "pass").length;
+        events.push({
+          id: makeEventId(),
+          ruleId: rule.id,
+          type: rule.type,
+          symbol: current.symbol,
+          timeframe: current.timeframe,
+          message: `${current.symbol} (${current.timeframe}) ${rule.label.toLowerCase()} — ${passed}/${required.length} required conditions passing, score ${current.score.toFixed(1)}/${current.maxScore.toFixed(1)}${marketDataSuffix(current)}`,
+          firedAt: now,
+        });
+      }
+      continue;
+    }
+
     const conditionId = CONDITION_ID_FOR_TYPE[rule.type];
     if (!conditionId) continue;
 
