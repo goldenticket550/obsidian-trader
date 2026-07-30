@@ -111,6 +111,75 @@ describe("processResultPersistent", () => {
   });
 });
 
+describe("scan_snapshots.updated_at reflects the LAST write, not the first", () => {
+  /**
+   * The column is `default now()`, and a DEFAULT only fires on INSERT --
+   * so before this fix an upsert that rewrote the same row every 60s left
+   * updated_at frozen at first-insert time while its name promised the
+   * opposite. Observed live: an ARM 5m snapshot written at 16:56 UTC still
+   * read 13:11 UTC, 226 minutes stale.
+   *
+   * These cases prove the APPLICATION-level half of the fix (the explicit
+   * value in the upsert payload). The database trigger added in migration
+   * 0007 is the other half and cannot be exercised here -- these tests run
+   * against a fake Supabase client, with no Postgres in the test
+   * environment, so no trigger can fire. The trigger still needs manual
+   * verification against the real database once the migration is applied;
+   * see the migration's own header for what it does.
+   */
+  function upsertPayload(spy: ReturnType<typeof vi.fn>, call = 0): Record<string, unknown> {
+    return spy.mock.calls[call][0] as Record<string, unknown>;
+  }
+
+  it("writes an explicit updated_at rather than relying on the column default", async () => {
+    const upsertSpy = vi.fn(async () => ({ error: null }));
+    const supabase = makeFakeSupabase({ snapshot: undefined, upsertSpy });
+    const now = new Date("2026-07-30T16:56:08.943Z");
+
+    await processResultPersistent(supabase, "user_1", makeResult(0), defaultAlertRules, now);
+
+    expect(upsertPayload(upsertSpy)).toMatchObject({
+      user_id: "user_1",
+      symbol: "NVDA",
+      timeframe: "5m",
+      updated_at: "2026-07-30T16:56:08.943Z",
+    });
+  });
+
+  it("a second upsert to the SAME key records a materially later updated_at", async () => {
+    // The exact scenario the old code got wrong: same user/symbol/timeframe,
+    // rewritten later. The second write must not carry the first one's time.
+    const upsertSpy = vi.fn(async () => ({ error: null }));
+    const first = new Date("2026-07-30T13:11:28.495Z");
+    const second = new Date("2026-07-30T16:56:08.943Z"); // +3h44m, the real observed drift
+
+    const supabase = makeFakeSupabase({ snapshot: undefined, upsertSpy });
+    await processResultPersistent(supabase, "user_1", makeResult(0), defaultAlertRules, first);
+    await processResultPersistent(supabase, "user_1", makeResult(0), defaultAlertRules, second);
+
+    expect(upsertSpy).toHaveBeenCalledTimes(2);
+    const t1 = new Date(upsertPayload(upsertSpy, 0).updated_at as string).getTime();
+    const t2 = new Date(upsertPayload(upsertSpy, 1).updated_at as string).getTime();
+
+    expect(t2).toBeGreaterThan(t1);
+    expect(t2 - t1).toBe(13_480_448); // 3h44m40.448s — materially later, not a rounding artifact
+  });
+
+  it("targets the same conflict key, so the second write updates rather than inserts a duplicate", async () => {
+    const upsertSpy = vi.fn(async () => ({ error: null }));
+    const supabase = makeFakeSupabase({ snapshot: undefined, upsertSpy });
+
+    await processResultPersistent(supabase, "user_1", makeResult(0), defaultAlertRules, new Date());
+
+    // Confirms the UPDATE path is the one taken on rewrite — which is also
+    // precisely the path migration 0007's BEFORE UPDATE trigger covers.
+    // (Cast because the zero-arg mock signature gives `calls` an empty
+    // tuple type, so indexing past 0 is a compile error without it.)
+    const [, options] = upsertSpy.mock.calls[0] as unknown as [unknown, unknown];
+    expect(options).toEqual({ onConflict: "user_id,symbol,timeframe" });
+  });
+});
+
 describe("getRecentAlertEvents", () => {
   it("maps rows to AlertEvent shape", async () => {
     const supabase = {

@@ -38,12 +38,21 @@ async function saveSnapshot(
   userId: string,
   symbol: string,
   timeframe: string,
-  result: SetupResult
+  result: SetupResult,
+  now: Date
 ): Promise<void> {
+  // `updated_at` is set explicitly rather than left to the column
+  // default. A DEFAULT only fires on INSERT, so before this the column
+  // recorded first-insert time and then froze, while its name promised
+  // last-write time -- a snapshot rewritten every 60s could read hours
+  // stale. Migration 0007 adds a BEFORE UPDATE trigger that enforces the
+  // same thing at the database level for every writer; this explicit set
+  // makes the value correct immediately, without depending on the
+  // migration having been applied yet.
   const { error } = await supabase
     .from("scan_snapshots")
     .upsert(
-      { user_id: userId, symbol, timeframe, result },
+      { user_id: userId, symbol, timeframe, result, updated_at: now.toISOString() },
       { onConflict: "user_id,symbol,timeframe" }
     );
 
@@ -127,7 +136,7 @@ export async function processResultPersistent(
     surviving.push(candidate);
   }
 
-  await saveSnapshot(supabase, userId, result.symbol, result.timeframe, result);
+  await saveSnapshot(supabase, userId, result.symbol, result.timeframe, result, now);
 
   return surviving;
 }

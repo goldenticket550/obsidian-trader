@@ -43,6 +43,52 @@ const FALLBACK_SCORE_THRESHOLD = 6;
  * without hammering the provider or its cache. */
 const AUTO_REFRESH_INTERVAL_MS = 60_000;
 
+/**
+ * Hard ceiling on any single dashboard data request.
+ *
+ * Without this, a request that never settles is unrecoverable: the
+ * `scanInFlightRef` guard below is only released after the enclosing
+ * `Promise.allSettled` resolves, so one hung socket would leave the guard
+ * stuck `true` and every subsequent refresh tick would silently no-op
+ * forever, freezing the dashboard on stale data with nothing on screen
+ * indicating anything was wrong. `fetch` has no built-in timeout, so the
+ * ceiling has to be imposed explicitly.
+ *
+ * 30s was measured, not guessed, against the live 8-symbol watchlist on
+ * 2026-07-30: a cold full market-data scan took 2.1s (warm, cache-hit
+ * runs were 10-15ms), and /api/scan additionally makes >=32 sequential
+ * Supabase round-trips (getSnapshot + saveSnapshot per symbol per
+ * timeframe) whose observed median latency was 187ms and p95 ~325ms,
+ * projecting to ~8s typical and ~12s at p95 end-to-end. 30s is roughly
+ * 2.5x p95, so a legitimately slow scan is never killed, and it is
+ * strictly below AUTO_REFRESH_INTERVAL_MS so the guard is always released
+ * before the next tick rather than letting skipped ticks accumulate.
+ */
+const SCAN_FETCH_TIMEOUT_MS = 30_000;
+
+/**
+ * `fetch` with an AbortController deadline, mirroring the pattern already
+ * used in lib/market-data/providers/alpacaProvider.ts's fetchWithRetry.
+ * The timer is always cleared, so a fast response never leaves a dangling
+ * timeout. An abort surfaces as a rejection, which means it flows into
+ * the caller's existing catch/handleError path rather than needing any
+ * separate timeout-specific handling.
+ */
+async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { signal: controller.signal });
+  } catch (err) {
+    if (err instanceof Error && err.name === "AbortError") {
+      throw new Error(`Request timed out after ${timeoutMs / 1000}s: ${url}`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 export default function DashboardPage() {
   const [scan, setScan] = useState<ScanApiResponse | null>(null);
   const [scanError, setScanError] = useState<string | null>(null);
@@ -161,7 +207,7 @@ export default function DashboardPage() {
       await Promise.allSettled([
         (async () => {
           try {
-            const res = await fetch("/api/scan");
+            const res = await fetchWithTimeout("/api/scan", SCAN_FETCH_TIMEOUT_MS);
             if (!res.ok) throw new Error(`Scan request failed: ${res.status}`);
             const json = (await res.json()) as ScanApiResponse;
             applyIfMounted(() => {
@@ -174,7 +220,7 @@ export default function DashboardPage() {
         })(),
         (async () => {
           try {
-            const res = await fetch("/api/alerts");
+            const res = await fetchWithTimeout("/api/alerts", SCAN_FETCH_TIMEOUT_MS);
             if (!res.ok) throw new Error(`Alerts request failed: ${res.status}`);
             const json = (await res.json()) as { events: AlertEvent[] };
             applyIfMounted(() => {
@@ -187,7 +233,7 @@ export default function DashboardPage() {
         })(),
         (async () => {
           try {
-            const res = await fetch("/api/market-context");
+            const res = await fetchWithTimeout("/api/market-context", SCAN_FETCH_TIMEOUT_MS);
             if (!res.ok) throw new Error(`Market context failed: ${res.status}`);
             const json = (await res.json()) as { quotes: MarketContextQuote[] };
             applyIfMounted(() => {
