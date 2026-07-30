@@ -292,7 +292,7 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
     status = "red";
   }
 
-  const stage = determineStage({
+  const flagStage = determineStage({
     decline: decline.passed,
     recovery: recovery.passed,
     consecutive: consecutive.passed,
@@ -302,6 +302,7 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
     hasGap: !!activeGap,
     gapProximity: !!activeGap && currentPrice <= activeGap.upper,
   });
+  const stage = resolveStage(status, flagStage);
 
   // Conviction level: a coarser "how loudly should this be talking to me"
   // read than the raw score - WATCH for early signs, DEVELOPING once real
@@ -478,6 +479,35 @@ export function determineInvalidationNote(params: {
   }
 
   return `Currently needs to hold above the session low ($${sessionLow.toFixed(2)}) to stay valid.`;
+}
+
+/**
+ * Reconciles the flag-based stage walk with `status`, which is the
+ * authoritative "is this setup actually fully confirmed" signal — it is
+ * literally defined as every required condition passing.
+ *
+ * Without this, `status` and `stage` were computed independently and
+ * never compared, so a genuinely green setup still displayed whichever
+ * milestone the hierarchy walk happened to land on. Because
+ * determineStage checks the two gap branches FIRST, a fully-confirmed
+ * setup that still had an active fair value gap reported
+ * "gap_proximity" or "fair_value_gap" — the last named milestone that
+ * fired, not the truth. "confirmed" was a declared SetupStage member
+ * that nothing could ever produce, while stageProgression.ts already
+ * mapped it (REACH_BY_STAGE) and a test already exercised
+ * stageReach("confirmed") for a value the scanner never emitted.
+ *
+ * Deliberately a separate function rather than a branch inside
+ * determineStage: that keeps the flag walk a pure hierarchy of detector
+ * flags with no knowledge of status, and makes the override directly
+ * testable — the same reason computeWeightedScore,
+ * determineConvictionLevel and determineEntryStatus are exported.
+ *
+ * Non-green results are returned exactly as the flag walk produced
+ * them, so no yellow/red stage value or its ordering changes.
+ */
+export function resolveStage(status: SetupStatus, flagStage: SetupStage): SetupStage {
+  return status === "green" ? "confirmed" : flagStage;
 }
 
 function determineStage(flags: {

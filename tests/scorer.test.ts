@@ -5,10 +5,12 @@ import {
   determineConvictionLevel,
   determineEntryStatus,
   determineInvalidationNote,
+  resolveStage,
 } from "@/lib/strategies/scorer";
 import { defaultStrategyConfig } from "@/lib/strategies/config";
 import { flatSeries, textbookBullishReclaimSeries, makeCandle, fallingSeries, risingSeries } from "@/lib/fixtures/candles";
-import type { SetupCondition } from "@/types/setup";
+import type { SetupCondition, SetupStage } from "@/types/setup";
+import type { Candle } from "@/types/candle";
 
 describe("scoreSetup", () => {
   it("returns an empty red result when there are no session candles", () => {
@@ -488,4 +490,150 @@ describe("scoreSetup", () => {
       expect(note).toContain("$110.00");
     });
   });
+});
+
+/**
+ * Reconciling `stage` with `status`.
+ *
+ * `status` is defined as "every required condition passes", and `stage`
+ * was computed by an independent flag-hierarchy walk that never saw it.
+ * Because determineStage tests its two gap branches FIRST, a genuinely
+ * green setup that still had an active fair value gap reported
+ * "gap_proximity"/"fair_value_gap" — the last milestone that fired
+ * rather than the truth. Verified against the fixture below: before the
+ * fix it produced `status=green, req=7/7, stage=fair_value_gap`.
+ *
+ * Meanwhile "confirmed" was a declared SetupStage member nothing could
+ * emit, even though stageProgression.ts already mapped it in
+ * REACH_BY_STAGE and tests/stageProgression.test.ts already asserted
+ * stageReach("confirmed") === 4. That test was exercising a value the
+ * scanner had never once produced; this closes that gap.
+ */
+const ALL_SETUP_STAGES: SetupStage[] = [
+  "none",
+  "intraday_decline",
+  "recovery_from_low",
+  "consecutive_bullish",
+  "liquidity_sweep",
+  "structure_shift",
+  "ema_reclaim",
+  "fair_value_gap",
+  "gap_proximity",
+  "confirmed",
+];
+
+/**
+ * textbookBullishReclaimSeries stops one required condition short: its
+ * post-sweep run is monotonic, so no pivot high ever forms and
+ * structure_shift stays "waiting" at 6/7. These extra candles pull back
+ * (making the 105.7 high a real pivot), then break above it on a close,
+ * which confirms the shift and takes the setup to a true 7/7 green.
+ */
+function fullyConfirmedSeries(): Candle[] {
+  const base = textbookBullishReclaimSeries();
+  let t = base[base.length - 1].time;
+  const extra: Omit<Candle, "time">[] = [
+    { open: 105.5, close: 104.4, high: 105.6, low: 104.2, volume: 1400 },
+    { open: 104.4, close: 103.9, high: 104.5, low: 103.7, volume: 1300 },
+    { open: 103.9, close: 105.0, high: 105.2, low: 103.8, volume: 2100 },
+    { open: 105.0, close: 106.2, high: 106.4, low: 104.9, volume: 2400 },
+    { open: 106.2, close: 107.5, high: 107.8, low: 106.1, volume: 2900 },
+  ];
+  return [...base, ...extra.map((c) => ({ time: (t += 300), ...c }))];
+}
+
+function score(sessionCandles: Candle[], prevClose = 100) {
+  return scoreSetup({
+    symbol: "TEST",
+    timeframe: "5m",
+    sessionCandles,
+    dailyCandles: flatSeries(25, 100),
+    prevClose,
+    config: defaultStrategyConfig,
+    now: "2026-01-01T00:00:00Z",
+    quality: "simulated",
+  });
+}
+
+describe("resolveStage — status is authoritative over the flag walk", () => {
+  it("returns 'confirmed' for a green status regardless of which flag stage was reached", () => {
+    // "regardless of which specific flags are also true" — exhaustive
+    // over every stage the walk can produce, including the gap ones that
+    // previously won by being checked first.
+    for (const flagStage of ALL_SETUP_STAGES) {
+      expect(resolveStage("green", flagStage)).toBe("confirmed");
+    }
+  });
+
+  it("passes every non-green status through untouched", () => {
+    for (const flagStage of ALL_SETUP_STAGES) {
+      expect(resolveStage("yellow", flagStage)).toBe(flagStage);
+      expect(resolveStage("red", flagStage)).toBe(flagStage);
+    }
+  });
+});
+
+describe("scoreSetup — stage reflects full confirmation", () => {
+  it("reports stage 'confirmed' when every required condition passes", () => {
+    const result = score(fullyConfirmedSeries());
+    const required = result.conditions.filter((c) => c.required);
+
+    expect(required.every((c) => c.state === "pass")).toBe(true);
+    expect(result.status).toBe("green");
+    expect(result.stage).toBe("confirmed");
+  });
+
+  it("does NOT report 'confirmed' at 6/7 required — status is genuinely not green yet", () => {
+    // The same fixture one condition short: structure_shift still
+    // "waiting". Its pre-existing stage value must be untouched.
+    const result = score(textbookBullishReclaimSeries());
+    const required = result.conditions.filter((c) => c.required);
+
+    expect(required.filter((c) => c.state === "pass")).toHaveLength(6);
+    expect(required).toHaveLength(7);
+    expect(result.status).toBe("yellow");
+    expect(result.stage).toBe("fair_value_gap");
+  });
+
+  it("still reaches the confirmed setup through a gap-active path", () => {
+    // Guards the exact reported symptom: this setup HAS an active fair
+    // value gap, which is why the flag walk returned "fair_value_gap"
+    // before. The gap is still there; the stage no longer gets stuck on it.
+    const result = score(fullyConfirmedSeries());
+    expect(result.conditions.find((c) => c.id === "fair_value_gap")?.state).toBe("pass");
+    expect(result.stage).toBe("confirmed");
+  });
+
+  it("leaves conviction, entry status and score untouched by the stage change", () => {
+    const result = score(fullyConfirmedSeries());
+    // convictionLevel is computed by determineConvictionLevel from status,
+    // not from stage — green has always meant "confirmed" conviction.
+    expect(result.convictionLevel).toBe("confirmed");
+    expect(result.entryStatus).toBeDefined();
+    expect(result.score).toBeGreaterThan(0);
+    expect(result.score).toBeLessThanOrEqual(result.maxScore);
+  });
+});
+
+describe("scoreSetup — non-green stage values are byte-identical to before the fix", () => {
+  // Captured by running each scenario against the PRE-FIX code. Any drift
+  // in a yellow/red stage value fails here.
+  const CASES: { name: string; candles: Candle[]; prevClose: number; status: string; stage: string; score: number }[] = [
+    { name: "empty", candles: [], prevClose: 100, status: "red", stage: "none", score: 0 },
+    { name: "flat", candles: flatSeries(30, 100), prevClose: 100, status: "red", stage: "none", score: 0 },
+    { name: "falling", candles: fallingSeries(20, 110, 1), prevClose: 115, status: "yellow", stage: "intraday_decline", score: 0.24 },
+    { name: "rising", candles: risingSeries(20, 100, 1), prevClose: 100, status: "yellow", stage: "fair_value_gap", score: 3.81 },
+    { name: "textbook (6/7)", candles: textbookBullishReclaimSeries(), prevClose: 100, status: "yellow", stage: "fair_value_gap", score: 7.38 },
+    { name: "flat below prev close", candles: flatSeries(30, 100), prevClose: 120, status: "yellow", stage: "intraday_decline", score: 0.24 },
+  ];
+
+  for (const c of CASES) {
+    it(`${c.name}: stage stays "${c.stage}"`, () => {
+      const result = score(c.candles, c.prevClose);
+      expect(result.status).toBe(c.status);
+      expect(result.stage).toBe(c.stage);
+      expect(result.score).toBeCloseTo(c.score, 2);
+      expect(result.stage).not.toBe("confirmed");
+    });
+  }
 });
