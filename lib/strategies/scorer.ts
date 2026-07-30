@@ -158,8 +158,17 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       required: true,
       category: "core",
       state: sweep.passed ? "pass" : "fail",
+      // Four distinct outcomes. "No qualifying sweep detected" previously
+      // covered both an empty series and a fully-scanned one, and said
+      // nothing about how close price actually got.
       detail: sweep.passed
         ? `Swept ${sweep.sweptLevelSource} at $${sweep.sweptLevel?.toFixed(2)}`
+        : sweep.insufficientData
+        ? "Not enough candles yet to evaluate (need 2)"
+        : sweep.breachedWithoutReclaim
+        ? `Dipped below $${sweep.watchedLevel?.toFixed(2)} but never reclaimed it in time`
+        : sweep.watchedLevel !== null
+        ? `No sweep — held above $${sweep.watchedLevel.toFixed(2)}`
         : "No qualifying sweep detected",
     },
     {

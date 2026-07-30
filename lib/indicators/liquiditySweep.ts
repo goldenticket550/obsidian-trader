@@ -10,6 +10,27 @@ export interface LiquiditySweepResult {
   reclaimCandleTime: number | null;
   /** Marked experimental per spec until validated against real data. */
   experimental: true;
+  /**
+   * True only when there were fewer than 2 candles, so no sweep could be
+   * looked for at all. Same defect as detectConsecutiveBullish had: one
+   * shared `fail` object served both "no data" and "checked the whole
+   * series and found nothing", and the UI rendered them identically.
+   */
+  insufficientData: boolean;
+  /**
+   * The level the detector was watching at the end of its scan — the
+   * running low established by all candles before the most recent one.
+   * Null only when nothing was evaluated. This is the number that
+   * answers "how close did it get?".
+   */
+  watchedLevel: number | null;
+  /**
+   * True when price DID trade below a watched level but never closed
+   * back above it within `maxCandlesToReclaim`. That is a materially
+   * different outcome from "price never breached anything" — the setup
+   * was attempted and failed, rather than never starting.
+   */
+  breachedWithoutReclaim: boolean;
 }
 
 /**
@@ -26,16 +47,26 @@ export function detectLiquiditySweep(
   sessionLow: number,
   config: StrategyConfig["liquiditySweep"]
 ): LiquiditySweepResult {
-  const fail: LiquiditySweepResult = {
-    passed: false,
-    sweptLevel: null,
-    sweptLevelSource: null,
-    sweepCandleTime: null,
-    reclaimCandleTime: null,
-    experimental: true,
-  };
+  // Nothing can be evaluated with fewer than two candles — the only case
+  // where null/false across the board is the honest answer.
+  if (candles.length < 2) {
+    return {
+      passed: false,
+      sweptLevel: null,
+      sweptLevelSource: null,
+      sweepCandleTime: null,
+      reclaimCandleTime: null,
+      experimental: true,
+      insufficientData: true,
+      watchedLevel: null,
+      breachedWithoutReclaim: false,
+    };
+  }
 
-  if (candles.length < 2) return fail;
+  // Observations recorded as the scan runs, so a negative result can say
+  // what it actually looked at. Neither participates in the decision.
+  let watchedLevel: number | null = null;
+  let breachedWithoutReclaim = false;
 
   // Pivot lows are only meaningful once there's enough data on both sides
   // of a candidate pivot; skip pivot candidates (not the whole detector)
@@ -55,6 +86,10 @@ export function detectLiquiditySweep(
   // sweep candle itself.
   for (let i = 1; i < candles.length; i++) {
     const priorLow = Math.min(...candles.slice(0, i).map((c) => c.low));
+    // Last value wins, so this ends as the level in force for the most
+    // recent candle — what the detector was watching when it gave up.
+    watchedLevel = priorLow;
+
     const candidates: { level: number; source: "pivot_low" | "session_low" }[] = [];
     if (mostRecentPivotLow !== null && mostRecentPivotLow <= priorLow) {
       candidates.push({ level: mostRecentPivotLow, source: "pivot_low" });
@@ -63,6 +98,10 @@ export function detectLiquiditySweep(
 
     for (const candidate of candidates) {
       if (candles[i].low >= candidate.level) continue;
+
+      // Price went below a watched level. Whether or not it reclaims, the
+      // attempt happened and is worth reporting.
+      breachedWithoutReclaim = true;
 
       const windowEnd = Math.min(i + config.maxCandlesToReclaim, candles.length - 1);
       for (let j = i + 1; j <= windowEnd; j++) {
@@ -74,11 +113,26 @@ export function detectLiquiditySweep(
             sweepCandleTime: candles[i].time,
             reclaimCandleTime: candles[j].time,
             experimental: true,
+            insufficientData: false,
+            watchedLevel: candidate.level,
+            breachedWithoutReclaim: false,
           };
         }
       }
     }
   }
 
-  return fail;
+  // Checked the whole series and found no qualifying sweep. Report what
+  // was watched and whether it was ever breached.
+  return {
+    passed: false,
+    sweptLevel: null,
+    sweptLevelSource: null,
+    sweepCandleTime: null,
+    reclaimCandleTime: null,
+    experimental: true,
+    insufficientData: false,
+    watchedLevel,
+    breachedWithoutReclaim,
+  };
 }
