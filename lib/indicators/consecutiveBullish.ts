@@ -6,6 +6,20 @@ export interface ConsecutiveBullishResult {
   candleCount: number;
   totalMoveDollars: number;
   higherHighsLows: boolean;
+  /**
+   * True only when there were fewer than `minCandles` candles to look at,
+   * so nothing was actually evaluated.
+   *
+   * Without this, a failing result was indistinguishable from a
+   * no-data result: both returned candleCount 0 and totalMoveDollars 0,
+   * and the UI rendered "0-candle window, $0.00 total move" for each.
+   * Confirmed live on MU 5m — 21 real regular-hours candles were
+   * checked, the streak simply broke on a red close, and the checklist
+   * still read as though nothing had been looked at. Same failure mode
+   * as `insufficient_data` vs `actionable_now` in the entry status:
+   * "no data" and "checked, and it's a no" are different answers.
+   */
+  insufficientData: boolean;
 }
 
 /**
@@ -18,24 +32,23 @@ export function detectConsecutiveBullish(
   config: StrategyConfig["consecutiveBullish"]
 ): ConsecutiveBullishResult {
   const n = config.minCandles;
-  const fail: ConsecutiveBullishResult = {
-    passed: false,
-    candleCount: 0,
-    totalMoveDollars: 0,
-    higherHighsLows: false,
-  };
 
-  if (candles.length < n) return fail;
+  // Nothing was evaluated — the only case where 0/0 is the honest answer.
+  if (candles.length < n) {
+    return {
+      passed: false,
+      candleCount: 0,
+      totalMoveDollars: 0,
+      higherHighsLows: false,
+      insufficientData: true,
+    };
+  }
 
   const window = candles.slice(candles.length - n);
 
-  const allBullish = window.every((c) => c.close > c.open);
-  if (!allBullish) return fail;
-
-  const allMeetBodySize = window.every(
-    (c) => Math.abs(c.close - c.open) >= config.minBodySizeDollars
-  );
-
+  // Measured up-front so a failing result can still report what was
+  // actually looked at. These are observations about the window, not
+  // part of the pass/fail decision, which is unchanged below.
   const totalMoveDollars = window[window.length - 1].close - window[0].open;
 
   let higherHighsLows = true;
@@ -46,10 +59,28 @@ export function detectConsecutiveBullish(
     }
   }
 
+  const allBullish = window.every((c) => c.close > c.open);
+  if (!allBullish) {
+    // Real candles were checked and the streak genuinely broke. Report
+    // the true window size and net move rather than zeros, which would
+    // read as "nothing happened".
+    return {
+      passed: false,
+      candleCount: n,
+      totalMoveDollars,
+      higherHighsLows,
+      insufficientData: false,
+    };
+  }
+
+  const allMeetBodySize = window.every(
+    (c) => Math.abs(c.close - c.open) >= config.minBodySizeDollars
+  );
+
   const meetsStructure = config.requireHigherHighsLows ? higherHighsLows : true;
   const meetsTotalMove = totalMoveDollars >= config.minTotalMoveDollars;
 
   const passed = allMeetBodySize && meetsStructure && meetsTotalMove;
 
-  return { passed, candleCount: n, totalMoveDollars, higherHighsLows };
+  return { passed, candleCount: n, totalMoveDollars, higherHighsLows, insufficientData: false };
 }

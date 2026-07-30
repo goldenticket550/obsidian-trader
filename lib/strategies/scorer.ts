@@ -139,9 +139,18 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       required: true,
       category: "supporting",
       state: consecutive.passed ? "pass" : "fail",
-      detail: `${consecutive.candleCount}-candle window, $${consecutive.totalMoveDollars.toFixed(
-        2
-      )} total move`,
+      // Three distinct outcomes, three distinct sentences. Previously a
+      // broken streak and a total absence of data both rendered
+      // "0-candle window, $0.00 total move".
+      detail: consecutive.insufficientData
+        ? `Not enough candles yet to evaluate (need ${config.consecutiveBullish.minCandles})`
+        : consecutive.passed
+        ? `${consecutive.candleCount}-candle window, ${formatSignedDollars(
+            consecutive.totalMoveDollars
+          )} total move`
+        : `${consecutive.candleCount}-candle window, ${formatSignedDollars(
+            consecutive.totalMoveDollars
+          )} net move — streak broken`,
     },
     {
       id: "liquidity_sweep",
@@ -325,6 +334,15 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
     entryStatus,
     invalidationNote,
   };
+}
+
+/** "+$7.33" / "−$2.10" / "$0.00" — the sign carries meaning on a net
+ * move, so a bare "$7.33" on a down move would be actively wrong. */
+export function formatSignedDollars(value: number): string {
+  const rounded = Number(value.toFixed(2));
+  if (rounded > 0) return `+$${rounded.toFixed(2)}`;
+  if (rounded < 0) return `−$${Math.abs(rounded).toFixed(2)}`;
+  return "$0.00";
 }
 
 /**
