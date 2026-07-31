@@ -45,6 +45,18 @@ export interface SetupCondition {
   required: boolean;
   /** Weight tier used for the weighted score — defaults to "supporting" if omitted. */
   category?: ConditionCategory;
+  /**
+   * True when the detector could not evaluate this condition at all for
+   * want of data — as opposed to evaluating it and finding it not yet
+   * true. computeWeightedScore drops such a condition from BOTH sides of
+   * the ratio, so "couldn't check" never reads as "checked and failed."
+   *
+   * Omitted/false means the condition was genuinely evaluated, and a
+   * resulting "waiting"/"fail" counts against the score exactly as
+   * before. Only ever set from a detector's own insufficientData flag —
+   * never inferred from a state value.
+   */
+  insufficientData?: boolean;
 }
 
 /**

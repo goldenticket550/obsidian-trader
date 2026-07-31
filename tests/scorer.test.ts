@@ -621,22 +621,31 @@ describe("scoreSetup — stage reflects full confirmation", () => {
 });
 
 describe("scoreSetup — non-green stage values are byte-identical to before the fix", () => {
-  // STAGE values are the thing this block locks, and they are unchanged.
+  // STAGE values are what this block locks, and they have never changed
+  // through any of the three measurements below.
   //
-  // The SCORE column was re-measured after Rules A/B/D added three new
-  // scored conditions. computeWeightedScore's denominator (rawMaxScore)
-  // sums EVERY condition's category weight, so widening the checklist
-  // necessarily lowers the normalized 0-10 score for an unchanged setup —
-  // textbook moved 7.38 -> 5.96. No weight and no normalization formula
-  // was touched; the denominator simply has more terms. Recorded here so
-  // the shift is explicit rather than discovered later.
+  // The SCORE column has been re-measured twice, each time against the
+  // real scorer rather than predicted:
+  //
+  //   textbook   7.38  original, before Rules A/B/D existed
+  //              5.96  after adding three scored conditions — the
+  //                    denominator (rawMaxScore) sums EVERY condition, so
+  //                    widening the checklist lowered every score
+  //              7.05  after excluding insufficientData conditions from
+  //                    both sides of the ratio
+  //
+  // 7.05 does not return exactly to 7.38, and should not: momentum_ladder
+  // HAS real data here and simply is not passing yet, so it legitimately
+  // still counts against the score. Only prior_day_continuation and
+  // benchmark_alignment — genuinely unevaluatable without premarket and
+  // benchmark candles — are excluded.
   const CASES: { name: string; candles: Candle[]; prevClose: number; status: string; stage: string; score: number }[] = [
     { name: "empty", candles: [], prevClose: 100, status: "red", stage: "none", score: 0 },
     { name: "flat", candles: flatSeries(30, 100), prevClose: 100, status: "red", stage: "none", score: 0 },
-    { name: "falling", candles: fallingSeries(20, 110, 1), prevClose: 115, status: "yellow", stage: "intraday_decline", score: 0.19 },
-    { name: "rising", candles: risingSeries(20, 100, 1), prevClose: 100, status: "yellow", stage: "fair_value_gap", score: 3.46 },
-    { name: "textbook", candles: textbookBullishReclaimSeries(), prevClose: 100, status: "yellow", stage: "fair_value_gap", score: 5.96 },
-    { name: "flat below prev close", candles: flatSeries(30, 100), prevClose: 120, status: "yellow", stage: "intraday_decline", score: 0.19 },
+    { name: "falling", candles: fallingSeries(20, 110, 1), prevClose: 115, status: "yellow", stage: "intraday_decline", score: 0.227 },
+    { name: "rising", candles: risingSeries(20, 100, 1), prevClose: 100, status: "yellow", stage: "fair_value_gap", score: 4.091 },
+    { name: "textbook", candles: textbookBullishReclaimSeries(), prevClose: 100, status: "yellow", stage: "fair_value_gap", score: 7.045 },
+    { name: "flat below prev close", candles: flatSeries(30, 100), prevClose: 120, status: "yellow", stage: "intraday_decline", score: 0.227 },
   ];
 
   for (const c of CASES) {
@@ -648,4 +657,140 @@ describe("scoreSetup — non-green stage values are byte-identical to before the
       expect(result.stage).not.toBe("confirmed");
     });
   }
+});
+
+/**
+ * insufficientData must be scored as "this condition does not exist",
+ * not as "this condition failed".
+ *
+ * Before this fix computeWeightedScore kept an unevaluatable condition
+ * in the DENOMINATOR while it could never contribute to the numerator,
+ * so a benchmark whose candles never fetched dragged the normalized
+ * score down exactly as if it had been checked and found false — the
+ * same "no data" vs "checked, and it's a no" conflation already fixed in
+ * the detectors and in entry status.
+ *
+ * Weights: core 3, secondary 2, supporting 1, informational 0.5.
+ */
+function cond(
+  id: string,
+  category: "core" | "secondary" | "supporting" | "informational",
+  state: SetupCondition["state"],
+  insufficientData?: boolean
+): SetupCondition {
+  return { id, label: id, required: false, category, state, insufficientData };
+}
+
+describe("computeWeightedScore — insufficientData leaves the ratio entirely", () => {
+  it("excludes an insufficientData condition from BOTH numerator and denominator", () => {
+    // Two core conditions pass (3 + 3 = 6). One core is unevaluatable.
+    // Correct: 6/6 -> 10.0. Old behaviour: 6/9 -> 6.667 (counted as fail).
+    const conditions = [
+      cond("a", "core", "pass"),
+      cond("b", "core", "pass"),
+      cond("c", "core", "waiting", true),
+    ];
+    expect(computeWeightedScore(conditions).score).toBeCloseTo(10, 10);
+  });
+
+  it("is arithmetically identical to omitting the condition from the array", () => {
+    // The strongest statement of the rule: an excluded condition and an
+    // absent condition must produce the same number, exactly.
+    const withFlagged = [
+      cond("a", "core", "pass"),
+      cond("b", "secondary", "waiting"),
+      cond("c", "core", "waiting", true),
+    ];
+    const withoutIt = [cond("a", "core", "pass"), cond("b", "secondary", "waiting")];
+
+    expect(computeWeightedScore(withFlagged).score).toBe(computeWeightedScore(withoutIt).score);
+    // 3 / (3 + 2) * 10 = 6.0, verified by hand rather than by fixture.
+    expect(computeWeightedScore(withFlagged).score).toBeCloseTo(6, 10);
+  });
+
+  it("a genuinely evaluated 'waiting' still drags the score down, unchanged", () => {
+    // The over-correction guard: real data existed, the condition simply
+    // is not true yet, so it must keep counting against the score.
+    const evaluated = [cond("a", "core", "pass"), cond("b", "core", "waiting")];
+    expect(computeWeightedScore(evaluated).score).toBeCloseTo(5, 10); // 3/6
+
+    const unevaluatable = [cond("a", "core", "pass"), cond("b", "core", "waiting", true)];
+    expect(computeWeightedScore(unevaluatable).score).toBeCloseTo(10, 10); // 3/3
+  });
+
+  it("treats a genuinely evaluated 'fail' the same as before too", () => {
+    const failed = [cond("a", "secondary", "pass"), cond("b", "secondary", "fail")];
+    expect(computeWeightedScore(failed).score).toBeCloseTo(5, 10); // 2/4
+  });
+
+  it("an insufficientData condition can never add to the numerator either", () => {
+    // Even flagged as "pass", an unevaluatable condition contributes
+    // nothing — it is dropped before the numerator is summed.
+    const conditions = [cond("a", "core", "pass"), cond("b", "core", "pass", true)];
+    expect(computeWeightedScore(conditions).score).toBeCloseTo(10, 10); // 3/3, not 6/6
+  });
+
+  it("scores 0 when every condition is unevaluatable, rather than dividing by zero", () => {
+    const conditions = [cond("a", "core", "waiting", true), cond("b", "core", "waiting", true)];
+    const { score, maxScore } = computeWeightedScore(conditions);
+    expect(score).toBe(0);
+    expect(maxScore).toBe(10);
+    expect(Number.isNaN(score)).toBe(false);
+  });
+
+  it("omitted insufficientData behaves exactly as false", () => {
+    const withOmitted = [cond("a", "core", "pass"), cond("b", "core", "waiting")];
+    const withExplicitFalse = [
+      cond("a", "core", "pass"),
+      { ...cond("b", "core", "waiting"), insufficientData: false },
+    ];
+    expect(computeWeightedScore(withOmitted).score).toBe(
+      computeWeightedScore(withExplicitFalse).score
+    );
+  });
+});
+
+describe("scoreSetup — the pre-existing detectors' insufficientData is now excluded too", () => {
+  function scoreFor(sessionCandles: Candle[]) {
+    return scoreSetup({
+      symbol: "TEST",
+      timeframe: "5m",
+      sessionCandles,
+      dailyCandles: flatSeries(25, 100),
+      prevClose: 100,
+      config: defaultStrategyConfig,
+      now: "2026-01-01T00:00:00Z",
+      quality: "simulated",
+    });
+  }
+
+  it("flags consecutive_bullish as insufficientData below minCandles", () => {
+    // The reporting-defect fix from earlier today, now reaching the score.
+    const result = scoreFor(risingSeries(2, 100, 1));
+    const cb = result.conditions.find((c) => c.id === "consecutive_bullish")!;
+    expect(cb.insufficientData).toBe(true);
+  });
+
+  it("flags liquidity_sweep as insufficientData below 2 candles", () => {
+    const result = scoreFor(risingSeries(1, 100, 1));
+    const sweep = result.conditions.find((c) => c.id === "liquidity_sweep")!;
+    expect(sweep.insufficientData).toBe(true);
+  });
+
+  it("stops flagging either once there is genuinely enough data", () => {
+    // At 3+ candles both detectors evaluate for real, so both must count
+    // against the score again — this is the boundary that decides whether
+    // pre-existing setups are affected at all.
+    const result = scoreFor(risingSeries(3, 100, 1));
+    expect(result.conditions.find((c) => c.id === "consecutive_bullish")!.insufficientData).toBe(false);
+    expect(result.conditions.find((c) => c.id === "liquidity_sweep")!.insufficientData).toBe(false);
+  });
+
+  it("measured: excluding them raises the score on short series", () => {
+    // Audited before/after, both measured against the real scorer:
+    //   1 candle  1.9231 -> 2.9412   (consecutive_bullish + liquidity_sweep excluded)
+    //   2 candles 1.9231 -> 2.3810   (consecutive_bullish excluded)
+    expect(scoreFor(risingSeries(1, 100, 1)).score).toBeCloseTo(2.9412, 3);
+    expect(scoreFor(risingSeries(2, 100, 1)).score).toBeCloseTo(2.381, 3);
+  });
 });

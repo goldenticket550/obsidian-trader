@@ -197,6 +197,7 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       label: "Consecutive bullish candles",
       required: true,
       category: "supporting",
+      insufficientData: consecutive.insufficientData,
       state: consecutive.passed ? "pass" : "fail",
       // Three distinct outcomes, three distinct sentences. Previously a
       // broken streak and a total absence of data both rendered
@@ -216,6 +217,7 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       label: "Liquidity sweep (experimental)",
       required: true,
       category: "core",
+      insufficientData: sweep.insufficientData,
       state: sweep.passed ? "pass" : "fail",
       // Four distinct outcomes. "No qualifying sweep detected" previously
       // covered both an empty series and a fully-scanned one, and said
@@ -293,6 +295,7 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       label: "Prior-day rejection reclaimed in premarket",
       required: false,
       category: "secondary",
+      insufficientData: continuation.insufficientData,
       state: continuation.insufficientData ? "waiting" : continuation.passed ? "pass" : "waiting",
       detail: continuation.detail,
     },
@@ -302,6 +305,7 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       label: "Momentum milestone holding",
       required: false,
       category: "supporting",
+      insufficientData: ladder.insufficientData,
       state: ladder.insufficientData ? "waiting" : ladder.passed ? "pass" : "waiting",
       detail: ladder.detail,
     },
@@ -311,6 +315,7 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       label: "Benchmark alignment",
       required: false,
       category: "secondary",
+      insufficientData: benchmark.insufficientData,
       state: benchmark.insufficientData ? "waiting" : benchmark.passed ? "pass" : "waiting",
       detail: benchmark.detail,
     },
@@ -482,10 +487,27 @@ export function computePressureAverageVolume(sessionCandles: Candle[], lookback:
  */
 export function computeWeightedScore(conditions: SetupCondition[]): { score: number; maxScore: number } {
   const weightOf = (c: SetupCondition): number => CATEGORY_WEIGHT[c.category ?? "supporting"];
-  const rawScore = conditions
+
+  // A condition the detector could not evaluate is dropped from BOTH the
+  // numerator and the denominator — scored as though it does not exist.
+  //
+  // Previously it stayed in the denominator only, which silently made
+  // "no data" behave identically to "checked and failed": a benchmark
+  // whose candles never fetched, or a ladder with no session-open candle
+  // yet, dragged the normalized score down exactly as if it had been
+  // evaluated and found false. That is the same conflation already fixed
+  // in the detectors themselves (consecutiveBullish, liquiditySweep) and
+  // in the entry-status field; this closes it in the score.
+  //
+  // Deliberately keyed off the explicit insufficientData flag, NOT off
+  // the state: a condition genuinely evaluated and sitting at
+  // "waiting"/"fail" still counts fully against the score, unchanged.
+  const evaluated = conditions.filter((c) => !c.insufficientData);
+
+  const rawScore = evaluated
     .filter((c) => c.state === "pass")
     .reduce((sum, c) => sum + weightOf(c), 0);
-  const rawMaxScore = conditions.reduce((sum, c) => sum + weightOf(c), 0);
+  const rawMaxScore = evaluated.reduce((sum, c) => sum + weightOf(c), 0);
   const score = rawMaxScore === 0 ? 0 : (rawScore / rawMaxScore) * 10;
   return { score, maxScore: 10 };
 }
