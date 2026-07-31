@@ -324,9 +324,12 @@ export class AlpacaProvider implements MarketDataProvider {
   }
 
   async getCandles(params: GetCandlesParams): Promise<CandleSeries> {
-    const { symbol, timeframe, limit = 100, deadlineAt } = params;
+    const { symbol, timeframe, limit = 100, deadlineAt, sessionScope = "regular" } = params;
     const quality = this.dataQuality();
-    const cacheKey = `${symbol}:${timeframe}:${limit}`;
+    // sessionScope MUST be part of the key: the same symbol/timeframe/limit
+    // yields a different candle set per scope, so omitting it would serve
+    // regular-hours bars to a premarket request (or vice versa) from cache.
+    const cacheKey = `${symbol}:${timeframe}:${limit}:${sessionScope}`;
 
     const cached = this.cache.get(cacheKey);
     if (cached) return cached;
@@ -373,7 +376,8 @@ export class AlpacaProvider implements MarketDataProvider {
     // slicing to `limit`, or session-scoped calculations (VWAP, session
     // high/low, decline-from-open) silently mix days together. See
     // filterToLatestSession()'s own comment for the full reasoning.
-    const sessionScoped = timeframe === "1d" ? allCandles : filterToLatestSession(allCandles);
+    const sessionScoped =
+      timeframe === "1d" ? allCandles : filterToLatestSession(allCandles, sessionScope);
 
     // Bars come back chronologically ascending, so the most recent ones
     // are at the end — keep only however many the caller actually asked

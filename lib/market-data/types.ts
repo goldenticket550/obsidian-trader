@@ -1,4 +1,5 @@
 import type { Candle, CandleSeries, DataQuality, Timeframe } from "@/types/candle";
+import type { SessionScope } from "./sessionFilter";
 
 export interface GetCandlesParams {
   symbol: string;
@@ -15,6 +16,20 @@ export interface GetCandlesParams {
    * ignore it.
    */
   deadlineAt?: number;
+  /**
+   * Which part of the trading day the returned intraday candles should
+   * cover. Omitted means `"regular"` — today's exact existing behavior,
+   * so every current caller is unaffected.
+   *
+   * Added for Rule A2 (premarket reclaim), which genuinely needs
+   * premarket bars: the provider otherwise session-scopes intraday
+   * candles to regular hours and premarket data never reaches the
+   * scorer. This only lets a caller ASK for a scope filterToLatestSession
+   * already knows how to produce — that function's logic is untouched.
+   * Providers with no session concept (mockProvider) ignore it, exactly
+   * as they already ignore `deadlineAt`.
+   */
+  sessionScope?: SessionScope;
 }
 
 export type SessionType = "pre-market" | "regular" | "after-hours" | "closed";

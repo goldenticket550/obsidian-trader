@@ -40,8 +40,10 @@ describe("scoreSetup", () => {
       now: "2026-01-01T00:00:00Z",
       quality: "simulated",
     });
-    // 10 core conditions + optional Strat + optional VWAP confirmations.
-    expect(result.conditions.length).toBe(12);
+    // 10 core conditions + optional Strat + optional VWAP confirmations,
+    // plus the three additive optional conditions from Rules A/B/D
+    // (prior_day_continuation, momentum_ladder, benchmark_alignment).
+    expect(result.conditions.length).toBe(15);
     const ids = result.conditions.map((c) => c.id);
     expect(ids).toContain("daily_sma_confirmation");
     expect(ids).toContain("strat_confirmation");
@@ -589,8 +591,11 @@ describe("scoreSetup — stage reflects full confirmation", () => {
     const result = score(textbookBullishReclaimSeries());
     const required = result.conditions.filter((c) => c.required);
 
-    expect(required.filter((c) => c.state === "pass")).toHaveLength(6);
-    expect(required).toHaveLength(7);
+    // Rule C1 dropped fair_value_gap from the required set, so this is
+    // now 5-of-6 rather than 6-of-7. structure_shift is still the one
+    // holding it back, exactly as before.
+    expect(required.filter((c) => c.state === "pass")).toHaveLength(5);
+    expect(required).toHaveLength(6);
     expect(result.status).toBe("yellow");
     expect(result.stage).toBe("fair_value_gap");
   });
@@ -616,15 +621,22 @@ describe("scoreSetup — stage reflects full confirmation", () => {
 });
 
 describe("scoreSetup — non-green stage values are byte-identical to before the fix", () => {
-  // Captured by running each scenario against the PRE-FIX code. Any drift
-  // in a yellow/red stage value fails here.
+  // STAGE values are the thing this block locks, and they are unchanged.
+  //
+  // The SCORE column was re-measured after Rules A/B/D added three new
+  // scored conditions. computeWeightedScore's denominator (rawMaxScore)
+  // sums EVERY condition's category weight, so widening the checklist
+  // necessarily lowers the normalized 0-10 score for an unchanged setup —
+  // textbook moved 7.38 -> 5.96. No weight and no normalization formula
+  // was touched; the denominator simply has more terms. Recorded here so
+  // the shift is explicit rather than discovered later.
   const CASES: { name: string; candles: Candle[]; prevClose: number; status: string; stage: string; score: number }[] = [
     { name: "empty", candles: [], prevClose: 100, status: "red", stage: "none", score: 0 },
     { name: "flat", candles: flatSeries(30, 100), prevClose: 100, status: "red", stage: "none", score: 0 },
-    { name: "falling", candles: fallingSeries(20, 110, 1), prevClose: 115, status: "yellow", stage: "intraday_decline", score: 0.24 },
-    { name: "rising", candles: risingSeries(20, 100, 1), prevClose: 100, status: "yellow", stage: "fair_value_gap", score: 3.81 },
-    { name: "textbook (6/7)", candles: textbookBullishReclaimSeries(), prevClose: 100, status: "yellow", stage: "fair_value_gap", score: 7.38 },
-    { name: "flat below prev close", candles: flatSeries(30, 100), prevClose: 120, status: "yellow", stage: "intraday_decline", score: 0.24 },
+    { name: "falling", candles: fallingSeries(20, 110, 1), prevClose: 115, status: "yellow", stage: "intraday_decline", score: 0.19 },
+    { name: "rising", candles: risingSeries(20, 100, 1), prevClose: 100, status: "yellow", stage: "fair_value_gap", score: 3.46 },
+    { name: "textbook", candles: textbookBullishReclaimSeries(), prevClose: 100, status: "yellow", stage: "fair_value_gap", score: 5.96 },
+    { name: "flat below prev close", candles: flatSeries(30, 100), prevClose: 120, status: "yellow", stage: "intraday_decline", score: 0.19 },
   ];
 
   for (const c of CASES) {

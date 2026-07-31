@@ -18,7 +18,15 @@ import { detectDailySmaConfirmation } from "@/lib/indicators/dailySma";
 import {
   detectBullishFairValueGaps,
   trackGapFillStatus,
+  selectClosestGap,
 } from "@/lib/indicators/fairValueGap";
+import { detectPriorDayContinuation } from "@/lib/indicators/priorDayContinuation";
+import { detectMomentumLadder } from "@/lib/indicators/momentumLadder";
+import {
+  detectBenchmarkAlignment,
+  resolveBenchmarkSymbol,
+} from "@/lib/indicators/benchmarkAlignment";
+import { getCurrentTradingDate } from "@/lib/risk/tradingDate";
 import { detectVolumeConfirmation } from "@/lib/indicators/volumeConfirmation";
 import { detectStratConfirmation } from "@/lib/indicators/stratCandle";
 import { detectVwapReclaim } from "@/lib/indicators/vwap";
@@ -52,6 +60,20 @@ export interface ScoreSetupInput {
    * something the UI must never let happen.
    */
   quality: DataQuality;
+  /**
+   * Today's premarket candles, for Rule A2. Optional: when omitted (or
+   * empty) the continuation detector reports insufficientData rather
+   * than a fail, so a caller that hasn't wired premarket data yet gets
+   * an honest "not evaluated" instead of a fabricated "no reclaim".
+   */
+  premarketCandles?: Candle[];
+  /**
+   * The resolved benchmark's own candles, for Rule D1. Same contract as
+   * above: absent means insufficientData, never "not aligned".
+   * Fetched once per unique benchmark per scan by scanService, not
+   * per symbol.
+   */
+  benchmarkCandles?: Candle[];
 }
 
 /**
@@ -66,7 +88,18 @@ export interface ScoreSetupInput {
  * per the "not all signals are equal" principle.
  */
 export function scoreSetup(input: ScoreSetupInput): SetupResult {
-  const { symbol, timeframe, sessionCandles, dailyCandles, prevClose, config, now, quality } = input;
+  const {
+    symbol,
+    timeframe,
+    sessionCandles,
+    dailyCandles,
+    prevClose,
+    config,
+    now,
+    quality,
+    premarketCandles = [],
+    benchmarkCandles = [],
+  } = input;
 
   if (sessionCandles.length === 0) {
     return emptyResult(symbol, timeframe, now, quality);
@@ -89,7 +122,11 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
     const afterIndex = sessionCandles.findIndex((c) => c.time === gap.candle3Time) + 1;
     return trackGapFillStatus(gap, sessionCandles.slice(afterIndex));
   });
-  const activeGap = trackedGaps.find((g) => g.status === "open" || g.status === "partially_filled");
+  // Rule C2: rank ALL qualifying gaps by distance to current price and
+  // take the closest, rather than whichever happened to be found first —
+  // with several gaps on a chart, "first" was arbitrary.
+  const gapSelection = selectClosestGap(trackedGaps, currentPrice);
+  const activeGap = gapSelection.closest;
 
   const volume = detectVolumeConfirmation(sessionCandles, 20, config.volumeConfirmation);
   const dailySma = detectDailySmaConfirmation(
@@ -99,6 +136,28 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
   );
   const strat = config.strat.enabled ? detectStratConfirmation(sessionCandles) : null;
   const vwap = config.vwap.enabled ? detectVwapReclaim(sessionCandles) : null;
+
+  // Rule A: prior-day rejection + premarket reclaim. The trading date is
+  // derived from `now` rather than taken as a new parameter, so the
+  // prior-candle lookup stays consistent with every other date-scoped
+  // calculation in the pipeline.
+  const continuation = detectPriorDayContinuation(
+    dailyCandles,
+    premarketCandles,
+    getCurrentTradingDate(new Date(now)),
+    config.priorDayContinuation
+  );
+
+  // Rule B: milestone ladder from the immutable session-open anchor.
+  const ladder = detectMomentumLadder(sessionCandles, config.momentumLadder);
+
+  // Rule D: is the symbol's benchmark itself in gear?
+  const benchmarkSymbol = resolveBenchmarkSymbol(symbol, config.benchmarkAlignment);
+  const benchmark = detectBenchmarkAlignment(
+    benchmarkSymbol,
+    benchmarkCandles,
+    config.emaReclaim.period
+  );
 
   // Buy/sell pressure on the most recent candle - folded into the volume
   // confirmation detail text rather than its own scored row, per the
@@ -201,11 +260,22 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
     {
       id: "fair_value_gap",
       label: "Valid bullish fair value gap",
-      required: true,
+      // Rule C1: reclassified required -> optional. A gap is a
+      // lower-conviction, more experimental signal than a confirmed
+      // structure shift, so it should contribute to score without
+      // GATING green/confirmed status. DELIBERATE BEHAVIOR CHANGE: the
+      // required-condition count drops from 7 to 6, and green is now
+      // reachable without a fair value gap ever forming. Category and
+      // weight are unchanged (secondary, 2), so scoring is unaffected.
+      required: false,
       category: "secondary",
       state: activeGap ? "pass" : "waiting",
       detail: activeGap
-        ? `Gap $${activeGap.lower.toFixed(2)}–$${activeGap.upper.toFixed(2)}, ${activeGap.status}`
+        ? `Gap $${activeGap.lower.toFixed(2)}–$${activeGap.upper.toFixed(2)}, ${activeGap.status}${
+            gapSelection.totalGapsTracked > 1
+              ? ` — closest of ${gapSelection.totalGapsTracked} gaps ($${gapSelection.distance!.toFixed(2)} away)`
+              : ""
+          }`
         : "No qualifying 3-candle gap yet",
     },
     {
@@ -215,6 +285,34 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       category: "informational",
       state: activeGap && currentPrice <= activeGap.upper ? "pass" : "waiting",
       detail: activeGap ? `Current price $${currentPrice.toFixed(2)}` : "No gap selected",
+    },
+    {
+      // Rule A3 — additive, optional. Language describes only what has
+      // already happened; it never claims the move will continue.
+      id: "prior_day_continuation",
+      label: "Prior-day rejection reclaimed in premarket",
+      required: false,
+      category: "secondary",
+      state: continuation.insufficientData ? "waiting" : continuation.passed ? "pass" : "waiting",
+      detail: continuation.detail,
+    },
+    {
+      // Rule B3 — additive, optional. Does NOT replace consecutive_bullish.
+      id: "momentum_ladder",
+      label: "Momentum milestone holding",
+      required: false,
+      category: "supporting",
+      state: ladder.insufficientData ? "waiting" : ladder.passed ? "pass" : "waiting",
+      detail: ladder.detail,
+    },
+    {
+      // Rule D1 — additive, optional.
+      id: "benchmark_alignment",
+      label: "Benchmark alignment",
+      required: false,
+      category: "secondary",
+      state: benchmark.insufficientData ? "waiting" : benchmark.passed ? "pass" : "waiting",
+      detail: benchmark.detail,
     },
     {
       id: "volume_confirmation",

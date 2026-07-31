@@ -108,3 +108,48 @@ export function checkGapProximity(
     distanceToUpper,
   };
 }
+
+export interface RankedGapSelection {
+  /** The qualifying gap closest to current price, or null if none. */
+  closest: FairValueGap | null;
+  /** Distance from current price to that gap's midpoint, in usd. */
+  distance: number | null;
+  /** How many gaps qualified, so the UI can say "closest of 3". */
+  totalGapsTracked: number;
+}
+
+/**
+ * Rule C2 — pick the RIGHT gap, not just the first one found.
+ *
+ * The scorer previously took the first tracked gap with an open or
+ * partially-filled status, which is arbitrary when a chart carries
+ * several: the one that matters is the one nearest to where price
+ * actually is. Qualifying gaps are ranked by absolute distance from
+ * current price to the gap's midpoint, ascending, and the closest wins.
+ *
+ * The status filter is the positive form — `open` or `partially_filled`
+ * — matching the scorer line this replaces exactly. A fully filled or
+ * invalidated gap is no longer a valid target.
+ *
+ * Zero qualifying gaps returns nulls with a count of 0; the caller keeps
+ * rendering "waiting" rather than fabricating a gap.
+ */
+export function selectClosestGap(gaps: FairValueGap[], currentPrice: number): RankedGapSelection {
+  const qualifying = gaps.filter(
+    (g) => g.status === "open" || g.status === "partially_filled"
+  );
+
+  if (qualifying.length === 0) {
+    return { closest: null, distance: null, totalGapsTracked: 0 };
+  }
+
+  const distanceTo = (gap: FairValueGap) =>
+    Math.abs(currentPrice - (gap.lower + gap.upper) / 2);
+
+  // Stable: ties keep the earlier-detected gap, since sort() is stable
+  // in every engine this runs on and the input is creation-ordered.
+  const ranked = [...qualifying].sort((a, b) => distanceTo(a) - distanceTo(b));
+  const closest = ranked[0];
+
+  return { closest, distance: distanceTo(closest), totalGapsTracked: qualifying.length };
+}

@@ -76,6 +76,29 @@ export interface StrategyConfig {
     /** distance beyond this many ATRs from the EMA counts as "extended" */
     extendedAtrMultiplier: number;
   };
+  /** Rule A — prior-day rejection, two independent tiers. */
+  priorDayContinuation: {
+    /** prior close at/below prior high × (1 − this) = "rejection" */
+    rejectionThresholdPct: number;
+    /** the deeper tier: at/below prior high × (1 − this) = "strong rejection" */
+    strongRejectionThresholdPct: number;
+  };
+  /** Rule B — momentum milestone ladder. */
+  momentumLadder: {
+    /**
+     * Percent tiers measured from the immutable session-open anchor.
+     * UNVALIDATED DISPLAY DEFAULTS — deliberately not presented as a
+     * validated strategy, per the rule table.
+     */
+    tiers: number[];
+  };
+  /** Rule D — benchmark/sector alignment. */
+  benchmarkAlignment: {
+    /** Used whenever a symbol has no explicit override below. */
+    defaultBenchmark: string;
+    /** Per-symbol overrides, e.g. semiconductor names -> SMH. */
+    overrides: Record<string, string>;
+  };
 }
 
 export const defaultStrategyConfig: StrategyConfig = {
@@ -136,5 +159,17 @@ export const defaultStrategyConfig: StrategyConfig = {
   extension: {
     atrPeriod: 14,
     extendedAtrMultiplier: 1.5,
+  },
+  priorDayContinuation: {
+    // 2% matches the intradayDecline convention already in production.
+    rejectionThresholdPct: 0.02,
+    strongRejectionThresholdPct: 0.05,
+  },
+  momentumLadder: {
+    tiers: [3, 5, 8, 10, 15],
+  },
+  benchmarkAlignment: {
+    defaultBenchmark: "QQQ",
+    overrides: {},
   },
 };

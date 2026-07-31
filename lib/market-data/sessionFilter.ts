@@ -93,10 +93,35 @@ export function filterToLatestSession(
  * unavailable.
  */
 export function findPreviousClose(dailyCandles: Candle[], todayTradingDate: string): number | null {
+  return findPreviousDailyCandle(dailyCandles, todayTradingDate)?.close ?? null;
+}
+
+/**
+ * The whole prior-session daily candle, not just its close.
+ *
+ * Identifying "the prior daily candle" positionally is unsafe:
+ * alpacaProvider deliberately does not session-filter the `1d` series, so
+ * during market hours the array's last element is TODAY's still-forming
+ * bar rather than yesterday's completed one. Walking backward by date is
+ * the already-proven fix that findPreviousClose used; this exposes the
+ * full candle so callers needing `.high` as well as `.close` (Rule A1's
+ * prior-day rejection level) reuse that same tested lookup instead of
+ * reimplementing it — and cannot accidentally reimplement it wrongly.
+ *
+ * Returns null when no candle has an ET date strictly before today's, for
+ * exactly the reasons findPreviousClose documents: callers must treat
+ * that as genuinely unavailable and must NOT fall back to today's own
+ * partial candle, which would silently manufacture a "prior day" out of
+ * the current session.
+ */
+export function findPreviousDailyCandle(
+  dailyCandles: Candle[],
+  todayTradingDate: string
+): Candle | null {
   for (let i = dailyCandles.length - 1; i >= 0; i--) {
     const candleDate = getCurrentTradingDate(new Date(dailyCandles[i].time * 1000));
     if (candleDate < todayTradingDate) {
-      return dailyCandles[i].close;
+      return dailyCandles[i];
     }
   }
   return null;

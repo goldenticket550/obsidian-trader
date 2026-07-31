@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { filterToLatestSession, findPreviousClose } from "@/lib/market-data/sessionFilter";
+import {
+  filterToLatestSession,
+  findPreviousClose,
+  findPreviousDailyCandle,
+} from "@/lib/market-data/sessionFilter";
+import type { Candle } from "@/types/candle";
 import { makeCandle } from "@/lib/fixtures/candles";
 
 // Fixed reference points: 2026-07-13 (Monday) and 2026-07-10 (Friday),
@@ -314,5 +319,54 @@ describe("filterToLatestSession — DST and timezone boundary tests", () => {
     // misbucket at exactly midnight in either DST regime.
     expect(filterToLatestSession(winterCandles, "all").length).toBe(1);
     expect(filterToLatestSession(summerCandles, "all").length).toBe(1);
+  });
+});
+
+describe("findPreviousDailyCandle — the shared prior-session lookup", () => {
+  const TODAY = "2026-07-31";
+  const day = (date: string, high: number, close: number): Candle =>
+    makeCandle({
+      time: Math.floor(new Date(`${date}T20:00:00Z`).getTime() / 1000),
+      open: close,
+      high,
+      low: close - 1,
+      close,
+    });
+
+  it("returns the whole candle, so callers can read .high as well as .close", () => {
+    const prior = findPreviousDailyCandle([day("2026-07-30", 110, 101)], TODAY);
+    expect(prior?.high).toBe(110);
+    expect(prior?.close).toBe(101);
+  });
+
+  it("skips today's still-forming bar rather than taking the last element", () => {
+    // The exact trap: the provider does not session-filter the 1d series,
+    // so during market hours the final element is today's partial bar.
+    const prior = findPreviousDailyCandle(
+      [day("2026-07-30", 110, 101), day(TODAY, 999, 998)],
+      TODAY
+    );
+    expect(prior?.high).toBe(110);
+    expect(prior?.close).toBe(101);
+  });
+
+  it("walks back over a weekend gap to the most recent earlier session", () => {
+    const prior = findPreviousDailyCandle(
+      [day("2026-07-24", 50, 49), day("2026-07-30", 110, 101)],
+      TODAY
+    );
+    expect(prior?.close).toBe(101);
+  });
+
+  it("returns null when nothing predates today — never today's own candle", () => {
+    expect(findPreviousDailyCandle([day(TODAY, 999, 998)], TODAY)).toBeNull();
+    expect(findPreviousDailyCandle([], TODAY)).toBeNull();
+  });
+
+  it("findPreviousClose stays consistent with it (it is now a wrapper)", () => {
+    const candles = [day("2026-07-30", 110, 101), day(TODAY, 999, 998)];
+    expect(findPreviousClose(candles, TODAY)).toBe(
+      findPreviousDailyCandle(candles, TODAY)!.close
+    );
   });
 });
