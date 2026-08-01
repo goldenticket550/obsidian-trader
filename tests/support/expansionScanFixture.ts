@@ -74,11 +74,11 @@ interface SessionShape {
  * reaches the premarket cutoff with no tail gap and full coverage — the
  * two eligibility gates `aggregateThroughCutoff` applies.
  */
-function premarketSession(date: string, shape: SessionShape): Candle[] {
+function premarketSession(date: string, shape: SessionShape, interval = 5): Candle[] {
   const bars: Candle[] = [];
-  const count = (REGULAR_OPEN - PREMARKET_OPEN) / 5; // 66
+  const count = (REGULAR_OPEN - PREMARKET_OPEN) / interval;
   for (let i = 0; i < count; i++) {
-    const minute = PREMARKET_OPEN + i * 5;
+    const minute = PREMARKET_OPEN + i * interval;
     const progress = i / (count - 1);
     const close = shape.open + shape.drift * progress;
     const prior = i === 0 ? shape.open : shape.open + shape.drift * ((i - 1) / (count - 1));
@@ -94,10 +94,16 @@ function premarketSession(date: string, shape: SessionShape): Candle[] {
   return bars;
 }
 
-/** Today's regular-hours 5m bars, from the open through `throughMinute`. */
-function regularSession(date: string, from: number, throughMinute: number, price: number): Candle[] {
+/** Regular-hours bars, from the open through `throughMinute`. */
+function regularSession(
+  date: string,
+  from: number,
+  throughMinute: number,
+  price: number,
+  interval = 5
+): Candle[] {
   const bars: Candle[] = [];
-  for (let minute = from; minute <= throughMinute; minute += 5) {
+  for (let minute = from; minute <= throughMinute; minute += interval) {
     bars.push({
       time: etTime(date, minute),
       open: price,
@@ -249,7 +255,13 @@ export class FixtureProvider implements MarketDataProvider {
       return dailySeries(SESSION_DATES, fixture.dailyHigh, fixture.dailyLow, fixture.dailyClose);
     }
 
-    const todayPremarket = premarketSession(TODAY_TRADING_DATE, fixture.todayShape);
+    // Bar spacing follows the requested timeframe: a 1-minute request that
+    // silently returned 5-minute bars would make every time-of-day
+    // baseline look empty for reasons that have nothing to do with the
+    // code under test.
+    const interval = params.timeframe === "1m" ? 1 : 5;
+
+    const todayPremarket = premarketSession(TODAY_TRADING_DATE, fixture.todayShape, interval);
     const lastPremarketClose = todayPremarket[todayPremarket.length - 1].close;
     // 9:30 opens and completes at 9:35, so the default is exactly one
     // completed regular bar — what has actually closed at SCAN_NOW.
@@ -257,7 +269,8 @@ export class FixtureProvider implements MarketDataProvider {
       TODAY_TRADING_DATE,
       REGULAR_OPEN,
       this.regularThroughMinute,
-      lastPremarketClose
+      lastPremarketClose,
+      interval
     );
 
     if (multiSession) {
@@ -269,8 +282,15 @@ export class FixtureProvider implements MarketDataProvider {
         fixture.historySessions === undefined
           ? priorDates
           : priorDates.slice(-(Math.max(1, fixture.historySessions) - 1));
+
+      // Prior sessions carry their regular-hours bars too, so a
+      // minute-of-day baseline exists for bars after the open.
+      const priorClose = fixture.priorShape.open + fixture.priorShape.drift;
       return [
-        ...kept.flatMap((d) => premarketSession(d, fixture.priorShape)),
+        ...kept.flatMap((d) => [
+          ...premarketSession(d, fixture.priorShape, interval),
+          ...regularSession(d, REGULAR_OPEN, this.regularThroughMinute, priorClose, interval),
+        ]),
         ...todayPremarket,
         ...todayRegular,
       ];

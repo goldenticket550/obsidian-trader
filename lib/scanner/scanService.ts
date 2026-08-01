@@ -10,19 +10,29 @@ import {
   getSessionTypeForTimestamp,
   PRE_MARKET_START_MINUTES,
 } from "@/lib/market-data/session";
+import { getEasternTimeParts } from "@/lib/market-data/easternTime";
 import { resolveBenchmarkSymbol } from "@/lib/indicators/benchmarkAlignment";
 import { calculateAtr } from "@/lib/indicators/atr";
 import {
   clampToPremarketCutoff,
+  collectTimeOfDayBars,
   computeCompletedBarCutoff,
   filterToCompletedBars,
+  median,
   splitBaseline,
   HistoricalBarCache,
+  type BarSourceIncompleteReason,
 } from "@/lib/market-data/historicalBaseline";
 import {
+  assessFreshness,
   detectPremarketExpansion,
+  freshnessAllowsNewCandidate,
   type PremarketExpansionResult,
 } from "@/lib/indicators/premarketExpansion";
+import {
+  evaluateExpansionMonitor,
+  type SymbolExpansionMonitor,
+} from "./expansionMonitor";
 import type { Candle } from "@/types/candle";
 
 /** Both directions of the Premarket Expansion Candidate for one symbol. */
@@ -54,6 +64,16 @@ export interface ScanOutput {
    * a symbol was found uninteresting.
    */
   expansionBySymbol?: Record<string, SymbolExpansion>;
+  /**
+   * The ONE-MINUTE Expansion Monitor layer: early acceleration, the
+   * dollar-volume context, the momentum ladder, and the stage resolved
+   * with live impulse taken into account.
+   *
+   * Separate from `expansionBySymbol` and equally optional — it carries
+   * its own provider cost and its own enable flag, and a symbol can have
+   * a five-minute candidate with no usable one-minute history.
+   */
+  expansionMonitorBySymbol?: Record<string, SymbolExpansionMonitor>;
   /**
    * Symbols whose expansion evaluation failed. Deliberately NOT merged
    * into `errors`, which means "this symbol was excluded from the scan
@@ -219,6 +239,7 @@ export async function scanWatchlistWithProvider(
   const resultsBySymbol: Record<string, { "5m": SetupResult; "15m": SetupResult }> = {};
   const errors: { symbol: string; message: string }[] = [];
   const expansionBySymbol: Record<string, SymbolExpansion> = {};
+  const expansionMonitorBySymbol: Record<string, SymbolExpansionMonitor> = {};
   const expansionErrors: { symbol: string; message: string }[] = [];
   const todayTradingDate = getCurrentTradingDate(new Date(now));
 
@@ -227,6 +248,9 @@ export async function scanWatchlistWithProvider(
   const benchmarkCache = new Map<string, BenchmarkBundle>();
 
   const expansionEnabled = config.premarketExpansion.enabled;
+  // The one-minute layer is gated separately: it carries its own provider
+  // load, so it must be switchable off without disabling the candidate.
+  const monitorEnabled = expansionEnabled && config.premarketExpansion.monitorEnabled;
   const feedInfo = resolveFeedInfo(provider);
 
   for (const { symbol, exchange } of symbols) {
@@ -347,8 +371,9 @@ export async function scanWatchlistWithProvider(
       // its expansion result and nothing else — the reversal rows above
       // are already committed and stay exactly as they are.
       if (expansionEnabled) {
+        let expansion: SymbolExpansion | null = null;
         try {
-          expansionBySymbol[symbol] = await evaluateExpansion({
+          expansion = await evaluateExpansion({
             symbol,
             provider,
             config,
@@ -362,10 +387,36 @@ export async function scanWatchlistWithProvider(
             feedInfo,
             deadlineAt,
           });
+          expansionBySymbol[symbol] = expansion;
         } catch (error) {
           const message =
             error instanceof Error ? error.message : "Unknown expansion evaluation error";
           expansionErrors.push({ symbol, message });
+        }
+
+        // The one-minute layer gets its OWN try/catch, nested one level
+        // deeper again: a 1m history that cannot be fetched must cost this
+        // symbol only its monitor data — not its five-minute candidate,
+        // and certainly not its reversal row.
+        if (monitorEnabled && expansion !== null) {
+          try {
+            expansionMonitorBySymbol[symbol] = await evaluateMonitor({
+              symbol,
+              provider,
+              config,
+              now,
+              todayTradingDate,
+              expansion,
+              regularSessionCandles: series5m.candles,
+              dailyCandles,
+              feedInfo,
+              deadlineAt,
+            });
+          } catch (error) {
+            const message =
+              error instanceof Error ? error.message : "Unknown expansion monitor error";
+            expansionErrors.push({ symbol, message });
+          }
         }
       }
     } catch (error) {
@@ -385,8 +436,174 @@ export async function scanWatchlistWithProvider(
     // Omitted entirely rather than emitted empty when the feature is off,
     // so an absent field never reads as "evaluated, found nothing".
     ...(expansionEnabled ? { expansionBySymbol } : {}),
+    ...(monitorEnabled ? { expansionMonitorBySymbol } : {}),
     ...(expansionErrors.length > 0 ? { expansionErrors } : {}),
   };
+}
+
+interface MonitorEvaluationArgs {
+  symbol: string;
+  provider: MarketDataProvider;
+  config: StrategyConfig;
+  now: string;
+  todayTradingDate: string;
+  expansion: SymbolExpansion;
+  /** Today's regular-session 5m candles — the momentum ladder's anchor. */
+  regularSessionCandles: Candle[];
+  dailyCandles: Candle[];
+  feedInfo: ProviderFeedInfo;
+  deadlineAt?: number;
+}
+
+/**
+ * Builds the one-minute layer for a symbol.
+ *
+ * The 1m history is fetched through the SAME `HistoricalBarCache` as the
+ * 5m baseline, so it inherits the completeness plumbing wholesale: a
+ * truncated page chain or a missing session is reported rather than
+ * silently returning a short window, and the same rule applies about which
+ * reasons actually block — a young symbol is not a truncated one.
+ */
+async function evaluateMonitor(args: MonitorEvaluationArgs): Promise<SymbolExpansionMonitor> {
+  const {
+    symbol,
+    provider,
+    config,
+    now,
+    todayTradingDate,
+    expansion,
+    regularSessionCandles,
+    dailyCandles,
+    feedInfo,
+    deadlineAt,
+  } = args;
+
+  const scannedAt = new Date(now);
+  const expansionConfig = config.premarketExpansion;
+  const cache = getBaselineCache(provider);
+
+  const request = {
+    symbol,
+    timeframe: "1m" as const,
+    sessionScope: "extended" as const,
+    sessionCount: expansionConfig.lookbackSessions + 1,
+    feed: feedInfo.feed,
+    adjustment: "raw" as const,
+    todayTradingDate,
+    deadlineAt,
+  };
+
+  // `getBars` absorbs a provider failure into an explicitly incomplete
+  // entry rather than throwing, so an unavailable 1m history arrives here
+  // as empty candles with a reason — never as an exception that would cost
+  // the symbol anything else.
+  const entry = await cache.getBars(request);
+
+  const completedOneMinuteBars = filterToCompletedBars(entry.candles, 1, scannedAt);
+  const evaluationBar =
+    completedOneMinuteBars.length > 0
+      ? completedOneMinuteBars[completedOneMinuteBars.length - 1]
+      : null;
+
+  const minuteOfDay =
+    evaluationBar === null
+      ? null
+      : getEasternTimeParts(new Date(evaluationBar.time * 1000)).minutesSinceMidnight;
+
+  // The baseline for a 1m shock is MATCHING minute-of-day bars from prior
+  // sessions — a cumulative figure cannot answer "is this 9:31 bar unusual
+  // for a 9:31 bar".
+  const timeOfDayBaseline =
+    minuteOfDay === null
+      ? []
+      : collectTimeOfDayBars(entry.candles, minuteOfDay, todayTradingDate, "extended");
+
+  const cumulativeBaselineMedian = await loadCumulativeDollarVolumeMedian({
+    cache,
+    request,
+    candles: entry.candles,
+    scannedAt,
+    todayTradingDate,
+    expansionConfig,
+  });
+
+  // Short history is a young symbol, not lost data — the same distinction
+  // the five-minute baseline draws.
+  const blockingReason: BarSourceIncompleteReason | null =
+    entry.reason !== null && entry.reason !== "insufficient_sessions" ? entry.reason : null;
+
+  // Freshness of the ONE-MINUTE series specifically. A 1m bar ten minutes
+  // old is stale even when the 5m series is perfectly current.
+  const freshness = assessFreshness(
+    scannedAt,
+    evaluationBar,
+    1,
+    feedInfo,
+    blockingReason !== null,
+    expansionConfig
+  );
+
+  const atrSeries = calculateAtr(dailyCandles, config.extension.atrPeriod);
+  const lastAtr = atrSeries[atrSeries.length - 1];
+
+  return evaluateExpansionMonitor(
+    {
+      symbol,
+      completedOneMinuteBars,
+      timeOfDayBaseline,
+      cumulativeBaselineMedian,
+      regularSessionCandles,
+      bullishExpansion: expansion.bullish,
+      bearishExpansion: expansion.bearish,
+      dailyAtr: Number.isFinite(lastAtr) ? lastAtr : null,
+      feed: feedInfo,
+      freshness: freshness.status,
+      freshnessPermitsAlerting: freshnessAllowsNewCandidate(freshness.status, feedInfo),
+      oneMinuteInsufficientData: blockingReason !== null || evaluationBar === null,
+      oneMinuteReason: blockingReason ?? (evaluationBar === null ? "no_completed_bar" : null),
+    },
+    config
+  );
+}
+
+/**
+ * Median cumulative dollar volume across prior sessions, over the same
+ * elapsed window today has run.
+ *
+ * Deliberately NOT clamped to the premarket open: this figure is the
+ * denominator for "today's cumulative dollar volume so far", which keeps
+ * accumulating through the regular session. Routed through the cache's
+ * memoized aggregation so the 21-session walk is not repeated per render.
+ */
+async function loadCumulativeDollarVolumeMedian(args: {
+  cache: HistoricalBarCache;
+  request: Parameters<HistoricalBarCache["getAggregation"]>[0];
+  candles: Candle[];
+  scannedAt: Date;
+  todayTradingDate: string;
+  expansionConfig: StrategyConfig["premarketExpansion"];
+}): Promise<number | null> {
+  const { cache, request, candles, scannedAt, todayTradingDate, expansionConfig } = args;
+
+  const cutoffMinutes = computeCompletedBarCutoff(candles, 1, scannedAt);
+  if (cutoffMinutes === null || cutoffMinutes <= PRE_MARKET_START_MINUTES) return null;
+
+  const aggregation = await cache.getAggregation(request, {
+    startMinutes: PRE_MARKET_START_MINUTES,
+    cutoffMinutes,
+    intervalMinutes: 1,
+  });
+
+  const split = splitBaseline(
+    aggregation,
+    todayTradingDate,
+    expansionConfig.lookbackSessions,
+    expansionConfig.minBaselineSessions
+  );
+
+  // Null rather than 0 for an empty baseline: a zero denominator would
+  // render as an infinite relative volume.
+  return median(split.baseline.map((s) => s.dollarVolume));
 }
 
 interface ExpansionEvaluationArgs {

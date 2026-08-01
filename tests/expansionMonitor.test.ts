@@ -1244,6 +1244,7 @@ const EXPANSION_MODULES = [
   "premarketExpansionDisplay",
   "earlyAcceleration",
   "expansionPriority",
+  "expansionMonitor",
   "dollarVolume",
   "historicalBaseline",
 ] as const;

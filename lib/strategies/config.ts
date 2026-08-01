@@ -115,6 +115,22 @@ export interface StrategyConfig {
      * added provider load is opt-out-able without a code change.
      */
     enabled: boolean;
+    /**
+     * Whether the scanner also evaluates the ONE-MINUTE Expansion Monitor
+     * layer — early acceleration, dollar-volume context, the momentum
+     * ladder, and the two stages that need live impulse.
+     *
+     * Separate from `enabled` because it carries its own provider load: a
+     * ~21-session 1-minute history per symbol. Turning it off leaves the
+     * five-minute candidate working exactly as before.
+     */
+    monitorEnabled: boolean;
+    /**
+     * Width of the regular-session opening range, in minutes from 9:30.
+     * An UNVALIDATED scanner default, not a validated level — the range is
+     * only ever presented as a measured high/low, never as a prediction.
+     */
+    openingRangeMinutes: number;
     /** How many prior sessions the baseline medians are taken over. */
     lookbackSessions: number;
     /** Below this many ELIGIBLE sessions, volume/range baselines report insufficientData. */
@@ -251,6 +267,8 @@ export const defaultStrategyConfig: StrategyConfig = {
   },
   premarketExpansion: {
     enabled: true,
+    monitorEnabled: true,
+    openingRangeMinutes: 15,
     lookbackSessions: 20,
     minBaselineSessions: 10,
     minimumElapsedPremarketMinutes: 15,

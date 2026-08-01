@@ -6,6 +6,7 @@ import {
   resetExpansionBaselineCache,
 } from "@/lib/scanner/scanService";
 import { defaultStrategyConfig, type StrategyConfig } from "@/lib/strategies/config";
+import { EXPANSION_STAGE_PRIORITY } from "@/lib/scanner/expansionPriority";
 import {
   FixtureProvider,
   standardFixtures,
@@ -149,7 +150,7 @@ describe("premarket expansion runs in the live scan path", () => {
     for (const symbol of ["EXPD", "CALM"]) {
       const baselineCalls = provider
         .callsFor(symbol)
-        .filter((c) => (c.sessionCount ?? 1) > 1);
+        .filter((c) => c.timeframe === "5m" && (c.sessionCount ?? 1) > 1);
       expect(baselineCalls).toHaveLength(1);
       expect(baselineCalls[0].sessionScope).toBe("extended");
       expect(baselineCalls[0].sessionCount).toBe(
@@ -296,9 +297,10 @@ describe("the expansion evaluation is opt-out-able", () => {
       SCAN_NOW
     );
 
-    // 9 as before, plus one baseline per symbol (2) and two more shared
-    // benchmark series (premarket + daily).
-    expect(provider.calls).toHaveLength(13);
+    // 9 as before, plus one 5m baseline per symbol (2), one 1m history per
+    // symbol (2), and two more shared benchmark series (premarket + daily).
+    expect(provider.calls).toHaveLength(15);
+    expect(provider.calls.filter((c) => c.timeframe === "1m")).toHaveLength(2);
   });
 
   it("amortizes the baseline across scan cycles instead of refetching it", async () => {
@@ -308,13 +310,13 @@ describe("the expansion evaluation is opt-out-able", () => {
 
     await scanWatchlistWithProvider(STANDARD_SYMBOLS, provider, CONFIG_WITH_EXPANSION, SCAN_NOW);
     const afterFirst = provider.calls.length;
-    expect(afterFirst).toBe(13);
+    expect(afterFirst).toBe(15);
 
     await scanWatchlistWithProvider(STANDARD_SYMBOLS, provider, CONFIG_WITH_EXPANSION, SCAN_NOW);
     const secondCycle = provider.calls.length - afterFirst;
 
     // Second cycle: 4 per-symbol series plus the 3 shared benchmark
-    // series — and NO baseline refetch.
+    // series — and NO baseline refetch, 5m or 1m.
     expect(secondCycle).toBe(11);
     expect(
       provider.calls.slice(afterFirst).filter((c) => (c.sessionCount ?? 1) > 1)
@@ -473,6 +475,178 @@ describe("benchmark series degrade independently", () => {
     expect(alignmentOf(result).insufficientData).toBe(true);
     expect(result.errors).toEqual([]);
     expect(result.watchlist).toHaveLength(2);
+  });
+});
+
+describe("one-minute expansion monitor wiring", () => {
+  it("populates expansionMonitorBySymbol alongside the five-minute candidate", async () => {
+    const provider = new FixtureProvider(standardFixtures());
+    const result = await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      provider,
+      CONFIG_WITH_EXPANSION,
+      SCAN_NOW
+    );
+
+    expect(result.expansionMonitorBySymbol).toBeDefined();
+    const monitor = result.expansionMonitorBySymbol!.EXPD;
+    expect(monitor.symbol).toBe("EXPD");
+    // Direction-agnostic readings sit at the symbol level.
+    expect(monitor.dollarVolume).toBeDefined();
+    expect(monitor.momentumLadder).toBeDefined();
+    // Directional readings are mirrored.
+    expect(monitor.bullish.direction).toBe("bullish");
+    expect(monitor.bearish.direction).toBe("bearish");
+    expect(monitor.bullish.earlyAcceleration.type).toBe("early_acceleration");
+    // The existing five-minute field is untouched.
+    expect(result.expansionBySymbol!.EXPD.bullish.qualified).toBe(true);
+  });
+
+  it("measures the one-minute layer on real 1m bars and their own baseline", async () => {
+    const provider = new FixtureProvider(standardFixtures());
+    const result = await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      provider,
+      CONFIG_WITH_EXPANSION,
+      SCAN_NOW
+    );
+
+    const oneMinute = result.expansionMonitorBySymbol!.EXPD.oneMinute;
+    expect(oneMinute.completedBarCount).toBeGreaterThan(0);
+    expect(oneMinute.evaluationBarTime).not.toBeNull();
+    expect(oneMinute.baselineSampleSize).toBeGreaterThan(0);
+    expect(oneMinute.insufficientData).toBe(false);
+
+    // A 1m fetch really was issued, separately from the 5m baseline.
+    const oneMinuteFetches = provider
+      .callsFor("EXPD")
+      .filter((c) => c.timeframe === "1m" && (c.sessionCount ?? 1) > 1);
+    expect(oneMinuteFetches).toHaveLength(1);
+    expect(oneMinuteFetches[0].sessionScope).toBe("extended");
+  });
+
+  it("carries the resolved stage, keeping the five-minute base stage visible", async () => {
+    const provider = new FixtureProvider(standardFixtures());
+    const result = await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      provider,
+      CONFIG_WITH_EXPANSION,
+      SCAN_NOW
+    );
+
+    const bullish = result.expansionMonitorBySymbol!.EXPD.bullish;
+    expect(bullish.baseStage).toBe(result.expansionBySymbol!.EXPD.bullish.stage);
+    // Resolved never ranks below the base it came from.
+    expect(EXPANSION_STAGE_PRIORITY[bullish.stage]).toBeGreaterThanOrEqual(
+      EXPANSION_STAGE_PRIORITY[bullish.baseStage]
+    );
+    expect(bullish.signals).toBeDefined();
+  });
+
+  it("exposes the momentum ladder for the UI to render later", async () => {
+    const provider = new FixtureProvider(standardFixtures());
+    const result = await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      provider,
+      CONFIG_WITH_EXPANSION,
+      SCAN_NOW
+    );
+
+    const ladder = result.expansionMonitorBySymbol!.EXPD.momentumLadder;
+    expect(ladder.tiers.map((t) => t.tierPct)).toEqual(
+      [...defaultStrategyConfig.momentumLadder.tiers].sort((a, b) => a - b)
+    );
+  });
+
+  it("issues no 1m requests and no monitor data when monitorEnabled is false", async () => {
+    const provider = new FixtureProvider(standardFixtures());
+    const result = await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      provider,
+      configWith({ monitorEnabled: false }),
+      SCAN_NOW
+    );
+
+    expect(result.expansionMonitorBySymbol).toBeUndefined();
+    // The five-minute candidate is unaffected.
+    expect(result.expansionBySymbol!.EXPD.bullish.qualified).toBe(true);
+    expect(provider.calls.filter((c) => c.timeframe === "1m")).toHaveLength(0);
+  });
+
+  it("costs a symbol only its monitor data when the 1m fetch fails", async () => {
+    // The provider rejects every 1-minute request for CALM.
+    const provider = new FixtureProvider(standardFixtures());
+    const original = provider.getCandles.bind(provider);
+    provider.getCandles = async (params) => {
+      if (params.symbol === "CALM" && params.timeframe === "1m") {
+        throw new Error("fixture: no 1-minute history for CALM");
+      }
+      return original(params);
+    };
+
+    const result = await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      provider,
+      CONFIG_WITH_EXPANSION,
+      SCAN_NOW
+    );
+
+    // Reversal and five-minute expansion both survive intact.
+    expect(result.watchlist.map((w) => w.ticker).sort()).toEqual(["CALM", "EXPD"]);
+    expect(result.resultsBySymbol.CALM["5m"]).toBeDefined();
+    expect(result.errors).toEqual([]);
+    expect(result.expansionBySymbol!.CALM).toBeDefined();
+
+    // The monitor degrades for that symbol alone; its neighbour is fine.
+    const calmMonitor = result.expansionMonitorBySymbol!.CALM;
+    expect(calmMonitor.oneMinute.insufficientData).toBe(true);
+    expect(calmMonitor.oneMinute.completedBarCount).toBe(0);
+    expect(calmMonitor.bullish.earlyAcceleration.fired).toBe(false);
+    // No fabricated stage promotion off missing data.
+    expect(calmMonitor.bullish.stage).toBe(calmMonitor.bullish.baseStage);
+    expect(result.expansionMonitorBySymbol!.EXPD.oneMinute.insufficientData).toBe(false);
+  });
+
+  it("leaves the reversal output identical whether the monitor runs or not", async () => {
+    const on = await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      new FixtureProvider(standardFixtures()),
+      configWith({ monitorEnabled: true }),
+      SCAN_NOW
+    );
+    resetExpansionBaselineCache();
+    const off = await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      new FixtureProvider(standardFixtures()),
+      configWith({ monitorEnabled: false }),
+      SCAN_NOW
+    );
+
+    expect(off.watchlist).toEqual(on.watchlist);
+    expect(off.resultsBySymbol).toEqual(on.resultsBySymbol);
+  });
+
+  it("adds exactly one 1m fetch per symbol per cache fill", async () => {
+    const provider = new FixtureProvider(standardFixtures());
+    await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      provider,
+      CONFIG_WITH_EXPANSION,
+      SCAN_NOW
+    );
+    const firstCycle = provider.calls.length;
+
+    // Second cycle: the 1m history is cached alongside the 5m baseline.
+    await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      provider,
+      CONFIG_WITH_EXPANSION,
+      SCAN_NOW
+    );
+    const secondCycle = provider.calls.slice(firstCycle);
+
+    expect(provider.calls.filter((c) => c.timeframe === "1m")).toHaveLength(2);
+    expect(secondCycle.filter((c) => c.timeframe === "1m")).toHaveLength(0);
   });
 });
 
