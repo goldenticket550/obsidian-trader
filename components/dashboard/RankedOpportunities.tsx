@@ -4,6 +4,12 @@ import { useState } from "react";
 import type { WatchlistSymbol } from "@/types/watchlist";
 import type { SetupResult } from "@/types/setup";
 import { SetupDetail } from "./SetupDetail";
+import {
+  ExpansionCandidatePanel,
+  selectQualifyingExpansion,
+} from "./ExpansionCandidatePanel";
+import type { SymbolExpansion } from "@/lib/scanner/scanService";
+import { stageLabel } from "@/lib/indicators/premarketExpansionDisplay";
 import { rankOpportunities, RANKING_RULE_DESCRIPTION } from "@/lib/scanner/ranking";
 import { formatEasternTime } from "@/lib/market-data/freshness";
 
@@ -44,11 +50,18 @@ export function RankedOpportunities({
   resultsBySymbol,
   loading,
   scoreThreshold,
+  expansionBySymbol,
 }: {
   symbols: WatchlistSymbol[];
   resultsBySymbol: Record<string, { "5m": SetupResult; "15m": SetupResult }>;
   loading: boolean;
   scoreThreshold: number;
+  /**
+   * Premarket Expansion Candidates, when the scan produced them. Optional:
+   * omitted, this component renders exactly as it did before the feature
+   * existed — no chip, no panel.
+   */
+  expansionBySymbol?: Record<string, SymbolExpansion>;
 }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [timeframes, setTimeframes] = useState<Record<string, "5m" | "15m">>({});
@@ -118,10 +131,16 @@ export function RankedOpportunities({
               const panelId = `setup-${s.ticker}`;
               // No candle => price is a previous-close fallback, not a quote.
               const hasCandle = !!row?.latestCandleTime;
+              const expansion = expansionBySymbol?.[s.ticker];
+              // Only a QUALIFYING candidate earns a chip. A developing or
+              // absent one shows nothing rather than a placeholder that
+              // would read as a weak signal.
+              const qualifying = selectQualifyingExpansion(expansion);
 
               return (
                 <div
                   key={s.ticker}
+                  data-ticker={s.ticker}
                   style={
                     isOpen
                       ? {
@@ -205,6 +224,29 @@ export function RankedOpportunities({
                           {ENTRY_SHORT[entry] ?? entry}
                         </span>
                       )}
+                      {/* A separate setup type, so it sits on its own line
+                          rather than competing with the reversal stage
+                          above it. Direction is carried by the arrow and
+                          by the label — never by colour alone. */}
+                      {qualifying && (
+                        <span
+                          data-testid="expansion-chip"
+                          aria-label={`Premarket expansion candidate, ${qualifying.direction}, ${stageLabel(
+                            qualifying.stage
+                          )}`}
+                          title={`${
+                            qualifying.direction === "bullish" ? "Bullish" : "Bearish"
+                          } premarket expansion — ${stageLabel(qualifying.stage)}`}
+                          className="block truncate text-[10px]"
+                          style={{
+                            color:
+                              qualifying.direction === "bullish" ? "var(--green)" : "var(--red)",
+                          }}
+                        >
+                          {qualifying.direction === "bullish" ? "▲" : "▼"} Expansion ·{" "}
+                          {stageLabel(qualifying.stage)}
+                        </span>
+                      )}
                     </span>
 
                     {/* Candle time deliberately adjacent to price so the
@@ -233,6 +275,15 @@ export function RankedOpportunities({
 
                   {isOpen && detail && (
                     <div id={panelId}>
+                      {/* A sibling of SetupDetail, never inside it: the
+                          expansion candidate is a separate setup type and
+                          must not read as another line on the reversal
+                          checklist. Placed FIRST because the reversal
+                          checklist below is long — a panel underneath it
+                          is reached only by scrolling past everything
+                          else, which buries the thing the row's badge just
+                          advertised. */}
+                      <ExpansionCandidatePanel expansion={expansion} />
                       <SetupDetail
                         result={detail}
                         exchange={s.exchange}

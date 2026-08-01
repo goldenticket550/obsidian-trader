@@ -10,6 +10,7 @@ import { RankedOpportunities } from "@/components/dashboard/RankedOpportunities"
 import { ActionQueue } from "@/components/dashboard/ActionQueue";
 import type { WatchlistSymbol, AccountabilityChecks } from "@/types/watchlist";
 import type { SetupResult } from "@/types/setup";
+import type { SymbolExpansion } from "@/lib/scanner/scanService";
 import type { DataQuality } from "@/types/candle";
 import type { SessionInfo } from "@/lib/market-data/types";
 import type { MarketContextQuote } from "@/lib/market-data/marketContext";
@@ -25,6 +26,12 @@ interface ScanApiResponse {
   resultsBySymbol: Record<string, { "5m": SetupResult; "15m": SetupResult }>;
   newAlerts: AlertEvent[];
   errors: { symbol: string; message: string }[];
+  /**
+   * Premarket Expansion Candidates, when the scan produced them. Optional
+   * because the scan omits the field entirely when the feature is
+   * disabled — absent means "not evaluated", never "nothing found".
+   */
+  expansionBySymbol?: Record<string, SymbolExpansion>;
 }
 
 interface RiskApiResponse {
@@ -433,6 +440,7 @@ export default function DashboardPage() {
             resultsBySymbol={scan?.resultsBySymbol ?? {}}
             loading={scan === null && !scanError}
             scoreThreshold={scoreThreshold}
+            expansionBySymbol={scan?.expansionBySymbol}
           />
         </div>
 
