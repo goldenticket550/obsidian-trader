@@ -404,17 +404,31 @@ describe("card arrangement", () => {
     ]);
   });
 
-  it("puts the three cards in one row of equal columns", () => {
-    const { container } = renderCard();
-    const cards = screen.getByTestId("expansion-cards");
-    expect(cards.className).toContain("grid-cols-3");
-    expect(cards.children).toHaveLength(3);
-    expect([...cards.children].map((c) => c.getAttribute("data-testid"))).toEqual([
+  it("holds three across in one row, stated inline so it cannot collapse", () => {
+    // A utility class missing from the stylesheet would silently turn this
+    // into a vertical stack; the inline template makes that impossible.
+    renderCard();
+    const grid = screen.getByTestId("expansion-cards") as HTMLElement;
+    expect(grid.style.display).toBe("grid");
+    expect(grid.style.gridTemplateColumns).toBe("repeat(3, minmax(0, 1fr))");
+    expect(grid.children).toHaveLength(3);
+    expect([...grid.children].map((c) => c.getAttribute("data-testid"))).toEqual([
       "card-what-changed",
       "card-whats-next",
       "card-what-breaks-it",
     ]);
-    expect(container).toBeTruthy();
+  });
+
+  it("gives each card its own bordered box", () => {
+    renderCard();
+    for (const id of ["card-what-changed", "card-whats-next", "card-what-breaks-it"]) {
+      const card = screen.getByTestId(id) as HTMLElement;
+      // Read the raw attribute: happy-dom drops var() from the `border`
+      // shorthand when re-serializing it through CSSOM.
+      const style = card.getAttribute("style")!;
+      expect(style).toContain("var(--border)");
+      expect(style).toContain("var(--panel)");
+    }
   });
 
   it("colours the what-breaks-it value red, and the card headings muted", () => {
@@ -497,6 +511,76 @@ describe("stage rail", () => {
     for (const step of rail.slice(1)) expect(step.state).toBe("pending");
   });
 
+  it("draws a real node per stage, shaped by its state", () => {
+    render(
+      <ExpansionCandidatePanel
+        expansion={expansionBySymbol.EXPD}
+        monitor={monitorBySymbol.EXPD}
+      />
+    );
+    const nodes = screen.getAllByTestId("expansion-rail-node") as HTMLElement[];
+    expect(nodes).toHaveLength(6);
+
+    // Node state mirrors step state exactly — the rail cannot disagree
+    // with itself.
+    const steps = screen.getAllByTestId("expansion-rail-step");
+    expect(nodes.map((n) => n.getAttribute("data-node-state"))).toEqual(
+      steps.map((s) => s.getAttribute("data-state"))
+    );
+
+    for (const node of nodes) {
+      const state = node.getAttribute("data-node-state");
+      // Every node is a circle with real dimensions, not a text glyph.
+      expect(node.style.borderRadius).toBe("50%");
+      expect(node.style.width).toMatch(/px$/);
+
+      if (state === "done") {
+        // Filled, with a check inside it.
+        expect(node.textContent).toBe("✓");
+        expect(node.style.background).toBe("var(--green)");
+      } else if (state === "current") {
+        // Hollow: ringed, not filled with the accent.
+        expect(node.textContent).toBe("");
+        expect(node.getAttribute("style")).toContain("var(--green)");
+        expect(node.style.background).toBe("var(--panel)");
+      } else {
+        // A small muted dot.
+        expect(node.textContent).toBe("");
+        expect(node.style.background).toBe("var(--text-muted)");
+        expect(parseInt(node.style.width, 10)).toBeLessThan(14);
+      }
+    }
+  });
+
+  it("colours the track up to the current node and mutes it after", () => {
+    // A mid-rail stage, so there are reached AND unreached segments.
+    render(
+      <ExpansionCandidatePanel
+        expansion={expansionBySymbol.EXPD}
+        monitor={{
+          ...monitorBySymbol.EXPD,
+          bullish: { ...monitorBySymbol.EXPD.bullish, stage: "breakout_accepted" },
+        }}
+      />
+    );
+    const steps = screen.getAllByTestId("expansion-rail-step") as HTMLElement[];
+    const currentIndex = steps.findIndex((s) => s.getAttribute("data-state") === "current");
+    expect(currentIndex).toBe(4); // Accepted
+
+    // Track segments live beside each node; reached ones carry the accent.
+    const segments = (step: HTMLElement) =>
+      [...step.querySelectorAll("span[aria-hidden='true']")] as HTMLElement[];
+
+    const beforeCurrent = segments(steps[currentIndex])[0];
+    expect(beforeCurrent.style.background).toBe("var(--green)");
+
+    const afterCurrent = segments(steps[currentIndex])[1];
+    expect(afterCurrent.style.background).toBe("var(--text-muted)");
+
+    // ...and the track is thick enough to see.
+    expect(parseInt(beforeCurrent.style.height, 10)).toBeGreaterThanOrEqual(2);
+  });
+
   it("renders one node per stage, each with its label beneath", () => {
     render(
       <ExpansionCandidatePanel
@@ -504,9 +588,11 @@ describe("stage rail", () => {
         monitor={monitorBySymbol.EXPD}
       />
     );
-    const rail = screen.getByTestId("expansion-stage-rail");
-    // A single horizontal row, not a wrapped pile.
-    expect(rail.className).toContain("flex");
+    const rail = screen.getByTestId("expansion-stage-rail") as HTMLElement;
+    // A single horizontal row, not a wrapped pile — stated inline so it
+    // survives a missing utility class.
+    expect(rail.style.display).toBe("flex");
+    expect(rail.style.flexWrap).not.toBe("wrap");
     expect(rail.className).not.toContain("flex-wrap");
 
     const steps = screen.getAllByTestId("expansion-rail-step");

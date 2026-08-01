@@ -277,12 +277,24 @@ function MiniCard({
   return (
     <div
       data-testid={testId}
-      className="min-w-0 rounded px-2.5 py-2"
-      style={{ background: "var(--panel-muted)", border: "1px solid var(--border-soft)" }}
+      className="rounded"
+      // Geometry inline rather than via utilities: this card has to hold
+      // its own box whatever the surrounding stylesheet does.
+      style={{
+        minWidth: 0,
+        padding: "8px 10px",
+        background: "var(--panel)",
+        border: "1px solid var(--border)",
+      }}
     >
       <p
-        className="text-[9px] uppercase tracking-[0.1em] mb-1.5"
-        style={{ color: "var(--text-muted)" }}
+        className="uppercase"
+        style={{
+          fontSize: "9px",
+          letterSpacing: "0.1em",
+          marginBottom: "6px",
+          color: "var(--text-muted)",
+        }}
       >
         {heading}
       </p>
@@ -395,44 +407,91 @@ function RailNode({
   reachedTrackAfter: boolean;
   accent: string;
 }) {
+  // A 2px track in a mid-grey, not a hairline in a near-black: the rail
+  // has to read as progress across the card at a glance.
   const track = (reached: boolean, hidden: boolean) => (
     <span
       aria-hidden="true"
-      className="h-px flex-1"
-      style={{ background: hidden ? "transparent" : reached ? accent : "var(--border)" }}
+      style={{
+        flex: 1,
+        height: "2px",
+        borderRadius: "1px",
+        background: hidden ? "transparent" : reached ? accent : "var(--text-muted)",
+        opacity: hidden ? 0 : reached ? 1 : 0.45,
+      }}
     />
   );
+
+  const NODE = 14;
+  const nodeBase: React.CSSProperties = {
+    flexShrink: 0,
+    width: `${NODE}px`,
+    height: `${NODE}px`,
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    boxSizing: "border-box",
+  };
 
   const node =
     step.state === "done" ? (
       <span
-        className="shrink-0 h-3 w-3 rounded-full flex items-center justify-center text-[7px] leading-none"
-        style={{ background: accent, color: "var(--page)" }}
+        data-testid="expansion-rail-node"
+        data-node-state="done"
+        style={{
+          ...nodeBase,
+          background: accent,
+          border: `2px solid ${accent}`,
+          color: "var(--page)",
+          fontSize: "9px",
+          lineHeight: 1,
+          fontWeight: 700,
+        }}
       >
         ✓
       </span>
     ) : step.state === "current" ? (
       <span
-        className="shrink-0 h-3 w-3 rounded-full"
-        style={{ border: `2px solid ${accent}`, background: "transparent" }}
+        data-testid="expansion-rail-node"
+        data-node-state="current"
+        style={{
+          ...nodeBase,
+          background: "var(--panel)",
+          border: `2px solid ${accent}`,
+          // A visible halo so the current node reads as "you are here".
+          boxShadow: `0 0 0 3px color-mix(in srgb, ${accent} 22%, transparent)`,
+        }}
       />
     ) : (
       <span
-        className="shrink-0 h-2 w-2 rounded-full"
-        style={{ border: "1px solid var(--border)", background: "transparent" }}
+        data-testid="expansion-rail-node"
+        data-node-state="pending"
+        style={{
+          ...nodeBase,
+          width: "8px",
+          height: "8px",
+          background: "var(--text-muted)",
+          opacity: 0.45,
+        }}
       />
     );
 
   return (
     <>
-      <span className="flex items-center w-full">
+      <span className="flex items-center w-full" style={{ minHeight: `${NODE}px` }}>
         {track(reachedTrackBefore, isFirst)}
         {node}
         {track(reachedTrackAfter, isLast)}
       </span>
       <span
-        className="mt-1 text-[8px] uppercase tracking-[0.04em] text-center leading-tight px-0.5"
+        className="uppercase text-center"
         style={{
+          marginTop: "6px",
+          fontSize: "8px",
+          lineHeight: 1.25,
+          letterSpacing: "0.04em",
+          padding: "0 2px",
           color:
             step.state === "current"
               ? accent
@@ -659,8 +718,13 @@ export function ExpansionCandidatePanel({
               it, so the rail reads as progress rather than decoration. */}
           <ol
             data-testid="expansion-stage-rail"
-            className="flex items-start w-full mb-3"
             aria-label="Expansion stage progress"
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              width: "100%",
+              marginBottom: "14px",
+            }}
           >
             {rail.map((step, index) => (
               <li
@@ -668,7 +732,8 @@ export function ExpansionCandidatePanel({
                 data-testid="expansion-rail-step"
                 data-step={step.label}
                 data-state={step.state}
-                className="flex-1 min-w-0 flex flex-col items-center"
+                className="flex flex-col items-center"
+                style={{ flex: 1, minWidth: 0 }}
               >
                 <RailNode
                   step={step}
@@ -685,8 +750,18 @@ export function ExpansionCandidatePanel({
           {/* -------------------------------------------------------------- */}
           {/* Three cards                                                     */}
           {/* -------------------------------------------------------------- */}
-          {/* Three equal columns, one row. */}
-          <div data-testid="expansion-cards" className="grid grid-cols-3 gap-2 mb-3">
+          {/* Three equal columns, one row — stated inline so the layout
+              cannot degrade into a vertical stack if a utility class is
+              missing from the stylesheet. */}
+          <div
+            data-testid="expansion-cards"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+              gap: "8px",
+              marginBottom: "12px",
+            }}
+          >
             <MiniCard testId="card-what-changed" heading="What changed">
               <CardLine value={dollarVolumeValue(monitor)} />
               <CardLine
