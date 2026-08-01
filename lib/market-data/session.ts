@@ -1,3 +1,4 @@
+import { getEasternTimeParts } from "./easternTime";
 import type { SessionInfo, SessionType } from "./types";
 
 // US Eastern minute-of-day boundaries. Exported so other modules (like
@@ -19,20 +20,8 @@ export const AFTER_HOURS_END_MINUTES = 20 * 60; // 8:00 PM ET
  * holidays or early closes.
  */
 export function getSessionTypeForTimestamp(timestamp: Date): SessionType {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York",
-    hour: "numeric",
-    minute: "numeric",
-    hour12: false,
-    weekday: "short",
-  }).formatToParts(timestamp);
+  const { minutesSinceMidnight, isWeekday } = getEasternTimeParts(timestamp);
 
-  const weekday = parts.find((p) => p.type === "weekday")?.value ?? "";
-  const hour = Number(parts.find((p) => p.type === "hour")?.value ?? "0");
-  const minute = Number(parts.find((p) => p.type === "minute")?.value ?? "0");
-  const minutesSinceMidnight = hour * 60 + minute;
-
-  const isWeekday = !["Sat", "Sun"].includes(weekday);
   if (!isWeekday) return "closed";
 
   if (minutesSinceMidnight >= REGULAR_START_MINUTES && minutesSinceMidnight < REGULAR_END_MINUTES) {

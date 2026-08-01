@@ -1,8 +1,96 @@
 import type { Candle } from "@/types/candle";
-import { getCurrentTradingDate } from "@/lib/risk/tradingDate";
+import { getEasternTimeParts } from "./easternTime";
 import { getSessionTypeForTimestamp } from "./session";
 
 export type SessionScope = "regular" | "extended" | "all";
+
+/** One trading date's worth of in-scope candles. */
+export interface SessionGroup {
+  /** US Eastern trading date, `YYYY-MM-DD`. */
+  tradingDate: string;
+  /** In-scope candles for that date, in the order they appeared in the input. */
+  candles: Candle[];
+}
+
+/**
+ * Splits a multi-day candle array into one group per US Eastern trading
+ * date, after applying the same scope filter `filterToLatestSession` has
+ * always applied.
+ *
+ * This is the grouping step that already lived inside
+ * `filterToLatestSession` — it grouped candles by session date and then
+ * discarded everything except the latest group. Collapsing to the single
+ * latest session is exactly right for the live scorer (session VWAP,
+ * session low, decline-from-open are all defined against *the* current
+ * session), but it is wrong for a historical baseline, which needs the
+ * prior N sessions specifically in order to compare today against them.
+ * Rather than write a second, subtly-different copy of the day-bucketing
+ * rules for baselines to use, the general operation is exposed here and
+ * `filterToLatestSession` becomes the one-line special case of it — the
+ * same relationship `findPreviousClose` already has to
+ * `findPreviousDailyCandle`, so there is one implementation to get right
+ * and one place a fix lands.
+ *
+ * Order guarantees, both relied on by callers:
+ * - Groups are returned ascending by trading date, so `groups.at(-1)` is
+ *   the most recent session and `groups.slice(-n)` is the most recent n.
+ *   The ordering is computed from the dates themselves, never assumed
+ *   from array position — a provider is *expected* to return bars in
+ *   ascending order, but this function's documentation is true either way.
+ * - Within a group, candles keep their input order (unchanged behavior).
+ *
+ * The scope filter is applied BEFORE grouping, for the round-4 reason
+ * `filterToLatestSession` documents below: a date with no in-scope
+ * candles must not exist as an empty group that outranks a genuinely
+ * complete earlier session.
+ */
+export function groupBySession(
+  candles: Candle[],
+  sessionScope: SessionScope = "regular"
+): SessionGroup[] {
+  const byDate = new Map<string, Candle[]>();
+
+  for (const candle of candles) {
+    const timestamp = new Date(candle.time * 1000);
+    if (sessionScope !== "all") {
+      const sessionType = getSessionTypeForTimestamp(timestamp);
+      const inScope =
+        sessionScope === "regular"
+          ? sessionType === "regular"
+          : // "extended": anything except fully closed (pre-market, regular, after-hours)
+            sessionType !== "closed";
+      if (!inScope) continue;
+    }
+
+    const tradingDate = getEasternTimeParts(timestamp).date;
+    const existing = byDate.get(tradingDate);
+    if (existing) {
+      existing.push(candle);
+    } else {
+      byDate.set(tradingDate, [candle]);
+    }
+  }
+
+  return [...byDate.entries()]
+    .map(([tradingDate, groupCandles]) => ({ tradingDate, candles: groupCandles }))
+    .sort((a, b) => (a.tradingDate < b.tradingDate ? -1 : a.tradingDate > b.tradingDate ? 1 : 0));
+}
+
+/**
+ * The most recent `count` session groups, oldest first — i.e. what a
+ * historical baseline actually asks for. Returns fewer than `count` when
+ * fewer sessions are present; callers are responsible for treating a
+ * short result as insufficient data rather than quietly averaging over
+ * whatever happened to be there.
+ */
+export function filterToRecentSessions(
+  candles: Candle[],
+  count: number,
+  sessionScope: SessionScope = "regular"
+): SessionGroup[] {
+  if (count <= 0) return [];
+  return groupBySession(candles, sessionScope).slice(-count);
+}
 
 /**
  * Groups candles by their US Eastern trading date and keeps only the
@@ -47,27 +135,18 @@ export type SessionScope = "regular" | "extended" | "all";
  *
  * If no candles match the scope at all, this still returns an empty array
  * and callers still treat that as insufficient data.
+ *
+ * All of the above is now implemented by `groupBySession` — this is the
+ * "just the latest group" special case of it, exactly as
+ * `findPreviousClose` is the "just the close" special case of
+ * `findPreviousDailyCandle`. Behavior is unchanged; the reasoning above
+ * is kept here because this is the function callers read.
  */
 export function filterToLatestSession(
   candles: Candle[],
   sessionScope: SessionScope = "regular"
 ): Candle[] {
-  if (candles.length === 0) return candles;
-
-  const inScope = candles.filter((c) => {
-    if (sessionScope === "all") return true;
-    const sessionType = getSessionTypeForTimestamp(new Date(c.time * 1000));
-    if (sessionScope === "regular") return sessionType === "regular";
-    // "extended": anything except fully closed (pre-market, regular, after-hours)
-    return sessionType !== "closed";
-  });
-
-  if (inScope.length === 0) return [];
-
-  const dates = inScope.map((c) => getCurrentTradingDate(new Date(c.time * 1000)));
-  const latestDate = dates.reduce((max, d) => (d > max ? d : max), dates[0]);
-
-  return inScope.filter((_, i) => dates[i] === latestDate);
+  return groupBySession(candles, sessionScope).at(-1)?.candles ?? [];
 }
 
 /**
@@ -119,7 +198,7 @@ export function findPreviousDailyCandle(
   todayTradingDate: string
 ): Candle | null {
   for (let i = dailyCandles.length - 1; i >= 0; i--) {
-    const candleDate = getCurrentTradingDate(new Date(dailyCandles[i].time * 1000));
+    const candleDate = getEasternTimeParts(new Date(dailyCandles[i].time * 1000)).date;
     if (candleDate < todayTradingDate) {
       return dailyCandles[i];
     }

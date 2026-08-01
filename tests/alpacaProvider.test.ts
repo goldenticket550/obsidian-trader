@@ -5,7 +5,10 @@ import {
   computeStartDate,
   computeRetryDelayMs,
   parseRetryAfterMs,
+  estimatePagesRequired,
+  requestFitsWithinPageCap,
   MAX_RETRY_DELAY_MS,
+  DEFAULT_MAX_BAR_PAGES,
 } from "@/lib/market-data/providers/alpacaProvider";
 import { RateLimiter } from "@/lib/market-data/rateLimiter";
 
@@ -602,5 +605,276 @@ describe("computeRetryDelayMs", () => {
 
   it("accepts a Retry-After of exactly 0", () => {
     expect(computeRetryDelayMs(0, "0")).toBe(0);
+  });
+});
+
+/**
+ * Stage 2: a historical baseline needs the previous ~20 sessions, but
+ * getCandles has always collapsed intraday bars to the single latest
+ * session. `sessionCount` is the opt-in that lifts that — and every one of
+ * these asserts that opting OUT (the default) still behaves exactly as it
+ * did, since every existing caller relies on the collapse.
+ */
+describe("getCandles — multi-session requests", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  // Three consecutive regular-hours sessions, two bars each.
+  const THREE_SESSIONS = [
+    { t: "2026-07-13T14:30:00Z", o: 10, h: 11, l: 9, c: 10.5, v: 100 },
+    { t: "2026-07-13T14:35:00Z", o: 10.5, h: 11, l: 10, c: 10.8, v: 100 },
+    { t: "2026-07-14T14:30:00Z", o: 20, h: 21, l: 19, c: 20.5, v: 100 },
+    { t: "2026-07-14T14:35:00Z", o: 20.5, h: 21, l: 20, c: 20.8, v: 100 },
+    { t: "2026-07-15T14:30:00Z", o: 30, h: 31, l: 29, c: 30.5, v: 100 },
+    { t: "2026-07-15T14:35:00Z", o: 30.5, h: 31, l: 30, c: 30.8, v: 100 },
+  ];
+
+  function stubBars(bars: unknown[]) {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      json: async () => ({ bars, symbol: "AAPL", next_page_token: null }),
+    });
+    vi.stubGlobal("fetch", mockFetch);
+    return mockFetch;
+  }
+
+  it("still collapses to the single latest session by default", async () => {
+    stubBars(THREE_SESSIONS);
+    const provider = new AlpacaProvider({ apiKeyId: "key", apiSecretKey: "secret" });
+    const series = await provider.getCandles({ symbol: "AAPL", timeframe: "5m", limit: 100 });
+    expect(series.candles.map((c) => c.close)).toEqual([30.5, 30.8]);
+  });
+
+  it("returns the most recent n sessions, chronologically, when asked", async () => {
+    stubBars(THREE_SESSIONS);
+    const provider = new AlpacaProvider({ apiKeyId: "key", apiSecretKey: "secret" });
+    const series = await provider.getCandles({
+      symbol: "AAPL",
+      timeframe: "5m",
+      limit: 100,
+      sessionCount: 2,
+    });
+    expect(series.candles.map((c) => c.close)).toEqual([20.5, 20.8, 30.5, 30.8]);
+  });
+
+  it("returns every available session when fewer exist than requested", async () => {
+    stubBars(THREE_SESSIONS);
+    const provider = new AlpacaProvider({ apiKeyId: "key", apiSecretKey: "secret" });
+    const series = await provider.getCandles({
+      symbol: "AAPL",
+      timeframe: "5m",
+      limit: 100,
+      sessionCount: 20,
+    });
+    expect(series.candles).toHaveLength(6);
+  });
+
+  it("keys the cache on sessionCount, so a 1-session request cannot serve a 20-session one", async () => {
+    const mockFetch = stubBars(THREE_SESSIONS);
+    const provider = new AlpacaProvider({ apiKeyId: "key", apiSecretKey: "secret" });
+    await provider.getCandles({ symbol: "AAPL", timeframe: "5m", limit: 100 });
+    await provider.getCandles({ symbol: "AAPL", timeframe: "5m", limit: 100, sessionCount: 3 });
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+    // ...and the same multi-session request IS still cached.
+    await provider.getCandles({ symbol: "AAPL", timeframe: "5m", limit: 100, sessionCount: 3 });
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("widens the 5m fetch window for a multi-session request", async () => {
+    const NOW = new Date("2026-07-13T14:00:00Z");
+    const daysBack = (iso: string) =>
+      (NOW.getTime() - new Date(iso).getTime()) / (24 * 60 * 60 * 1000);
+    // 6 calendar days is roughly 4 sessions — nowhere near 20.
+    expect(daysBack(computeStartDate(NOW, "5m", 100, 20))).toBeGreaterThan(20);
+  });
+
+  it("leaves the single-session 5m window exactly as it was", async () => {
+    const NOW = new Date("2026-07-13T14:00:00Z");
+    // Regression guard: every existing caller passes no sessionCount.
+    expect(computeStartDate(NOW, "5m", 100)).toBe(computeStartDate(NOW, "5m", 100, 1));
+    const daysBack =
+      (NOW.getTime() - new Date(computeStartDate(NOW, "5m", 100)).getTime()) /
+      (24 * 60 * 60 * 1000);
+    expect(daysBack).toBe(6);
+  });
+
+  it("widens the 1m window by sessions even when the bar limit alone would not", async () => {
+    const NOW = new Date("2026-07-13T14:00:00Z");
+    const daysBack = (iso: string) =>
+      (NOW.getTime() - new Date(iso).getTime()) / (24 * 60 * 60 * 1000);
+    // A premarket-only baseline asks for far fewer than 390 bars/session,
+    // so the limit-derived estimate would size the window at one session.
+    expect(daysBack(computeStartDate(NOW, "1m", 300, 20))).toBeGreaterThan(
+      daysBack(computeStartDate(NOW, "1m", 300, 1))
+    );
+  });
+});
+
+/**
+ * Finding 2 — the 1-minute window must be sized by SESSIONS, and a
+ * truncated page chain must be visible rather than silently complete.
+ */
+describe("getCandles — 1m window sizing and pagination completeness", () => {
+  const NOW = new Date("2026-07-13T14:00:00Z");
+  const daysBack = (iso: string) =>
+    (NOW.getTime() - new Date(iso).getTime()) / (24 * 60 * 60 * 1000);
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("derives the 1m window from sessionCount, not from the bar limit", () => {
+    // The caller's bar budget is an upper bound on bars, not a statement
+    // about how many CALENDAR days those bars span. Sizing the window from
+    // it inflates a 21-session request into a ~90-day one.
+    const budget = Math.ceil((16 * 60) / 1) * 21; // what HistoricalBarCache asks for
+    expect(computeStartDate(NOW, "1m", budget, 21)).toBe(computeStartDate(NOW, "1m", 1, 21));
+    expect(computeStartDate(NOW, "1m", budget, 21)).toBe(
+      computeStartDate(NOW, "1m", 999_999, 21)
+    );
+  });
+
+  it("does not inflate 21 sessions into a fifty-session window", () => {
+    const budget = Math.ceil((16 * 60) / 1) * 21;
+    const days = daysBack(computeStartDate(NOW, "1m", budget, 21));
+    // Enough calendar days to reach 21 trading sessions with holiday slack...
+    expect(days).toBeGreaterThanOrEqual(21 * 1.4);
+    // ...but nowhere near the ~89 days the limit-derived estimate produced,
+    // which is what pushed the response past the page cap.
+    expect(days).toBeLessThan(50);
+  });
+
+  it("still grows monotonically with sessionCount", () => {
+    expect(daysBack(computeStartDate(NOW, "1m", 100, 21))).toBeGreaterThan(
+      daysBack(computeStartDate(NOW, "1m", 100, 5))
+    );
+    expect(daysBack(computeStartDate(NOW, "1m", 100, 5))).toBeGreaterThan(
+      daysBack(computeStartDate(NOW, "1m", 100, 1))
+    );
+  });
+
+  it("leaves 5m and 15m window sizing exactly as it was", () => {
+    expect(daysBack(computeStartDate(NOW, "5m", 100))).toBe(6);
+    expect(daysBack(computeStartDate(NOW, "15m", 100))).toBe(6);
+    expect(daysBack(computeStartDate(NOW, "5m", 100, 1))).toBe(6);
+    expect(daysBack(computeStartDate(NOW, "5m", 100, 20))).toBe(Math.ceil(20 * 1.6) + 5);
+    expect(daysBack(computeStartDate(NOW, "15m", 100, 20))).toBe(Math.ceil(20 * 1.6) + 5);
+    expect(daysBack(computeStartDate(NOW, "1d", 30))).toBe(Math.ceil(30 * 1.6) + 10);
+  });
+
+  it("documents the request cost of a window, so a request that cannot fit is visible", () => {
+    // 21 sessions of extended-hours 1m bars at Alpaca's 10,000/page cap.
+    expect(estimatePagesRequired(20_000)).toBe(2);
+    expect(estimatePagesRequired(40_000)).toBe(4);
+    expect(estimatePagesRequired(40_001)).toBe(5);
+    expect(estimatePagesRequired(0)).toBe(1);
+    expect(requestFitsWithinPageCap(40_000, DEFAULT_MAX_BAR_PAGES)).toBe(true);
+    expect(requestFitsWithinPageCap(44_000, DEFAULT_MAX_BAR_PAGES)).toBe(false);
+  });
+
+  function stubPages(pages: { bars: unknown[]; next_page_token: string | null }[]) {
+    let call = 0;
+    const mockFetch = vi.fn().mockImplementation(async () => {
+      const page = pages[Math.min(call, pages.length - 1)];
+      call += 1;
+      return {
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        json: async () => ({
+          symbol: "AAPL",
+          bars: page.bars,
+          next_page_token: page.next_page_token,
+        }),
+      };
+    });
+    vi.stubGlobal("fetch", mockFetch);
+    return mockFetch;
+  }
+
+  const bar = (t: string) => ({ t, o: 10, h: 11, l: 9, c: 10.5, v: 100 });
+
+  it("follows pages until the token chain actually ends, and reports completeness", async () => {
+    const mockFetch = stubPages([
+      { bars: [bar("2026-07-13T14:30:00Z")], next_page_token: "p2" },
+      { bars: [bar("2026-07-13T14:35:00Z")], next_page_token: "p3" },
+      { bars: [bar("2026-07-13T14:40:00Z")], next_page_token: null },
+    ]);
+    const provider = new AlpacaProvider({ apiKeyId: "key", apiSecretKey: "secret" });
+    const series = await provider.getCandles({ symbol: "AAPL", timeframe: "5m", limit: 100 });
+
+    expect(mockFetch).toHaveBeenCalledTimes(3);
+    expect(series.pagination).toEqual({
+      complete: true,
+      pagesFetched: 3,
+      nextPageTokenRemaining: false,
+      truncationReason: null,
+    });
+  });
+
+  it("reports an incomplete result when the page cap is hit with a token still remaining", async () => {
+    // Never-ending token chain: the cap must stop it AND say so, rather
+    // than returning a partial oldest-first window as though it were whole.
+    stubPages([{ bars: [bar("2026-07-13T14:30:00Z")], next_page_token: "more" }]);
+    const provider = new AlpacaProvider(
+      { apiKeyId: "key", apiSecretKey: "secret" },
+      undefined,
+      10_000,
+      2
+    );
+    const series = await provider.getCandles({ symbol: "AAPL", timeframe: "5m", limit: 100 });
+
+    expect(series.pagination).toEqual({
+      complete: false,
+      pagesFetched: 2,
+      nextPageTokenRemaining: true,
+      truncationReason: "page_cap_reached",
+    });
+  });
+
+  it("keeps the existing candle slicing and session scoping untouched", async () => {
+    // The completeness metadata is additive: the returned candles are
+    // exactly what they were before it existed.
+    stubPages([{ bars: THREE_SESSIONS_5M, next_page_token: null }]);
+    const provider = new AlpacaProvider({ apiKeyId: "key", apiSecretKey: "secret" });
+
+    const single = await provider.getCandles({ symbol: "AAPL", timeframe: "5m", limit: 100 });
+    expect(single.candles.map((c) => c.close)).toEqual([30.5, 30.8]);
+
+    const multi = await provider.getCandles({
+      symbol: "AAPL",
+      timeframe: "5m",
+      limit: 100,
+      sessionCount: 2,
+    });
+    expect(multi.candles.map((c) => c.close)).toEqual([20.5, 20.8, 30.5, 30.8]);
+  });
+
+  const THREE_SESSIONS_5M = [
+    { t: "2026-07-13T14:30:00Z", o: 10, h: 11, l: 9, c: 10.5, v: 100 },
+    { t: "2026-07-13T14:35:00Z", o: 10.5, h: 11, l: 10, c: 10.8, v: 100 },
+    { t: "2026-07-14T14:30:00Z", o: 20, h: 21, l: 19, c: 20.5, v: 100 },
+    { t: "2026-07-14T14:35:00Z", o: 20.5, h: 21, l: 20, c: 20.8, v: 100 },
+    { t: "2026-07-15T14:30:00Z", o: 30, h: 31, l: 29, c: 30.5, v: 100 },
+    { t: "2026-07-15T14:35:00Z", o: 30.5, h: 31, l: 30, c: 30.8, v: 100 },
+  ];
+
+  it("keys the provider cache on adjustment mode so raw and adjusted never collide", async () => {
+    const mockFetch = stubPages([{ bars: THREE_SESSIONS_5M, next_page_token: null }]);
+    const provider = new AlpacaProvider({ apiKeyId: "key", apiSecretKey: "secret" });
+    await provider.getCandles({ symbol: "AAPL", timeframe: "5m", limit: 100 });
+    await provider.getCandles({
+      symbol: "AAPL",
+      timeframe: "5m",
+      limit: 100,
+      adjustment: "split",
+    });
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+    // The default is still raw — existing callers are unaffected.
+    expect(String(mockFetch.mock.calls[0][0])).toContain("adjustment=raw");
+    expect(String(mockFetch.mock.calls[1][0])).toContain("adjustment=split");
   });
 });

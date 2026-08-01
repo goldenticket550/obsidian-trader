@@ -1,5 +1,21 @@
-import type { Candle, CandleSeries, DataQuality, Timeframe } from "@/types/candle";
+import type {
+  Candle,
+  CandleSeries,
+  DataQuality,
+  PaginationStatus,
+  Timeframe,
+} from "@/types/candle";
 import type { SessionScope } from "./sessionFilter";
+
+/**
+ * Corporate-action adjustment mode. Raw and adjusted bars for the same
+ * symbol and session are different numbers, so this belongs in every cache
+ * identity that holds bars — an adjusted entry served to a raw request
+ * shifts historical prices without any error.
+ */
+export type BarAdjustment = "raw" | "split" | "dividend" | "all";
+
+export const DEFAULT_BAR_ADJUSTMENT: BarAdjustment = "raw";
 
 export interface GetCandlesParams {
   symbol: string;
@@ -30,6 +46,30 @@ export interface GetCandlesParams {
    * as they already ignore `deadlineAt`.
    */
   sessionScope?: SessionScope;
+  /**
+   * How many trading sessions of intraday candles to return, most recent
+   * first-to-last. Omitted means `1` — today's exact existing behavior
+   * (collapse to the single latest session), so every current caller is
+   * unaffected.
+   *
+   * Added for the historical baselines in Rules A2/A3, which compare
+   * today's elapsed premarket volume and range against the same elapsed
+   * interval across the previous ~20 sessions. A single-session response
+   * cannot express that at all, and asking for "more bars" via `limit`
+   * is not a substitute: `limit` is a bar count applied *after* session
+   * collapsing, so raising it returns more bars from one day rather than
+   * bars from more days.
+   *
+   * Ignored for `1d` (daily bars are already one per session by
+   * definition) and by providers with no session concept.
+   */
+  sessionCount?: number;
+  /**
+   * Corporate-action adjustment. Omitted means `"raw"` — today's exact
+   * existing behavior, which every current caller relies on. Present so a
+   * cache can key on it rather than silently mixing adjustment modes.
+   */
+  adjustment?: BarAdjustment;
 }
 
 export type SessionType = "pre-market" | "regular" | "after-hours" | "closed";
@@ -62,4 +102,4 @@ export function emptySeries(
   return { symbol, timeframe, quality, candles: [] };
 }
 
-export type { Candle, CandleSeries, DataQuality, Timeframe };
+export type { Candle, CandleSeries, DataQuality, PaginationStatus, Timeframe };

@@ -49,92 +49,180 @@ all — reusing the existing `insufficientData` pattern already built for
 
 ---
 
-## Feature A — Prior-Day / Premarket Continuation Detector
+## Feature A — Premarket Expansion Candidate (supersedes the earlier, simpler continuation detector)
 
-**Plain description** (from conversation): a level got tested and rejected yesterday; if
-premarket action today shows genuine signs of reclaiming or holding above that same level,
-that's a different, earlier signal than anything the existing scanner produces (which only
-looks within a single session).
+**Status change**: this replaces the original three-rule prior-day/premarket continuation
+detector with a considerably more rigorous evidence-group model — historical baseline
+comparison instead of a single fixed threshold, QQQ relative strength, and an explicit
+safeguard against correlated facts inflating apparent confidence. If you build Feature A,
+build this version, not the original A1-A3.
 
-### Rule A1 — Prior-day rejection identified (two-tier)
+**Illustrative example values below are display formatting only** — never hardcode, seed, or
+display them when live calculation is unavailable.
 
-**Implementation note (resolves a real gap found during build)**: identifying "the prior
-daily candle" is not safe to do positionally. `alpacaProvider.ts` deliberately does not
-session-filter the `1d` series, so during market hours the daily array's last element is
-*today's* still-forming bar, not yesterday's complete one — the same class of bug already
-fixed once tonight for `findPreviousClose()`. Do not reimplement that logic a second time:
-refactor `findPreviousClose()` in `lib/market-data/sessionFilter.ts` to build on a new
-`findPreviousDailyCandle()` that returns the whole candle (not just `.close`), so
-`findPreviousClose` becomes a one-line wrapper around it. Rule A1 pulls both `.high` and
-`.close` from that same, already-tested lookup. If no candle exists with an ET date strictly
-before today's, report `insufficientData: true` — never fabricate a rejection from today's
-own forming candle.
+### Rule A1 — Move from prior close
 
 | Field | Definition |
 |---|---|
-| Rule ID | `prior_day_rejection` |
-| Required input | Prior regular-session daily candle (already fetched via existing `dailyCandles`) |
-| Exact formula | `rejectionLevel = prior_high`. Two tiers: `rejected` if `prior_close <= rejectionLevel × (1 - 0.02)`; `stronglyRejected` if `prior_close <= rejectionLevel × (1 - 0.05)` |
-| Comparison operator | `lte` for each tier independently |
-| Configurable threshold | `rejectionThresholdPct: 0.02` (matches the existing `intradayDecline` convention already in production), `strongRejectionThresholdPct: 0.05` |
-| Units | percent |
-| Evaluation timeframe | Daily (1 candle = 1 prior session) |
-| Minimum sample size | 1 complete prior daily candle |
-| Missing-data behavior | `insufficientData: true` if no prior daily candle exists — never fabricate a rejection |
-| Stale-data behavior | Evaluate but propagate the prior daily candle's own data-quality flag |
-| Reset behavior | Recomputed fresh every trading day |
-| Evidence output | `rejectionLevel` (usd), `priorClose` (usd), `declinePct` (percent), `tier` ("rejection" \| "strong_rejection" \| "none") |
+| Rule ID | `premarket_move_from_prior_close` |
+| Required input | Latest eligible **completed** premarket bar's price; prior regular-session close via `findPreviousDailyCandle()` (already built tonight for the original Feature A — reused here, not reimplemented) |
+| Exact formula | `dollarMove = currentPrice - priorRegularSessionClose`; `percentMove = priorRegularSessionClose > 0 ? dollarMove / priorRegularSessionClose × 100 : null` |
+| Forbidden inputs | Yesterday's extended-hours close, today's premarket open, a quote from a mismatched timestamp, an unfinished/still-forming candle |
+| Missing-data behavior | If prior regular-session close is unavailable: display "Unavailable," not zero |
+| Evidence output | `dollarMove` (usd), `percentMove` (percent) |
+
+### Rule A2 — Premarket volume pace (historical baseline, not a fixed threshold)
+
+| Field | Definition |
+|---|---|
+| Rule ID | `premarket_volume_pace` |
+| Required input | Cumulative volume from 4:00 AM ET through the latest completed bar, **today**; the identical elapsed interval from each of the prior `lookbackSessions` eligible trading days |
+| Exact formula | `pace = currentElapsedVolume / median(baselineVolumes)` |
+| Configurable threshold | `lookbackSessions: 20` (default), **minimum 10 valid comparison sessions required** or report `insufficientData: true` |
+| Missing/excluded-session behavior | Exclude any historical session missing a substantial portion of the comparison interval — do not silently include a partial session as if it were complete |
+| Evidence output | `pace` (ratio), `baselineSampleSize` (count) — e.g. "3.2× median, 18 eligible sessions through 9:24 AM ET." Never say "normal" without stating the real sample size behind it. |
+
+### Rule A3 — Premarket range (same historical-baseline principle as A2)
+
+| Field | Definition |
+|---|---|
+| Rule ID | `premarket_range_expansion` |
+| Exact formula | `currentRange = premarketHigh - premarketLow` (elapsed only, today); compare against `median(historicalRanges)` over the identical elapsed interval across the same lookback |
+| Comparison operator | `currentRange / baselineMedianRange` |
+| Missing-data behavior | Same 10-session minimum as A2; never compare an incomplete current range against complete historical ranges |
+| Evidence output | `currentRange` (usd), `rangeMultiple` (ratio) — e.g. "$6.10 · 1.8× median" |
+
+### Rule A4 — Position within premarket range
+
+| Field | Definition |
+|---|---|
+| Rule ID | `premarket_range_position` |
+| Exact formula | `positionPercent = (currentPrice - premarketLow) / (premarketHigh - premarketLow) × 100` |
+| Display vs. internal value | Clamp to 0-100 **for display only** — preserve the raw (possibly out-of-range) value internally so a price that's broken outside the previously-observed range isn't concealed |
+| Configurable zones | Upper: 75-100%, Middle: 25-75%, Lower: 0-25% |
+| Missing-data behavior | Zero or unavailable range → "Unavailable" |
+| Important constraint | Being in the upper zone is evidence *toward* a bullish read — it cannot, by itself, qualify a candidate. See Rule A7. |
+
+### Rule A5 — Relative performance vs. benchmark (reuses Rule D's fetch)
+
+| Field | Definition |
+|---|---|
+| Rule ID | `premarket_relative_strength` |
+| Required input | Symbol and benchmark (QQQ, or per-symbol mapping from Rule D2) prices from **matching completed-bar timestamps** — reuses the shared-benchmark-fetch-once-per-cycle infrastructure already built for Rule D tonight, not a second fetch |
+| Exact formula | `relativePct = ((symbolCurrent - symbolPriorClose) / symbolPriorClose × 100) - ((benchmarkCurrent - benchmarkPriorClose) / benchmarkPriorClose × 100)` |
+| Configurable threshold | `alignedTolerancePct` (default TBD — needs a real decision, see open questions) defines the "Approximately aligned" band |
+| Labels | `Outperforming` / `Underperforming` / `Approximately aligned` / `Unavailable` — always display the actual computed difference alongside the label, never the label alone |
+| Missing-data behavior | Timestamp mismatch or benchmark data unavailable → `Unavailable`. **Never count missing benchmark data as bearish evidence** — same `insufficientData` discipline as everything built tonight. |
+
+### Rule A6 — Prior-day high/low proximity
+
+| Field | Definition |
+|---|---|
+| Rule ID | `prior_level_proximity` |
+| Exact formula | `distanceDollars = priorDayHigh - currentPrice`; `distancePercent = distanceDollars / priorDayHigh × 100` |
+| "Approaching" classification | Within the **larger of** a configured percentage tolerance or a configured fraction of daily ATR — e.g. `priorLevelApproachPercent: 0.25`, `priorLevelApproachAtrFraction: 0.10` (both unvalidated scanner defaults, not probabilities) |
+| Display requirement | Always show the actual distance ("$0.84 away (0.24%)") — never an unexplained "Approaching" label with no number behind it |
+
+### Rule A7 — Independent evidence groups (the most important rule in this feature)
+
+**Why this exists**: range position, higher-lows structure, and distance-to-prior-high can all
+be restating the same underlying fact (price is near its high) rather than three genuinely
+independent pieces of evidence. Counting them separately would silently inflate confidence.
+
+| Field | Definition |
+|---|---|
+| Rule ID | `premarket_evidence_groups` |
+| The six groups | `participation` (Rule A2), `rangeExpansion` (Rule A3), `rangeLocation` (Rule A4), `structure` (higher-lows/lower-highs, reuses existing pivot logic), `priorDayInteraction` (recovery/surrender/pressure/break against prior-day levels), `benchmarkRelativeMove` (Rule A5) |
+| Eligibility gate | **At least 3 of 6 groups passing, AND at least one of** `{participation, rangeExpansion, priorDayInteraction}` — this second clause specifically prevents three correlated "price location" facts (rangeLocation + structure + distance-to-high) from qualifying a candidate with zero real volume or range-expansion evidence behind it |
+| Mirror requirement | Every rule and threshold above mirrors exactly for bearish candidates (lower range zone, lower-highs structure, surrendering a prior-day rally, underperforming benchmark) |
+
+### Rule A8 — Directional context language
+
+Display: **"Bullish context developing"** or **"Directional context: Bullish developing"** —
+a factual rules-based classification, never a prediction. Never "Bias: Bullish pressure
+building" or any language implying likelihood/confidence beyond what was actually measured.
+
+### Rule A9 — Confirmation and invalidation
+
+| Field | Definition |
+|---|---|
+| Confirmation (bullish) | Completed 5m close above active resistance, followed by either a second completed close above it, or a successful retest and bullish close |
+| Invalidation | Chosen from real structure only: premarket VWAP, latest confirmed higher-low/lower-high, premarket high/low, or the active breakout level after acceptance |
+| Missing-data behavior | If no defensible structural invalidation exists, display **"Invalidation: Not established"** — never invent a price |
+| Bearish mirror | Confirmation/invalidation logic mirrors exactly, substituting support for resistance |
+
+### Rule A10 — Freshness (reuses today's `insufficientData`/data-quality patterns throughout)
+
+| Field | Definition |
+|---|---|
+| Type | `{ scannedAt, latestCompletedBarAt, ageSeconds, status: "real_time" \| "delayed" \| "stale" \| "partial" \| "unavailable" }` |
+| Requirement | Never produce a new candidate alert from stale data |
+| Display requirement | UI must show "Scanned at 9:25 AM ET" and "Latest completed bar 9:24 AM ET" as visibly distinct values — never conflate scan time with market-data time (the exact class of confusion behind tonight's Action Queue timestamp fix) |
+
+### Display formats
+
+**Collapsed row** (concise, not every calculation):
+```
+GOOGL  $339.78  +$5.80 (+1.74%)
+Bullish PM Candidate · Expansion Rank 58
+PM volume 3.2× · PM position 91% · QQQ +1.12%
+```
+
+**Expanded evidence display**:
+```
+PREMARKET CONTEXT
+Move from prior close       +$5.80 (+1.74%)
+Volume pace                 3.2× median
+Premarket range             $6.10 · 1.8× median
+Position in range           91%
+Relative to QQQ             +1.12%
+Distance to prior high      $0.84 (0.24%)
+
+EVIDENCE
+Pass  Participation
+Pass  Range expansion
+Pass  Upper-range hold
+Pass  Relative strength
+Wait  Prior-day-high break
+
+NEXT
+Confirmation  Break and hold above $340.62
+Invalidation  Lose PM VWAP at $336.90
+```
+
+### Efficiency requirements
+
+Reuse the same fetched bars for every calculation above — do not fetch separately per rule.
+Fetch the benchmark once per scan cycle (already built for Rule D). Cache historical premarket
+baselines keyed by symbol, comparison cutoff time, and trading date — do not recompute 20
+historical sessions on every render. Keep all calculations in pure, testable functions, never
+inside React rendering.
+
+### Open architectural decisions — genuinely need your input before a build spec
+
+1. **`alignedTolerancePct` for Rule A5** — no default proposed yet; needs a real number.
+2. **The historical-baseline infrastructure itself** (rolling 20-session premarket volume/range
+   medians, cached) doesn't exist anywhere in the app — this is new, non-trivial plumbing, not
+   a small addition. Worth sizing honestly before committing to it.
+3. **What happens for a symbol without 10+ eligible historical premarket sessions** (newly
+   added to the watchlist, or newly listed) — Rule A2/A3 correctly degrade to
+   `insufficientData`, but worth deciding whether the whole candidate then can't qualify at
+   all, or just those two evidence groups become unavailable while others still count.
+4. **How this interacts with Feature E (momentum expansion)** — both are now "new setup type"
+   detectors evaluated separately from the reversal checklist. Worth deciding whether they're
+   fully independent, or whether a symbol satisfying both should be surfaced differently than
+   satisfying just one.
+
+This is intentionally left at the formalization stage — genuinely bigger than Rules B-D below,
+comparable to or larger than tonight's entire four-rule build. Worth its own dedicated session.
 
 ---
 
-## All three decisions — resolved
+## All three decisions — resolved (apply to Rules B and the original A1-A3, which Feature A above now supersedes)
 
-1. **Rejection threshold**: two-tier — **2%** = "Rejection" (matches the existing `intradayDecline` convention already running in production), **5%** = "Strong Rejection"
+1. **Rejection threshold** (original A1, superseded): two-tier — **2%** = "Rejection", **5%** = "Strong Rejection"
 2. **Momentum ladder**: percent-based, tiers **3%, 5%, 8%, 10%, 15%**, with the dollar-equivalent shown alongside each percentage in the display
 3. **Anchor**: `session_open`
-
-No open decisions remain. This document is now implementation-ready.
-
-### Rule A2 — Premarket reclaim of the rejected level
-
-**Implementation note (resolves a real gap found during build)**: `GetCandlesParams` has no
-`sessionScope` field today, and the provider hardcodes `filterToLatestSession(allCandles)`
-defaulting to `"regular"` — premarket bars never reach the scorer as things stand. Add an
-optional `sessionScope?: SessionScope` to `GetCandlesParams`, defaulting to today's exact
-existing behavior so nothing currently working changes, thread it through the provider(s),
-and fetch a premarket-scoped series specifically for this rule in `scanService.ts`.
-`filterToLatestSession`'s internal logic stays completely untouched — this only lets a
-caller explicitly request a scope it already knows how to produce.
-
-| Field | Definition |
-|---|---|
-| Rule ID | `premarket_reclaim` |
-| Required input | Premarket candles for *today*, session-filtered to `sessionScope: "extended"` bucket, restricted further to only the premarket window |
-| Exact formula | Genuine reclaim, same "was below, now closes above" pattern as existing EMA/VWAP reclaim detectors (not "currently above," a real cross) — `reclaimLevel = rejectionLevel` from Rule A1 |
-| Comparison operator | `gt` (close), cross-detection identical in structure to `detectVwapReclaim`'s "currently held" semantics fixed earlier today |
-| Configurable threshold | None beyond the reclaim itself — this is presence/absence, not a magnitude threshold |
-| Units | state (pass/waiting/fail) |
-| Evaluation timeframe | 5-minute premarket candles |
-| Minimum sample size | 2 premarket candles minimum (same floor as existing reclaim detectors) |
-| Missing-data behavior | `insufficientData: true` if fewer than 2 premarket candles exist yet (e.g. evaluated at 4:05am) — genuinely different from "checked and failed," per today's reporting-defect fix pattern |
-| Stale-data behavior | Free-tier IEX feed has materially thinner premarket coverage than regular hours (known, already-documented limitation) — if the premarket candle count is implausibly low for the time of day, flag `sparseData: true` in evidence rather than silently treating thin data as "no reclaim" |
-| Reset behavior | Fresh every trading day, tied to Rule A1's fresh `rejectionLevel` |
-| Evidence output | `reclaimLevel` (usd), `currentPremarketPrice` (usd), `reclaimCandleTime` (timestamp), `sparseData` (boolean) |
-
-### Rule A3 — Combined continuation signal
-
-| Field | Definition |
-|---|---|
-| Rule ID | `prior_day_continuation` |
-| Required input | Results of A1 and A2 |
-| Exact formula | `passed = A1.passed && A2.passed` |
-| Missing-data behavior | If either A1 or A2 is `insufficientData`, the combined result is `insufficientData`, never silently treated as fail |
-| Evidence output | Combines both sub-rules' evidence into one message: e.g. "Prior-day rejection at $220.10 (−2.3%), premarket reclaimed at $221.40" |
-
-**What this rule explicitly does NOT do** (per Codex's language requirements): it does not
-predict continuation into the regular session. Display language must read like "Prior-day
-selloff recovery is developing; premarket has reclaimed the rejected level" — never "this
-means the stock will continue higher" or any probability/confidence claim.
 
 ---
 
@@ -274,7 +362,116 @@ polish.
 
 
 
-## Build spec — ready to hand to Claude Code
+---
+
+## Feature E — Momentum Expansion (a genuinely separate setup type)
+
+**Why this exists**: confirmed live on 2026-07-31 — GOOGL moved from ~$328 to ~$358 intraday
+(a real, catalyst-driven breakout, not a decline-then-recovery pattern) and scored only 4.2/10,
+never alerting, because every existing core condition (`recovery_from_low`, `structure_shift`,
+`liquidity_sweep`) assumes a prior selloff that never happened here. The existing scanner is,
+structurally, a **reversal detector** — it has no way to recognize "this is already breaking out
+and continuing" at all. This isn't a tuning problem; it's a missing setup type, matching what
+the Codex ranking-layer spec (discussed earlier tonight) called "momentum expansion" as
+distinct from "pullback continuation."
+
+**Architectural consequence, stated plainly**: this requires evaluating each symbol against
+**two independent condition sets** — the existing reversal checklist, and a new momentum
+checklist — rather than adding one more line to the existing required-conditions list. A
+symbol can qualify under either, both, or neither. This is bigger than Rules A-D tonight, and
+closer in size to the original rule-engine build.
+
+### Rule E1 — Rapid expansion (ATR-relative, not a fixed percentage)
+
+| Field | Definition |
+|---|---|
+| Rule ID | `rapid_expansion` |
+| Required input | Session candles + existing ATR calculation (`calculateAtr`, already built) |
+| Exact formula | `priceChangeOverWindow = candles[last].close - candles[last - N].close` (N = lookback, default 6 candles); `expansionRatio = abs(priceChangeOverWindow) / currentAtr` |
+| Comparison operator | `gte` |
+| Configurable threshold | `expansionRatio >= 2.0` — moved at least 2x its own normal ATR-based range within the lookback window. ATR-relative (not fixed %) specifically because "unusual" is inherently volatility-relative — a $2 move means something different for a $20 stock than a $850 one. Explicitly "unvalidated default." |
+| Units | ratio (ATR multiples) |
+| Evaluation timeframe | Same as setup (5m/15m) |
+| Minimum sample size | N+1 candles |
+| Missing-data behavior | `insufficientData: true` if fewer than N+1 candles or ATR unavailable |
+| Reset behavior | Recomputed every scan — this is a "right now" measurement, no persisted state |
+| Evidence output | `priceChangeOverWindow` (usd), `currentAtr` (usd), `expansionRatio` (ratio) |
+
+### Rule E2 — Directional consistency (filters out chop, not just volatility)
+
+| Field | Definition |
+|---|---|
+| Rule ID | `directional_consistency` |
+| Required input | Same N-candle window as E1 |
+| Exact formula | `sameDirectionCount` = candles closing in the same direction as the overall window move; `directionalRatio = sameDirectionCount / N` |
+| Comparison operator | `gte` |
+| Configurable threshold | `directionalRatio >= 0.6` — at least 60% of candles agree with the overall direction, so a genuinely choppy/whipsaw stock with high ATR but no real direction doesn't false-positive |
+| Missing-data behavior | Same as E1 |
+| Evidence output | `sameDirectionCount`, `totalCandles`, `directionalRatio` |
+
+### Rule E3 — Volume confirmation (reuse, do not reimplement)
+
+Reuses the existing `detectVolumeConfirmation` detector exactly as built — no new formula.
+Required for this setup type (unlike its optional role in the reversal checklist), since real
+participation is what separates a genuine breakout from a low-volume drift.
+
+### Rule E4 — Not excessively extended (reuse, do not reimplement)
+
+Reuses the existing ATR-based extension logic already driving `entryStatus`'s
+`extended_do_not_chase` state. Required for this setup type — directly matches Codex's own
+explicit callout ("Not excessively extended... a high-scoring setup can still be marked
+extended").
+
+### Rule E5 — Combined momentum expansion signal
+
+| Field | Definition |
+|---|---|
+| Rule ID | `momentum_expansion` |
+| Exact formula | `passed = E1.passed && E2.passed && E3.passed && !extended` |
+| FVG requirement | Explicitly NOT required, matching both tonight's C1 decision and Codex's original ranking-layer spec |
+| Evidence output | Combined message, e.g. "Rapid expansion: 2.4x ATR over 30min, 83% directional consistency, volume confirmed, not extended" |
+
+**What this rule explicitly does NOT do**: predict the move continues. Same anti-overclaiming
+language discipline as everything else — "momentum expansion detected" is a description of
+what already happened in the data, never a forecast.
+
+### Real, honest limits (say this plainly, don't oversell)
+
+1. This can only recognize a move once real candles exist showing it — it cannot alert before
+   any price action has happened. It can catch a breakout meaningfully earlier than "never,"
+   not at the literal first tick.
+2. It has zero access to *why* a move is happening (earnings, news, guidance) — that requires
+   a completely separate data source (an earnings/news calendar) not integrated anywhere in
+   this app. This detects the shape of the move, not its cause.
+
+## Open architectural decisions — genuinely need your input before any build spec
+
+1. **How does a `momentum_expansion` qualification surface on the dashboard** alongside the
+   existing reversal-based stage/status? Does a symbol get a second, independent
+   score/status specifically for this setup type, shown alongside the existing one? Or does
+   qualifying under momentum expansion elevate the existing `convictionLevel` some other way?
+   This needs a real UI decision, not a guess.
+2. **Does `Ranked Opportunities` need a way to show which setup type a symbol qualified
+   under** (reversal vs. momentum expansion vs. both), so you can tell at a glance which kind
+   of setup you're looking at?
+3. **E1's lookback window (6 candles) and thresholds (2.0x ATR, 60% directional consistency)**
+   are unvalidated starting guesses, same status as tonight's other unvalidated defaults —
+   worth sitting with real examples (like today's GOOGL candles) before locking in.
+
+This is intentionally left at the formalization stage, not a build spec — this is genuinely
+bigger than tonight's Rules A-D and deserves its own dedicated session to work through the
+architecture decisions above properly, not a rushed default at the end of a very long night.
+
+---
+
+## Build spec — already executed tonight (historical record, kept for reference)
+
+**Note on Rule A specifically**: this section describes what was actually built and shipped
+tonight, which used the *original*, simpler three-rule prior-day/premarket continuation
+detector (rejection + reclaim + combined) — not the more rigorous Premarket Expansion
+Candidate formalization above, which is a proposed *replacement* for future work, not yet
+built. If Feature A above gets implemented later, it should replace the live
+`priorDayContinuation.ts` described below, not sit alongside it.
 
 BEFORE EDITING
 
@@ -294,11 +491,11 @@ Do not change:
 
 REQUIRED IMPLEMENTATION
 
-**Rule A (prior-day/premarket continuation)**: new file `lib/indicators/priorDayContinuation.ts`
-implementing Rules A1-A3 exactly as specified above — two-tier rejection (2%/5%), genuine
-premarket reclaim using the same "currently held, not just touched" pattern already proven in
-`detectVwapReclaim`/`detectEmaReclaim`, combined into one condition. Add as a new, optional
-(not required) condition in the checklist, category `secondary`.
+**Rule A (prior-day/premarket continuation, original simpler version — already built)**: new
+file `lib/indicators/priorDayContinuation.ts` implementing the original Rules A1-A3 — two-tier
+rejection (2%/5%), genuine premarket reclaim using the same "currently held, not just touched"
+pattern already proven in `detectVwapReclaim`/`detectEmaReclaim`, combined into one condition.
+Added as a new, optional (not required) condition in the checklist, category `secondary`.
 
 **Rule B (momentum ladder)**: new file `lib/indicators/momentumLadder.ts` implementing Rules
 B1-B3 exactly as specified above — `session_open` anchor, 5-tier percent ladder with dollar

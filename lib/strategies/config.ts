@@ -99,6 +99,76 @@ export interface StrategyConfig {
     /** Per-symbol overrides, e.g. semiconductor names -> SMH. */
     overrides: Record<string, string>;
   };
+  /**
+   * Premarket Expansion Candidate.
+   *
+   * NOTE: there is deliberately no rank/score here. The approved spec
+   * removes Expansion Rank entirely and forbids replacing it with another
+   * numerical score — evidence groups are presented as counts and states,
+   * never blended into one number.
+   */
+  premarketExpansion: {
+    /** How many prior sessions the baseline medians are taken over. */
+    lookbackSessions: number;
+    /** Below this many ELIGIBLE sessions, volume/range baselines report insufficientData. */
+    minBaselineSessions: number;
+    /** Premarket must have run at least this long before a volume pace is computed. */
+    minimumElapsedPremarketMinutes: number;
+    /**
+     * Operational noise floor for the baseline median cumulative volume —
+     * NOT a validated trading threshold. Below it, a "pace" is a ratio of
+     * two rounding errors.
+     */
+    minimumBaselineMedianVolume: number;
+    /**
+     * Half-width, in percentage points, of the "Approximately aligned"
+     * band around zero relative performance. UNVALIDATED scanner default:
+     * a quarter of a percentage point is inside ordinary premarket noise
+     * for a large-cap against QQQ. The computed difference is always
+     * displayed next to the label so this never has to be trusted alone.
+     */
+    alignedTolerancePct: number;
+    /** Prior-level "approaching" tolerance; the LARGER of percent/ATR wins. */
+    priorLevelApproachPercent: number;
+    priorLevelApproachAtrFraction: number;
+    /** Tighter band, inside which price is "Testing level" rather than approaching. */
+    priorLevelTestingPercent: number;
+    /**
+     * Minimum completed premarket bars BEFORE the evaluation bar needed to
+     * establish a reference range. One bar, or a zero-width range, is
+     * insufficient data.
+     */
+    minReferenceBars: number;
+    /** Range-position zone boundaries, in percent of the reference range. */
+    rangeZoneUpperPct: number;
+    rangeZoneLowerPct: number;
+    /** `structure` group — pivot length used on premarket bars. */
+    structurePivotLength: number;
+    /**
+     * Multiple of the baseline median that today's elapsed premarket volume
+     * must reach for the participation group to pass. UNVALIDATED scanner
+     * default — centralized here rather than inlined in the detector so it
+     * is tunable and visible, not so it carries any statistical authority.
+     */
+    volumePaceMinMultiple: number;
+    /** The same, for the session range against its baseline median. */
+    rangeExpansionMinMultiple: number;
+    /**
+     * How many CONSECUTIVE completed confirmation closes beyond the frozen
+     * level acceptance requires. Consecutive, not cumulative: a break, a
+     * failed close back through, and a second break is two attempts.
+     */
+    requiredConsecutiveCloses: number;
+    /** How many of the six evidence groups must pass. */
+    minGroupsToQualify: number;
+    /**
+     * Freshness boundary, in candle intervals. A real-time feed's latest
+     * completed bar may be at most this many intervals old (10 minutes on
+     * 5m confirmation candles); beyond it the data is stale and blocks new
+     * alerts. There is deliberately no undefined band above this.
+     */
+    freshnessIntervalAllowance: number;
+  };
 }
 
 export const defaultStrategyConfig: StrategyConfig = {
@@ -171,5 +241,30 @@ export const defaultStrategyConfig: StrategyConfig = {
   benchmarkAlignment: {
     defaultBenchmark: "QQQ",
     overrides: {},
+  },
+  premarketExpansion: {
+    lookbackSessions: 20,
+    minBaselineSessions: 10,
+    minimumElapsedPremarketMinutes: 15,
+    minimumBaselineMedianVolume: 500,
+    alignedTolerancePct: 0.25,
+    // Unvalidated scanner defaults, not probabilities — the display
+    // always shows the real distance alongside any "Approaching" label.
+    priorLevelApproachPercent: 0.25,
+    priorLevelApproachAtrFraction: 0.1,
+    priorLevelTestingPercent: 0.05,
+    minReferenceBars: 2,
+    rangeZoneUpperPct: 75,
+    rangeZoneLowerPct: 25,
+    // Shorter than the 3 used on regular-session bars: premarket holds
+    // far fewer candles, and a length-3 fractal needs 7 bars to confirm a
+    // single pivot, which would leave the structure group unevaluatable
+    // for most of the morning.
+    structurePivotLength: 2,
+    volumePaceMinMultiple: 1.5,
+    rangeExpansionMinMultiple: 1.5,
+    requiredConsecutiveCloses: 2,
+    minGroupsToQualify: 3,
+    freshnessIntervalAllowance: 2,
   },
 };

@@ -1,19 +1,53 @@
-import type { Candle, CandleSeries, DataQuality, Timeframe } from "@/types/candle";
+import type {
+  Candle,
+  CandleSeries,
+  DataQuality,
+  PaginationStatus,
+  Timeframe,
+} from "@/types/candle";
+import { DEFAULT_BAR_ADJUSTMENT } from "../types";
 import type { GetCandlesParams, MarketDataProvider, SessionInfo } from "../types";
 import { computeSessionInfo } from "../session";
 import { RateLimiter } from "../rateLimiter";
 import { TtlCache, CANDLE_CACHE_TTL_MS } from "../cache";
-import { filterToLatestSession } from "../sessionFilter";
+import { filterToLatestSession, filterToRecentSessions } from "../sessionFilter";
 
 const ALPACA_DATA_BASE_URL = "https://data.alpaca.markets/v2";
 
+/** Alpaca's hard per-page bar ceiling. */
+export const ALPACA_MAX_BARS_PER_PAGE = 10_000;
+
 /**
- * Ceiling on `next_page_token` follows for a single getCandles call. Four
- * pages covers ~40,000 bars — comfortably more than 20 sessions of
- * 1-minute data — while bounding the worst case if the provider ever
- * returns a non-terminating token chain.
+ * Default ceiling on `next_page_token` follows for a single getCandles
+ * call. Four pages covers ~40,000 bars — comfortably more than 21 sessions
+ * of extended-hours 1-minute data — while bounding the worst case if the
+ * provider ever returns a non-terminating token chain.
+ *
+ * Deliberately kept as a DEFENSIVE bound rather than raised whenever a
+ * response is truncated: a request that does not fit inside it is a
+ * request that has been sized wrong, and `requestFitsWithinPageCap` exists
+ * so that is visible up front instead of showing up as missing recent
+ * sessions. Configurable per provider instance.
  */
-const MAX_BAR_PAGES = 4;
+export const DEFAULT_MAX_BAR_PAGES = 4;
+
+/** How many pages a bar budget needs at Alpaca's per-page cap. */
+export function estimatePagesRequired(
+  barCount: number,
+  barsPerPage: number = ALPACA_MAX_BARS_PER_PAGE
+): number {
+  if (!Number.isFinite(barCount) || barCount <= 0) return 1;
+  return Math.max(1, Math.ceil(barCount / barsPerPage));
+}
+
+/** Whether an intended request can be served without hitting the page cap. */
+export function requestFitsWithinPageCap(
+  barCount: number,
+  maxPages: number = DEFAULT_MAX_BAR_PAGES,
+  barsPerPage: number = ALPACA_MAX_BARS_PER_PAGE
+): boolean {
+  return estimatePagesRequired(barCount, barsPerPage) <= maxPages;
+}
 
 const TIMEFRAME_TO_ALPACA: Record<Timeframe, string> = {
   "1m": "1Min",
@@ -70,7 +104,7 @@ export interface AlpacaProviderConfig {
  * the side of "too many calendar days" rather than risking an empty
  * response again).
  */
-function lookbackDays(timeframe: Timeframe, limit: number): number {
+function lookbackDays(timeframe: Timeframe, limit: number, sessionCount: number): number {
   if (timeframe === "1d") {
     // Roughly 5 trading days per 7 calendar days, plus a buffer for holidays.
     return Math.ceil(limit * 1.6) + 10;
@@ -78,22 +112,45 @@ function lookbackDays(timeframe: Timeframe, limit: number): number {
   if (timeframe === "1m") {
     // 1m is the only timeframe whose historical baselines reach back many
     // SESSIONS (20 by default, for the dollar-volume and true-range
-    // time-of-day medians), so the flat 6-day window below is nowhere
-    // near enough — 6 calendar days is ~4 sessions. A regular session
-    // holds ~390 one-minute bars; premarket adds more, so this
-    // deliberately over-estimates rather than risk a window that cannot
-    // reach the requested bar count.
-    const sessionsNeeded = Math.max(1, Math.ceil(limit / 390));
-    return Math.ceil(sessionsNeeded * 1.6) + 5;
+    // time-of-day medians), so the flat 6-day window below is nowhere near
+    // enough — 6 calendar days is ~4 sessions.
+    //
+    // Sized from `sessionCount` ALONE, deliberately. The bar limit used to
+    // participate via `ceil(limit / 390)`, but a caller's bar budget is an
+    // upper bound on BARS, not a statement about calendar span: the
+    // historical cache asks for 960 bars per session (16 extended hours),
+    // and dividing that by a 390-bar regular session inflated a 21-session
+    // request into ~52 sessions and an ~89-day window. Alpaca paginates
+    // oldest-first, so the extra breadth pushed the response past the page
+    // cap and dropped the NEWEST sessions, today included, while still
+    // looking like a complete answer.
+    //
+    // ~5 trading days per 7 calendar days means 1.4 calendar days per
+    // session; 1.6 is the conservative form, and the flat buffer covers
+    // holiday clusters (no market-holiday calendar exists here yet — see
+    // session.ts). The buffer matches the 6-day floor the other intraday
+    // timeframes use for a single session.
+    return Math.ceil(Math.max(1, sessionCount) * 1.6) + 6;
   }
   // Intraday (5m/15m): a handful of calendar days comfortably reaches
   // back across any weekend, even a 3-day holiday weekend.
-  return 6;
+  if (sessionCount <= 1) return 6;
+  // ...but an explicit multi-session request (a historical baseline) has
+  // to widen the same way 1m does, or the window silently caps the
+  // baseline at whatever ~4 sessions fit in 6 calendar days. Deliberately
+  // left as a separate branch so the single-session default — every
+  // existing caller — keeps the exact 6-day window it has today.
+  return Math.ceil(sessionCount * 1.6) + 5;
 }
 
 /** Pure, testable: computes the ISO start timestamp for a given lookback window. */
-export function computeStartDate(now: Date, timeframe: Timeframe, limit: number): string {
-  const days = lookbackDays(timeframe, limit);
+export function computeStartDate(
+  now: Date,
+  timeframe: Timeframe,
+  limit: number,
+  sessionCount: number = 1
+): string {
+  const days = lookbackDays(timeframe, limit, sessionCount);
   const start = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
   return start.toISOString();
 }
@@ -195,7 +252,13 @@ export class AlpacaProvider implements MarketDataProvider {
      * a tiny value (e.g. 50ms) and assert on abort behavior almost
      * instantly instead of needing real multi-second waits.
      */
-    private requestTimeoutMs: number = 10_000
+    private requestTimeoutMs: number = 10_000,
+    /**
+     * Defensive ceiling on page follows. Configurable so a test can prove
+     * the cap is reported rather than hidden, and so an operator can raise
+     * it deliberately — not so truncation can be papered over.
+     */
+    private maxBarPages: number = DEFAULT_MAX_BAR_PAGES
   ) {
     if (!config.apiKeyId || !config.apiSecretKey) {
       throw new Error(
@@ -344,12 +407,28 @@ export class AlpacaProvider implements MarketDataProvider {
   }
 
   async getCandles(params: GetCandlesParams): Promise<CandleSeries> {
-    const { symbol, timeframe, limit = 100, deadlineAt, sessionScope = "regular" } = params;
+    const {
+      symbol,
+      timeframe,
+      limit = 100,
+      deadlineAt,
+      sessionScope = "regular",
+      sessionCount = 1,
+      adjustment = DEFAULT_BAR_ADJUSTMENT,
+    } = params;
     const quality = this.dataQuality();
-    // sessionScope MUST be part of the key: the same symbol/timeframe/limit
-    // yields a different candle set per scope, so omitting it would serve
-    // regular-hours bars to a premarket request (or vice versa) from cache.
-    const cacheKey = `${symbol}:${timeframe}:${limit}:${sessionScope}`;
+    // sessionScope and sessionCount MUST both be part of the key: the same
+    // symbol/timeframe/limit yields a different candle set per scope, so
+    // omitting scope would serve regular-hours bars to a premarket request
+    // (or vice versa) from cache — and omitting sessionCount would serve a
+    // single collapsed session to a 20-session baseline request, which
+    // fails silently as "only 1 eligible session" rather than as an error.
+    //
+    // The feed and adjustment mode belong here for the same reason: IEX and
+    // SIP return different premarket coverage, and raw and adjusted bars are
+    // different prices for the same session.
+    const feed = this.config.feed ?? "iex";
+    const cacheKey = `${feed}:${adjustment}:${symbol}:${timeframe}:${limit}:${sessionScope}:${sessionCount}`;
 
     const cached = this.cache.get(cacheKey);
     if (cached) return cached;
@@ -365,14 +444,14 @@ export class AlpacaProvider implements MarketDataProvider {
     // always requesting a generously oversized batch (comfortably more
     // than any realistic window could contain) and keeping only the
     // most recent `limit` candles ourselves before returning.
-    const fetchLimit = Math.min(Math.max(limit * 5, 500), 10_000);
+    const fetchLimit = Math.min(Math.max(limit * 5, 500), ALPACA_MAX_BARS_PER_PAGE);
 
     const url = new URL(`${ALPACA_DATA_BASE_URL}/stocks/${symbol}/bars`);
     url.searchParams.set("timeframe", alpacaTimeframe);
     url.searchParams.set("limit", String(fetchLimit));
-    url.searchParams.set("feed", this.config.feed ?? "iex");
-    url.searchParams.set("adjustment", "raw");
-    url.searchParams.set("start", computeStartDate(new Date(), timeframe, limit));
+    url.searchParams.set("feed", feed);
+    url.searchParams.set("adjustment", adjustment);
+    url.searchParams.set("start", computeStartDate(new Date(), timeframe, limit, sessionCount));
 
     // Pagination: `next_page_token` was declared on the response type but
     // never followed, which silently truncated any window larger than one
@@ -380,6 +459,11 @@ export class AlpacaProvider implements MarketDataProvider {
     // 1-minute bars is ~14,000 — well past Alpaca's 10,000-per-page cap,
     // so the tail was being dropped without any error. Pages are capped so
     // a runaway token loop can't consume the whole request budget.
+    //
+    // The cap is reported, not hidden. Alpaca paginates OLDEST-FIRST, so
+    // stopping early loses the NEWEST bars — today's session included —
+    // while the array that comes back looks entirely ordinary. A result is
+    // complete only when the chain ended with no token left.
     const rawBars: AlpacaBar[] = [];
     let pageToken: string | null = null;
     let pagesFetched = 0;
@@ -404,7 +488,17 @@ export class AlpacaProvider implements MarketDataProvider {
 
       pageToken = data.next_page_token ?? null;
       pagesFetched += 1;
-    } while (pageToken && pagesFetched < MAX_BAR_PAGES);
+    } while (pageToken && pagesFetched < this.maxBarPages);
+
+    const nextPageTokenRemaining = pageToken !== null;
+    const pagination: PaginationStatus = {
+      complete: !nextPageTokenRemaining,
+      pagesFetched,
+      nextPageTokenRemaining,
+      // Deadline exhaustion and provider errors abort the whole call by
+      // throwing, so the only truncation that can reach here is the cap.
+      truncationReason: nextPageTokenRemaining ? "page_cap_reached" : null,
+    };
 
     const allCandles = rawBars.map(mapAlpacaBar);
 
@@ -415,15 +509,24 @@ export class AlpacaProvider implements MarketDataProvider {
     // slicing to `limit`, or session-scoped calculations (VWAP, session
     // high/low, decline-from-open) silently mix days together. See
     // filterToLatestSession()'s own comment for the full reasoning.
+    //
+    // A caller asking for more than one session (a historical baseline)
+    // gets the most recent `sessionCount` sessions concatenated in
+    // chronological order instead — same scope filter, same day-bucketing,
+    // just without discarding everything but the last group.
     const sessionScoped =
-      timeframe === "1d" ? allCandles : filterToLatestSession(allCandles, sessionScope);
+      timeframe === "1d"
+        ? allCandles
+        : sessionCount > 1
+        ? filterToRecentSessions(allCandles, sessionCount, sessionScope).flatMap((g) => g.candles)
+        : filterToLatestSession(allCandles, sessionScope);
 
     // Bars come back chronologically ascending, so the most recent ones
     // are at the end — keep only however many the caller actually asked
     // for, from within the correctly session-scoped set.
     const candles = sessionScoped.slice(-limit);
 
-    const series: CandleSeries = { symbol, timeframe, quality, candles };
+    const series: CandleSeries = { symbol, timeframe, quality, candles, pagination };
     this.cache.set(cacheKey, series, CANDLE_CACHE_TTL_MS[timeframe]);
     return series;
   }

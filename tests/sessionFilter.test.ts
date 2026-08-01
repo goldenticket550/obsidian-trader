@@ -1,8 +1,10 @@
 import { describe, it, expect } from "vitest";
 import {
   filterToLatestSession,
+  filterToRecentSessions,
   findPreviousClose,
   findPreviousDailyCandle,
+  groupBySession,
 } from "@/lib/market-data/sessionFilter";
 import type { Candle } from "@/types/candle";
 import { makeCandle } from "@/lib/fixtures/candles";
@@ -67,6 +69,122 @@ describe("filterToLatestSession", () => {
     const result = filterToLatestSession(candles);
     expect(result.length).toBe(2);
     expect(result.every((c) => c.close >= 200)).toBe(true);
+  });
+});
+
+describe("groupBySession — the generalized grouping filterToLatestSession is built on", () => {
+  const WED = Date.parse("2026-07-08T14:00:00Z"); // 10:00 AM EDT Wednesday
+  const PREMARKET_MON = Date.parse("2026-07-13T09:00:00Z"); // 5:00 AM ET Monday
+
+  it("returns every session, not just the latest", () => {
+    const groups = groupBySession([
+      makeCandle({ time: secondsFromMs(WED), close: 50 }),
+      makeCandle({ time: secondsFromMs(FRIDAY_MORNING), close: 100 }),
+      makeCandle({ time: secondsFromMs(MONDAY_MORNING), close: 200 }),
+    ]);
+    expect(groups.map((g) => g.tradingDate)).toEqual([
+      "2026-07-08",
+      "2026-07-10",
+      "2026-07-13",
+    ]);
+  });
+
+  it("orders groups ascending by trading date even for out-of-order input", () => {
+    const groups = groupBySession([
+      makeCandle({ time: secondsFromMs(MONDAY_MORNING), close: 200 }),
+      makeCandle({ time: secondsFromMs(WED), close: 50 }),
+      makeCandle({ time: secondsFromMs(FRIDAY_MORNING), close: 100 }),
+    ]);
+    expect(groups.map((g) => g.tradingDate)).toEqual([
+      "2026-07-08",
+      "2026-07-10",
+      "2026-07-13",
+    ]);
+  });
+
+  it("collects every candle from the same date into one group, in input order", () => {
+    const groups = groupBySession([
+      makeCandle({ time: secondsFromMs(FRIDAY_MORNING), close: 100 }),
+      makeCandle({ time: secondsFromMs(FRIDAY_AFTERNOON), close: 101 }),
+    ]);
+    expect(groups).toHaveLength(1);
+    expect(groups[0].candles.map((c) => c.close)).toEqual([100, 101]);
+  });
+
+  it("applies the scope filter BEFORE grouping, so an out-of-scope print creates no group", () => {
+    // The round-4 bug in group form: a single pre-market print today must
+    // not produce an empty (or premarket-only) 'today' group that outranks
+    // Friday's genuinely complete regular session.
+    const groups = groupBySession([
+      makeCandle({ time: secondsFromMs(FRIDAY_MORNING), close: 100 }),
+      makeCandle({ time: secondsFromMs(PREMARKET_MON), close: 333 }),
+    ]);
+    expect(groups.map((g) => g.tradingDate)).toEqual(["2026-07-10"]);
+  });
+
+  it("includes the premarket group under extended scope", () => {
+    const groups = groupBySession(
+      [
+        makeCandle({ time: secondsFromMs(FRIDAY_MORNING), close: 100 }),
+        makeCandle({ time: secondsFromMs(PREMARKET_MON), close: 333 }),
+      ],
+      "extended"
+    );
+    expect(groups.map((g) => g.tradingDate)).toEqual(["2026-07-10", "2026-07-13"]);
+  });
+
+  it("returns an empty array for no candles and for nothing in scope", () => {
+    expect(groupBySession([])).toEqual([]);
+    expect(groupBySession([makeCandle({ time: secondsFromMs(PREMARKET_MON) })])).toEqual([]);
+  });
+
+  it("filterToLatestSession is exactly its last group", () => {
+    // The wrapper relationship, asserted directly rather than assumed —
+    // the same guarantee findPreviousClose has against findPreviousDailyCandle.
+    const candles = [
+      makeCandle({ time: secondsFromMs(WED), close: 50 }),
+      makeCandle({ time: secondsFromMs(FRIDAY_MORNING), close: 100 }),
+      makeCandle({ time: secondsFromMs(MONDAY_MORNING), close: 200 }),
+      makeCandle({ time: secondsFromMs(MONDAY_MIDDAY), close: 201 }),
+    ];
+    for (const scope of ["regular", "extended", "all"] as const) {
+      const groups = groupBySession(candles, scope);
+      expect(filterToLatestSession(candles, scope)).toEqual(
+        groups.length > 0 ? groups[groups.length - 1].candles : []
+      );
+    }
+  });
+});
+
+describe("filterToRecentSessions", () => {
+  const WED = Date.parse("2026-07-08T14:00:00Z");
+
+  const threeDays = [
+    makeCandle({ time: secondsFromMs(WED), close: 50 }),
+    makeCandle({ time: secondsFromMs(FRIDAY_MORNING), close: 100 }),
+    makeCandle({ time: secondsFromMs(MONDAY_MORNING), close: 200 }),
+  ];
+
+  it("keeps the most recent n sessions, oldest first", () => {
+    const groups = filterToRecentSessions(threeDays, 2);
+    expect(groups.map((g) => g.tradingDate)).toEqual(["2026-07-10", "2026-07-13"]);
+  });
+
+  it("returns everything available when fewer sessions exist than requested", () => {
+    // Callers must treat a short result as insufficient data rather than
+    // averaging over whatever happened to be there — this only guarantees
+    // it does not throw or pad.
+    expect(filterToRecentSessions(threeDays, 20)).toHaveLength(3);
+  });
+
+  it("returns nothing for a non-positive count", () => {
+    expect(filterToRecentSessions(threeDays, 0)).toEqual([]);
+    expect(filterToRecentSessions(threeDays, -1)).toEqual([]);
+  });
+
+  it("agrees with filterToLatestSession at n = 1", () => {
+    const [only] = filterToRecentSessions(threeDays, 1);
+    expect(only.candles).toEqual(filterToLatestSession(threeDays));
   });
 });
 

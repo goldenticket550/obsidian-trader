@@ -25,10 +25,20 @@ describe("1m timeframe — provider foundation", () => {
     expect(daysBack(wide)).toBeGreaterThan(6);
   });
 
-  it("scales the 1m window with the requested bar count", () => {
-    const small = daysBack(computeStartDate(NOW, "1m", 390)); // ~1 session
-    const large = daysBack(computeStartDate(NOW, "1m", 7_800)); // ~20 sessions
+  it("scales the 1m window with the requested SESSION count, not the bar count", () => {
+    // Stage 1 sized this window from `ceil(limit / 390)`. That was wrong:
+    // a bar budget is an upper bound on bars, not a statement about
+    // calendar span, and the historical cache asks for 960 bars per
+    // session (16 extended hours). Dividing that by a 390-bar regular
+    // session inflated a 21-session request into an ~89-day window, which
+    // pushed the oldest-first page chain past its cap and dropped the
+    // NEWEST sessions — today included — with no error.
+    const small = daysBack(computeStartDate(NOW, "1m", 390, 1));
+    const large = daysBack(computeStartDate(NOW, "1m", 390, 20));
     expect(large).toBeGreaterThan(small);
+
+    // The bar count no longer moves the window at all.
+    expect(computeStartDate(NOW, "1m", 390, 20)).toBe(computeStartDate(NOW, "1m", 7_800, 20));
   });
 
   it("leaves the 5m and 15m lookback untouched at 6 days", () => {
