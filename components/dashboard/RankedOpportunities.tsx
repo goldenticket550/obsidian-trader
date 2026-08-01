@@ -9,6 +9,7 @@ import {
   selectQualifyingExpansion,
 } from "./ExpansionCandidatePanel";
 import type { SymbolExpansion } from "@/lib/scanner/scanService";
+import type { SymbolExpansionMonitor } from "@/lib/scanner/expansionMonitor";
 import { stageLabel } from "@/lib/indicators/premarketExpansionDisplay";
 import { rankOpportunities, RANKING_RULE_DESCRIPTION } from "@/lib/scanner/ranking";
 import { formatEasternTime } from "@/lib/market-data/freshness";
@@ -51,6 +52,7 @@ export function RankedOpportunities({
   loading,
   scoreThreshold,
   expansionBySymbol,
+  expansionMonitorBySymbol,
 }: {
   symbols: WatchlistSymbol[];
   resultsBySymbol: Record<string, { "5m": SetupResult; "15m": SetupResult }>;
@@ -62,6 +64,8 @@ export function RankedOpportunities({
    * existed — no chip, no panel.
    */
   expansionBySymbol?: Record<string, SymbolExpansion>;
+  /** The one-minute layer, when the scan evaluated it. Equally optional. */
+  expansionMonitorBySymbol?: Record<string, SymbolExpansionMonitor>;
 }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [timeframes, setTimeframes] = useState<Record<string, "5m" | "15m">>({});
@@ -283,7 +287,11 @@ export function RankedOpportunities({
                           is reached only by scrolling past everything
                           else, which buries the thing the row's badge just
                           advertised. */}
-                      <ExpansionCandidatePanel expansion={expansion} />
+                      <ExpansionCandidatePanel
+                        expansion={expansion}
+                        monitor={expansionMonitorBySymbol?.[s.ticker]}
+                        entryStatus={entry}
+                      />
                       <SetupDetail
                         result={detail}
                         exchange={s.exchange}

@@ -2,7 +2,13 @@
 import { describe, it, expect, beforeAll, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
 import { RankedOpportunities } from "@/components/dashboard/RankedOpportunities";
-import { ExpansionCandidatePanel } from "@/components/dashboard/ExpansionCandidatePanel";
+import {
+  ExpansionCandidatePanel,
+  buildStageRail,
+  ladderPillStates,
+} from "@/components/dashboard/ExpansionCandidatePanel";
+import type { SymbolExpansionMonitor } from "@/lib/scanner/expansionMonitor";
+import type { MilestoneState, MomentumLadderResult } from "@/lib/indicators/momentumLadder";
 import { scanWatchlistWithProvider, resetExpansionBaselineCache } from "@/lib/scanner/scanService";
 import type { SymbolExpansion } from "@/lib/scanner/scanService";
 import { EXPANSION_STAGE_PRIORITY } from "@/lib/scanner/expansionPriority";
@@ -16,6 +22,8 @@ import {
   EXPANDING,
   ORDINARY,
   SCAN_NOW,
+  SCAN_NOW_MIDDAY,
+  MIDDAY_LAST_BAR_MINUTE,
 } from "./support/expansionScanFixture";
 
 afterEach(cleanup);
@@ -36,6 +44,7 @@ const PRE_OPEN_NOW = "2026-07-13T08:00:00Z";
 let symbols: WatchlistSymbol[];
 let resultsBySymbol: Record<string, { "5m": SetupResult; "15m": SetupResult }>;
 let expansionBySymbol: Record<string, SymbolExpansion>;
+let monitorBySymbol: Record<string, SymbolExpansionMonitor>;
 
 beforeAll(async () => {
   resetExpansionBaselineCache();
@@ -70,9 +79,13 @@ beforeAll(async () => {
   symbols = scan.watchlist;
   resultsBySymbol = scan.resultsBySymbol;
   expansionBySymbol = scan.expansionBySymbol!;
+  monitorBySymbol = scan.expansionMonitorBySymbol!;
 });
 
-function renderRanked(expansion?: Record<string, SymbolExpansion>) {
+function renderRanked(
+  expansion?: Record<string, SymbolExpansion>,
+  monitor?: Record<string, SymbolExpansionMonitor>
+) {
   return render(
     <RankedOpportunities
       symbols={symbols}
@@ -80,6 +93,7 @@ function renderRanked(expansion?: Record<string, SymbolExpansion>) {
       loading={false}
       scoreThreshold={6}
       expansionBySymbol={expansion}
+      expansionMonitorBySymbol={monitor}
     />
   );
 }
@@ -155,7 +169,8 @@ describe("expansion detail panel", () => {
     openRow(container, "EXPD");
 
     const panel = screen.getByTestId("expansion-panel");
-    expect(panel.textContent).toContain("Premarket Expansion Candidate");
+    // The header now leads with the ticker and its move.
+    expect(panel.textContent).toContain("EXPD");
     for (const label of [
       "Participation",
       "Range expansion",
@@ -179,7 +194,13 @@ describe("expansion detail panel", () => {
     // The monospace log-dump is gone.
     expect(panel.querySelector("pre")).toBeNull();
 
-    for (const heading of ["Premarket context", "Evidence", "Next"]) {
+    for (const heading of [
+      "What changed",
+      "What's next",
+      "What breaks it",
+      "Premarket context",
+      "Evidence",
+    ]) {
       expect(panel.textContent).toContain(heading);
     }
     // Context rows are label/value pairs, matching the other panels.
@@ -190,12 +211,42 @@ describe("expansion detail panel", () => {
       "Range vs baseline",
       "Position in reference range",
       "Prior-day level",
-      "Confirmation",
-      "Invalidation",
       "Data status",
     ]) {
       expect(panel.textContent).toContain(label);
     }
+  });
+
+  it("gives each of the three cards its own region", () => {
+    const { container } = renderRanked(expansionBySymbol, monitorBySymbol);
+    openRow(container, "EXPD");
+
+    for (const id of ["card-what-changed", "card-whats-next", "card-what-breaks-it"]) {
+      expect(screen.getByTestId(id)).toBeTruthy();
+    }
+    // What's next carries the confirmation requirement and the level ahead.
+    expect(screen.getByTestId("card-whats-next").textContent).toMatch(/Hold|Break and hold|accepted/);
+    // What breaks it carries the invalidation, or says it is not established.
+    expect(screen.getByTestId("card-what-breaks-it").textContent).toMatch(
+      /Lose|Reclaim|Not established/
+    );
+  });
+
+  it("keeps the evidence detail behind a disclosure", () => {
+    const { container } = renderRanked(expansionBySymbol, monitorBySymbol);
+    openRow(container, "EXPD");
+
+    const toggle = screen.getByRole("button", { name: /view evidence & calculations/i });
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    const regionId = toggle.getAttribute("aria-controls")!;
+    const region = container.querySelector(`[id="${regionId}"]`)!;
+    expect(region.hasAttribute("hidden")).toBe(true);
+
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(region.hasAttribute("hidden")).toBe(false);
+    // The six groups live inside it.
+    expect(region.querySelectorAll('[data-testid^="evidence-pill-"]')).toHaveLength(6);
   });
 
   it("gives every evidence group a state pill, one per group", () => {
@@ -262,8 +313,11 @@ describe("expansion detail panel", () => {
       "No premarket data yet — market closed or pre-open"
     );
     // The header survives; the body does not become a wall of Unavailable.
-    expect(panel.textContent).toContain("Premarket Expansion Candidate");
+    expect(panel.textContent).toContain("EXPD");
+    expect(screen.getByTestId("expansion-stage-badge")).toBeTruthy();
     expect(panel.querySelectorAll('[data-testid^="evidence-pill-"]')).toHaveLength(0);
+    expect(screen.queryByTestId("expansion-stage-rail")).toBeNull();
+    expect(screen.queryByTestId("dollar-ladder")).toBeNull();
     expect(panel.textContent).not.toContain("Volume pace");
     expect(panel.textContent).not.toContain("Scanned at");
   });
@@ -279,7 +333,11 @@ describe("expansion detail panel", () => {
 
     const panel = screen.getByTestId("expansion-panel");
     expect(panel.getAttribute("data-direction")).toBe("bearish");
-    expect(panel.textContent).toMatch(/Bearish/);
+    // Direction is carried by the arrow, the signed move, and the
+    // accessible label — never by colour alone.
+    expect(panel.textContent).toContain("▼");
+    expect(panel.textContent).toContain("−$4.00");
+    expect(panel.getAttribute("aria-label")).toMatch(/bearish/i);
     expect(panel.textContent).toContain("Qualified");
   });
 
@@ -296,6 +354,218 @@ describe("expansion detail panel", () => {
     expect(panel.getAttribute("data-direction")).toBe(expected);
     // Pre-qualification the evidence is still shown, labelled honestly.
     expect(panel.textContent).toContain("Developing");
+  });
+});
+
+describe("stage rail", () => {
+  const STEPS = [
+    "Premarket",
+    "Early Acceleration",
+    "Opening Drive",
+    "Level Break",
+    "Accepted",
+    "Expansion Active",
+  ];
+
+  function railFor(stage: Parameters<typeof buildStageRail>[0], early = false) {
+    return buildStageRail(stage, early);
+  }
+
+  it("lists the six milestones in order", () => {
+    expect(railFor("inactive").map((s) => s.label)).toEqual(STEPS);
+  });
+
+  it("marks everything pending when nothing has happened", () => {
+    expect(railFor("inactive").every((s) => s.state === "pending")).toBe(true);
+  });
+
+  it("marks the furthest milestone reached as current and earlier ones done", () => {
+    const rail = railFor("breakout_accepted");
+    expect(rail.map((s) => s.state)).toEqual([
+      "done", // Premarket
+      "done", // Early Acceleration
+      "done", // Opening Drive
+      "done", // Level Break
+      "current", // Accepted
+      "pending", // Expansion Active
+    ]);
+  });
+
+  it("lights the whole rail once expansion is active", () => {
+    const rail = railFor("expansion_active");
+    expect(rail[rail.length - 1].state).toBe("current");
+    expect(rail.slice(0, -1).every((s) => s.state === "done")).toBe(true);
+  });
+
+  it("shows early acceleration even when the stage outranks opening drive", () => {
+    // level_break (5) outranks opening_drive (4), so the stage alone would
+    // not reveal that the early signal ever fired.
+    const withSignal = railFor("level_break", true);
+    expect(withSignal[1].state).not.toBe("pending");
+    expect(withSignal[3].state).toBe("current");
+  });
+
+  it("never marks a milestone reached that the stage has not reached", () => {
+    const rail = railFor("premarket_candidate");
+    expect(rail[0].state).toBe("current");
+    for (const step of rail.slice(1)) expect(step.state).toBe("pending");
+  });
+
+  it("renders the rail states into the panel", () => {
+    render(
+      <ExpansionCandidatePanel
+        expansion={expansionBySymbol.EXPD}
+        monitor={monitorBySymbol.EXPD}
+      />
+    );
+    const steps = screen.getAllByTestId("expansion-rail-step");
+    expect(steps).toHaveLength(6);
+    expect(steps.map((s) => s.getAttribute("data-step"))).toEqual(STEPS);
+
+    const stage = monitorBySymbol.EXPD.bullish.stage;
+    const expected = buildStageRail(
+      stage,
+      monitorBySymbol.EXPD.bullish.signals.earlyAccelerationFired
+    );
+    expect(steps.map((s) => s.getAttribute("data-state"))).toEqual(
+      expected.map((e) => e.state)
+    );
+  });
+});
+
+describe("momentum ladders", () => {
+  function ladder(states: MilestoneState[]): MomentumLadderResult {
+    return {
+      passed: states.some((s) => s === "holding" || s === "reclaimed"),
+      insufficientData: false,
+      anchorPrice: 100,
+      currentMovePct: 4,
+      currentMoveDollars: 4,
+      highestMilestoneReached: null,
+      highestHoldingTier: null,
+      tiers: [3, 5, 8, 10, 15].map((tierPct, i) => ({
+        tierPct,
+        tierPrice: 100 * (1 + tierPct / 100),
+        state: states[i],
+        firstReachedAt: null,
+        lastTransitionAt: null,
+      })),
+      detail: "",
+    };
+  }
+
+  it("maps each lifecycle state onto a display pill", () => {
+    expect(
+      ladderPillStates(ladder(["holding", "reclaimed", "reached", "rejected", "lost"]))
+    ).toEqual(["holding", "holding", "reached", "rejected", "lost"]);
+  });
+
+  it("calls only the LOWEST unreached tier approaching, the rest pending", () => {
+    expect(
+      ladderPillStates(ladder(["holding", "not_reached", "not_reached", "not_reached", "not_reached"]))
+    ).toEqual(["holding", "approaching", "pending", "pending", "pending"]);
+  });
+
+  it("renders both ladders with a pill per tier once the ladder has an anchor", async () => {
+    // The ladder needs the session-open anchor plus at least one candle
+    // beyond it, which only exists once the regular session is under way —
+    // at 9:35 exactly one regular bar has closed.
+    resetExpansionBaselineCache();
+    const midday = await scanWatchlistWithProvider(
+      [{ symbol: "EXPD", exchange: "NASDAQ" }],
+      new FixtureProvider(standardFixtures(), MIDDAY_LAST_BAR_MINUTE),
+      defaultStrategyConfig,
+      SCAN_NOW_MIDDAY
+    );
+    const monitor = midday.expansionMonitorBySymbol!.EXPD;
+    // Precondition: this only tests the ladder if the ladder is measurable.
+    expect(monitor.momentumLadder.insufficientData).toBe(false);
+    expect(monitor.momentumLadder.anchorPrice).not.toBeNull();
+
+    render(
+      <ExpansionCandidatePanel expansion={midday.expansionBySymbol!.EXPD} monitor={monitor} />
+    );
+    const tierCount = defaultStrategyConfig.momentumLadder.tiers.length;
+
+    for (const id of ["dollar-ladder", "percent-ladder"]) {
+      expect(screen.getByTestId(id).getAttribute("data-unavailable")).toBeNull();
+      const tiers = screen.getAllByTestId(`${id}-tier`);
+      expect(tiers).toHaveLength(tierCount);
+      // Every pill carries a real state, never a blank.
+      for (const tier of tiers) {
+        expect(tier.getAttribute("data-state")).toBeTruthy();
+      }
+    }
+    // The percent ladder shows the configured tiers verbatim.
+    expect(
+      screen.getAllByTestId("percent-ladder-tier").map((t) => t.textContent!.match(/\+\d+%/)![0])
+    ).toEqual(
+      [...defaultStrategyConfig.momentumLadder.tiers]
+        .sort((a, b) => a - b)
+        .map((t) => `+${t}%`)
+    );
+  });
+
+  it("says Unavailable rather than inventing tiers before the session opens", () => {
+    // The 9:35 fixture has a single regular bar — genuinely not enough to
+    // anchor a ladder, and the card says so instead of showing empty pills.
+    expect(monitorBySymbol.EXPD.momentumLadder.insufficientData).toBe(true);
+    render(
+      <ExpansionCandidatePanel
+        expansion={expansionBySymbol.EXPD}
+        monitor={monitorBySymbol.EXPD}
+      />
+    );
+    expect(screen.getByTestId("dollar-ladder").getAttribute("data-unavailable")).toBe("true");
+    expect(screen.getByTestId("dollar-ladder").textContent).toContain("Unavailable");
+    expect(screen.queryAllByTestId("dollar-ladder-tier")).toHaveLength(0);
+  });
+
+  it("says Unavailable rather than inventing tiers when the ladder has no anchor", () => {
+    const noAnchor: MomentumLadderResult = {
+      ...ladder(["not_reached", "not_reached", "not_reached", "not_reached", "not_reached"]),
+      insufficientData: true,
+      anchorPrice: null,
+      detail: "Not enough candles yet to measure a move from the session open",
+    };
+    render(
+      <ExpansionCandidatePanel
+        expansion={expansionBySymbol.EXPD}
+        monitor={{ ...monitorBySymbol.EXPD, momentumLadder: noAnchor }}
+      />
+    );
+    const el = screen.getByTestId("dollar-ladder");
+    expect(el.getAttribute("data-unavailable")).toBe("true");
+    expect(el.textContent).toContain("Unavailable");
+    expect(screen.queryAllByTestId("dollar-ladder-tier")).toHaveLength(0);
+  });
+});
+
+describe("extension warning", () => {
+  it("warns without invalidating when the setup is extended", () => {
+    render(
+      <ExpansionCandidatePanel
+        expansion={expansionBySymbol.EXPD}
+        monitor={monitorBySymbol.EXPD}
+        entryStatus="extended_do_not_chase"
+      />
+    );
+    const chip = screen.getByTestId("expansion-extended-warning");
+    expect(chip.textContent).toBe("Valid · Highly extended · Do not chase");
+  });
+
+  it("shows no warning for any other entry status", () => {
+    for (const status of ["actionable_now", "wait_for_pullback", undefined] as const) {
+      cleanup();
+      render(
+        <ExpansionCandidatePanel
+          expansion={expansionBySymbol.EXPD}
+          monitor={monitorBySymbol.EXPD}
+          entryStatus={status}
+        />
+      );
+      expect(screen.queryByTestId("expansion-extended-warning")).toBeNull();
+    }
   });
 });
 

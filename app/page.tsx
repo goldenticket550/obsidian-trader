@@ -11,6 +11,7 @@ import { ActionQueue } from "@/components/dashboard/ActionQueue";
 import type { WatchlistSymbol, AccountabilityChecks } from "@/types/watchlist";
 import type { SetupResult } from "@/types/setup";
 import type { SymbolExpansion } from "@/lib/scanner/scanService";
+import type { SymbolExpansionMonitor } from "@/lib/scanner/expansionMonitor";
 import type { DataQuality } from "@/types/candle";
 import type { SessionInfo } from "@/lib/market-data/types";
 import type { MarketContextQuote } from "@/lib/market-data/marketContext";
@@ -32,6 +33,11 @@ interface ScanApiResponse {
    * disabled — absent means "not evaluated", never "nothing found".
    */
   expansionBySymbol?: Record<string, SymbolExpansion>;
+  /**
+   * The one-minute Expansion Monitor layer. Optional for the same reason:
+   * it has its own enable flag, so absent means "not evaluated".
+   */
+  expansionMonitorBySymbol?: Record<string, SymbolExpansionMonitor>;
 }
 
 interface RiskApiResponse {
@@ -441,6 +447,7 @@ export default function DashboardPage() {
             loading={scan === null && !scanError}
             scoreThreshold={scoreThreshold}
             expansionBySymbol={scan?.expansionBySymbol}
+            expansionMonitorBySymbol={scan?.expansionMonitorBySymbol}
           />
         </div>
 
