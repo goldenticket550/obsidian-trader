@@ -260,27 +260,29 @@ function StatePill({ state }: { state: EvidenceGroup["state"] }) {
   );
 }
 
-/** One of the three side-by-side cards. */
+/**
+ * One of the three equal-width cards. The heading is muted for all three;
+ * only the VALUE carries a tone, so a red "what breaks it" reads as the
+ * consequence rather than as an alarm about the card itself.
+ */
 function MiniCard({
   heading,
-  accent,
   children,
   testId,
 }: {
   heading: string;
-  accent: string;
   children: React.ReactNode;
   testId: string;
 }) {
   return (
     <div
       data-testid={testId}
-      className="flex-1 min-w-[150px] rounded px-2.5 py-2"
+      className="min-w-0 rounded px-2.5 py-2"
       style={{ background: "var(--panel-muted)", border: "1px solid var(--border-soft)" }}
     >
       <p
         className="text-[9px] uppercase tracking-[0.1em] mb-1.5"
-        style={{ color: accent }}
+        style={{ color: "var(--text-muted)" }}
       >
         {heading}
       </p>
@@ -289,17 +291,25 @@ function MiniCard({
   );
 }
 
-function CardLine({ value, muted }: { value: string; muted?: boolean }) {
+function CardLine({ value, tone, muted }: { value: string; tone?: string; muted?: boolean }) {
   return (
     <p
       className="text-[11px] leading-snug"
-      style={{ color: muted ? "var(--text-muted)" : "var(--text-secondary)" }}
+      style={{ color: tone ?? (muted ? "var(--text-muted)" : "var(--text-secondary)") }}
     >
       {value}
     </p>
   );
 }
 
+/** States that count as "already achieved" — a check, and no trailing word. */
+const REACHED_STATES: ReadonlySet<LadderPillState> = new Set(["holding", "reached"]);
+
+/**
+ * One ladder: a left-aligned label followed by a horizontal row of tier
+ * pills. Both ladders read the same `momentumLadder`; only the pill text
+ * differs, so a dollar tier and its percent tier can never disagree.
+ */
 function Ladder({
   testId,
   heading,
@@ -313,8 +323,8 @@ function Ladder({
 }) {
   if (ladder.insufficientData) {
     return (
-      <div data-testid={testId} data-unavailable="true">
-        <SectionHeading>{heading}</SectionHeading>
+      <div data-testid={testId} data-unavailable="true" className="flex items-baseline gap-2 py-1">
+        <LadderLabel>{heading}</LadderLabel>
         <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>
           Unavailable — {ladder.detail}
         </p>
@@ -325,29 +335,115 @@ function Ladder({
   const states = ladderPillStates(ladder);
 
   return (
-    <div data-testid={testId}>
-      <SectionHeading>{heading}</SectionHeading>
-      <div className="flex flex-wrap gap-1.5">
+    <div data-testid={testId} className="flex items-baseline gap-2 py-1">
+      <LadderLabel>{heading}</LadderLabel>
+      <div className="flex flex-wrap gap-1.5 min-w-0">
         {ladder.tiers.map((tier, index) => {
-          const pill = LADDER_PILL[states[index]];
+          const state = states[index];
+          const pill = LADDER_PILL[state];
+          const reached = REACHED_STATES.has(state);
           return (
             <span
               key={tier.tierPct}
               data-testid={`${testId}-tier`}
-              data-state={states[index]}
+              data-state={state}
               title={`${pill.label} · tier price ${money(tier.tierPrice)}`}
               className="inline-flex items-baseline gap-1 rounded px-1.5 py-[2px] text-[10px] font-mono tabular"
               style={{ color: pill.color, border: `1px solid ${pill.color}` }}
             >
+              {reached && <span aria-hidden="true">✓</span>}
               {format(tier)}
-              <span className="text-[8px] uppercase tracking-[0.08em] opacity-80">
-                {pill.label}
-              </span>
+              {/* An achieved tier needs no word beside the check; every
+                  other state says which one it is. */}
+              {!reached && (
+                <span className="text-[8px] uppercase tracking-[0.08em] opacity-80">
+                  {pill.label}
+                </span>
+              )}
             </span>
           );
         })}
       </div>
     </div>
+  );
+}
+
+function LadderLabel({ children }: { children: string }) {
+  return (
+    <span
+      className="text-[10px] uppercase tracking-[0.1em] w-[86px] shrink-0"
+      style={{ color: "var(--text-muted)" }}
+    >
+      {children}
+    </span>
+  );
+}
+
+/** One node on the stage rail, plus the track segments either side of it. */
+function RailNode({
+  step,
+  isFirst,
+  isLast,
+  reachedTrackBefore,
+  reachedTrackAfter,
+  accent,
+}: {
+  step: RailStep;
+  isFirst: boolean;
+  isLast: boolean;
+  reachedTrackBefore: boolean;
+  reachedTrackAfter: boolean;
+  accent: string;
+}) {
+  const track = (reached: boolean, hidden: boolean) => (
+    <span
+      aria-hidden="true"
+      className="h-px flex-1"
+      style={{ background: hidden ? "transparent" : reached ? accent : "var(--border)" }}
+    />
+  );
+
+  const node =
+    step.state === "done" ? (
+      <span
+        className="shrink-0 h-3 w-3 rounded-full flex items-center justify-center text-[7px] leading-none"
+        style={{ background: accent, color: "var(--page)" }}
+      >
+        ✓
+      </span>
+    ) : step.state === "current" ? (
+      <span
+        className="shrink-0 h-3 w-3 rounded-full"
+        style={{ border: `2px solid ${accent}`, background: "transparent" }}
+      />
+    ) : (
+      <span
+        className="shrink-0 h-2 w-2 rounded-full"
+        style={{ border: "1px solid var(--border)", background: "transparent" }}
+      />
+    );
+
+  return (
+    <>
+      <span className="flex items-center w-full">
+        {track(reachedTrackBefore, isFirst)}
+        {node}
+        {track(reachedTrackAfter, isLast)}
+      </span>
+      <span
+        className="mt-1 text-[8px] uppercase tracking-[0.04em] text-center leading-tight px-0.5"
+        style={{
+          color:
+            step.state === "current"
+              ? accent
+              : step.state === "done"
+              ? "var(--text-secondary)"
+              : "var(--text-muted)",
+        }}
+      >
+        {step.label}
+      </span>
+    </>
   );
 }
 
@@ -486,6 +582,9 @@ export function ExpansionCandidatePanel({
   const freshness = FRESHNESS[result.freshness.status];
   const evidenceId = `expansion-evidence-${result.symbol}-${direction}`;
 
+  const rail = buildStageRail(stage, earlyFired);
+  const currentIndex = rail.findIndex((step) => step.state === "current");
+
   return (
     <section
       data-testid="expansion-panel"
@@ -518,20 +617,8 @@ export function ExpansionCandidatePanel({
           {stageLabel(stage)}
         </span>
 
-        {/* Extension is a warning ABOUT a valid setup, not an invalidation
-            of it — the wording says both things at once. */}
-        {entryStatus === "extended_do_not_chase" && (
-          <span
-            data-testid="expansion-extended-warning"
-            className="text-[9px] px-1.5 py-0.5 rounded"
-            style={{ color: "var(--amber)", border: "1px solid var(--amber)" }}
-          >
-            Valid · Highly extended · Do not chase
-          </span>
-        )}
-
         <span
-          className="ml-auto text-[10px] px-1.5 py-0.5 rounded"
+          className="text-[10px] px-1.5 py-0.5 rounded"
           style={{
             color: result.qualified ? directionColor : "var(--text-muted)",
             border: `1px solid ${result.qualified ? directionColor : "var(--border)"}`,
@@ -539,6 +626,19 @@ export function ExpansionCandidatePanel({
         >
           {result.qualified ? "Qualified" : "Developing"}
         </span>
+
+        {/* Far right, and only when extended. Extension is a warning ABOUT
+            a valid setup, not an invalidation of it — the wording says
+            both things at once. */}
+        {entryStatus === "extended_do_not_chase" && (
+          <span
+            data-testid="expansion-extended-warning"
+            className="ml-auto text-[9px] px-1.5 py-0.5 rounded"
+            style={{ color: "var(--amber)", border: "1px solid var(--amber)" }}
+          >
+            Valid · Highly extended · Do not chase
+          </span>
+        )}
       </div>
 
       {empty ? (
@@ -554,48 +654,40 @@ export function ExpansionCandidatePanel({
           {/* -------------------------------------------------------------- */}
           {/* Stage rail                                                      */}
           {/* -------------------------------------------------------------- */}
-          <ol data-testid="expansion-stage-rail" className="flex flex-wrap items-center gap-x-1 gap-y-1 mb-3">
-            {buildStageRail(stage, earlyFired).map((step, index) => {
-              const color =
-                step.state === "current"
-                  ? directionColor
-                  : step.state === "done"
-                  ? "var(--text-secondary)"
-                  : "var(--text-muted)";
-              return (
-                <li
-                  key={step.label}
-                  data-testid="expansion-rail-step"
-                  data-step={step.label}
-                  data-state={step.state}
-                  className="flex items-center gap-1"
-                >
-                  {index > 0 && (
-                    <span aria-hidden="true" className="text-[9px]" style={{ color: "var(--text-muted)" }}>
-                      ›
-                    </span>
-                  )}
-                  <span
-                    className="text-[9px] uppercase tracking-[0.06em] px-1.5 py-[2px] rounded"
-                    style={{
-                      color,
-                      border: `1px solid ${step.state === "pending" ? "var(--border)" : color}`,
-                      opacity: step.state === "pending" ? 0.7 : 1,
-                    }}
-                  >
-                    {step.state === "done" ? "✓ " : ""}
-                    {step.label}
-                  </span>
-                </li>
-              );
-            })}
+          {/* One horizontal row, left to right, connected by a thin track.
+              The track is accented up to the current node and muted after
+              it, so the rail reads as progress rather than decoration. */}
+          <ol
+            data-testid="expansion-stage-rail"
+            className="flex items-start w-full mb-3"
+            aria-label="Expansion stage progress"
+          >
+            {rail.map((step, index) => (
+              <li
+                key={step.label}
+                data-testid="expansion-rail-step"
+                data-step={step.label}
+                data-state={step.state}
+                className="flex-1 min-w-0 flex flex-col items-center"
+              >
+                <RailNode
+                  step={step}
+                  isFirst={index === 0}
+                  isLast={index === rail.length - 1}
+                  reachedTrackBefore={currentIndex >= 0 && index <= currentIndex}
+                  reachedTrackAfter={currentIndex >= 0 && index < currentIndex}
+                  accent={directionColor}
+                />
+              </li>
+            ))}
           </ol>
 
           {/* -------------------------------------------------------------- */}
           {/* Three cards                                                     */}
           {/* -------------------------------------------------------------- */}
-          <div className="flex flex-wrap gap-2 mb-3">
-            <MiniCard testId="card-what-changed" heading="What changed" accent={directionColor}>
+          {/* Three equal columns, one row. */}
+          <div data-testid="expansion-cards" className="grid grid-cols-3 gap-2 mb-3">
+            <MiniCard testId="card-what-changed" heading="What changed">
               <CardLine value={dollarVolumeValue(monitor)} />
               <CardLine
                 value={`${result.relativeStrength.benchmarkSymbol}: ${relativeValue(
@@ -605,13 +697,13 @@ export function ExpansionCandidatePanel({
               />
             </MiniCard>
 
-            <MiniCard testId="card-whats-next" heading="What's next" accent="var(--amber)">
+            <MiniCard testId="card-whats-next" heading="What's next">
               <CardLine value={confirmationValue(result)} />
               <CardLine value={nextReferenceValue(result)} muted />
             </MiniCard>
 
-            <MiniCard testId="card-what-breaks-it" heading="What breaks it" accent="var(--red)">
-              <CardLine value={invalidationValue(result)} />
+            <MiniCard testId="card-what-breaks-it" heading="What breaks it">
+              <CardLine value={invalidationValue(result)} tone="var(--red)" />
               <CardLine
                 value={
                   monitor?.openingRange
@@ -629,7 +721,8 @@ export function ExpansionCandidatePanel({
           {/* Ladders                                                         */}
           {/* -------------------------------------------------------------- */}
           {monitor ? (
-            <div className="grid gap-3 sm:grid-cols-2 mb-3">
+            /* Stacked, dollar above percent — same tiers, two readings. */
+            <div className="mb-3">
               <Ladder
                 testId="dollar-ladder"
                 heading="Dollar ladder"
@@ -661,7 +754,7 @@ export function ExpansionCandidatePanel({
             onClick={() => setEvidenceOpen((open) => !open)}
             aria-expanded={evidenceOpen}
             aria-controls={evidenceId}
-            className="w-full text-left text-[10px] uppercase tracking-[0.1em] py-1.5 focus:outline-none focus-visible:ring-1 focus-visible:ring-accent-champagne"
+            className="w-full text-center text-[10px] uppercase tracking-[0.1em] py-1.5 focus:outline-none focus-visible:ring-1 focus-visible:ring-accent-champagne"
             style={{ color: "var(--text-muted)", borderTop: "1px solid var(--border-soft)" }}
           >
             {evidenceOpen ? "▾" : "▸"} View evidence &amp; calculations

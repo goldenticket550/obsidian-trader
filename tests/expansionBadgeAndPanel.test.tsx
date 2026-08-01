@@ -357,6 +357,92 @@ describe("expansion detail panel", () => {
   });
 });
 
+describe("card arrangement", () => {
+  function renderCard(entryStatus?: "extended_do_not_chase") {
+    return render(
+      <ExpansionCandidatePanel
+        expansion={expansionBySymbol.EXPD}
+        monitor={monitorBySymbol.EXPD}
+        entryStatus={entryStatus}
+      />
+    );
+  }
+
+  /** Document order of the panel's major regions. */
+  function orderOf(container: HTMLElement): string[] {
+    const marks: [string, string][] = [
+      ["header", '[data-testid="expansion-stage-badge"]'],
+      ["rail", '[data-testid="expansion-stage-rail"]'],
+      ["cards", '[data-testid="expansion-cards"]'],
+      ["dollar-ladder", '[data-testid="dollar-ladder"]'],
+      ["percent-ladder", '[data-testid="percent-ladder"]'],
+      ["evidence-toggle", "button[aria-controls]"],
+    ];
+
+    const found: { name: string; el: Element }[] = [];
+    for (const [name, selector] of marks) {
+      const el = container.querySelector(selector);
+      if (el !== null) found.push({ name, el });
+    }
+
+    return found
+      .sort((a, b) =>
+        a.el.compareDocumentPosition(b.el) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1
+      )
+      .map((m) => m.name);
+  }
+
+  it("stacks header, rail, cards, both ladders, then the toggle", () => {
+    const { container } = renderCard();
+    expect(orderOf(container)).toEqual([
+      "header",
+      "rail",
+      "cards",
+      "dollar-ladder",
+      "percent-ladder",
+      "evidence-toggle",
+    ]);
+  });
+
+  it("puts the three cards in one row of equal columns", () => {
+    const { container } = renderCard();
+    const cards = screen.getByTestId("expansion-cards");
+    expect(cards.className).toContain("grid-cols-3");
+    expect(cards.children).toHaveLength(3);
+    expect([...cards.children].map((c) => c.getAttribute("data-testid"))).toEqual([
+      "card-what-changed",
+      "card-whats-next",
+      "card-what-breaks-it",
+    ]);
+    expect(container).toBeTruthy();
+  });
+
+  it("colours the what-breaks-it value red, and the card headings muted", () => {
+    renderCard();
+    const card = screen.getByTestId("card-what-breaks-it");
+    const heading = card.querySelector("p")!;
+    expect(heading.textContent).toBe("What breaks it");
+    expect(heading.getAttribute("style")).toContain("--text-muted");
+
+    const value = card.querySelectorAll("p")[1] as HTMLElement;
+    expect(value.getAttribute("style")).toContain("--red");
+  });
+
+  it("pins the extension chip to the far right of the header", () => {
+    renderCard("extended_do_not_chase");
+    const chip = screen.getByTestId("expansion-extended-warning");
+    // `ml-auto` is what pushes it right; the badge before it must not have it.
+    expect(chip.className).toContain("ml-auto");
+    expect(screen.getByTestId("expansion-stage-badge").className).not.toContain("ml-auto");
+  });
+
+  it("centers the evidence toggle at the bottom", () => {
+    const { container } = renderCard();
+    const toggle = container.querySelector("button[aria-controls]")!;
+    expect(toggle.className).toContain("text-center");
+  });
+});
+
 describe("stage rail", () => {
   const STEPS = [
     "Premarket",
@@ -409,6 +495,26 @@ describe("stage rail", () => {
     const rail = railFor("premarket_candidate");
     expect(rail[0].state).toBe("current");
     for (const step of rail.slice(1)) expect(step.state).toBe("pending");
+  });
+
+  it("renders one node per stage, each with its label beneath", () => {
+    render(
+      <ExpansionCandidatePanel
+        expansion={expansionBySymbol.EXPD}
+        monitor={monitorBySymbol.EXPD}
+      />
+    );
+    const rail = screen.getByTestId("expansion-stage-rail");
+    // A single horizontal row, not a wrapped pile.
+    expect(rail.className).toContain("flex");
+    expect(rail.className).not.toContain("flex-wrap");
+
+    const steps = screen.getAllByTestId("expansion-rail-step");
+    for (const [index, step] of steps.entries()) {
+      // Each step stacks its node above its label.
+      expect(step.className).toContain("flex-col");
+      expect(step.textContent).toContain(STEPS[index]);
+    }
   });
 
   it("renders the rail states into the panel", () => {
@@ -496,6 +602,20 @@ describe("momentum ladders", () => {
         expect(tier.getAttribute("data-state")).toBeTruthy();
       }
     }
+    // An achieved tier carries a check and no trailing word; every other
+    // state names itself.
+    for (const tier of screen.getAllByTestId("percent-ladder-tier")) {
+      const state = tier.getAttribute("data-state")!;
+      if (state === "holding" || state === "reached") {
+        expect(tier.textContent).toContain("✓");
+        expect(tier.textContent).not.toMatch(/Approaching|Pending/);
+      } else if (state === "approaching") {
+        expect(tier.textContent).toContain("Approaching");
+      } else if (state === "pending") {
+        expect(tier.textContent).toContain("Pending");
+      }
+    }
+
     // The percent ladder shows the configured tiers verbatim.
     expect(
       screen.getAllByTestId("percent-ladder-tier").map((t) => t.textContent!.match(/\+\d+%/)![0])
@@ -504,6 +624,29 @@ describe("momentum ladders", () => {
         .sort((a, b) => a - b)
         .map((t) => `+${t}%`)
     );
+  });
+
+  it("marks an achieved tier with a check and no trailing word", () => {
+    // The live fixture has no tier holding yet, so this pins the reached
+    // branch explicitly rather than leaving it to chance.
+    const held = ladder(["holding", "reached", "not_reached", "not_reached", "not_reached"]);
+    render(
+      <ExpansionCandidatePanel
+        expansion={expansionBySymbol.EXPD}
+        monitor={{ ...monitorBySymbol.EXPD, momentumLadder: held }}
+      />
+    );
+
+    const pills = screen.getAllByTestId("percent-ladder-tier");
+    expect(pills[0].textContent).toContain("✓");
+    expect(pills[0].textContent).toContain("+3%");
+    expect(pills[0].textContent).not.toMatch(/Approaching|Pending|Holding/);
+    expect(pills[1].textContent).toContain("✓");
+    // The first UNREACHED tier is the approaching one; the rest are pending.
+    expect(pills[2].textContent).toContain("Approaching");
+    expect(pills[2].textContent).not.toContain("✓");
+    expect(pills[3].textContent).toContain("Pending");
+    expect(pills[4].textContent).toContain("Pending");
   });
 
   it("says Unavailable rather than inventing tiers before the session opens", () => {
