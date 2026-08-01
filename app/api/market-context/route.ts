@@ -10,10 +10,10 @@ import {
 /**
  * Broad-market context for the dashboard's left column.
  *
- * Uses daily candles specifically: two daily bars give both the current
- * price and a real prior-session close to compute change against, and the
+ * Uses daily candles specifically: recent daily bars give the current
+ * price, a real prior-session close, and an honest compact trend trace. The
  * daily cache TTL (5 minutes) is the longest in the app — so this endpoint
- * adds at most 3 provider calls per 5 minutes, which is negligible against
+ * adds at most 5 provider calls per 5 minutes, which is negligible against
  * the 200/min free-tier budget the scanner also shares.
  *
  * Each symbol is fetched independently: one failing instrument reports as
@@ -32,7 +32,7 @@ export async function GET() {
   const quotes: MarketContextQuote[] = await Promise.all(
     MARKET_CONTEXT_SYMBOLS.map(async ({ symbol, label }) => {
       try {
-        const series = await provider.getCandles({ symbol, timeframe: "1d", limit: 2 });
+        const series = await provider.getCandles({ symbol, timeframe: "1d", limit: 12 });
         return quoteFromDailyCandles(symbol, label, series.candles, series.quality);
       } catch (error) {
         const message = error instanceof Error ? error.message : "Unknown error";
@@ -43,6 +43,7 @@ export async function GET() {
           changePct: null,
           asOf: null,
           quality: null,
+          sparkline: [],
           unavailableReason: message,
         };
       }

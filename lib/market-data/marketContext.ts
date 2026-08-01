@@ -2,9 +2,9 @@ import type { Candle } from "@/types/candle";
 import type { DataQuality } from "@/types/candle";
 
 /**
- * The three context instruments the dashboard shows. Deliberately limited
- * to symbols the existing equity/ETF provider can genuinely return:
- * USO (oil ETF), SPY (S&P 500 ETF), IWM (Russell 2000 ETF).
+ * The context instruments the dashboard shows. Deliberately limited
+ * to symbols the existing equity/ETF provider can genuinely return. QQQ,
+ * SPY, IWM and XLC feed Market Pulse; USO remains the oil context quote.
  *
  * Not included, because no supported data source exists in this app:
  * market breadth, VIX, the Dollar Index, 10Y yield, spot gold, or crypto.
@@ -12,9 +12,11 @@ import type { DataQuality } from "@/types/candle";
  * failure mode this module is built to avoid.
  */
 export const MARKET_CONTEXT_SYMBOLS = [
-  { symbol: "USO", label: "USO ETF" },
+  { symbol: "QQQ", label: "QQQ" },
   { symbol: "SPY", label: "SPY" },
   { symbol: "IWM", label: "IWM" },
+  { symbol: "XLC", label: "XLC" },
+  { symbol: "USO", label: "USO ETF" },
 ] as const;
 
 export interface MarketContextQuote {
@@ -27,6 +29,9 @@ export interface MarketContextQuote {
   /** Open time of the candle the price came from, ISO. Null when unavailable. */
   asOf: string | null;
   quality: DataQuality | null;
+  /** Recent completed daily closes, oldest first, used only for the tiny
+   * market-pulse trace. Empty means there is no honest sparkline to draw. */
+  sparkline: number[];
   unavailableReason?: string;
 }
 
@@ -50,6 +55,7 @@ export function quoteFromDailyCandles(
       changePct: null,
       asOf: null,
       quality: null,
+      sparkline: [],
       unavailableReason: "No data returned by the market-data provider",
     };
   }
@@ -66,5 +72,6 @@ export function quoteFromDailyCandles(
     changePct,
     asOf: new Date(latest.time * 1000).toISOString(),
     quality,
+    sparkline: candles.map((c) => c.close).filter(Number.isFinite),
   };
 }

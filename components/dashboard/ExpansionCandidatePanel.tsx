@@ -303,13 +303,26 @@ function MiniCard({
   );
 }
 
-function CardLine({ value, tone, muted }: { value: string; tone?: string; muted?: boolean }) {
+function CardLine({
+  label,
+  value,
+  tone,
+  muted,
+}: {
+  label: string;
+  value: string;
+  tone?: string;
+  muted?: boolean;
+}) {
   return (
     <p
-      className="text-[11px] leading-snug"
+      className="text-[10px] leading-snug flex items-start justify-between gap-3"
       style={{ color: tone ?? (muted ? "var(--text-muted)" : "var(--text-secondary)") }}
     >
-      {value}
+      <span className="shrink-0" style={{ color: "var(--text-muted)" }}>
+        {label}
+      </span>
+      <span className="font-mono tabular text-right min-w-0">{value}</span>
     </p>
   );
 }
@@ -360,8 +373,8 @@ function Ladder({
               data-testid={`${testId}-tier`}
               data-state={state}
               title={`${pill.label} · tier price ${money(tier.tierPrice)}`}
-              className="inline-flex items-baseline gap-1 rounded px-1.5 py-[2px] text-[10px] font-mono tabular"
-              style={{ color: pill.color, border: `1px solid ${pill.color}` }}
+              className="inline-flex items-baseline gap-1 pr-2 mr-0.5 py-[2px] text-[10px] font-mono tabular border-r last:border-r-0"
+              style={{ color: pill.color, borderColor: "var(--border-soft)" }}
             >
               {reached && <span aria-hidden="true">✓</span>}
               {format(tier)}
@@ -650,7 +663,7 @@ export function ExpansionCandidatePanel({
       data-direction={direction}
       data-stage={stage}
       aria-label={`Premarket expansion candidate for ${result.symbol}, ${direction}`}
-      className="mx-4 mt-3 rounded overflow-hidden"
+      className="mx-2 mt-2 rounded overflow-hidden"
       style={{ background: "var(--panel)", border: "1px solid var(--border)" }}
     >
       {/* ---------------------------------------------------------------- */}
@@ -709,7 +722,7 @@ export function ExpansionCandidatePanel({
           No premarket data yet — market closed or pre-open
         </p>
       ) : (
-        <div className="px-3 py-2.5">
+        <div className="px-3 py-2">
           {/* -------------------------------------------------------------- */}
           {/* Stage rail                                                      */}
           {/* -------------------------------------------------------------- */}
@@ -763,8 +776,9 @@ export function ExpansionCandidatePanel({
             }}
           >
             <MiniCard testId="card-what-changed" heading="What changed">
-              <CardLine value={dollarVolumeValue(monitor)} />
+              <CardLine label="Dollar volume" value={dollarVolumeValue(monitor)} />
               <CardLine
+                label="Relative"
                 value={`${result.relativeStrength.benchmarkSymbol}: ${relativeValue(
                   result.relativeStrength
                 )}`}
@@ -773,13 +787,14 @@ export function ExpansionCandidatePanel({
             </MiniCard>
 
             <MiniCard testId="card-whats-next" heading="What's next">
-              <CardLine value={confirmationValue(result)} />
-              <CardLine value={nextReferenceValue(result)} muted />
+              <CardLine label="Confirmation" value={confirmationValue(result)} />
+              <CardLine label="Reference" value={nextReferenceValue(result)} muted />
             </MiniCard>
 
             <MiniCard testId="card-what-breaks-it" heading="What breaks it">
-              <CardLine value={invalidationValue(result)} tone="var(--red)" />
+              <CardLine label="Invalidation" value={invalidationValue(result)} tone="var(--red)" />
               <CardLine
+                label="Opening range"
                 value={
                   monitor?.openingRange
                     ? `Opening range ${money(monitor.openingRange.low)}–${money(

@@ -66,8 +66,8 @@ describe("quoteFromDailyCandles", () => {
 });
 
 describe("MARKET_CONTEXT_SYMBOLS", () => {
-  it("covers exactly the three supported instruments", () => {
-    expect(MARKET_CONTEXT_SYMBOLS.map((s) => s.symbol)).toEqual(["USO", "SPY", "IWM"]);
+  it("covers the four pulse ETFs and the oil context ETF", () => {
+    expect(MARKET_CONTEXT_SYMBOLS.map((s) => s.symbol)).toEqual(["QQQ", "SPY", "IWM", "XLC", "USO"]);
   });
 
   it("labels USO as an ETF rather than implying spot crude", () => {

@@ -15,6 +15,7 @@ const ACCENT: Record<string, string> = {
   ema_reclaim: "var(--blue)",
   fvg_entry: "var(--amber)",
   score_threshold: "var(--green)",
+  expansion: "var(--green)",
 };
 
 /** Inline SVG marks — five small shapes, not worth an icon dependency.
@@ -76,6 +77,7 @@ export function SignalRow({
   now = Date.now(),
   onWindowChange,
   loading,
+  expansionCount = 0,
 }: {
   events: AlertEvent[];
   window: SignalWindow;
@@ -84,21 +86,32 @@ export function SignalRow({
   now?: number;
   onWindowChange: (w: SignalWindow) => void;
   loading: boolean;
+  /** Current qualifying expansion candidates, separate from alert-event counts. */
+  expansionCount?: number;
 }) {
   // Pure count over the events actually held — no projection anywhere.
-  const cards = computeSignalCards(events, window, now);
+  const cards = computeSignalCards(events, window, now).map(({ key, label, count }) => ({
+    key,
+    label,
+    count,
+  }));
+  cards.splice(4, 1, {
+    key: "expansion",
+    label: "Expansion",
+    count: expansionCount,
+  });
 
   return (
-    <section aria-label="Signal counts">
-      <div className="flex items-center justify-between mb-2">
+    <section aria-label="Signal counts" className="command-panel px-3 py-2">
+      <div className="flex items-center justify-between mb-1.5">
         <div className="flex items-center gap-1.5">
           <span className="card-heading">{SIGNAL_WINDOW_LABEL[window]}</span>
           {/* Replaces the permanent explanatory paragraph. */}
           <span
             tabIndex={0}
             role="img"
-            aria-label="Counts reflect recorded alert events in the selected window."
-            title="Counts reflect recorded alert events in the selected window."
+            aria-label="Sweep, structure, EMA, and FVG are recorded alert events in the selected window. Expansion is the current qualifying candidate count."
+            title="Sweep, structure, EMA, and FVG are recorded alert events in the selected window. Expansion is the current qualifying candidate count."
             className="inline-flex items-center justify-center h-3.5 w-3.5 rounded-full text-[9px] cursor-help focus:outline-none focus-visible:ring-1 focus-visible:ring-accent-champagne"
             style={{ border: "1px solid var(--border)", color: "var(--text-muted)" }}
           >
@@ -130,13 +143,13 @@ export function SignalRow({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+      <div className="flex items-center overflow-x-auto divide-x" style={{ borderColor: "var(--border-soft)" }}>
         {cards.map((card) => {
           const color = ACCENT[card.key] ?? "var(--text)";
           return (
-            <div key={card.key} className="command-panel px-3.5 py-3 flex items-center gap-3 min-h-[74px]">
+            <div key={card.key} className="px-3 py-1.5 flex items-center gap-2 min-w-[150px] flex-1">
               <span
-                className="shrink-0 flex items-center justify-center h-8 w-8 rounded"
+                className="shrink-0 flex items-center justify-center h-6 w-6 rounded"
                 style={{ background: "var(--panel-raised)" }}
               >
                 <SignalIcon kind={card.key} color={color} />
@@ -149,7 +162,7 @@ export function SignalRow({
                   {card.label}
                 </span>
                 <span
-                  className="block font-mono tabular text-[22px] leading-none mt-1"
+                  className="block font-mono tabular text-[14px] leading-none mt-0.5"
                   style={{ color: card.count > 0 ? color : "var(--text-muted)" }}
                 >
                   {loading ? "—" : card.count}

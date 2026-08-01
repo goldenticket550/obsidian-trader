@@ -798,6 +798,23 @@ describe("extension warning", () => {
   });
 });
 
+describe("ranked opportunity view tabs", () => {
+  it("shows the focused expansion card without the reversal checklist", () => {
+    const { container } = renderRanked(expansionBySymbol, monitorBySymbol);
+
+    fireEvent.click(screen.getByRole("tab", { name: "expansion" }));
+    fireEvent.click(
+      within(rowFor(container, "EXPD")).getByRole("button", { name: /Expand EXPD/i })
+    );
+
+    expect(screen.getByTestId("expansion-panel")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /view full checklist/i })).toBeNull();
+    expect(screen.getByRole("tab", { name: "expansion" }).getAttribute("aria-selected")).toBe(
+      "true"
+    );
+  });
+});
+
 describe("backward compatibility", () => {
   it("renders exactly as before when expansionBySymbol is omitted", () => {
     const withProp = renderRanked(undefined).container.innerHTML;

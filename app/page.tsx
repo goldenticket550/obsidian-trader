@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { SignalRow } from "@/components/dashboard/SignalRow";
+import { MarketPulse } from "@/components/dashboard/MarketPulse";
 import { AccountRiskPanel } from "@/components/dashboard/AccountRiskPanel";
 import { TradingSessionPanel } from "@/components/dashboard/TradingSessionPanel";
 import { MarketContextPanel } from "@/components/dashboard/MarketContextPanel";
@@ -315,6 +316,12 @@ export default function DashboardPage() {
   }, [fetchRisk]);
 
   const scoreThreshold = risk?.settings.minSetupScore ?? FALLBACK_SCORE_THRESHOLD;
+  const expansionCount = Object.values(scan?.expansionBySymbol ?? {}).filter(
+    (expansion) => expansion.bullish.qualified || expansion.bearish.qualified
+  ).length;
+  const compactContext = context?.filter((quote) =>
+    ["USO", "SPY", "IWM"].includes(quote.symbol)
+  ) ?? null;
 
   // Badge reflects how old the DATA is, not what the feed is capable of.
   const feed = describeFeed(dataQuality, newestCandleTime, Date.now());
@@ -390,14 +397,20 @@ export default function DashboardPage() {
         </Link>
       </div>
 
+      <MarketPulse
+        quotes={context}
+        loading={context === null && !contextError}
+        error={contextError}
+      />
+
       <SignalRow
         events={allAlerts}
         window={signalWindow}
         now={windowNow}
         onWindowChange={setSignalWindow}
         loading={alerts === null && !alertsError}
+        expansionCount={expansionCount}
       />
-
       {scanError && (
         <div className="command-panel p-4 border-signal-red/40 text-sm text-signal-red">
           Scan failed: {scanError}
@@ -434,7 +447,7 @@ export default function DashboardPage() {
             settings={risk?.settings ?? null}
           />
           <MarketContextPanel
-            quotes={context}
+            quotes={compactContext}
             loading={context === null && !contextError}
             error={contextError}
           />

@@ -7,12 +7,14 @@ import { SetupDetail } from "./SetupDetail";
 import {
   ExpansionCandidatePanel,
   selectQualifyingExpansion,
+  selectDisplayExpansion,
 } from "./ExpansionCandidatePanel";
 import type { SymbolExpansion } from "@/lib/scanner/scanService";
 import type { SymbolExpansionMonitor } from "@/lib/scanner/expansionMonitor";
 import { stageLabel } from "@/lib/indicators/premarketExpansionDisplay";
 import { rankOpportunities, RANKING_RULE_DESCRIPTION } from "@/lib/scanner/ranking";
 import { formatEasternTime } from "@/lib/market-data/freshness";
+import { EXPANSION_STAGE_PRIORITY } from "@/lib/scanner/expansionPriority";
 
 const STATUS_DOT: Record<"red" | "yellow" | "green", string> = {
   red: "var(--red)",
@@ -43,6 +45,17 @@ function formatPct(fraction: number, withSign = false): string {
   return `${withSign && pct > 0 ? "+" : ""}${pct.toFixed(1)}%`;
 }
 
+function formatMoneyMove(value: number | null): string {
+  if (value === null) return "--";
+  const prefix = value > 0 ? "+$" : value < 0 ? "-$" : "$";
+  return `${prefix}${Math.abs(value).toFixed(2)}`;
+}
+
+function formatNullablePct(value: number | null): string {
+  if (value === null) return "--";
+  return formatPct(value, true);
+}
+
 const COLS =
   "grid grid-cols-[26px_minmax(74px,1fr)_88px_72px_46px_46px_minmax(104px,1.1fr)_86px_30px] gap-2 items-center";
 
@@ -69,8 +82,39 @@ export function RankedOpportunities({
 }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [timeframes, setTimeframes] = useState<Record<string, "5m" | "15m">>({});
+  const [activeView, setActiveView] = useState<"setups" | "expansion">("setups");
 
   const ranked = rankOpportunities(symbols);
+  const displayed =
+    activeView === "setups"
+      ? ranked
+      : [...ranked].sort((a, b) => {
+          const expansionA = expansionBySymbol?.[a.ticker];
+          const expansionB = expansionBySymbol?.[b.ticker];
+          if (!expansionA && !expansionB) return a.ticker.localeCompare(b.ticker);
+          if (!expansionA) return 1;
+          if (!expansionB) return -1;
+          const selectedA = selectDisplayExpansion(expansionA);
+          const selectedB = selectDisplayExpansion(expansionB);
+          const stageA =
+            expansionMonitorBySymbol?.[a.ticker]?.[selectedA.direction].stage ?? selectedA.stage;
+          const stageB =
+            expansionMonitorBySymbol?.[b.ticker]?.[selectedB.direction].stage ?? selectedB.stage;
+          const stageDelta =
+            EXPANSION_STAGE_PRIORITY[stageB] - EXPANSION_STAGE_PRIORITY[stageA];
+          if (stageDelta !== 0) return stageDelta;
+
+          const moveA = selectedA.move.percentMove;
+          const moveB = selectedB.move.percentMove;
+          if (moveA === null && moveB !== null) return 1;
+          if (moveA !== null && moveB === null) return -1;
+          if (moveA !== null && moveB !== null) {
+            const moveDelta = Math.abs(moveB) - Math.abs(moveA);
+            if (moveDelta !== 0) return moveDelta;
+          }
+
+          return a.ticker.localeCompare(b.ticker);
+        });
 
   return (
     <section className="command-panel overflow-hidden" aria-label="Ranked opportunities">
@@ -95,6 +139,38 @@ export function RankedOpportunities({
           {symbols.length} symbols
         </span>
       </div>
+      {expansionBySymbol !== undefined && (
+        <div
+          className="px-4 flex items-center gap-5"
+          style={{ borderBottom: "1px solid var(--border)" }}
+          role="tablist"
+          aria-label="Opportunity type"
+        >
+          {(["setups", "expansion"] as const).map((view) => (
+            <button
+              key={view}
+              type="button"
+              role="tab"
+              aria-selected={activeView === view}
+              onClick={() => {
+                setActiveView(view);
+                setExpanded(null);
+              }}
+              className="py-2 text-[10px] uppercase tracking-[0.12em] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-accent-champagne"
+              style={{
+                color: activeView === view ? "var(--amber)" : "var(--text-muted)",
+                borderBottom:
+                  activeView === view ? "2px solid var(--amber)" : "2px solid transparent",
+              }}
+            >
+              {view}
+            </button>
+          ))}
+          <span className="ml-auto text-[9px]" style={{ color: "var(--text-muted)" }}>
+            {activeView === "expansion" ? "Stage, then measured move" : "Ordered by setup score"}
+          </span>
+        </div>
+      )}
 
       {loading && (
         <p className="px-4 py-8 text-[12px]" style={{ color: "var(--text-muted)" }}>
@@ -119,14 +195,14 @@ export function RankedOpportunities({
               <span>Ticker</span>
               <span className="text-right">Price</span>
               <span className="text-right">Chg</span>
-              <span className="text-right">5m</span>
-              <span className="text-right">15m</span>
+              <span className="text-right">{activeView === "expansion" ? "$ move" : "5m"}</span>
+              <span className="text-right">{activeView === "expansion" ? "% move" : "15m"}</span>
               <span>Stage / entry</span>
               <span className="text-right">Candle</span>
               <span />
             </div>
 
-            {ranked.map((s, index) => {
+            {displayed.map((s, index) => {
               const isOpen = expanded === s.ticker;
               const timeframe = timeframes[s.ticker] ?? "5m";
               const detail = resultsBySymbol[s.ticker]?.[timeframe] ?? null;
@@ -140,6 +216,11 @@ export function RankedOpportunities({
               // absent one shows nothing rather than a placeholder that
               // would read as a weak signal.
               const qualifying = selectQualifyingExpansion(expansion);
+              const displayExpansion = expansion ? selectDisplayExpansion(expansion) : null;
+              const displayExpansionStage = displayExpansion
+                ? expansionMonitorBySymbol?.[s.ticker]?.[displayExpansion.direction].stage ??
+                  displayExpansion.stage
+                : null;
 
               return (
                 <div
@@ -207,20 +288,29 @@ export function RankedOpportunities({
                       className="font-mono tabular text-right"
                       style={{ color: "var(--text)" }}
                     >
-                      {s.score5m.toFixed(1)}
+                      {activeView === "expansion"
+                        ? formatMoneyMove(displayExpansion?.move.dollarMove ?? null)
+                        : s.score5m.toFixed(1)}
                     </span>
                     <span
                       className="font-mono tabular text-right text-[12px]"
                       style={{ color: "var(--text-secondary)" }}
                     >
-                      {s.score15m.toFixed(1)}
+                      {activeView === "expansion"
+                        ? formatNullablePct(displayExpansion?.move.percentMove ?? null)
+                        : s.score15m.toFixed(1)}
                     </span>
 
                     <span className="min-w-0 text-[11px] leading-tight">
-                      <span className="block truncate" style={{ color: "var(--text-secondary)" }}>
+                      {activeView === "expansion" && displayExpansionStage && (
+                        <span className="block truncate" style={{ color: "var(--text-secondary)" }}>
+                          {stageLabel(displayExpansionStage)}
+                        </span>
+                      )}
+                      <span className={activeView === "expansion" ? "hidden" : "block truncate"} style={{ color: "var(--text-secondary)" }}>
                         {row ? row.stage.replace(/_/g, " ") : "—"}
                       </span>
-                      {entry && (
+                      {activeView === "setups" && entry && (
                         <span
                           className="block truncate"
                           style={{ color: ENTRY_COLOR[entry] ?? "var(--text-muted)" }}
@@ -232,7 +322,7 @@ export function RankedOpportunities({
                           rather than competing with the reversal stage
                           above it. Direction is carried by the arrow and
                           by the label — never by colour alone. */}
-                      {qualifying && (
+                      {activeView === "setups" && qualifying && (
                         <span
                           data-testid="expansion-chip"
                           aria-label={`Premarket expansion candidate, ${qualifying.direction}, ${stageLabel(
@@ -277,7 +367,7 @@ export function RankedOpportunities({
                     </button>
                   </div>
 
-                  {isOpen && detail && (
+                  {isOpen && (detail || expansion) && (
                     <div id={panelId}>
                       {/* A sibling of SetupDetail, never inside it: the
                           expansion candidate is a separate setup type and
@@ -292,18 +382,20 @@ export function RankedOpportunities({
                         monitor={expansionMonitorBySymbol?.[s.ticker]}
                         entryStatus={entry}
                       />
-                      <SetupDetail
-                        result={detail}
-                        exchange={s.exchange}
-                        timeframe={timeframe}
-                        onTimeframeChange={(tf) =>
-                          setTimeframes((prev) => ({ ...prev, [s.ticker]: tf }))
-                        }
-                        embedded
-                        scoreThreshold={scoreThreshold}
-                        score5m={s.score5m}
-                        score15m={s.score15m}
-                      />
+                      {activeView === "setups" && detail && (
+                        <SetupDetail
+                          result={detail}
+                          exchange={s.exchange}
+                          timeframe={timeframe}
+                          onTimeframeChange={(tf) =>
+                            setTimeframes((prev) => ({ ...prev, [s.ticker]: tf }))
+                          }
+                          embedded
+                          scoreThreshold={scoreThreshold}
+                          score5m={s.score5m}
+                          score15m={s.score15m}
+                        />
+                      )}
                     </div>
                   )}
                 </div>
