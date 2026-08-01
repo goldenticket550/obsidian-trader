@@ -20,6 +20,9 @@ import {
 
 afterEach(cleanup);
 
+/** 4:00 AM ET — the premarket open, before its first bar has completed. */
+const PRE_OPEN_NOW = "2026-07-13T08:00:00Z";
+
 /**
  * Display-only tests for the Premarket Expansion badge and detail panel.
  *
@@ -168,6 +171,51 @@ describe("expansion detail panel", () => {
     expect(panel.textContent).toContain("Latest completed bar");
   });
 
+  it("renders structured sections rather than one preformatted text block", () => {
+    const { container } = renderRanked(expansionBySymbol);
+    openRow(container, "EXPD");
+    const panel = screen.getByTestId("expansion-panel");
+
+    // The monospace log-dump is gone.
+    expect(panel.querySelector("pre")).toBeNull();
+
+    for (const heading of ["Premarket context", "Evidence", "Next"]) {
+      expect(panel.textContent).toContain(heading);
+    }
+    // Context rows are label/value pairs, matching the other panels.
+    for (const label of [
+      "Move from prior close",
+      "Volume pace",
+      "Premarket range",
+      "Range vs baseline",
+      "Position in reference range",
+      "Prior-day level",
+      "Confirmation",
+      "Invalidation",
+      "Data status",
+    ]) {
+      expect(panel.textContent).toContain(label);
+    }
+  });
+
+  it("gives every evidence group a state pill, one per group", () => {
+    const { container } = renderRanked(expansionBySymbol);
+    openRow(container, "EXPD");
+    const panel = screen.getByTestId("expansion-panel");
+
+    const pills = panel.querySelectorAll('[data-testid^="evidence-pill-"]');
+    expect(pills).toHaveLength(6);
+
+    const expected = expansionBySymbol.EXPD.bullish.groups.map((g) => g.state);
+    expect([...pills].map((p) => p.getAttribute("data-testid")!.replace("evidence-pill-", ""))).toEqual(
+      expected
+    );
+    // Unmeasurable is muted, never red — it is not a failure.
+    const na = panel.querySelector('[data-testid="evidence-pill-unavailable"]') as HTMLElement;
+    expect(na.textContent).toBe("N/A");
+    expect(na.style.color).toContain("--text-muted");
+  });
+
   it("places the expansion panel above the reversal checklist, not buried under it", () => {
     // The reversal checklist is long. Below it, the panel is reached only
     // by scrolling past everything else — burying the thing the row's
@@ -193,6 +241,31 @@ describe("expansion detail panel", () => {
     expect(panel.textContent).toMatch(/N\/A|Unavailable/);
     // ...and never as a zero-shaped placeholder.
     expect(panel.textContent).not.toMatch(/0\.0×\s*median/);
+  });
+
+  it("collapses to one honest line when there is no premarket window yet", async () => {
+    // Scanned at 4:00 AM ET, before the first premarket bar has closed.
+    // Every context row would read "Unavailable"; one sentence says more.
+    resetExpansionBaselineCache();
+    const scan = await scanWatchlistWithProvider(
+      [{ symbol: "EXPD", exchange: "NASDAQ" }],
+      new FixtureProvider(standardFixtures()),
+      defaultStrategyConfig,
+      PRE_OPEN_NOW
+    );
+    const preOpen = scan.expansionBySymbol!.EXPD;
+
+    render(<ExpansionCandidatePanel expansion={preOpen} />);
+    const panel = screen.getByTestId("expansion-panel");
+
+    expect(screen.getByTestId("expansion-empty").textContent).toBe(
+      "No premarket data yet — market closed or pre-open"
+    );
+    // The header survives; the body does not become a wall of Unavailable.
+    expect(panel.textContent).toContain("Premarket Expansion Candidate");
+    expect(panel.querySelectorAll('[data-testid^="evidence-pill-"]')).toHaveLength(0);
+    expect(panel.textContent).not.toContain("Volume pace");
+    expect(panel.textContent).not.toContain("Scanned at");
   });
 
   it("renders nothing when there is no expansion for the symbol", () => {
