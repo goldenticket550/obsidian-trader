@@ -1,6 +1,7 @@
 import type { Timeframe } from "@/types/candle";
 
 const TIMEFRAME_TO_TV_INTERVAL: Record<Timeframe, string> = {
+  "1m": "1",
   "5m": "5",
   "15m": "15",
   "1d": "D",

@@ -7,7 +7,16 @@ import { filterToLatestSession } from "../sessionFilter";
 
 const ALPACA_DATA_BASE_URL = "https://data.alpaca.markets/v2";
 
+/**
+ * Ceiling on `next_page_token` follows for a single getCandles call. Four
+ * pages covers ~40,000 bars — comfortably more than 20 sessions of
+ * 1-minute data — while bounding the worst case if the provider ever
+ * returns a non-terminating token chain.
+ */
+const MAX_BAR_PAGES = 4;
+
 const TIMEFRAME_TO_ALPACA: Record<Timeframe, string> = {
+  "1m": "1Min",
   "5m": "5Min",
   "15m": "15Min",
   "1d": "1Day",
@@ -65,6 +74,17 @@ function lookbackDays(timeframe: Timeframe, limit: number): number {
   if (timeframe === "1d") {
     // Roughly 5 trading days per 7 calendar days, plus a buffer for holidays.
     return Math.ceil(limit * 1.6) + 10;
+  }
+  if (timeframe === "1m") {
+    // 1m is the only timeframe whose historical baselines reach back many
+    // SESSIONS (20 by default, for the dollar-volume and true-range
+    // time-of-day medians), so the flat 6-day window below is nowhere
+    // near enough — 6 calendar days is ~4 sessions. A regular session
+    // holds ~390 one-minute bars; premarket adds more, so this
+    // deliberately over-estimates rather than risk a window that cannot
+    // reach the requested bar count.
+    const sessionsNeeded = Math.max(1, Math.ceil(limit / 390));
+    return Math.ceil(sessionsNeeded * 1.6) + 5;
   }
   // Intraday (5m/15m): a handful of calendar days comfortably reaches
   // back across any weekend, even a 3-day holiday weekend.
@@ -354,20 +374,39 @@ export class AlpacaProvider implements MarketDataProvider {
     url.searchParams.set("adjustment", "raw");
     url.searchParams.set("start", computeStartDate(new Date(), timeframe, limit));
 
-    const response = await this.fetchWithRetry(url.toString(), deadlineAt);
+    // Pagination: `next_page_token` was declared on the response type but
+    // never followed, which silently truncated any window larger than one
+    // page. Harmless at 5m/15m (a few hundred bars), but 20 sessions of
+    // 1-minute bars is ~14,000 — well past Alpaca's 10,000-per-page cap,
+    // so the tail was being dropped without any error. Pages are capped so
+    // a runaway token loop can't consume the whole request budget.
+    const rawBars: AlpacaBar[] = [];
+    let pageToken: string | null = null;
+    let pagesFetched = 0;
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        throw new Error("Alpaca returned 429 Too Many Requests — rate limit exceeded upstream.");
-      }
-      if (response.status === 401 || response.status === 403) {
-        throw new Error("Alpaca authentication failed — check ALPACA_API_KEY_ID/SECRET.");
-      }
-      throw new Error(`Alpaca request failed: ${response.status} ${response.statusText}`);
-    }
+    do {
+      if (pageToken) url.searchParams.set("page_token", pageToken);
 
-    const data = (await response.json()) as AlpacaBarsResponse;
-    const allCandles = (data.bars ?? []).map(mapAlpacaBar);
+      const response = await this.fetchWithRetry(url.toString(), deadlineAt);
+
+      if (!response.ok) {
+        if (response.status === 429) {
+          throw new Error("Alpaca returned 429 Too Many Requests — rate limit exceeded upstream.");
+        }
+        if (response.status === 401 || response.status === 403) {
+          throw new Error("Alpaca authentication failed — check ALPACA_API_KEY_ID/SECRET.");
+        }
+        throw new Error(`Alpaca request failed: ${response.status} ${response.statusText}`);
+      }
+
+      const data = (await response.json()) as AlpacaBarsResponse;
+      if (data.bars) rawBars.push(...data.bars);
+
+      pageToken = data.next_page_token ?? null;
+      pagesFetched += 1;
+    } while (pageToken && pagesFetched < MAX_BAR_PAGES);
+
+    const allCandles = rawBars.map(mapAlpacaBar);
 
     // FIX (Codex review): session contamination. Daily candles are
     // already one-per-session by definition, so filtering doesn't apply

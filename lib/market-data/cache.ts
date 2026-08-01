@@ -43,6 +43,9 @@ export class TtlCache<T> {
  * are worth refreshing more often; daily candles barely change intraday.
  */
 export const CANDLE_CACHE_TTL_MS = {
+  // 1m drives the early-acceleration heads-up, so it must go stale fastest
+  // of all — a one-minute bar cached for 30s is already half a bar old.
+  "1m": 10_000,
   "5m": 30_000,
   "15m": 60_000,
   "1d": 5 * 60_000,

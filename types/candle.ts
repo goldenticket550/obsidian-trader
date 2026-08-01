@@ -12,7 +12,15 @@ export interface Candle {
   volume: number;
 }
 
-export type Timeframe = "5m" | "15m" | "1d";
+/**
+ * "1m" exists for early-detection work only (Expansion Monitor Phase 1):
+ * one-minute bars drive the unconfirmed acceleration heads-up, while
+ * every confirmation/structure decision still runs on 5m. The setup
+ * timeframe toggle deliberately does NOT offer it — UI call sites narrow
+ * to `"5m" | "15m"` explicitly, so widening this union cannot leak a
+ * 1-minute option into the dashboard.
+ */
+export type Timeframe = "1m" | "5m" | "15m" | "1d";
 
 /**
  * Marks whether a batch of candles is real-time, delayed, or simulated.

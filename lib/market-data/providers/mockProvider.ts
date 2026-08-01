@@ -19,8 +19,12 @@ export class MockProvider implements MarketDataProvider {
       return { symbol: params.symbol, timeframe: params.timeframe, quality: "simulated", candles: [] };
     }
 
+    // 1m falls back to the 5m series rather than the daily one: without
+    // an explicit branch an unrecognised timeframe silently returned
+    // DAILY candles, so any 1m-backed test would have been quietly
+    // asserting against the wrong series.
     const candles =
-      params.timeframe === "5m"
+      params.timeframe === "1m" || params.timeframe === "5m"
         ? input.sessionCandles5m
         : params.timeframe === "15m"
         ? input.sessionCandles15m
