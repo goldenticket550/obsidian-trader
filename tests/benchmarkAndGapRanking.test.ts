@@ -5,7 +5,10 @@ import {
 } from "@/lib/indicators/benchmarkAlignment";
 import { selectClosestGap } from "@/lib/indicators/fairValueGap";
 import type { FairValueGap } from "@/lib/indicators/fairValueGap";
-import { scanWatchlistWithProvider } from "@/lib/scanner/scanService";
+import {
+  scanWatchlistWithProvider,
+  resetExpansionBaselineCache,
+} from "@/lib/scanner/scanService";
 import { defaultStrategyConfig } from "@/lib/strategies/config";
 import { scoreSetup } from "@/lib/strategies/scorer";
 import { makeCandle, flatSeries, risingSeries } from "@/lib/fixtures/candles";
@@ -174,8 +177,18 @@ describe("Rule D — shared benchmark fetch efficiency", () => {
     return { provider, calls };
   }
 
+  /**
+   * The efficiency guarantee is that benchmark cost is per unique
+   * benchmark per CYCLE, never per symbol.
+   *
+   * It is deliberately expressed as "does not scale with symbol count"
+   * rather than as a fixed request count: the Premarket Expansion
+   * Candidate needs two further shared benchmark series (today's
+   * premarket, and daily for the prior close), so the per-benchmark
+   * bundle is larger than it was — but a fourth symbol mapped to SMH
+   * still adds nothing.
+   */
   it("fetches a shared benchmark ONCE per scan, not once per symbol", async () => {
-    const { provider, calls } = countingProvider();
     const config = {
       ...defaultStrategyConfig,
       benchmarkAlignment: {
@@ -184,19 +197,33 @@ describe("Rule D — shared benchmark fetch efficiency", () => {
       },
     };
 
+    const one = countingProvider();
+    resetExpansionBaselineCache();
+    await scanWatchlistWithProvider(
+      [{ symbol: "NVDA", exchange: "NASDAQ" }],
+      one.provider,
+      config,
+      "2026-07-31T14:00:00Z"
+    );
+
+    const three = countingProvider();
+    resetExpansionBaselineCache();
     await scanWatchlistWithProvider(
       [
         { symbol: "NVDA", exchange: "NASDAQ" },
         { symbol: "AMD", exchange: "NASDAQ" },
         { symbol: "MU", exchange: "NASDAQ" },
       ],
-      provider,
+      three.provider,
       config,
       "2026-07-31T14:00:00Z"
     );
 
-    // Three symbols share SMH — exactly one SMH request, not three.
-    expect(calls.filter((s) => s === "SMH")).toHaveLength(1);
+    const smhOne = one.calls.filter((s) => s === "SMH").length;
+    const smhThree = three.calls.filter((s) => s === "SMH").length;
+    expect(smhOne).toBeGreaterThan(0);
+    // Three symbols sharing SMH cost exactly what one symbol costs.
+    expect(smhThree).toBe(smhOne);
   });
 
   it("fetches each distinct benchmark once", async () => {
@@ -206,6 +233,7 @@ describe("Rule D — shared benchmark fetch efficiency", () => {
       benchmarkAlignment: { defaultBenchmark: "QQQ", overrides: { NVDA: "SMH" } },
     };
 
+    resetExpansionBaselineCache();
     await scanWatchlistWithProvider(
       [
         { symbol: "NVDA", exchange: "NASDAQ" },
@@ -216,7 +244,31 @@ describe("Rule D — shared benchmark fetch efficiency", () => {
       "2026-07-31T14:00:00Z"
     );
 
-    expect(calls.filter((s) => s === "SMH")).toHaveLength(1);
+    // Each benchmark's bundle is fetched once, and the two benchmarks
+    // cost the same as each other — neither is fetched per symbol.
+    const smh = calls.filter((s) => s === "SMH").length;
+    const qqq = calls.filter((s) => s === "QQQ").length;
+    expect(smh).toBeGreaterThan(0);
+    expect(qqq).toBe(smh);
+  });
+
+  it("spends no benchmark premarket or daily requests when expansion is disabled", async () => {
+    const { provider, calls } = countingProvider();
+    const config = {
+      ...defaultStrategyConfig,
+      benchmarkAlignment: { defaultBenchmark: "QQQ", overrides: {} },
+      premarketExpansion: { ...defaultStrategyConfig.premarketExpansion, enabled: false },
+    };
+
+    resetExpansionBaselineCache();
+    await scanWatchlistWithProvider(
+      [{ symbol: "AAPL", exchange: "NASDAQ" }],
+      provider,
+      config,
+      "2026-07-31T14:00:00Z"
+    );
+
+    // Exactly the pre-integration cost: one 5m regular fetch.
     expect(calls.filter((s) => s === "QQQ")).toHaveLength(1);
   });
 });

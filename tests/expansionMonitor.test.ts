@@ -1296,13 +1296,35 @@ describe("the original scanner is untouched (spec test 12)", () => {
     expect(scorerSource).toContain("priorDayContinuation");
   });
 
-  it("leaves the scan service free of expansion imports", () => {
-    const source = readFileSync(resolve(__dirname, "../lib/scanner/scanService.ts"), "utf8");
+  /**
+   * scanService is the SANCTIONED integration seam — Feature A wires the
+   * expansion candidate in there deliberately, so it may import these
+   * modules. The scorer is not a seam: the expansion candidate is a
+   * separate setup type and must never reach the reversal checklist,
+   * which is what the assertions above and below actually protect.
+   */
+  it("permits scanService to import the expansion modules, unlike the scorer", () => {
+    const scanService = readFileSync(
+      resolve(__dirname, "../lib/scanner/scanService.ts"),
+      "utf8"
+    );
+    // The seam is real, not theoretical: the detector is genuinely wired in.
+    expect(scanService).toContain("detectPremarketExpansion");
+    expect(scanService).toContain("premarketExpansion");
+
+    // ...and that changes nothing about the scorer's isolation.
     for (const moduleName of EXPANSION_MODULES) {
-      // historicalBaseline is a market-data module the scanner may
-      // legitimately reach for later; today it must not be wired in.
-      expect(source).not.toContain(moduleName);
+      expect(scorerSource).not.toContain(moduleName);
     }
+  });
+
+  it("keeps the expansion candidate out of the reversal checklist entirely", () => {
+    // Integration means scanService CALLS the detector alongside
+    // scoreSetup; nothing expansion-shaped may reach the scorer's input
+    // or the reversal result type.
+    const setupTypes = readFileSync(resolve(__dirname, "../types/setup.ts"), "utf8");
+    expect(setupTypes).not.toMatch(/expansion/i);
+    expect(scorerSource).not.toMatch(/expansion/i);
   });
 
   it("adds no condition to, and removes none from, the existing checklist", () => {

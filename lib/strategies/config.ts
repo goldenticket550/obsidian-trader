@@ -108,6 +108,13 @@ export interface StrategyConfig {
    * never blended into one number.
    */
   premarketExpansion: {
+    /**
+     * Whether the scanner evaluates the Premarket Expansion Candidate at
+     * all. When false the historical baseline fetch, the benchmark
+     * premarket/daily fetches and the detector are all skipped, so the
+     * added provider load is opt-out-able without a code change.
+     */
+    enabled: boolean;
     /** How many prior sessions the baseline medians are taken over. */
     lookbackSessions: number;
     /** Below this many ELIGIBLE sessions, volume/range baselines report insufficientData. */
@@ -243,6 +250,7 @@ export const defaultStrategyConfig: StrategyConfig = {
     overrides: {},
   },
   premarketExpansion: {
+    enabled: true,
     lookbackSessions: 20,
     minBaselineSessions: 10,
     minimumElapsedPremarketMinutes: 15,

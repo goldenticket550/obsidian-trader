@@ -88,10 +88,36 @@ export interface SessionInfo {
  * depend on this shape, so swapping providers later means writing a new
  * adapter, not touching strategy code.
  */
+/**
+ * What a provider knows about its own feed.
+ *
+ * Delay is a property of the feed CONFIGURATION, never something inferred
+ * from how old a bar looks — an old bar on a real-time feed is stale data,
+ * not a delayed feed. Centralized on the provider so the mapping (Alpaca
+ * IEX or paid → real-time; free SIP → 15-minute delay) lives in one place
+ * instead of being re-derived by every consumer.
+ *
+ * Structurally compatible with the expansion detector's `FeedDelayInfo`,
+ * deliberately: market-data concerns stay in market-data, and the
+ * indicator layer keeps its own type without importing this one.
+ */
+export interface ProviderFeedInfo {
+  /** Feed identifier used to keep cached bars from different feeds apart. */
+  feed: string;
+  delayed: boolean;
+  /** Null means the delay is not bounded/known, which cannot clear an alert gate. */
+  knownDelayMinutes: number | null;
+}
+
 export interface MarketDataProvider {
   name: string;
   getCandles(params: GetCandlesParams): Promise<CandleSeries>;
   getSessionInfo(): Promise<SessionInfo>;
+  /**
+   * Optional: providers with no real feed (the mock provider) omit it and
+   * consumers fall back to a conservative "no known delay".
+   */
+  feedInfo?(): ProviderFeedInfo;
 }
 
 export function emptySeries(

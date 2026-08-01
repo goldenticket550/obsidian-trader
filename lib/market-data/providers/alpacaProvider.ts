@@ -6,7 +6,12 @@ import type {
   Timeframe,
 } from "@/types/candle";
 import { DEFAULT_BAR_ADJUSTMENT } from "../types";
-import type { GetCandlesParams, MarketDataProvider, SessionInfo } from "../types";
+import type {
+  GetCandlesParams,
+  MarketDataProvider,
+  ProviderFeedInfo,
+  SessionInfo,
+} from "../types";
 import { computeSessionInfo } from "../session";
 import { RateLimiter } from "../rateLimiter";
 import { TtlCache, CANDLE_CACHE_TTL_MS } from "../cache";
@@ -274,6 +279,22 @@ export class AlpacaProvider implements MarketDataProvider {
     const feed = this.config.feed ?? "iex";
     if (this.config.isPaidPlan) return "realtime";
     return feed === "iex" ? "realtime" : "delayed";
+  }
+
+  /**
+   * The feed's own delay characteristics, stated once here rather than
+   * re-derived by each consumer.
+   *
+   * IEX is free real-time (single exchange); SIP is the full consolidated
+   * tape, real-time on a paid plan and 15-minute delayed on the free one.
+   * The delay is BOUNDED and known, which is what lets a delayed feed
+   * still clear the expansion alert gate — an unknown-delay feed could
+   * not.
+   */
+  feedInfo(): ProviderFeedInfo {
+    const feed = this.config.feed ?? "iex";
+    const delayed = this.dataQuality() === "delayed";
+    return { feed, delayed, knownDelayMinutes: delayed ? 15 : null };
   }
 
   /**

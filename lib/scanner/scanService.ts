@@ -3,12 +3,33 @@ import type { WatchlistSymbol } from "@/types/watchlist";
 import { scoreSetup } from "@/lib/strategies/scorer";
 import { defaultStrategyConfig, type StrategyConfig } from "@/lib/strategies/config";
 import type { ScanInput } from "@/lib/mock/scanInputs";
-import type { MarketDataProvider } from "@/lib/market-data/types";
+import type { MarketDataProvider, ProviderFeedInfo } from "@/lib/market-data/types";
 import { findPreviousClose } from "@/lib/market-data/sessionFilter";
 import { getCurrentTradingDate } from "@/lib/risk/tradingDate";
-import { getSessionTypeForTimestamp } from "@/lib/market-data/session";
+import {
+  getSessionTypeForTimestamp,
+  PRE_MARKET_START_MINUTES,
+} from "@/lib/market-data/session";
 import { resolveBenchmarkSymbol } from "@/lib/indicators/benchmarkAlignment";
+import { calculateAtr } from "@/lib/indicators/atr";
+import {
+  clampToPremarketCutoff,
+  computeCompletedBarCutoff,
+  filterToCompletedBars,
+  splitBaseline,
+  HistoricalBarCache,
+} from "@/lib/market-data/historicalBaseline";
+import {
+  detectPremarketExpansion,
+  type PremarketExpansionResult,
+} from "@/lib/indicators/premarketExpansion";
 import type { Candle } from "@/types/candle";
+
+/** Both directions of the Premarket Expansion Candidate for one symbol. */
+export interface SymbolExpansion {
+  bullish: PremarketExpansionResult;
+  bearish: PremarketExpansionResult;
+}
 
 export interface ScanOutput {
   watchlist: WatchlistSymbol[];
@@ -22,6 +43,24 @@ export interface ScanOutput {
    * fabricated/simulated data pretending to be real.
    */
   errors: { symbol: string; message: string }[];
+  /**
+   * Premarket Expansion Candidate results, per symbol, in both
+   * directions. A SEPARATE setup type, evaluated independently of the
+   * reversal checklist — it never contributes to `resultsBySymbol` or to
+   * a symbol's score.
+   *
+   * Optional so every existing consumer, route and test is unaffected:
+   * absent means the evaluation was disabled or could not run, never that
+   * a symbol was found uninteresting.
+   */
+  expansionBySymbol?: Record<string, SymbolExpansion>;
+  /**
+   * Symbols whose expansion evaluation failed. Deliberately NOT merged
+   * into `errors`, which means "this symbol was excluded from the scan
+   * entirely" — an expansion failure costs a symbol nothing but its
+   * expansion result.
+   */
+  expansionErrors?: { symbol: string; message: string }[];
 }
 
 function toWatchlistStatus(result: SetupResult): "red" | "yellow" | "green" {
@@ -112,6 +151,50 @@ export interface WatchedSymbol {
 }
 
 /**
+ * The historical raw-bar cache, held at MODULE level so its ~15-minute TTL
+ * actually amortizes across scan cycles.
+ *
+ * A per-call instance would refetch ~21 sessions of bars for every symbol
+ * on every cycle and defeat the entire point of the cache — at a 60-second
+ * refresh that is fifteen times the necessary provider load. On a warm
+ * serverless instance this persists; a cold start refills it, which is
+ * acceptable and self-correcting.
+ *
+ * Keyed on the provider instance so a test (or a provider swap) never
+ * serves one provider's bars from another's cache.
+ */
+let baselineCache: HistoricalBarCache | null = null;
+let baselineCacheProvider: MarketDataProvider | null = null;
+
+function getBaselineCache(provider: MarketDataProvider): HistoricalBarCache {
+  if (baselineCache === null || baselineCacheProvider !== provider) {
+    baselineCache = new HistoricalBarCache(provider);
+    baselineCacheProvider = provider;
+  }
+  return baselineCache;
+}
+
+/** For tests — drops the cached bars so each case starts from a known state. */
+export function resetExpansionBaselineCache(): void {
+  baselineCache = null;
+  baselineCacheProvider = null;
+}
+
+/** A provider with no feed concept is treated as having no KNOWN delay. */
+function resolveFeedInfo(provider: MarketDataProvider): ProviderFeedInfo {
+  return provider.feedInfo?.() ?? { feed: provider.name, delayed: false, knownDelayMinutes: null };
+}
+
+/** Everything the benchmark contributes, fetched once per unique benchmark per cycle. */
+interface BenchmarkBundle {
+  /** Regular-hours 5m bars — what Rule D's benchmark alignment already used. */
+  regular: Candle[];
+  /** Today's completed premarket 5m bars, for relative premarket performance. */
+  premarket: Candle[];
+  daily: Candle[];
+}
+
+/**
  * Provider-driven scan: fetches real (or mock, via MockProvider) candles
  * through the MarketDataProvider interface instead of using pre-built
  * ScanInput fixtures. This is the function the /api/scan route uses —
@@ -135,11 +218,16 @@ export async function scanWatchlistWithProvider(
   const watchlist: WatchlistSymbol[] = [];
   const resultsBySymbol: Record<string, { "5m": SetupResult; "15m": SetupResult }> = {};
   const errors: { symbol: string; message: string }[] = [];
+  const expansionBySymbol: Record<string, SymbolExpansion> = {};
+  const expansionErrors: { symbol: string; message: string }[] = [];
   const todayTradingDate = getCurrentTradingDate(new Date(now));
 
   // Scoped to THIS scan cycle, so benchmark data can never go stale
   // across cycles while still being fetched only once within one.
-  const benchmarkCache = new Map<string, Candle[]>();
+  const benchmarkCache = new Map<string, BenchmarkBundle>();
+
+  const expansionEnabled = config.premarketExpansion.enabled;
+  const feedInfo = resolveFeedInfo(provider);
 
   for (const { symbol, exchange } of symbols) {
     // FIX (Codex review): one bad symbol (rate limit, malformed ticker,
@@ -168,12 +256,16 @@ export async function scanWatchlistWithProvider(
       // scan cycle, reused across every symbol mapped to it — five
       // semiconductor names sharing SMH must not issue five SMH requests.
       const benchmarkSymbol = resolveBenchmarkSymbol(symbol, config.benchmarkAlignment);
-      const benchmarkCandles = await getBenchmarkCandles(
+      const benchmark = await getBenchmarkBundle(
         benchmarkSymbol,
         provider,
         benchmarkCache,
+        todayTradingDate,
+        now,
+        expansionEnabled,
         deadlineAt
       );
+      const benchmarkCandles = benchmark.regular;
 
       const premarketCandles = premarketOnly(seriesPremarket.candles, todayTradingDate);
 
@@ -248,6 +340,34 @@ export async function scanWatchlistWithProvider(
         status15m: toWatchlistStatus(result15m),
         lastSignalTime: hasAnyPass ? result5m.lastUpdated : null,
       });
+
+      // The Premarket Expansion Candidate is a SEPARATE setup type, so it
+      // gets its own try/catch INSIDE this symbol's. A baseline fetch that
+      // fails, or a config that will not validate, must cost this symbol
+      // its expansion result and nothing else — the reversal rows above
+      // are already committed and stay exactly as they are.
+      if (expansionEnabled) {
+        try {
+          expansionBySymbol[symbol] = await evaluateExpansion({
+            symbol,
+            provider,
+            config,
+            now,
+            todayTradingDate,
+            extendedCandles: seriesPremarket.candles,
+            confirmationCandles: series5m.candles,
+            dailyCandles,
+            benchmarkSymbol,
+            benchmark,
+            feedInfo,
+            deadlineAt,
+          });
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : "Unknown expansion evaluation error";
+          expansionErrors.push({ symbol, message });
+        }
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown scan error";
       errors.push({ symbol, message });
@@ -258,7 +378,188 @@ export async function scanWatchlistWithProvider(
     }
   }
 
-  return { watchlist, resultsBySymbol, errors };
+  return {
+    watchlist,
+    resultsBySymbol,
+    errors,
+    // Omitted entirely rather than emitted empty when the feature is off,
+    // so an absent field never reads as "evaluated, found nothing".
+    ...(expansionEnabled ? { expansionBySymbol } : {}),
+    ...(expansionErrors.length > 0 ? { expansionErrors } : {}),
+  };
+}
+
+interface ExpansionEvaluationArgs {
+  symbol: string;
+  provider: MarketDataProvider;
+  config: StrategyConfig;
+  now: string;
+  todayTradingDate: string;
+  /** Today's "extended"-scoped 5m series, before any premarket narrowing. */
+  extendedCandles: Candle[];
+  /** Regular-scope 5m series used for the acceptance test. */
+  confirmationCandles: Candle[];
+  dailyCandles: Candle[];
+  benchmarkSymbol: string;
+  benchmark: BenchmarkBundle;
+  feedInfo: ProviderFeedInfo;
+  deadlineAt?: number;
+}
+
+/**
+ * Builds the detector's input from data this scan already has, plus the
+ * one genuinely new dependency (the historical baseline), and evaluates
+ * BOTH directions.
+ *
+ * Both directions are always evaluated: they share every fetch, so the
+ * second one is pure CPU over data already in memory. A bearish expansion
+ * is not a rarer event than a bullish one, and evaluating only one would
+ * make the feature silently directional.
+ */
+async function evaluateExpansion(args: ExpansionEvaluationArgs): Promise<SymbolExpansion> {
+  const {
+    symbol,
+    provider,
+    config,
+    now,
+    todayTradingDate,
+    extendedCandles,
+    confirmationCandles,
+    dailyCandles,
+    benchmarkSymbol,
+    benchmark,
+    feedInfo,
+    deadlineAt,
+  } = args;
+
+  const scannedAt = new Date(now);
+  const expansionConfig = config.premarketExpansion;
+
+  // Everything the detector sees must be a COMPLETED bar. A forming 5m
+  // candle carries whatever volume and range it has accumulated so far,
+  // which is exactly the shape of an expansion that may not survive the
+  // next four minutes.
+  const premarketCandles = filterToCompletedBars(
+    premarketOnly(extendedCandles, todayTradingDate),
+    5,
+    scannedAt
+  );
+
+  // The comparison window runs from the premarket open to the latest
+  // COMPLETED bar, clamped at 9:30 — past the open, "premarket" stops
+  // accumulating rather than quietly becoming "the morning so far".
+  const rawCutoff = computeCompletedBarCutoff(extendedCandles, 5, scannedAt);
+  const cutoffMinutes = rawCutoff === null ? null : clampToPremarketCutoff(rawCutoff);
+
+  const { todaySession, baseline, datasetIncomplete } =
+    cutoffMinutes === null || cutoffMinutes <= PRE_MARKET_START_MINUTES
+      ? // No completed premarket bar yet: there is no window to compare,
+        // so the baseline request is skipped rather than spent on an
+        // empty one. Incomplete by definition, not by failure.
+        { todaySession: null, baseline: [], datasetIncomplete: true }
+      : await loadBaseline({
+          symbol,
+          provider,
+          expansionConfig,
+          feed: feedInfo.feed,
+          todayTradingDate,
+          cutoffMinutes,
+          deadlineAt,
+        });
+
+  const elapsedPremarketMinutes =
+    cutoffMinutes === null ? null : Math.max(0, cutoffMinutes - PRE_MARKET_START_MINUTES);
+
+  const atrSeries = calculateAtr(dailyCandles, config.extension.atrPeriod);
+  const lastAtr = atrSeries[atrSeries.length - 1];
+  const dailyAtr = Number.isFinite(lastAtr) ? lastAtr : null;
+
+  const sharedInput = {
+    symbol,
+    premarketCandles,
+    confirmationCandles: filterToCompletedBars(confirmationCandles, 5, scannedAt),
+    dailyCandles,
+    todayTradingDate,
+    todaySession,
+    baseline,
+    elapsedPremarketMinutes,
+    dailyAtr,
+    benchmarkSymbol,
+    benchmarkPremarketCandles: benchmark.premarket,
+    benchmarkDailyCandles: benchmark.daily,
+    feed: { delayed: feedInfo.delayed, knownDelayMinutes: feedInfo.knownDelayMinutes },
+    datasetIncomplete,
+    candleIntervalMinutes: 5,
+    scannedAt,
+  };
+
+  return {
+    bullish: detectPremarketExpansion({ ...sharedInput, direction: "bullish" }, expansionConfig),
+    bearish: detectPremarketExpansion({ ...sharedInput, direction: "bearish" }, expansionConfig),
+  };
+}
+
+/**
+ * Today's premarket window and the comparable window on each prior
+ * session, from the shared historical bar cache.
+ *
+ * `todayTradingDate` is passed into the request deliberately: without it
+ * the cache cannot tell a complete history from one whose newest sessions
+ * were lost to an oldest-first truncation, and would report a short
+ * window as a good one.
+ */
+async function loadBaseline(args: {
+  symbol: string;
+  provider: MarketDataProvider;
+  expansionConfig: StrategyConfig["premarketExpansion"];
+  feed: string;
+  todayTradingDate: string;
+  cutoffMinutes: number;
+  deadlineAt?: number;
+}) {
+  const { symbol, provider, expansionConfig, feed, todayTradingDate, cutoffMinutes, deadlineAt } =
+    args;
+
+  const aggregation = await getBaselineCache(provider).getAggregation(
+    {
+      symbol,
+      timeframe: "5m",
+      sessionScope: "extended",
+      // Today plus the full lookback: today is the measurement, the rest
+      // are the comparison.
+      sessionCount: expansionConfig.lookbackSessions + 1,
+      feed,
+      adjustment: "raw",
+      todayTradingDate,
+      deadlineAt,
+    },
+    {
+      startMinutes: PRE_MARKET_START_MINUTES,
+      cutoffMinutes,
+      intervalMinutes: 5,
+    }
+  );
+
+  const split = splitBaseline(
+    aggregation,
+    todayTradingDate,
+    expansionConfig.lookbackSessions,
+    expansionConfig.minBaselineSessions
+  );
+
+  // Short history is gated by `minBaselineSessions`, not by freshness:
+  // `insufficient_sessions` can only be reported once pagination completed
+  // AND today is present, so it means "young symbol", not "data lost".
+  // Every other reason — including any added later — still forces
+  // `partial`, which keeps the default fail-safe.
+  const reason = split.sourceIncompleteReason;
+  const datasetIncomplete = reason !== null && reason !== "insufficient_sessions";
+
+  return {
+    todaySession: split.today,
+    baseline: split.baseline,
+    datasetIncomplete,
+  };
 }
 
 /**
@@ -267,33 +568,82 @@ export async function scanWatchlistWithProvider(
  * semiconductor names all resolving to SMH must produce one SMH request,
  * not five — a real rate-limit consideration, not optional polish.
  *
- * A failed benchmark fetch is cached as an empty array rather than
- * retried per symbol: the benchmark being unavailable is not a reason to
- * fail the whole symbol's scan, and detectBenchmarkAlignment turns an
- * empty series into insufficientData ("unknown"), never "not aligned".
+ * The expansion candidate needs two more benchmark series (today's
+ * premarket, and daily for the prior close), so they are fetched here
+ * under the same one-per-cycle guarantee rather than per symbol.
+ *
+ * A failed benchmark fetch is cached as empty arrays rather than retried
+ * per symbol: the benchmark being unavailable is not a reason to fail the
+ * whole symbol's scan. detectBenchmarkAlignment turns an empty series into
+ * insufficientData ("unknown"), never "not aligned", and the expansion
+ * detector reports an unavailable relative move rather than a bearish one.
  */
-async function getBenchmarkCandles(
+async function getBenchmarkBundle(
   benchmarkSymbol: string,
   provider: MarketDataProvider,
-  cache: Map<string, Candle[]>,
+  cache: Map<string, BenchmarkBundle>,
+  todayTradingDate: string,
+  now: string,
+  /**
+   * When false, only the regular-hours series Rule D needs is fetched —
+   * the premarket and daily series exist solely for the expansion
+   * candidate, so disabling it must not spend those requests.
+   */
+  includeExpansionSeries: boolean,
   deadlineAt?: number
-): Promise<Candle[]> {
+): Promise<BenchmarkBundle> {
   const cached = cache.get(benchmarkSymbol);
   if (cached) return cached;
 
-  try {
-    const series = await provider.getCandles({
+  // `allSettled`, not `all`: each series must degrade on its OWN failure.
+  // Under a shared catch, a premarket or daily rejection also blanked
+  // `regular` — and `regular` feeds Rule D on the REVERSAL path, so an
+  // expansion-only fetch failure would have changed the reversal score of
+  // every symbol sharing this benchmark. That is exactly the isolation
+  // this integration is supposed to preserve.
+  const [regularResult, premarketResult, dailyResult] = await Promise.allSettled([
+    provider.getCandles({
       symbol: benchmarkSymbol,
       timeframe: "5m",
       limit: 100,
       deadlineAt,
-    });
-    cache.set(benchmarkSymbol, series.candles);
-    return series.candles;
-  } catch {
-    cache.set(benchmarkSymbol, []);
-    return [];
-  }
+    }),
+    includeExpansionSeries
+      ? provider.getCandles({
+          symbol: benchmarkSymbol,
+          timeframe: "5m",
+          limit: 100,
+          deadlineAt,
+          sessionScope: "extended",
+        })
+      : Promise.resolve(null),
+    includeExpansionSeries
+      ? provider.getCandles({
+          symbol: benchmarkSymbol,
+          timeframe: "1d",
+          limit: 30,
+          deadlineAt,
+        })
+      : Promise.resolve(null),
+  ]);
+
+  const premarketSeries =
+    premarketResult.status === "fulfilled" ? premarketResult.value : null;
+
+  const bundle: BenchmarkBundle = {
+    regular: regularResult.status === "fulfilled" ? regularResult.value.candles : [],
+    premarket: premarketSeries
+      ? filterToCompletedBars(
+          premarketOnly(premarketSeries.candles, todayTradingDate),
+          5,
+          new Date(now)
+        )
+      : [],
+    daily: dailyResult.status === "fulfilled" ? (dailyResult.value?.candles ?? []) : [],
+  };
+
+  cache.set(benchmarkSymbol, bundle);
+  return bundle;
 }
 
 /**

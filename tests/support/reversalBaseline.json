@@ -1,0 +1,599 @@
+{
+  "watchlist": [
+    {
+      "ticker": "EXPD",
+      "exchange": "NASDAQ",
+      "price": 104,
+      "dailyChangePct": 0.04,
+      "distanceFromSessionLowPct": 0.0028929604628736465,
+      "score5m": 1.0526315789473684,
+      "score15m": 1.0526315789473684,
+      "status5m": "red",
+      "status15m": "red",
+      "lastSignalTime": "2026-07-13T13:35:00Z"
+    },
+    {
+      "ticker": "CALM",
+      "exchange": "NASDAQ",
+      "price": 50.2,
+      "dailyChangePct": 0.0040000000000000565,
+      "distanceFromSessionLowPct": 0.006012024048096135,
+      "score5m": 1.0526315789473684,
+      "score15m": 1.0526315789473684,
+      "status5m": "red",
+      "status15m": "red",
+      "lastSignalTime": "2026-07-13T13:35:00Z"
+    }
+  ],
+  "resultsBySymbol": {
+    "EXPD": {
+      "5m": {
+        "symbol": "EXPD",
+        "timeframe": "5m",
+        "quality": "simulated",
+        "stage": "none",
+        "status": "red",
+        "score": 1.0526315789473684,
+        "maxScore": 10,
+        "conditions": [
+          {
+            "id": "intraday_decline",
+            "label": "Significant intraday decline",
+            "required": true,
+            "category": "informational",
+            "state": "fail",
+            "detail": "0.0% from open, -4.0% from prev close"
+          },
+          {
+            "id": "recovery_from_low",
+            "label": "Recovery from session low",
+            "required": true,
+            "category": "core",
+            "state": "fail",
+            "detail": "$0.30 (0.3%) recovered from $103.70 low"
+          },
+          {
+            "id": "consecutive_bullish",
+            "label": "Consecutive bullish candles",
+            "required": true,
+            "category": "supporting",
+            "insufficientData": true,
+            "state": "fail",
+            "detail": "Not enough candles yet to evaluate (need 3)"
+          },
+          {
+            "id": "liquidity_sweep",
+            "label": "Liquidity sweep (experimental)",
+            "required": true,
+            "category": "core",
+            "insufficientData": true,
+            "state": "fail",
+            "detail": "Not enough candles yet to evaluate (need 2)"
+          },
+          {
+            "id": "structure_shift",
+            "label": "Bullish market-structure shift",
+            "required": true,
+            "category": "core",
+            "state": "waiting",
+            "detail": "No swing high identified yet"
+          },
+          {
+            "id": "ema_reclaim",
+            "label": "9 EMA reclaim",
+            "required": true,
+            "category": "secondary",
+            "state": "fail",
+            "detail": "Not enough candles for EMA"
+          },
+          {
+            "id": "fair_value_gap",
+            "label": "Valid bullish fair value gap",
+            "required": false,
+            "category": "secondary",
+            "state": "waiting",
+            "detail": "No qualifying 3-candle gap yet"
+          },
+          {
+            "id": "gap_proximity",
+            "label": "Price approaching or entering the gap",
+            "required": false,
+            "category": "informational",
+            "state": "waiting",
+            "detail": "No gap selected"
+          },
+          {
+            "id": "prior_day_continuation",
+            "label": "Prior-day rejection reclaimed in premarket",
+            "required": false,
+            "category": "secondary",
+            "insufficientData": false,
+            "state": "waiting",
+            "detail": "No prior-day rejection — prior close $100.00 vs high $101.00 (−1.0%)"
+          },
+          {
+            "id": "momentum_ladder",
+            "label": "Momentum milestone holding",
+            "required": false,
+            "category": "supporting",
+            "insufficientData": true,
+            "state": "waiting",
+            "detail": "Not enough candles yet to measure a move from the session open"
+          },
+          {
+            "id": "benchmark_alignment",
+            "label": "Benchmark alignment",
+            "required": false,
+            "category": "secondary",
+            "insufficientData": true,
+            "state": "waiting",
+            "detail": "QQQ data unavailable — alignment not evaluated"
+          },
+          {
+            "id": "volume_confirmation",
+            "label": "Volume confirmation",
+            "required": false,
+            "category": "supporting",
+            "state": "waiting",
+            "detail": "0% of average volume"
+          },
+          {
+            "id": "daily_sma_confirmation",
+            "label": "Above daily 20 SMA",
+            "required": false,
+            "category": "secondary",
+            "state": "pass",
+            "detail": "Price $104.00 vs daily SMA $100.00 (4.0%)"
+          },
+          {
+            "id": "strat_confirmation",
+            "label": "Strat candle-type confirmation",
+            "required": false,
+            "category": "supporting",
+            "state": "waiting",
+            "detail": "No qualifying Strat pattern"
+          },
+          {
+            "id": "vwap_reclaim",
+            "label": "VWAP reclaim",
+            "required": false,
+            "category": "secondary",
+            "state": "waiting",
+            "detail": "Not enough candles for VWAP"
+          }
+        ],
+        "lastUpdated": "2026-07-13T13:35:00Z",
+        "latestCandleTime": "2026-07-13T13:30:00.000Z",
+        "convictionLevel": "watch",
+        "entryStatus": "wait_for_pullback",
+        "invalidationNote": null
+      },
+      "15m": {
+        "symbol": "EXPD",
+        "timeframe": "15m",
+        "quality": "simulated",
+        "stage": "none",
+        "status": "red",
+        "score": 1.0526315789473684,
+        "maxScore": 10,
+        "conditions": [
+          {
+            "id": "intraday_decline",
+            "label": "Significant intraday decline",
+            "required": true,
+            "category": "informational",
+            "state": "fail",
+            "detail": "0.0% from open, -4.0% from prev close"
+          },
+          {
+            "id": "recovery_from_low",
+            "label": "Recovery from session low",
+            "required": true,
+            "category": "core",
+            "state": "fail",
+            "detail": "$0.30 (0.3%) recovered from $103.70 low"
+          },
+          {
+            "id": "consecutive_bullish",
+            "label": "Consecutive bullish candles",
+            "required": true,
+            "category": "supporting",
+            "insufficientData": true,
+            "state": "fail",
+            "detail": "Not enough candles yet to evaluate (need 3)"
+          },
+          {
+            "id": "liquidity_sweep",
+            "label": "Liquidity sweep (experimental)",
+            "required": true,
+            "category": "core",
+            "insufficientData": true,
+            "state": "fail",
+            "detail": "Not enough candles yet to evaluate (need 2)"
+          },
+          {
+            "id": "structure_shift",
+            "label": "Bullish market-structure shift",
+            "required": true,
+            "category": "core",
+            "state": "waiting",
+            "detail": "No swing high identified yet"
+          },
+          {
+            "id": "ema_reclaim",
+            "label": "9 EMA reclaim",
+            "required": true,
+            "category": "secondary",
+            "state": "fail",
+            "detail": "Not enough candles for EMA"
+          },
+          {
+            "id": "fair_value_gap",
+            "label": "Valid bullish fair value gap",
+            "required": false,
+            "category": "secondary",
+            "state": "waiting",
+            "detail": "No qualifying 3-candle gap yet"
+          },
+          {
+            "id": "gap_proximity",
+            "label": "Price approaching or entering the gap",
+            "required": false,
+            "category": "informational",
+            "state": "waiting",
+            "detail": "No gap selected"
+          },
+          {
+            "id": "prior_day_continuation",
+            "label": "Prior-day rejection reclaimed in premarket",
+            "required": false,
+            "category": "secondary",
+            "insufficientData": false,
+            "state": "waiting",
+            "detail": "No prior-day rejection — prior close $100.00 vs high $101.00 (−1.0%)"
+          },
+          {
+            "id": "momentum_ladder",
+            "label": "Momentum milestone holding",
+            "required": false,
+            "category": "supporting",
+            "insufficientData": true,
+            "state": "waiting",
+            "detail": "Not enough candles yet to measure a move from the session open"
+          },
+          {
+            "id": "benchmark_alignment",
+            "label": "Benchmark alignment",
+            "required": false,
+            "category": "secondary",
+            "insufficientData": true,
+            "state": "waiting",
+            "detail": "QQQ data unavailable — alignment not evaluated"
+          },
+          {
+            "id": "volume_confirmation",
+            "label": "Volume confirmation",
+            "required": false,
+            "category": "supporting",
+            "state": "waiting",
+            "detail": "0% of average volume"
+          },
+          {
+            "id": "daily_sma_confirmation",
+            "label": "Above daily 20 SMA",
+            "required": false,
+            "category": "secondary",
+            "state": "pass",
+            "detail": "Price $104.00 vs daily SMA $100.00 (4.0%)"
+          },
+          {
+            "id": "strat_confirmation",
+            "label": "Strat candle-type confirmation",
+            "required": false,
+            "category": "supporting",
+            "state": "waiting",
+            "detail": "No qualifying Strat pattern"
+          },
+          {
+            "id": "vwap_reclaim",
+            "label": "VWAP reclaim",
+            "required": false,
+            "category": "secondary",
+            "state": "waiting",
+            "detail": "Not enough candles for VWAP"
+          }
+        ],
+        "lastUpdated": "2026-07-13T13:35:00Z",
+        "latestCandleTime": "2026-07-13T13:30:00.000Z",
+        "convictionLevel": "watch",
+        "entryStatus": "wait_for_pullback",
+        "invalidationNote": null
+      }
+    },
+    "CALM": {
+      "5m": {
+        "symbol": "CALM",
+        "timeframe": "5m",
+        "quality": "simulated",
+        "stage": "none",
+        "status": "red",
+        "score": 1.0526315789473684,
+        "maxScore": 10,
+        "conditions": [
+          {
+            "id": "intraday_decline",
+            "label": "Significant intraday decline",
+            "required": true,
+            "category": "informational",
+            "state": "fail",
+            "detail": "0.0% from open, -0.4% from prev close"
+          },
+          {
+            "id": "recovery_from_low",
+            "label": "Recovery from session low",
+            "required": true,
+            "category": "core",
+            "state": "fail",
+            "detail": "$0.30 (0.6%) recovered from $49.90 low"
+          },
+          {
+            "id": "consecutive_bullish",
+            "label": "Consecutive bullish candles",
+            "required": true,
+            "category": "supporting",
+            "insufficientData": true,
+            "state": "fail",
+            "detail": "Not enough candles yet to evaluate (need 3)"
+          },
+          {
+            "id": "liquidity_sweep",
+            "label": "Liquidity sweep (experimental)",
+            "required": true,
+            "category": "core",
+            "insufficientData": true,
+            "state": "fail",
+            "detail": "Not enough candles yet to evaluate (need 2)"
+          },
+          {
+            "id": "structure_shift",
+            "label": "Bullish market-structure shift",
+            "required": true,
+            "category": "core",
+            "state": "waiting",
+            "detail": "No swing high identified yet"
+          },
+          {
+            "id": "ema_reclaim",
+            "label": "9 EMA reclaim",
+            "required": true,
+            "category": "secondary",
+            "state": "fail",
+            "detail": "Not enough candles for EMA"
+          },
+          {
+            "id": "fair_value_gap",
+            "label": "Valid bullish fair value gap",
+            "required": false,
+            "category": "secondary",
+            "state": "waiting",
+            "detail": "No qualifying 3-candle gap yet"
+          },
+          {
+            "id": "gap_proximity",
+            "label": "Price approaching or entering the gap",
+            "required": false,
+            "category": "informational",
+            "state": "waiting",
+            "detail": "No gap selected"
+          },
+          {
+            "id": "prior_day_continuation",
+            "label": "Prior-day rejection reclaimed in premarket",
+            "required": false,
+            "category": "secondary",
+            "insufficientData": false,
+            "state": "waiting",
+            "detail": "Strong prior-day rejection at $55.00 (−9.1%), premarket has not reclaimed it (currently $50.20)"
+          },
+          {
+            "id": "momentum_ladder",
+            "label": "Momentum milestone holding",
+            "required": false,
+            "category": "supporting",
+            "insufficientData": true,
+            "state": "waiting",
+            "detail": "Not enough candles yet to measure a move from the session open"
+          },
+          {
+            "id": "benchmark_alignment",
+            "label": "Benchmark alignment",
+            "required": false,
+            "category": "secondary",
+            "insufficientData": true,
+            "state": "waiting",
+            "detail": "QQQ data unavailable — alignment not evaluated"
+          },
+          {
+            "id": "volume_confirmation",
+            "label": "Volume confirmation",
+            "required": false,
+            "category": "supporting",
+            "state": "waiting",
+            "detail": "0% of average volume"
+          },
+          {
+            "id": "daily_sma_confirmation",
+            "label": "Above daily 20 SMA",
+            "required": false,
+            "category": "secondary",
+            "state": "pass",
+            "detail": "Price $50.20 vs daily SMA $50.00 (0.4%)"
+          },
+          {
+            "id": "strat_confirmation",
+            "label": "Strat candle-type confirmation",
+            "required": false,
+            "category": "supporting",
+            "state": "waiting",
+            "detail": "No qualifying Strat pattern"
+          },
+          {
+            "id": "vwap_reclaim",
+            "label": "VWAP reclaim",
+            "required": false,
+            "category": "secondary",
+            "state": "waiting",
+            "detail": "Not enough candles for VWAP"
+          }
+        ],
+        "lastUpdated": "2026-07-13T13:35:00Z",
+        "latestCandleTime": "2026-07-13T13:30:00.000Z",
+        "convictionLevel": "watch",
+        "entryStatus": "wait_for_pullback",
+        "invalidationNote": null
+      },
+      "15m": {
+        "symbol": "CALM",
+        "timeframe": "15m",
+        "quality": "simulated",
+        "stage": "none",
+        "status": "red",
+        "score": 1.0526315789473684,
+        "maxScore": 10,
+        "conditions": [
+          {
+            "id": "intraday_decline",
+            "label": "Significant intraday decline",
+            "required": true,
+            "category": "informational",
+            "state": "fail",
+            "detail": "0.0% from open, -0.4% from prev close"
+          },
+          {
+            "id": "recovery_from_low",
+            "label": "Recovery from session low",
+            "required": true,
+            "category": "core",
+            "state": "fail",
+            "detail": "$0.30 (0.6%) recovered from $49.90 low"
+          },
+          {
+            "id": "consecutive_bullish",
+            "label": "Consecutive bullish candles",
+            "required": true,
+            "category": "supporting",
+            "insufficientData": true,
+            "state": "fail",
+            "detail": "Not enough candles yet to evaluate (need 3)"
+          },
+          {
+            "id": "liquidity_sweep",
+            "label": "Liquidity sweep (experimental)",
+            "required": true,
+            "category": "core",
+            "insufficientData": true,
+            "state": "fail",
+            "detail": "Not enough candles yet to evaluate (need 2)"
+          },
+          {
+            "id": "structure_shift",
+            "label": "Bullish market-structure shift",
+            "required": true,
+            "category": "core",
+            "state": "waiting",
+            "detail": "No swing high identified yet"
+          },
+          {
+            "id": "ema_reclaim",
+            "label": "9 EMA reclaim",
+            "required": true,
+            "category": "secondary",
+            "state": "fail",
+            "detail": "Not enough candles for EMA"
+          },
+          {
+            "id": "fair_value_gap",
+            "label": "Valid bullish fair value gap",
+            "required": false,
+            "category": "secondary",
+            "state": "waiting",
+            "detail": "No qualifying 3-candle gap yet"
+          },
+          {
+            "id": "gap_proximity",
+            "label": "Price approaching or entering the gap",
+            "required": false,
+            "category": "informational",
+            "state": "waiting",
+            "detail": "No gap selected"
+          },
+          {
+            "id": "prior_day_continuation",
+            "label": "Prior-day rejection reclaimed in premarket",
+            "required": false,
+            "category": "secondary",
+            "insufficientData": false,
+            "state": "waiting",
+            "detail": "Strong prior-day rejection at $55.00 (−9.1%), premarket has not reclaimed it (currently $50.20)"
+          },
+          {
+            "id": "momentum_ladder",
+            "label": "Momentum milestone holding",
+            "required": false,
+            "category": "supporting",
+            "insufficientData": true,
+            "state": "waiting",
+            "detail": "Not enough candles yet to measure a move from the session open"
+          },
+          {
+            "id": "benchmark_alignment",
+            "label": "Benchmark alignment",
+            "required": false,
+            "category": "secondary",
+            "insufficientData": true,
+            "state": "waiting",
+            "detail": "QQQ data unavailable — alignment not evaluated"
+          },
+          {
+            "id": "volume_confirmation",
+            "label": "Volume confirmation",
+            "required": false,
+            "category": "supporting",
+            "state": "waiting",
+            "detail": "0% of average volume"
+          },
+          {
+            "id": "daily_sma_confirmation",
+            "label": "Above daily 20 SMA",
+            "required": false,
+            "category": "secondary",
+            "state": "pass",
+            "detail": "Price $50.20 vs daily SMA $50.00 (0.4%)"
+          },
+          {
+            "id": "strat_confirmation",
+            "label": "Strat candle-type confirmation",
+            "required": false,
+            "category": "supporting",
+            "state": "waiting",
+            "detail": "No qualifying Strat pattern"
+          },
+          {
+            "id": "vwap_reclaim",
+            "label": "VWAP reclaim",
+            "required": false,
+            "category": "secondary",
+            "state": "waiting",
+            "detail": "Not enough candles for VWAP"
+          }
+        ],
+        "lastUpdated": "2026-07-13T13:35:00Z",
+        "latestCandleTime": "2026-07-13T13:30:00.000Z",
+        "convictionLevel": "watch",
+        "entryStatus": "wait_for_pullback",
+        "invalidationNote": null
+      }
+    }
+  },
+  "errors": []
+}
