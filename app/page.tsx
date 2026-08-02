@@ -15,6 +15,7 @@ import type { SymbolExpansion } from "@/lib/scanner/scanService";
 import type { SymbolExpansionMonitor } from "@/lib/scanner/expansionMonitor";
 import type { ReclaimSymbolResult } from "@/lib/scanner/reclaimRunner";
 import { ReclaimContinuationPanel } from "@/components/dashboard/ReclaimContinuationPanel";
+import { ReclaimEvaluationCapture } from "@/components/dashboard/ReclaimEvaluationCapture";
 import type { DataQuality } from "@/types/candle";
 import type { SessionInfo } from "@/lib/market-data/types";
 import type { MarketContextQuote } from "@/lib/market-data/marketContext";
@@ -489,6 +490,14 @@ export default function DashboardPage() {
       <ReclaimContinuationPanel
         reclaimBySymbol={scan?.reclaimBySymbol}
         reclaimErrors={scan?.reclaimErrors}
+      />
+
+      {/* Client-side session transcript of the same Reclaim reads, for
+          threshold review. Reads the scan payload already in memory —
+          no route, no storage, no extra fetch. */}
+      <ReclaimEvaluationCapture
+        reclaimBySymbol={scan?.reclaimBySymbol}
+        scanTime={scanTime}
       />
     </div>
   );
