@@ -100,6 +100,72 @@ export interface StrategyConfig {
     overrides: Record<string, string>;
   };
   /**
+   * Reclaim & Continuation.
+   *
+   * A SEPARATE setup type from the Expansion Monitor: Expansion asks "is
+   * an unusually large move possible here", this asks "is this becoming
+   * tradable right now". A symbol may qualify for both, and neither is
+   * coupled to the other.
+   *
+   * Every threshold the detector uses lives here by name — no numeric
+   * literals are permitted in the detector, orchestration, alert or UI
+   * code, so a rule can only be changed in one place.
+   *
+   * NOTE: none of these values are validated trading thresholds. They are
+   * starting points to be observed, not tuned optima.
+   */
+  reclaimContinuation: {
+    /** Whether the scanner evaluates Reclaim & Continuation at all. */
+    enabled: boolean;
+    /**
+     * Whether Reclaim-derived ALERTS may be emitted. Deliberately separate
+     * from `enabled`: the first release runs in evaluation mode, where
+     * candidates calculate and display but no alert is ever inserted.
+     *
+     * Never passed into the pure detector — it is enforced only at the
+     * alert-emission and presentation boundaries, so detector output is
+     * identical whichever way it is set.
+     */
+    alertingEnabled: boolean;
+    /** How many completed bars of the evaluated timeframe a reset may span. */
+    resetLookbackBars: number;
+    /** The reset extreme must fall within this many of the latest completed bars. */
+    newResetMaxAgeBars: number;
+    /** Minimum reset depth, in ATR, for a reset to qualify at all. */
+    minResetAtr: number;
+    /** Upper bound (exclusive) of a `shallow` reset, in ATR. */
+    shallowResetMaxAtr: number;
+    /** Upper bound (exclusive) of a `standard` reset, in ATR; beyond it is `deep`. */
+    standardResetMaxAtr: number;
+    /** Minimum recovery off the reset extreme, in ATR, for exhaustion. */
+    minRecoveryAtr: number;
+    /** Minimum recovery as a fraction of the reset's own depth. */
+    minRecoveryFraction: number;
+    /** Bullish exhaustion needs closeLocation >= this. */
+    minBullishCloseLocation: number;
+    /**
+     * Bearish exhaustion needs closeLocation <= this. Named `max` because
+     * that is the direction of the comparison; validation enforces the
+     * exact mirror `maxBearishCloseLocation = 1 - minBullishCloseLocation`
+     * so neither direction can be made easier than the other.
+     */
+    maxBearishCloseLocation: number;
+    /** Levels within this many ATR of each other form one confluence cluster. */
+    levelClusterAtr: number;
+    /** A level is "being tested" within this many ATR of price. */
+    levelTestDistanceAtr: number;
+    /** A break requires a completed close this many ATR beyond the level. */
+    breakBufferAtr: number;
+    /** A retest must land within this many completed bars of the break. */
+    retestWindowBars: number;
+    /** Beyond this many ATR past an un-retested accepted level, a setup is extended. */
+    chaseGuardAtr: number;
+    /** Sessions of history for Reclaim's OWN volume baseline. */
+    volumeBaselineSessions: number;
+    /** Below this many eligible sessions, volume pace reports unavailable. */
+    minVolumeBaselineSessions: number;
+  };
+  /**
    * Premarket Expansion Candidate.
    *
    * NOTE: there is deliberately no rank/score here. The approved spec
@@ -264,6 +330,28 @@ export const defaultStrategyConfig: StrategyConfig = {
   benchmarkAlignment: {
     defaultBenchmark: "QQQ",
     overrides: {},
+  },
+  reclaimContinuation: {
+    enabled: true,
+    // Evaluation mode: candidates calculate and display, nothing alerts.
+    alertingEnabled: false,
+    resetLookbackBars: 20,
+    newResetMaxAgeBars: 8,
+    minResetAtr: 0.35,
+    shallowResetMaxAtr: 0.6,
+    standardResetMaxAtr: 1.0,
+    minRecoveryAtr: 0.2,
+    minRecoveryFraction: 0.25,
+    minBullishCloseLocation: 0.55,
+    // Exact mirror of minBullishCloseLocation; validation enforces it.
+    maxBearishCloseLocation: 0.45,
+    levelClusterAtr: 0.05,
+    levelTestDistanceAtr: 0.25,
+    breakBufferAtr: 0.05,
+    retestWindowBars: 3,
+    chaseGuardAtr: 0.75,
+    volumeBaselineSessions: 20,
+    minVolumeBaselineSessions: 10,
   },
   premarketExpansion: {
     enabled: true,

@@ -33,6 +33,15 @@ import {
   evaluateExpansionMonitor,
   type SymbolExpansionMonitor,
 } from "./expansionMonitor";
+import {
+  loadCompletedOneMinute,
+  type CompletedOneMinuteHistory,
+} from "./oneMinuteHistory";
+import { runReclaimForSymbol, type ReclaimSymbolResult } from "./reclaimRunner";
+import {
+  buildReclaimTimeframeSeries,
+  RECLAIM_FIVE_MINUTE_ATR_PERIOD,
+} from "./reclaimTimeframe";
 import type { Candle } from "@/types/candle";
 
 /** Both directions of the Premarket Expansion Candidate for one symbol. */
@@ -81,6 +90,19 @@ export interface ScanOutput {
    * expansion result.
    */
   expansionErrors?: { symbol: string; message: string }[];
+  /**
+   * Reclaim & Continuation results, per symbol.
+   *
+   * DISPLAY-ONLY in this phase: the runner derives a tier from rules, but
+   * `alertingEnabled` is false and no Reclaim alert path exists yet, so
+   * nothing here emits, queues, or notifies.
+   *
+   * Optional and additive, like the Expansion fields — absent means "not
+   * evaluated", never "evaluated and found nothing".
+   */
+  reclaimBySymbol?: Record<string, ReclaimSymbolResult>;
+  /** Symbols whose Reclaim evaluation failed. Never merged into `errors`. */
+  reclaimErrors?: { symbol: string; message: string }[];
 }
 
 function toWatchlistStatus(result: SetupResult): "red" | "yellow" | "green" {
@@ -200,6 +222,23 @@ export function resetExpansionBaselineCache(): void {
   baselineCacheProvider = null;
 }
 
+/**
+ * The FIVE-minute ATR both Reclaim machines measure against.
+ *
+ * Computed from the completed five-minute series with the repository's
+ * existing ATR helper. Deliberately NOT the daily ATR the Expansion path
+ * uses — a daily yardstick would make "0.35 ATR" mean an entirely
+ * different dollar amount on a five-minute chart.
+ *
+ * Returns NaN when it cannot be computed, which the detector reports as
+ * unavailable rather than substituting a fallback.
+ */
+function fiveMinuteAtr(candles: Candle[]): number {
+  const series = calculateAtr(candles, RECLAIM_FIVE_MINUTE_ATR_PERIOD);
+  const last = series[series.length - 1];
+  return Number.isFinite(last) ? last : Number.NaN;
+}
+
 /** A provider with no feed concept is treated as having no KNOWN delay. */
 function resolveFeedInfo(provider: MarketDataProvider): ProviderFeedInfo {
   return provider.feedInfo?.() ?? { feed: provider.name, delayed: false, knownDelayMinutes: null };
@@ -241,6 +280,8 @@ export async function scanWatchlistWithProvider(
   const expansionBySymbol: Record<string, SymbolExpansion> = {};
   const expansionMonitorBySymbol: Record<string, SymbolExpansionMonitor> = {};
   const expansionErrors: { symbol: string; message: string }[] = [];
+  const reclaimBySymbol: Record<string, ReclaimSymbolResult> = {};
+  const reclaimErrors: { symbol: string; message: string }[] = [];
   const todayTradingDate = getCurrentTradingDate(new Date(now));
 
   // Scoped to THIS scan cycle, so benchmark data can never go stale
@@ -251,6 +292,9 @@ export async function scanWatchlistWithProvider(
   // The one-minute layer is gated separately: it carries its own provider
   // load, so it must be switchable off without disabling the candidate.
   const monitorEnabled = expansionEnabled && config.premarketExpansion.monitorEnabled;
+  // Deliberately independent of the Expansion flags: Reclaim is a separate
+  // setup type and must not require Expansion to be on.
+  const reclaimEnabled = config.reclaimContinuation.enabled;
   const feedInfo = resolveFeedInfo(provider);
 
   for (const { symbol, exchange } of symbols) {
@@ -365,6 +409,34 @@ export async function scanWatchlistWithProvider(
         lastSignalTime: hasAnyPass ? result5m.lastUpdated : null,
       });
 
+      // The shared one-minute history: loaded at most ONCE per symbol.
+      //
+      // Gated on `monitorEnabled` ALONE, deliberately. Reclaim consumes
+      // this same data when it exists, but it must not cause a fetch that
+      // would not otherwise happen — this phase adds no provider load.
+      // The consequence is a real limitation: with the Expansion monitor
+      // off, Reclaim has no one-minute scout and runs five-minute only.
+      // Decoupling that (fetching when EITHER consumer needs bars) changes
+      // the 1m call count and is a separate, reviewed change.
+      let oneMinuteHistory: CompletedOneMinuteHistory | null = null;
+      if (monitorEnabled) {
+        try {
+          oneMinuteHistory = await loadCompletedOneMinute({
+            symbol,
+            cache: getBaselineCache(provider),
+            scannedAt: new Date(now),
+            todayTradingDate,
+            feedInfo,
+            expansionConfig: config.premarketExpansion,
+            deadlineAt,
+          });
+        } catch {
+          // Absorbed: both consumers treat a missing 1m history as
+          // unavailable rather than as an absence of signal.
+          oneMinuteHistory = null;
+        }
+      }
+
       // The Premarket Expansion Candidate is a SEPARATE setup type, so it
       // gets its own try/catch INSIDE this symbol's. A baseline fetch that
       // fails, or a config that will not validate, must cost this symbol
@@ -398,7 +470,7 @@ export async function scanWatchlistWithProvider(
         // deeper again: a 1m history that cannot be fetched must cost this
         // symbol only its monitor data — not its five-minute candidate,
         // and certainly not its reversal row.
-        if (monitorEnabled && expansion !== null) {
+        if (monitorEnabled && expansion !== null && oneMinuteHistory !== null) {
           try {
             expansionMonitorBySymbol[symbol] = await evaluateMonitor({
               symbol,
@@ -410,6 +482,7 @@ export async function scanWatchlistWithProvider(
               regularSessionCandles: series5m.candles,
               dailyCandles,
               feedInfo,
+              oneMinuteHistory,
               deadlineAt,
             });
           } catch (error) {
@@ -417,6 +490,54 @@ export async function scanWatchlistWithProvider(
               error instanceof Error ? error.message : "Unknown expansion monitor error";
             expansionErrors.push({ symbol, message });
           }
+        }
+      }
+
+      // Reclaim & Continuation — EVALUATION MODE.
+      //
+      // A separate setup type again, with its own try/catch at the same
+      // depth as Expansion's: any error in here costs this symbol its
+      // Reclaim field and nothing else. Deliberately independent of
+      // Expansion — it does not require a candidate to have qualified,
+      // and it runs whether or not Expansion is enabled.
+      //
+      // Display-only: the runner computes a rules-derived tier, and this
+      // phase emits NO alert of any kind. `alertingEnabled` is the only
+      // switch that could ever change that, and no alert path exists yet.
+      if (reclaimEnabled) {
+        try {
+          reclaimBySymbol[symbol] = runReclaimForSymbol(
+            {
+              symbol,
+              sessionDate: todayTradingDate,
+              fiveMinute: buildReclaimTimeframeSeries(series5m.candles),
+              // Reuses the ALREADY-FETCHED one-minute bars; null when no
+              // 1m history is available, which the runner reports as an
+              // unavailable scout rather than as "found nothing".
+              oneMinute:
+                oneMinuteHistory === null
+                  ? null
+                  : buildReclaimTimeframeSeries(oneMinuteHistory.completedOneMinuteBars),
+              atr: fiveMinuteAtr(series5m.candles),
+              // Sourced only from what this scan already computed. Every
+              // field without a real source is null — never zero, and
+              // never invented.
+              priorDayLevel: null,
+              premarketLevel: null,
+              openingRangeLevel: null,
+              structureLevel: null,
+              sweepEvidence: null,
+              freshness: oneMinuteHistory?.freshness.status ?? null,
+              volumePace: null,
+              benchmarkRelativeMove: null,
+              previousSetupKeys: undefined,
+            },
+            config.reclaimContinuation
+          );
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : "Unknown reclaim evaluation error";
+          reclaimErrors.push({ symbol, message });
         }
       }
     } catch (error) {
@@ -438,6 +559,8 @@ export async function scanWatchlistWithProvider(
     ...(expansionEnabled ? { expansionBySymbol } : {}),
     ...(monitorEnabled ? { expansionMonitorBySymbol } : {}),
     ...(expansionErrors.length > 0 ? { expansionErrors } : {}),
+    ...(reclaimEnabled ? { reclaimBySymbol } : {}),
+    ...(reclaimErrors.length > 0 ? { reclaimErrors } : {}),
   };
 }
 
@@ -452,6 +575,13 @@ interface MonitorEvaluationArgs {
   regularSessionCandles: Candle[];
   dailyCandles: Candle[];
   feedInfo: ProviderFeedInfo;
+  /**
+   * The shared one-minute history, loaded ONCE per symbol by the caller so
+   * that every consumer reads the same cached bars. Passing it in rather
+   * than loading it here is what lets Reclaim reuse it without either
+   * feature depending on the other being enabled.
+   */
+  oneMinuteHistory: CompletedOneMinuteHistory;
   deadlineAt?: number;
 }
 
@@ -475,35 +605,17 @@ async function evaluateMonitor(args: MonitorEvaluationArgs): Promise<SymbolExpan
     regularSessionCandles,
     dailyCandles,
     feedInfo,
-    deadlineAt,
+    oneMinuteHistory,
   } = args;
 
   const scannedAt = new Date(now);
   const expansionConfig = config.premarketExpansion;
   const cache = getBaselineCache(provider);
 
-  const request = {
-    symbol,
-    timeframe: "1m" as const,
-    sessionScope: "extended" as const,
-    sessionCount: expansionConfig.lookbackSessions + 1,
-    feed: feedInfo.feed,
-    adjustment: "raw" as const,
-    todayTradingDate,
-    deadlineAt,
-  };
-
-  // `getBars` absorbs a provider failure into an explicitly incomplete
-  // entry rather than throwing, so an unavailable 1m history arrives here
-  // as empty candles with a reason — never as an exception that would cost
-  // the symbol anything else.
-  const entry = await cache.getBars(request);
-
-  const completedOneMinuteBars = filterToCompletedBars(entry.candles, 1, scannedAt);
-  const evaluationBar =
-    completedOneMinuteBars.length > 0
-      ? completedOneMinuteBars[completedOneMinuteBars.length - 1]
-      : null;
+  // Already loaded once for this symbol by the caller — same request, same
+  // cache key, same completed-bar filter and freshness rule as before.
+  const { request, entry, completedOneMinuteBars, evaluationBar, blockingReason, freshness } =
+    oneMinuteHistory;
 
   const minuteOfDay =
     evaluationBar === null
@@ -526,22 +638,6 @@ async function evaluateMonitor(args: MonitorEvaluationArgs): Promise<SymbolExpan
     todayTradingDate,
     expansionConfig,
   });
-
-  // Short history is a young symbol, not lost data — the same distinction
-  // the five-minute baseline draws.
-  const blockingReason: BarSourceIncompleteReason | null =
-    entry.reason !== null && entry.reason !== "insufficient_sessions" ? entry.reason : null;
-
-  // Freshness of the ONE-MINUTE series specifically. A 1m bar ten minutes
-  // old is stale even when the 5m series is perfectly current.
-  const freshness = assessFreshness(
-    scannedAt,
-    evaluationBar,
-    1,
-    feedInfo,
-    blockingReason !== null,
-    expansionConfig
-  );
 
   const atrSeries = calculateAtr(dailyCandles, config.extension.atrPeriod);
   const lastAtr = atrSeries[atrSeries.length - 1];

@@ -13,6 +13,8 @@ import type { WatchlistSymbol, AccountabilityChecks } from "@/types/watchlist";
 import type { SetupResult } from "@/types/setup";
 import type { SymbolExpansion } from "@/lib/scanner/scanService";
 import type { SymbolExpansionMonitor } from "@/lib/scanner/expansionMonitor";
+import type { ReclaimSymbolResult } from "@/lib/scanner/reclaimRunner";
+import { ReclaimContinuationPanel } from "@/components/dashboard/ReclaimContinuationPanel";
 import type { DataQuality } from "@/types/candle";
 import type { SessionInfo } from "@/lib/market-data/types";
 import type { MarketContextQuote } from "@/lib/market-data/marketContext";
@@ -39,6 +41,12 @@ interface ScanApiResponse {
    * it has its own enable flag, so absent means "not evaluated".
    */
   expansionMonitorBySymbol?: Record<string, SymbolExpansionMonitor>;
+  /**
+   * Reclaim & Continuation evaluation results. Optional: absent means the
+   * scan did not evaluate Reclaim, never that it found nothing.
+   */
+  reclaimBySymbol?: Record<string, ReclaimSymbolResult>;
+  reclaimErrors?: { symbol: string; message: string }[];
 }
 
 interface RiskApiResponse {
@@ -474,6 +482,14 @@ export default function DashboardPage() {
           />
         </div>
       </div>
+
+      {/* Additive section: renders only when the scan actually evaluated
+          Reclaim. Absent means "not evaluated", so the screen stays silent
+          rather than claiming nothing was found. */}
+      <ReclaimContinuationPanel
+        reclaimBySymbol={scan?.reclaimBySymbol}
+        reclaimErrors={scan?.reclaimErrors}
+      />
     </div>
   );
 }

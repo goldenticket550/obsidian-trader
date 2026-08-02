@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { defaultStrategyConfig, type StrategyConfig } from "@/lib/strategies/config";
+import { normalizeAndValidateStrategyConfig } from "@/lib/strategies/reclaimContinuationConfig";
 import type { WatchedSymbol } from "@/lib/scanner/scanService";
 
 /**
@@ -102,7 +103,27 @@ export async function getStrategyConfig(
   // Shallow-merge over defaults so a config saved before a new threshold
   // was added to StrategyConfig doesn't end up missing fields the scorer
   // expects.
-  return { ...defaultStrategyConfig, ...(data.config as Partial<StrategyConfig>) };
+  const merged = { ...defaultStrategyConfig, ...(data.config as Partial<StrategyConfig>) };
+
+  // ...then normalize the NESTED blocks the shallow merge cannot reach: a
+  // partially stored reclaimContinuation object would otherwise replace
+  // the whole default block and arrive missing keys. Read-only — stored
+  // configuration is never rewritten just by being read.
+  const { config, errors } = normalizeAndValidateStrategyConfig(merged);
+
+  // A legacy config missing keys normalizes cleanly above. A config with a
+  // value that is PRESENT and invalid fails here, at the configuration
+  // boundary, rather than reaching the detector and producing plausible
+  // wrong stages from a threshold nobody chose.
+  if (errors.length > 0) {
+    throw new Error(
+      `Stored strategy configuration is invalid: ${errors
+        .map((e) => `${e.field} ${e.message}`)
+        .join("; ")}`
+    );
+  }
+
+  return config;
 }
 
 export async function upsertStrategyConfig(
