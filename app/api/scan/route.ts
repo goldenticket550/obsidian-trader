@@ -3,7 +3,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { getMarketDataProvider } from "@/lib/market-data/providerFactory";
 import { scanWatchlistWithProvider, type WatchedSymbol } from "@/lib/scanner/scanService";
 import { getAlertStore } from "@/lib/alerts/alertStore";
-import { processResultPersistent } from "@/lib/alerts/persistentAlertStore";
+import {
+  processResultPersistent,
+  recordCandidatesPersistent,
+} from "@/lib/alerts/persistentAlertStore";
+import { buildReclaimAlertCandidates } from "@/lib/alerts/reclaimAlerts";
 import { defaultAlertRules } from "@/lib/alerts/defaultRules";
 import type { AlertEvent } from "@/lib/alerts/types";
 import { defaultStrategyConfig, type StrategyConfig } from "@/lib/strategies/config";
@@ -85,6 +89,28 @@ export async function GET() {
           newEvents.push(...store.processResult(setupResult, defaultAlertRules, now));
         }
       }
+    }
+
+    // Reclaim & Continuation alerts. Additive and isolated: this runs
+    // AFTER every reversal alert is already recorded, and its own
+    // try/catch means a Reclaim emission failure costs at most the
+    // Reclaim alerts — never a reversal alert, never the scan itself.
+    try {
+      const nowIso = new Date().toISOString();
+      const { events, rules } = buildReclaimAlertCandidates(
+        result.reclaimBySymbol,
+        config.reclaimContinuation,
+        nowIso
+      );
+      if (events.length > 0) {
+        newEvents.push(
+          ...(supabase && userId
+            ? await recordCandidatesPersistent(supabase, userId, events, rules)
+            : getAlertStore().processCandidates(events, rules, nowIso))
+        );
+      }
+    } catch (error) {
+      console.error("[/api/scan] reclaim alert emission failed:", error);
     }
 
     return NextResponse.json({

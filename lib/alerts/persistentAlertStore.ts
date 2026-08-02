@@ -121,7 +121,31 @@ export async function processResultPersistent(
   const nowIso = now.toISOString();
 
   const candidates = evaluateAlerts(previous, result, rules, nowIso);
+  const surviving = await recordCandidatesPersistent(supabase, userId, candidates, rules, now);
 
+  await saveSnapshot(supabase, userId, result.symbol, result.timeframe, result, now);
+
+  return surviving;
+}
+
+/**
+ * The cooldown-and-record half of `processResultPersistent`, for callers
+ * that produced their own candidates.
+ *
+ * Extracted rather than duplicated so a second setup type cannot drift
+ * into slightly different dedup or persistence behaviour: every alert in
+ * this app, whatever produced it, passes through exactly these lines.
+ *
+ * `evaluateAlerts` is deliberately NOT part of this — it diffs a
+ * SetupResult, which only the reversal scanner produces.
+ */
+export async function recordCandidatesPersistent(
+  supabase: SupabaseClient,
+  userId: string,
+  candidates: AlertEvent[],
+  rules: AlertRule[],
+  now: Date = new Date()
+): Promise<AlertEvent[]> {
   const surviving: AlertEvent[] = [];
   const ruleById = new Map(rules.map((r) => [r.id, r]));
 
@@ -135,8 +159,6 @@ export async function processResultPersistent(
     await recordEvent(supabase, userId, candidate);
     surviving.push(candidate);
   }
-
-  await saveSnapshot(supabase, userId, result.symbol, result.timeframe, result, now);
 
   return surviving;
 }

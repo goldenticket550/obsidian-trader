@@ -16,6 +16,10 @@ const BUCKET_FOR_TYPE: Record<AlertType, TriageBucket> = {
   score_threshold: "risk_review",
   fair_value_gap_proximity: "risk_review",
   structure_shift: "risk_review",
+  // Reclaim only emits at its Review-criteria tier, which is already
+  // capped by timeframe and blocked by a conflicting alignment before it
+  // gets here. Anything below that tier never becomes an event at all.
+  reclaim_review_now: "risk_review",
 
   fair_value_gap_created: "monitor",
   liquidity_sweep: "monitor",

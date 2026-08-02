@@ -631,7 +631,9 @@ describe("settings validation hardening", () => {
     expect(errors).toEqual([]);
     expect(config.reclaimContinuation).toEqual(CONFIG);
     expect(config.reclaimContinuation.enabled).toBe(true);
-    expect(config.reclaimContinuation.alertingEnabled).toBe(false);
+    // From the shipped default — a legacy config missing the block gets
+    // the current defaults, whatever they are.
+    expect(config.reclaimContinuation.alertingEnabled).toBe(CONFIG.alertingEnabled);
   });
 
   it("fails clearly on a present invalid stored value (test 29)", () => {

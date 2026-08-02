@@ -108,16 +108,32 @@ describe("PUT /api/settings/config — invalid bodies", () => {
     expect(response.status).toBe(200);
     expect(upsertStrategyConfig).toHaveBeenCalledTimes(1);
     const stored = upsertStrategyConfig.mock.calls[0][2] as typeof defaultStrategyConfig;
-    expect(stored.reclaimContinuation.alertingEnabled).toBe(false);
+    expect(stored.reclaimContinuation.alertingEnabled).toBe(
+      defaultStrategyConfig.reclaimContinuation.alertingEnabled
+    );
     expect(stored.reclaimContinuation.newResetMaxAgeBars).toBe(
       defaultStrategyConfig.reclaimContinuation.newResetMaxAgeBars
     );
   });
 
-  it("never turns alerting on by default when a caller omits the flag", async () => {
-    await PUT(put({ ...defaultStrategyConfig, reclaimContinuation: { enabled: true } }));
+  it("honours an explicit alertingEnabled: false instead of overwriting it", async () => {
+    // This REPLACES an older test asserting that omitting the flag left
+    // alerting off. That premise inverted when the shipped default became
+    // true: omitting now means "use the default", which is on. The
+    // guarantee that still matters — and matters MORE now — is that a
+    // user who deliberately turns alerting off is never overridden by the
+    // default on the way to storage.
+    await PUT(
+      put({
+        ...defaultStrategyConfig,
+        reclaimContinuation: { enabled: true, alertingEnabled: false },
+      })
+    );
     const stored = upsertStrategyConfig.mock.calls[0][2] as typeof defaultStrategyConfig;
     expect(stored.reclaimContinuation.alertingEnabled).toBe(false);
+    // Precondition: this is genuinely the opposite of the default, so the
+    // assertion cannot pass by coincidence.
+    expect(defaultStrategyConfig.reclaimContinuation.alertingEnabled).toBe(true);
   });
 });
 
@@ -142,6 +158,8 @@ describe("stored configuration is validated on read", () => {
     expect(config.reclaimContinuation.enabled).toBe(
       defaultStrategyConfig.reclaimContinuation.enabled
     );
-    expect(config.reclaimContinuation.alertingEnabled).toBe(false);
+    expect(config.reclaimContinuation.alertingEnabled).toBe(
+      defaultStrategyConfig.reclaimContinuation.alertingEnabled
+    );
   });
 });

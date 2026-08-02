@@ -333,8 +333,15 @@ export const defaultStrategyConfig: StrategyConfig = {
   },
   reclaimContinuation: {
     enabled: true,
-    // Evaluation mode: candidates calculate and display, nothing alerts.
-    alertingEnabled: false,
+    // Alerts ON. A Reclaim alert is a NOTIFICATION — this app has no
+    // brokerage connection and no execution path, so nothing here can
+    // place a trade.
+    //
+    // Emission is gated on the `review_now` tier, which is already capped
+    // by timeframe and blocked by a conflicting alignment. The THRESHOLDS
+    // that decide that tier are still unvalidated against live market
+    // data, so expect it to fire on untuned criteria until they are.
+    alertingEnabled: true,
     resetLookbackBars: 20,
     newResetMaxAgeBars: 8,
     minResetAtr: 0.35,

@@ -59,9 +59,9 @@ async function scan(config: StrategyConfig, provider = new FixtureProvider(stand
 // ---------------------------------------------------------------------------
 
 describe("shipped defaults", () => {
-  it("ships enabled with alerting OFF", () => {
+  it("ships enabled with alerting ON", () => {
     expect(RECLAIM.enabled).toBe(true);
-    expect(RECLAIM.alertingEnabled).toBe(false);
+    expect(RECLAIM.alertingEnabled).toBe(true);
   });
 });
 
@@ -148,11 +148,12 @@ describe("evaluation mode", () => {
     }
   });
 
-  it("has no code path that reads alertingEnabled outside config plumbing", async () => {
+  it("reads alertingEnabled only in config plumbing and the one emission file", async () => {
     // A static guard, because the runtime assertions above can only show
-    // that nothing alerts on THIS fixture. If a Reclaim alert path is ever
-    // wired up, this test fails and has to be updated deliberately rather
-    // than the flag quietly becoming live.
+    // what happens on THIS fixture. NARROWED, not removed, when the alert
+    // path was wired: exactly one emission file may read the flag, so a
+    // second decision point anywhere in lib/, app/ or components/ fails
+    // this test rather than quietly widening where alerting is decided.
     const { readFileSync, readdirSync, statSync } = await import("node:fs");
     const { join, resolve } = await import("node:path");
 
@@ -178,9 +179,12 @@ describe("evaluation mode", () => {
       })
       .map((f) => f.replace(root, "").replace(/\\/g, "/"));
 
-    // Only where the flag is DECLARED and VALIDATED — never where a
-    // decision is made from it.
+    // Where the flag is DECLARED, VALIDATED, and acted on — and nowhere
+    // else. The emission file is the single decision point; the routes
+    // call it without reading the flag themselves, and neither the
+    // detector, the runner, nor any component may consult it.
     expect(readers.sort()).toEqual([
+      "/lib/alerts/reclaimAlerts.ts",
       "/lib/strategies/config.ts",
       "/lib/strategies/reclaimContinuationConfig.ts",
     ]);

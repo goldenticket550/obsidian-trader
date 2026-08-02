@@ -23,7 +23,16 @@ export type AlertType =
    * convictionLevel the scorer already computed and changes nothing about
    * how it is computed, nor what any other alert requires.
    */
-  | "entered_developing";
+  | "entered_developing"
+  /**
+   * Reclaim & Continuation reached its Review-criteria tier.
+   *
+   * Unlike every type above, this one does NOT come from a SetupResult
+   * condition transition — Reclaim is a separate setup type with its own
+   * machine. It reuses this record shape, the cooldown mechanism and the
+   * same `alert_events` table rather than running a parallel system.
+   */
+  | "reclaim_review_now";
 
 export interface AlertRule {
   id: string;

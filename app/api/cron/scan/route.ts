@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getMarketDataProvider } from "@/lib/market-data/providerFactory";
 import { scanWatchlistWithProvider } from "@/lib/scanner/scanService";
-import { processResultPersistent } from "@/lib/alerts/persistentAlertStore";
+import {
+  processResultPersistent,
+  recordCandidatesPersistent,
+} from "@/lib/alerts/persistentAlertStore";
+import { buildReclaimAlertCandidates } from "@/lib/alerts/reclaimAlerts";
 import { defaultAlertRules } from "@/lib/alerts/defaultRules";
 import { listAllWatchlists, getWatchlistSymbols, getStrategyConfig } from "@/lib/watchlist/queries";
 
@@ -89,6 +93,23 @@ export async function GET(request: Request) {
           );
           alertsFired += fired.length;
         }
+      }
+
+      // Reclaim alerts, additive and isolated exactly as in /api/scan:
+      // reversal alerts above are already recorded and are unaffected by
+      // anything that happens here.
+      try {
+        const { events, rules } = buildReclaimAlertCandidates(
+          scan.reclaimBySymbol,
+          config.reclaimContinuation,
+          new Date().toISOString()
+        );
+        if (events.length > 0) {
+          const fired = await recordCandidatesPersistent(supabase, userId, events, rules);
+          alertsFired += fired.length;
+        }
+      } catch (error) {
+        console.error("[cron/scan] reclaim alert emission failed:", error);
       }
 
       // FIX (Codex round 4): this used to report symbols.length (every

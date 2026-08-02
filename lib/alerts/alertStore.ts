@@ -35,9 +35,23 @@ export class AlertStore {
     const previous = this.previousResults.get(key) ?? null;
 
     const candidates = evaluateAlerts(previous, result, rules, now);
-    const surviving = applyCooldowns(candidates, rules, this.cooldownTracker, Date.parse(now));
+    const surviving = this.processCandidates(candidates, rules, now);
 
     this.previousResults.set(key, result);
+
+    return surviving;
+  }
+
+  /**
+   * The cooldown-and-store half of `processResult`, for callers that
+   * produced their own candidates — the in-memory counterpart of
+   * `recordCandidatesPersistent`.
+   *
+   * Shares this store's ONE cooldown tracker and event history, so a
+   * second setup type cannot dedupe differently or keep a separate feed.
+   */
+  processCandidates(candidates: AlertEvent[], rules: AlertRule[], now: string): AlertEvent[] {
+    const surviving = applyCooldowns(candidates, rules, this.cooldownTracker, Date.parse(now));
 
     if (surviving.length > 0) {
       this.events = [...surviving, ...this.events].slice(0, MAX_STORED_EVENTS);

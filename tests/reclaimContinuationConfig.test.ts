@@ -37,7 +37,7 @@ describe("shipped defaults", () => {
   it("ships the documented evaluation-mode block", () => {
     expect(DEFAULTS).toEqual({
       enabled: true,
-      alertingEnabled: false,
+      alertingEnabled: true,
       resetLookbackBars: 20,
       newResetMaxAgeBars: 8,
       minResetAtr: 0.35,
@@ -57,9 +57,12 @@ describe("shipped defaults", () => {
     });
   });
 
-  it("ships enabled with alerting OFF — the safe first pass", () => {
+  it("ships enabled WITH alerting on", () => {
+    // Deliberately flipped once a real emission path existed. A Reclaim
+    // alert is a NOTIFICATION: this app has no brokerage connection and
+    // no execution path, so nothing it emits can place a trade.
     expect(DEFAULTS.enabled).toBe(true);
-    expect(DEFAULTS.alertingEnabled).toBe(false);
+    expect(DEFAULTS.alertingEnabled).toBe(true);
   });
 
   it("validates its own defaults", () => {
@@ -131,7 +134,10 @@ describe("normalization", () => {
     expect(Object.keys(shallowMerged.reclaimContinuation)).toHaveLength(1);
     const normalized = normalizeStrategyConfig(shallowMerged);
     expect(normalized.reclaimContinuation.minResetAtr).toBe(0.5);
-    expect(normalized.reclaimContinuation.alertingEnabled).toBe(false);
+    // Filled FROM the shipped default. This test is about normalization
+    // completing a short block, not about which way the flag ships, so it
+    // must not re-encode that value.
+    expect(normalized.reclaimContinuation.alertingEnabled).toBe(DEFAULTS.alertingEnabled);
     expect(Object.keys(normalized.reclaimContinuation).sort()).toEqual(
       Object.keys(DEFAULTS).sort()
     );
