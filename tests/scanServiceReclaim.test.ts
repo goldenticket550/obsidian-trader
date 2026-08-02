@@ -129,6 +129,60 @@ describe("evaluation mode", () => {
     );
   });
 
+  it("writes no persistent alert or notification, whatever the tier says", async () => {
+    const { result } = await scan(configWith({ enabled: true, alertingEnabled: false }));
+
+    // No alert-shaped surface exists on the scan output.
+    expect(Object.keys(result)).not.toContain("newAlerts");
+    expect(Object.keys(result)).not.toContain("reclaimAlerts");
+    expect(JSON.stringify(result.reclaimBySymbol)).not.toMatch(
+      /alert_event|notification|queued|delivered/i
+    );
+    // Even a symbol whose tier is actionable emits nothing.
+    for (const entry of Object.values(result.reclaimBySymbol!)) {
+      expect(entry).not.toHaveProperty("alert");
+      expect(entry).not.toHaveProperty("notification");
+    }
+  });
+
+  it("has no code path that reads alertingEnabled outside config plumbing", async () => {
+    // A static guard, because the runtime assertions above can only show
+    // that nothing alerts on THIS fixture. If a Reclaim alert path is ever
+    // wired up, this test fails and has to be updated deliberately rather
+    // than the flag quietly becoming live.
+    const { readFileSync, readdirSync, statSync } = await import("node:fs");
+    const { join, resolve } = await import("node:path");
+
+    const root = resolve(__dirname, "..");
+    const walk = (dir: string): string[] =>
+      readdirSync(dir).flatMap((name) => {
+        const full = join(dir, name);
+        if (statSync(full).isDirectory()) return walk(full);
+        return /\.tsx?$/.test(name) ? [full] : [];
+      });
+
+    const readers = ["lib", "app", "components"]
+      .flatMap((d) => walk(join(root, d)))
+      .filter((file) => {
+        const source = readFileSync(file, "utf8");
+        // Comments mention the flag by design; only real reads count.
+        return /(?<!\/[/*].*)\balertingEnabled\b/.test(
+          source
+            .split("\n")
+            .filter((line) => !/^\s*(\/\/|\*|\/\*)/.test(line))
+            .join("\n")
+        );
+      })
+      .map((f) => f.replace(root, "").replace(/\\/g, "/"));
+
+    // Only where the flag is DECLARED and VALIDATED — never where a
+    // decision is made from it.
+    expect(readers.sort()).toEqual([
+      "/lib/strategies/config.ts",
+      "/lib/strategies/reclaimContinuationConfig.ts",
+    ]);
+  });
+
   it("computes the tier but keeps it display-only", async () => {
     const { result } = await scan(configWith({ enabled: true, alertingEnabled: false }));
     for (const entry of Object.values(result.reclaimBySymbol!)) {
@@ -220,9 +274,10 @@ describe("data reuse", () => {
     expect(entry.oneMinute === null || entry.oneMinuteStage !== undefined).toBe(true);
   });
 
-  it("still runs Reclaim when Expansion is disabled entirely", async () => {
-    // Reclaim must not depend on Expansion being enabled.
-    const { result } = await scan({
+  it("still runs Reclaim when Expansion is disabled entirely, WITH its scout", async () => {
+    // Reclaim must not depend on Expansion being enabled — neither for
+    // running at all, nor for having one-minute data.
+    const { result, provider } = await scan({
       ...configWith({ enabled: true }),
       premarketExpansion: { ...defaultStrategyConfig.premarketExpansion, enabled: false },
     });
@@ -231,17 +286,35 @@ describe("data reuse", () => {
     expect(result.reclaimBySymbol).toBeDefined();
     expect(Object.keys(result.reclaimBySymbol!)).toHaveLength(2);
 
-    // KNOWN LIMITATION of this phase, asserted rather than left implied:
-    // the 1m history is loaded only for the Expansion monitor, so with
-    // Expansion off Reclaim runs five-minute only and its scout is
-    // explicitly unavailable — never silently "found nothing".
-    const entry = result.reclaimBySymbol!.EXPD;
-    expect(entry.oneMinute).toBeNull();
-    expect(entry.oneMinuteStage).toBe("unavailable");
-    expect(entry.alignment).toBe("unavailable");
+    // The shared history is now fetched for Reclaim in its own right —
+    // one request per symbol — where previously Expansion being off meant
+    // Reclaim had no one-minute data at all.
+    //
+    // NOT asserted here: that the scout reaches an active stage. This
+    // fixture's regular session is flat and produces no qualifying reset
+    // on either timeframe, so `oneMinute` is null for reasons that have
+    // nothing to do with data availability. The fetch is the claim.
+    expect(provider.calls.filter((c) => c.timeframe === "1m")).toHaveLength(2);
   });
 
-  it("adds no 1m fetch of its own when the Expansion monitor is off", async () => {
+  // -------------------------------------------------------------------
+  // Shared one-minute history — the three enablement combinations
+  // -------------------------------------------------------------------
+
+  const oneMinuteCalls = (p: FixtureProvider) =>
+    p.calls.filter((c) => c.timeframe === "1m");
+
+  it("BOTH enabled: one 1m request per symbol, not two", async () => {
+    // Two consumers of the same data must not cost two fetches.
+    const { provider } = await scan(configWith({ enabled: true }));
+    expect(oneMinuteCalls(provider)).toHaveLength(2);
+    // And it really is one per symbol, not two for one symbol.
+    expect(new Set(oneMinuteCalls(provider).map((c) => c.symbol))).toEqual(
+      new Set(["EXPD", "CALM"])
+    );
+  });
+
+  it("RECLAIM ONLY: one 1m request per symbol", async () => {
     const { provider } = await scan({
       ...configWith({ enabled: true }),
       premarketExpansion: {
@@ -249,8 +322,48 @@ describe("data reuse", () => {
         monitorEnabled: false,
       },
     });
-    // Reclaim being enabled must not introduce a provider call.
-    expect(provider.calls.filter((c) => c.timeframe === "1m")).toHaveLength(0);
+    expect(oneMinuteCalls(provider)).toHaveLength(2);
+  });
+
+  it("BOTH disabled: no 1m request at all", async () => {
+    const { provider } = await scan({
+      ...configWith({ enabled: false }),
+      premarketExpansion: {
+        ...defaultStrategyConfig.premarketExpansion,
+        monitorEnabled: false,
+      },
+    });
+    expect(oneMinuteCalls(provider)).toHaveLength(0);
+  });
+
+  it("one symbol's 1m failure does not suppress another symbol", async () => {
+    const provider = new FixtureProvider(standardFixtures());
+    const realGet = provider.getCandles.bind(provider);
+    vi.spyOn(provider, "getCandles").mockImplementation(async (params) => {
+      if (params.symbol === "CALM" && params.timeframe === "1m") {
+        throw new Error("fixture: no 1m for CALM");
+      }
+      return realGet(params);
+    });
+
+    const result = await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      provider,
+      configWith({ enabled: true }),
+      SCAN_NOW
+    );
+
+    // Both symbols still produce a Reclaim result, and the throwing
+    // symbol costs nothing beyond its own scout.
+    expect(Object.keys(result.reclaimBySymbol!).sort()).toEqual(["CALM", "EXPD"]);
+    expect(result.reclaimBySymbol!.CALM.oneMinute).toBeNull();
+    expect(result.reclaimBySymbol!.CALM.oneMinuteStage).toBe("unavailable");
+    // The healthy symbol's request was still made and still succeeded.
+    expect(
+      provider.calls.filter((c) => c.timeframe === "1m" && c.symbol === "EXPD")
+    ).toHaveLength(1);
+    expect(result.errors).toEqual([]);
+    expect(result.reclaimErrors ?? []).toEqual([]);
   });
 });
 
@@ -424,7 +537,9 @@ describe("input sourcing", () => {
     );
 
     const evidence = result.resultsBySymbol.EXPD["5m"].evidence!;
-    // Precondition: this session really did produce a structure level.
+    // Precondition: this session really did produce a CONFIRMED structure
+    // shift, so both the level and its availability time are real.
+    expect(evidence.structureShift.state).toBe("confirmed");
     expect(evidence.structureShift.triggerSwingHigh).not.toBeNull();
 
     const expd = inputs.find((i) => i.symbol === "EXPD")!;
@@ -433,6 +548,32 @@ describe("input sourcing", () => {
       high: evidence.structureShift.triggerSwingHigh,
       low: null,
     });
+    // ...and it carries the bar it became knowable from, so the detector
+    // cannot reclaim it earlier than that.
+    expect(expd.structureAvailableFromTime).toBe(evidence.structureShift.shiftCandleTime);
+    expect(expd.structureAvailableFromTime).not.toBeNull();
+  });
+
+  it("withholds a structure level while the shift is only 'waiting'", async () => {
+    // A swing high exists in the "waiting" state too, but nothing in
+    // StructureShiftResult says when it became knowable — so it is
+    // treated as unavailable rather than used as a hindsight price.
+    const inputs = captureRunnerInputs();
+    await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      sweepingProvider(),
+      configWith({ enabled: true }),
+      SCAN_NOW_MIDDAY
+    );
+
+    for (const input of inputs) {
+      if (input.structureLevel !== null) {
+        // Any supplied level must be dated.
+        expect(input.structureAvailableFromTime).not.toBeNull();
+      } else {
+        expect(input.structureAvailableFromTime).toBeNull();
+      }
+    }
   });
 
   it("never fills the bearish structure side, because no bearish detector exists", async () => {

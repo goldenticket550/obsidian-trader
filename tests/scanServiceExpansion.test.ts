@@ -29,6 +29,14 @@ import {
 
 const CONFIG_WITH_EXPANSION = defaultStrategyConfig;
 
+/**
+ * Reclaim switched off. The one-minute history is shared: it is fetched
+ * when EITHER the Expansion monitor or Reclaim needs it. Tests that count
+ * what Expansion alone costs must therefore silence the other consumer,
+ * otherwise the count measures both features at once.
+ */
+const RECLAIM_OFF = { ...defaultStrategyConfig.reclaimContinuation, enabled: false };
+
 function configWith(patch: Partial<StrategyConfig["premarketExpansion"]>): StrategyConfig {
   return {
     ...defaultStrategyConfig,
@@ -297,7 +305,11 @@ describe("the expansion evaluation is opt-out-able", () => {
     const result = await scanWatchlistWithProvider(
       STANDARD_SYMBOLS,
       provider,
-      configWith({ enabled: false }),
+      // Reclaim is disabled too, because the shared one-minute history is
+      // fetched for EITHER consumer. This test is about what EXPANSION
+      // costs, so the other consumer of that fetch has to be off for the
+      // count below to mean what it says.
+      { ...configWith({ enabled: false }), reclaimContinuation: RECLAIM_OFF },
       SCAN_NOW
     );
 
@@ -586,7 +598,10 @@ describe("one-minute expansion monitor wiring", () => {
     const result = await scanWatchlistWithProvider(
       STANDARD_SYMBOLS,
       provider,
-      configWith({ monitorEnabled: false }),
+      // Reclaim off as well: it is the other consumer of the shared 1m
+      // history, so leaving it on would fetch 1m bars for reasons that
+      // have nothing to do with the monitor flag under test here.
+      { ...configWith({ monitorEnabled: false }), reclaimContinuation: RECLAIM_OFF },
       SCAN_NOW
     );
 

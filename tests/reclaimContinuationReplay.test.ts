@@ -42,6 +42,9 @@ function input(overrides: Partial<ReclaimMachineInput> = {}): ReclaimMachineInpu
     timeframe: "five_minute",
     candles: [],
     atr: ATR,
+    // A given level that exists for the whole series, so it is available
+    // from the first bar. Availability-timing tests override this.
+    structureAvailableFromTime: T0,
     priorDayLevel: null,
     premarketLevel: null,
     premarketAvailableFromIndex: null,
@@ -222,6 +225,66 @@ describe("stage chronology", () => {
 // ---------------------------------------------------------------------------
 
 describe("level availability", () => {
+  /**
+   * A flush, then price crosses 99.80 on bar 5 — long before any pivot at
+   * that price could exist. A structure level is derived from a pivot, and
+   * a pivot is only knowable once the bars to its right have completed, so
+   * using the price without an availability bound reclaims a control with
+   * information that did not exist yet.
+   */
+  const lateStructureSeries = (): Candle[] => [
+    bar(0, 100.5, 100.6, 100.4, 100.5),
+    bar(1, 100.5, 100.55, 99.1, 99.2),
+    bar(2, 99.2, 99.3, 98.5, 98.6),
+    bar(3, 98.6, 99.3, 98.55, 99.25),
+    bar(4, 99.25, 99.6, 99.2, 99.55),
+    bar(5, 99.55, 100.1, 99.5, 100.05),
+    bar(6, 100.05, 100.2, 99.9, 100.1),
+    bar(7, 100.1, 100.3, 100.0, 100.2),
+    bar(8, 100.2, 100.4, 100.1, 100.3),
+    bar(9, 100.3, 100.35, 99.6, 99.7),
+    bar(10, 99.7, 99.75, 99.3, 99.4),
+    bar(11, 99.4, 99.5, 99.2, 99.3),
+    bar(12, 99.3, 99.8, 99.25, 99.75),
+  ];
+
+  it("cannot reclaim a structure level before that level was knowable", () => {
+    const candles = lateStructureSeries();
+    const STRUCTURE = 99.8;
+    // The bar from which the level genuinely became available.
+    const availableFrom = candles[12].time;
+
+    const honest = runReclaimMachine(
+      input({ candles, structureLevel: STRUCTURE, structureAvailableFromTime: availableFrom }),
+      CONFIG
+    );
+    const hindsight = runReclaimMachine(
+      input({ candles, structureLevel: STRUCTURE, structureAvailableFromTime: candles[0].time }),
+      CONFIG
+    );
+
+    // Precondition: the level really is crossed early, so this cannot pass
+    // just because nothing happens on this series.
+    expect(hindsight.structureReclaimed).toBe(true);
+    expect(hindsight.reclaimConfirmedAt).toBe(candles[5].time);
+
+    // Held to its true availability, the structure control contributes
+    // nothing before bar 12 — so confirmation cannot be pulled forward.
+    expect(honest.reclaimConfirmedAt).not.toBe(candles[5].time);
+    expect(honest.structureReclaimed).toBe(false);
+  });
+
+  it("ignores a structure level whose availability is unknown", () => {
+    // No availability information at all is treated as NOT available. A
+    // level nobody can date is a hindsight price.
+    const candles = lateStructureSeries();
+    const undated = runReclaimMachine(
+      input({ candles, structureLevel: 99.8, structureAvailableFromTime: null }),
+      CONFIG
+    );
+    expect(undated.structureReclaimed).toBe(false);
+  });
+
   it("cannot test or accept a level before availableFromIndex (test 12)", () => {
     const level = 101.0;
     const candles = continuationSeries(level);

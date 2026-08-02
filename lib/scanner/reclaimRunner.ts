@@ -102,6 +102,12 @@ export interface ReclaimRunnerInput {
   openingRangeLevel: DirectionalLevel | null;
   structureLevel: DirectionalLevel | null;
   /**
+   * Market time from which `structureLevel` was knowable. Not directional
+   * — the same bar establishes the level whichever machine consumes it —
+   * so it is passed straight through rather than side-selected.
+   */
+  structureAvailableFromTime: number | null;
+  /**
    * Already self-directional: the detector checks
    * `sweep.direction === machine direction`, so this needs no per-machine
    * selection and is passed through unchanged.
@@ -274,6 +280,7 @@ function machineInputFor(
     openingRangeAvailableFromIndex: series.openingRangeAvailableFromIndex,
     regularSessionStartIndex: series.regularSessionStartIndex,
     structureLevel: levelForDirection(input.structureLevel, direction),
+    structureAvailableFromTime: input.structureAvailableFromTime,
     sweepEvidence: input.sweepEvidence,
     freshness: input.freshness,
     volumePace: input.volumePace,

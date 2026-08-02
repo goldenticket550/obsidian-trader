@@ -308,9 +308,38 @@ function reclaimLevelsFor(args: {
  * The repo's structure-shift detector has no bearish mirror, so `low`
  * stays null rather than borrowing the high and relabelling it support.
  */
-function structureLevelFrom(evidence: SetupEvidence | undefined): DirectionalLevel | null {
-  const swingHigh = evidence?.structureShift.triggerSwingHigh ?? null;
-  return swingHigh === null ? null : { high: swingHigh, low: null };
+function structureLevelFrom(evidence: SetupEvidence | undefined): {
+  structureLevel: DirectionalLevel | null;
+  structureAvailableFromTime: number | null;
+} {
+  const structure = evidence?.structureShift;
+  const unavailable = { structureLevel: null, structureAvailableFromTime: null };
+  if (!structure) return unavailable;
+
+  // A swing high is derived from a PIVOT, which exists only once the bars
+  // to its right have completed — so `triggerSwingHigh` on its own is a
+  // hindsight price with no honest availability bound. The pivot's own
+  // index is not part of StructureShiftResult, so the only availability
+  // time this repo actually exposes is `shiftCandleTime`: the bar that
+  // closed above the level and thereby confirmed the shift. By then the
+  // level is certainly knowable.
+  //
+  // That is CONSERVATIVE, not exact — the level was usually knowable a few
+  // bars earlier. A level is therefore supplied only for a CONFIRMED
+  // shift. While the shift is still "waiting", `triggerSwingHigh` is
+  // populated but nothing tells us when it became real, and a level whose
+  // availability is unknown is treated as unavailable rather than trusted.
+  if (structure.state !== "confirmed") return unavailable;
+  if (structure.triggerSwingHigh === null || structure.shiftCandleTime === null) {
+    return unavailable;
+  }
+
+  return {
+    // The swing high is RESISTANCE, so it is the bullish side only. The
+    // repo has no bearish structure detector, so `low` stays null.
+    structureLevel: { high: structure.triggerSwingHigh, low: null },
+    structureAvailableFromTime: structure.shiftCandleTime,
+  };
 }
 
 /**
@@ -400,6 +429,9 @@ export async function scanWatchlistWithProvider(
   // Deliberately independent of the Expansion flags: Reclaim is a separate
   // setup type and must not require Expansion to be on.
   const reclaimEnabled = config.reclaimContinuation.enabled;
+  // One raw 1m history serves both consumers. Fetched when either needs
+  // it, never twice, and not at all when neither does.
+  const needsOneMinuteHistory = monitorEnabled || reclaimEnabled;
   const feedInfo = resolveFeedInfo(provider);
 
   for (const { symbol, exchange } of symbols) {
@@ -514,17 +546,14 @@ export async function scanWatchlistWithProvider(
         lastSignalTime: hasAnyPass ? result5m.lastUpdated : null,
       });
 
-      // The shared one-minute history: loaded at most ONCE per symbol.
+      // The shared one-minute history: loaded at most ONCE per symbol,
+      // whenever EITHER consumer needs it.
       //
-      // Gated on `monitorEnabled` ALONE, deliberately. Reclaim consumes
-      // this same data when it exists, but it must not cause a fetch that
-      // would not otherwise happen — this phase adds no provider load.
-      // The consequence is a real limitation: with the Expansion monitor
-      // off, Reclaim has no one-minute scout and runs five-minute only.
-      // Decoupling that (fetching when EITHER consumer needs bars) changes
-      // the 1m call count and is a separate, reviewed change.
+      // Both consumers read the same completed bars independently, so two
+      // consumers cost one fetch, not two — and Reclaim does not depend on
+      // the Expansion monitor being on to have a one-minute scout.
       let oneMinuteHistory: CompletedOneMinuteHistory | null = null;
-      if (monitorEnabled) {
+      if (needsOneMinuteHistory) {
         try {
           oneMinuteHistory = await loadCompletedOneMinute({
             symbol,
@@ -647,7 +676,7 @@ export async function scanWatchlistWithProvider(
               // Read off the SetupResult already scored above, from the
               // SAME five-minute candles this runner is given. No detector
               // is called a second time.
-              structureLevel: structureLevelFrom(result5m.evidence),
+              ...structureLevelFrom(result5m.evidence),
               sweepEvidence: sweepEvidenceFrom(result5m.evidence),
               freshness: oneMinuteHistory?.freshness.status ?? null,
               volumePace: null,

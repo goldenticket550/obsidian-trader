@@ -139,6 +139,23 @@ export interface ReclaimMachineInput {
 
   /** Exact level from the existing structure-shift calculation, or null. */
   structureLevel: number | null;
+  /**
+   * Market TIME from which `structureLevel` was actually knowable.
+   *
+   * A structure level is derived from a pivot, and a pivot exists only once
+   * the bars on its right side have completed — so the price alone is a
+   * hindsight value. Every other tracked level carries an availability
+   * bound; without one here, a level that only formed late could reclaim a
+   * control early and pull the whole stage sequence forward.
+   *
+   * A TIME rather than an index, because the same level is offered to both
+   * the five-minute and one-minute machines and an index into one series
+   * means nothing in the other.
+   *
+   * Null means "no availability information", which is treated as NOT
+   * available — the level is ignored rather than trusted.
+   */
+  structureAvailableFromTime: number | null;
   /** Directional, time-bound sweep evidence, or null when unavailable. */
   sweepEvidence: ReclaimSweepEvidence | null;
 
@@ -616,7 +633,17 @@ function advanceReclaim(setup: ActiveSetup, i: number, ctx: ReplayContext): void
   const controls: { name: ControlCrossing["name"]; at: (k: number) => number | null }[] = [
     { name: "9 EMA", at: (k) => finiteOrNull(emaSeries[k]) },
     { name: "VWAP", at: (k) => finiteOrNull(vwapSeries[k]) },
-    { name: "Structure level", at: () => input.structureLevel },
+    {
+      name: "Structure level",
+      // Unavailable until the bar it was actually knowable from. Without
+      // this the level is a hindsight price: a pivot high that only forms
+      // late would reclaim a control at an earlier bar.
+      at: (k) =>
+        input.structureAvailableFromTime !== null &&
+        candles[k].time >= input.structureAvailableFromTime
+          ? input.structureLevel
+          : null,
+    },
   ];
 
   for (const control of controls) {

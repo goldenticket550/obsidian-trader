@@ -61,6 +61,7 @@ function build(symbol: string, overrides: Partial<Parameters<typeof runReclaimFo
       premarketLevel: null,
       openingRangeLevel: null,
       structureLevel: { high: 99.5, low: 99.5 },
+      structureAvailableFromTime: T0,
       sweepEvidence: null,
       freshness: "real_time",
       volumePace: null,

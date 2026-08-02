@@ -41,6 +41,10 @@ function input(overrides: Partial<ReclaimMachineInput> = {}): ReclaimMachineInpu
     timeframe: "five_minute",
     candles: [],
     atr: ATR,
+    // These fixtures supply a structure level as a GIVEN that exists for
+    // the whole series, so it is available from the first bar. Tests about
+    // availability timing supply their own value.
+    structureAvailableFromTime: T0,
     priorDayLevel: null,
     premarketLevel: null,
     premarketAvailableFromIndex: null,
