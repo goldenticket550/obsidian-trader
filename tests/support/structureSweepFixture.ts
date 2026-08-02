@@ -49,3 +49,15 @@ export function structureAndSweepSeries(startTime: number, stepSeconds = 300): C
 }
 
 export const STRUCTURE_SWEEP_BAR_COUNT = ROWS.length;
+
+/**
+ * The same session truncated just before the bar that closes above the
+ * swing high, so the structure shift is still "waiting" while the swing
+ * high itself is real and already dated by its completed pivot.
+ */
+export function waitingStructureSeries(startTime: number, stepSeconds = 300): Candle[] {
+  return structureAndSweepSeries(startTime, stepSeconds).slice(0, SHIFT_ROW_INDEX);
+}
+
+/** Index of the row whose close first exceeds the swing high. */
+const SHIFT_ROW_INDEX = 14;

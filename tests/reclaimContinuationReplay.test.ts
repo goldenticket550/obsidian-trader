@@ -13,6 +13,8 @@ import {
   validateReclaimContinuationConfig,
 } from "@/lib/strategies/reclaimContinuationConfig";
 import { defaultStrategyConfig, type StrategyConfig } from "@/lib/strategies/config";
+import { detectStructureShift } from "@/lib/indicators/structureShift";
+import { findPivots } from "@/lib/indicators/pivots";
 import type { Candle } from "@/types/candle";
 
 /**
@@ -247,6 +249,82 @@ describe("level availability", () => {
     bar(11, 99.4, 99.5, 99.2, 99.3),
     bar(12, 99.3, 99.8, 99.25, 99.75),
   ];
+
+  /**
+   * A swing high that forms EARLY, is confirmed while price is still
+   * below it, and is only closed above later — the ordinary shape of a
+   * structure reclaim.
+   *
+   * Pivot high at index 3 (102.0), with three lower highs on each side, so
+   * it completes at index 6. Price then flushes, recovers, and closes
+   * above 102.0 at index 11 — five bars AFTER the level was knowable.
+   */
+  const primaryStructureSeries = (): Candle[] => [
+    bar(0, 100.0, 100.2, 99.8, 100.0),
+    bar(1, 100.0, 100.3, 99.9, 100.2),
+    bar(2, 100.2, 100.4, 100.0, 100.3),
+    bar(3, 100.3, 102.0, 100.2, 101.8), // pivot centre
+    bar(4, 101.8, 101.5, 100.5, 100.7),
+    bar(5, 100.7, 100.9, 100.0, 100.2),
+    bar(6, 100.2, 100.5, 99.5, 99.6), // completes the pivot
+    bar(7, 99.6, 99.8, 98.2, 98.4), // flush
+    bar(8, 98.4, 99.6, 98.35, 99.5), // recovery
+    bar(9, 99.5, 100.4, 99.45, 100.3),
+    bar(10, 100.3, 101.2, 100.2, 101.1), // still below the level
+    bar(11, 101.1, 102.4, 101.0, 102.3), // closes ABOVE it
+    bar(12, 102.3, 102.6, 102.2, 102.5),
+    bar(13, 102.5, 102.8, 102.4, 102.7),
+  ];
+
+  it("registers the PRIMARY structure reclaim once the pivot has confirmed", () => {
+    const candles = primaryStructureSeries();
+    const structure = detectStructureShift(candles, 8, defaultStrategyConfig.structureShift);
+
+    // Preconditions, derived from the real detectors rather than asserted
+    // as literals: the pivot is where we think it is, and it completes
+    // strictly BEFORE price closes above it.
+    const pivot = findPivots(candles, defaultStrategyConfig.structureShift.pivotLength).find(
+      (p) => p.type === "high"
+    )!;
+    expect(pivot.index).toBe(3);
+    expect(structure.triggerSwingHigh).toBe(pivot.price);
+    expect(structure.triggerSwingHighConfirmedTime).toBe(
+      candles[pivot.index + defaultStrategyConfig.structureShift.pivotLength].time
+    );
+    expect(structure.triggerSwingHighConfirmedTime!).toBeLessThan(structure.shiftCandleTime!);
+
+    const result = runReclaimMachine(
+      input({
+        candles,
+        structureLevel: structure.triggerSwingHigh,
+        structureAvailableFromTime: structure.triggerSwingHighConfirmedTime,
+      }),
+      CONFIG
+    );
+
+    // The below -> above crossing is actually observed.
+    expect(result.structureReclaimed).toBe(true);
+  });
+
+  it("would leave the structure control inert if dated from the shift bar", () => {
+    // `shiftCandleTime` is the bar that already closed ABOVE the level, so
+    // dating availability from it makes the crossing unobservable — the
+    // control can never contribute. This is the defect being fixed, held
+    // as a test so it cannot quietly return.
+    const candles = primaryStructureSeries();
+    const structure = detectStructureShift(candles, 8, defaultStrategyConfig.structureShift);
+
+    const result = runReclaimMachine(
+      input({
+        candles,
+        structureLevel: structure.triggerSwingHigh,
+        structureAvailableFromTime: structure.shiftCandleTime,
+      }),
+      CONFIG
+    );
+
+    expect(result.structureReclaimed).toBe(false);
+  });
 
   it("cannot reclaim a structure level before that level was knowable", () => {
     const candles = lateStructureSeries();

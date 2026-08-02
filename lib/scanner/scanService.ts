@@ -318,19 +318,32 @@ function structureLevelFrom(evidence: SetupEvidence | undefined): {
 
   // A swing high is derived from a PIVOT, which exists only once the bars
   // to its right have completed — so `triggerSwingHigh` on its own is a
-  // hindsight price with no honest availability bound. The pivot's own
-  // index is not part of StructureShiftResult, so the only availability
-  // time this repo actually exposes is `shiftCandleTime`: the bar that
-  // closed above the level and thereby confirmed the shift. By then the
-  // level is certainly knowable.
+  // hindsight price. `triggerSwingHighConfirmedTime` is the bar that
+  // completed the pivot, which is exactly when the level became knowable.
   //
-  // That is CONSERVATIVE, not exact — the level was usually knowable a few
-  // bars earlier. A level is therefore supplied only for a CONFIRMED
-  // shift. While the shift is still "waiting", `triggerSwingHigh` is
-  // populated but nothing tells us when it became real, and a level whose
-  // availability is unknown is treated as unavailable rather than trusted.
-  if (structure.state !== "confirmed") return unavailable;
-  if (structure.triggerSwingHigh === null || structure.shiftCandleTime === null) {
+  // Deliberately NOT `shiftCandleTime`: that is the bar which closed ABOVE
+  // the level, so dating availability from it means the detector can never
+  // observe the below→above crossing at all — the primary structure
+  // reclaim would be permanently invisible and the control inert.
+  //
+  // The state is not gated on. A "waiting" shift still has a real, dated
+  // swing high; the confirmation time IS the honesty guarantee, so nothing
+  // extra is needed. Either value missing means unavailable, never a
+  // fabricated substitute.
+  //
+  // KNOWN LIMITATION, documented rather than fixed: this supplies exactly
+  // ONE structure level — the most recent swing high as of scan time —
+  // to a replay that walks the whole session. An earlier, different swing
+  // high that was the relevant level mid-session is not reconstructed, so
+  // the replay under-reports structure reclaims in the earlier part of the
+  // series. Acceptable because structure is SUPPLEMENTARY to the 9 EMA and
+  // VWAP controls, both of which are computed per-bar; under-reporting is
+  // also the safe direction, since it can only withhold a crossing, never
+  // invent one.
+  if (
+    structure.triggerSwingHigh === null ||
+    structure.triggerSwingHighConfirmedTime === null
+  ) {
     return unavailable;
   }
 
@@ -338,7 +351,7 @@ function structureLevelFrom(evidence: SetupEvidence | undefined): {
     // The swing high is RESISTANCE, so it is the bullish side only. The
     // repo has no bearish structure detector, so `low` stays null.
     structureLevel: { high: structure.triggerSwingHigh, low: null },
-    structureAvailableFromTime: structure.shiftCandleTime,
+    structureAvailableFromTime: structure.triggerSwingHighConfirmedTime,
   };
 }
 

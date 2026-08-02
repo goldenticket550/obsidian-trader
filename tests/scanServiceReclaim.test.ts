@@ -18,7 +18,10 @@ import {
   TODAY_TRADING_DATE,
   etTime,
 } from "./support/expansionScanFixture";
-import { structureAndSweepSeries } from "./support/structureSweepFixture";
+import {
+  structureAndSweepSeries,
+  waitingStructureSeries,
+} from "./support/structureSweepFixture";
 
 /**
  * Reclaim & Continuation wired into the scan path — EVALUATION MODE.
@@ -548,16 +551,58 @@ describe("input sourcing", () => {
       high: evidence.structureShift.triggerSwingHigh,
       low: null,
     });
-    // ...and it carries the bar it became knowable from, so the detector
+    // ...and it carries the bar the PIVOT completed on, so the detector
     // cannot reclaim it earlier than that.
-    expect(expd.structureAvailableFromTime).toBe(evidence.structureShift.shiftCandleTime);
+    expect(expd.structureAvailableFromTime).toBe(
+      evidence.structureShift.triggerSwingHighConfirmedTime
+    );
+    expect(expd.structureAvailableFromTime).not.toBeNull();
+
+    // Availability is strictly EARLIER than the shift bar. Dating it from
+    // the shift would put availability after price had already closed
+    // above the level, so the below→above crossing could never be seen.
+    expect(expd.structureAvailableFromTime!).toBeLessThan(
+      evidence.structureShift.shiftCandleTime!
+    );
+  });
+
+  it("supplies a dated structure level even while the shift is still 'waiting'", async () => {
+    // A swing high is real as soon as its pivot completes — price does not
+    // have to have closed above it yet. Because the level now carries the
+    // bar it became knowable from, the "waiting" state needs no special
+    // gating: the date IS the honesty guarantee.
+    const inputs = captureRunnerInputs();
+    const provider = new FixtureProvider(standardFixtures(), MIDDAY_LAST_BAR_MINUTE);
+    const realGet = provider.getCandles.bind(provider);
+    vi.spyOn(provider, "getCandles").mockImplementation(async (params) => {
+      const series = await realGet(params);
+      if (params.timeframe !== "5m" || params.sessionScope !== undefined) return series;
+      return {
+        ...series,
+        candles: waitingStructureSeries(etTime(TODAY_TRADING_DATE, 9 * 60 + 30)),
+      };
+    });
+
+    const result = await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      provider,
+      configWith({ enabled: true }),
+      SCAN_NOW_MIDDAY
+    );
+
+    const evidence = result.resultsBySymbol.EXPD["5m"].evidence!.structureShift;
+    // Precondition: genuinely waiting, with a real swing high.
+    expect(evidence.state).toBe("waiting");
+    expect(evidence.shiftCandleTime).toBeNull();
+    expect(evidence.triggerSwingHigh).not.toBeNull();
+
+    const expd = inputs.find((i) => i.symbol === "EXPD")!;
+    expect(expd.structureLevel).toEqual({ high: evidence.triggerSwingHigh, low: null });
+    expect(expd.structureAvailableFromTime).toBe(evidence.triggerSwingHighConfirmedTime);
     expect(expd.structureAvailableFromTime).not.toBeNull();
   });
 
-  it("withholds a structure level while the shift is only 'waiting'", async () => {
-    // A swing high exists in the "waiting" state too, but nothing in
-    // StructureShiftResult says when it became knowable — so it is
-    // treated as unavailable rather than used as a hindsight price.
+  it("keeps the level and its availability date together — both or neither", async () => {
     const inputs = captureRunnerInputs();
     await scanWatchlistWithProvider(
       STANDARD_SYMBOLS,
@@ -567,13 +612,24 @@ describe("input sourcing", () => {
     );
 
     for (const input of inputs) {
-      if (input.structureLevel !== null) {
-        // Any supplied level must be dated.
-        expect(input.structureAvailableFromTime).not.toBeNull();
-      } else {
-        expect(input.structureAvailableFromTime).toBeNull();
-      }
+      // A level without a date would be a hindsight price; a date without
+      // a level is meaningless. Neither may occur alone.
+      expect(input.structureLevel === null).toBe(input.structureAvailableFromTime === null);
     }
+  });
+
+  it("supplies no structure level when the session forms no swing-high pivot", async () => {
+    // The standard flat fixture produces no pivot high at all.
+    const inputs = captureRunnerInputs();
+    const { result } = await scan(configWith({ enabled: true }));
+
+    const evidence = result.resultsBySymbol.EXPD["5m"].evidence!.structureShift;
+    expect(evidence.triggerSwingHigh).toBeNull();
+    expect(evidence.triggerSwingHighConfirmedTime).toBeNull();
+
+    const expd = inputs.find((i) => i.symbol === "EXPD")!;
+    expect(expd.structureLevel).toBeNull();
+    expect(expd.structureAvailableFromTime).toBeNull();
   });
 
   it("never fills the bearish structure side, because no bearish detector exists", async () => {
