@@ -51,6 +51,19 @@ export type ReclaimAlignment = "aligned" | "one_minute_leading" | "conflicting" 
 /** Display text for the alignment states that need one. */
 export const MIXED_TIMEFRAMES_LABEL = "Mixed timeframes";
 
+/**
+ * One tracked level, in both directions.
+ *
+ * `high` is what the BULLISH machine treats as resistance ahead of price;
+ * `low` is what the BEARISH machine treats as support below it. Either
+ * side may be null when only one is known — null is unavailable, never
+ * zero and never the other side substituted in.
+ */
+export interface DirectionalLevel {
+  high: number | null;
+  low: number | null;
+}
+
 /** Per-timeframe series plus the index metadata that series needs. */
 export interface ReclaimTimeframeSeries {
   candles: readonly Candle[];
@@ -76,10 +89,23 @@ export interface ReclaimRunnerInput {
    */
   atr: number;
 
-  priorDayLevel: number | null;
-  premarketLevel: number | null;
-  openingRangeLevel: number | null;
-  structureLevel: number | null;
+  /**
+   * Tracked levels, supplied as a HIGH/LOW pair per source.
+   *
+   * A single price cannot serve both machines: bullish tracks resistance
+   * above price and bearish tracks support below it. Passing one number to
+   * both would hand the bearish machine a resistance level relabelled as
+   * support — the same price with the wrong meaning.
+   */
+  priorDayLevel: DirectionalLevel | null;
+  premarketLevel: DirectionalLevel | null;
+  openingRangeLevel: DirectionalLevel | null;
+  structureLevel: DirectionalLevel | null;
+  /**
+   * Already self-directional: the detector checks
+   * `sweep.direction === machine direction`, so this needs no per-machine
+   * selection and is passed through unchanged.
+   */
   sweepEvidence: ReclaimSweepEvidence | null;
   freshness: FreshnessStatus | null;
   volumePace: number | null;
@@ -212,6 +238,21 @@ export function computeAlignment(
 // The runner
 // ---------------------------------------------------------------------------
 
+/**
+ * Picks the side of a tracked level this machine actually trades against:
+ * the high for bullish, the low for bearish.
+ *
+ * The detector still takes ONE directional price per level — it is this
+ * selection, not the detector, that decides which one is correct.
+ */
+export function levelForDirection(
+  level: DirectionalLevel | null,
+  direction: ReclaimDirection
+): number | null {
+  if (level === null) return null;
+  return direction === "bullish" ? level.high : level.low;
+}
+
 function machineInputFor(
   input: ReclaimRunnerInput,
   series: ReclaimTimeframeSeries,
@@ -226,13 +267,13 @@ function machineInputFor(
     candles: series.candles,
     // BOTH machines measure against the five-minute ATR.
     atr: input.atr,
-    priorDayLevel: input.priorDayLevel,
-    premarketLevel: input.premarketLevel,
+    priorDayLevel: levelForDirection(input.priorDayLevel, direction),
+    premarketLevel: levelForDirection(input.premarketLevel, direction),
     premarketAvailableFromIndex: series.premarketAvailableFromIndex,
-    openingRangeLevel: input.openingRangeLevel,
+    openingRangeLevel: levelForDirection(input.openingRangeLevel, direction),
     openingRangeAvailableFromIndex: series.openingRangeAvailableFromIndex,
     regularSessionStartIndex: series.regularSessionStartIndex,
-    structureLevel: input.structureLevel,
+    structureLevel: levelForDirection(input.structureLevel, direction),
     sweepEvidence: input.sweepEvidence,
     freshness: input.freshness,
     volumePace: input.volumePace,

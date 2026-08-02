@@ -446,6 +446,10 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
     convictionLevel,
     entryStatus,
     invalidationNote,
+    // Read-only republication of what the detectors above already
+    // returned. Same objects, no recomputation, no re-ordering — adding
+    // this cannot change any value already in this result.
+    evidence: { structureShift: structure, liquiditySweep: sweep },
   };
 }
 

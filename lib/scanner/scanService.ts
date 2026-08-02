@@ -1,10 +1,10 @@
-import type { SetupResult } from "@/types/setup";
+import type { SetupEvidence, SetupResult } from "@/types/setup";
 import type { WatchlistSymbol } from "@/types/watchlist";
 import { scoreSetup } from "@/lib/strategies/scorer";
 import { defaultStrategyConfig, type StrategyConfig } from "@/lib/strategies/config";
 import type { ScanInput } from "@/lib/mock/scanInputs";
 import type { MarketDataProvider, ProviderFeedInfo } from "@/lib/market-data/types";
-import { findPreviousClose } from "@/lib/market-data/sessionFilter";
+import { findPreviousClose, findPreviousDailyCandle } from "@/lib/market-data/sessionFilter";
 import { getCurrentTradingDate } from "@/lib/risk/tradingDate";
 import {
   getSessionTypeForTimestamp,
@@ -25,6 +25,7 @@ import {
 } from "@/lib/market-data/historicalBaseline";
 import {
   assessFreshness,
+  computePremarketRanges,
   detectPremarketExpansion,
   freshnessAllowsNewCandidate,
   type PremarketExpansionResult,
@@ -37,11 +38,19 @@ import {
   loadCompletedOneMinute,
   type CompletedOneMinuteHistory,
 } from "./oneMinuteHistory";
-import { runReclaimForSymbol, type ReclaimSymbolResult } from "./reclaimRunner";
+import {
+  runReclaimForSymbol,
+  type DirectionalLevel,
+  type ReclaimSymbolResult,
+} from "./reclaimRunner";
+import type { ReclaimSweepEvidence } from "./reclaimContinuation";
 import {
   buildReclaimTimeframeSeries,
+  findOpeningRangeAvailableFromIndex,
   RECLAIM_FIVE_MINUTE_ATR_PERIOD,
+  RECLAIM_OPENING_RANGE_MINUTES,
 } from "./reclaimTimeframe";
+import { computeOpeningRange } from "./expansionMonitor";
 import type { Candle } from "@/types/candle";
 
 /** Both directions of the Premarket Expansion Candidate for one symbol. */
@@ -237,6 +246,102 @@ function fiveMinuteAtr(candles: Candle[]): number {
   const series = calculateAtr(candles, RECLAIM_FIVE_MINUTE_ATR_PERIOD);
   const last = series[series.length - 1];
   return Number.isFinite(last) ? last : Number.NaN;
+}
+
+/**
+ * The tracked level PRICES Reclaim measures against, each as a high/low
+ * pair. Availability INDICES are handled separately by
+ * `buildReclaimTimeframeSeries`.
+ *
+ * Every value here comes from a computation the scan already performs, or
+ * from the same exported helper the existing feature uses, so a level can
+ * never drift from its established definition. Anything without a real
+ * source is null — never zero, never a guess.
+ */
+function reclaimLevelsFor(args: {
+  dailyCandles: Candle[];
+  todayTradingDate: string;
+  completedPremarketCandles: Candle[];
+  openingRangeCandles: Candle[];
+  minReferenceBars: number;
+}): {
+  priorDayLevel: DirectionalLevel | null;
+  premarketLevel: DirectionalLevel | null;
+  openingRangeLevel: DirectionalLevel | null;
+} {
+  // Prior day: the most recent fully-closed prior session, located by DATE
+  // via the existing helper rather than by array position — during market
+  // hours the last daily element is today's still-forming bar.
+  const prior = findPreviousDailyCandle(args.dailyCandles, args.todayTradingDate);
+
+  // Premarket: the existing premarket-range computation. `sessionHigh` /
+  // `sessionLow` span all completed premarket bars, which is exactly the
+  // premarket high/low the Expansion path already reports.
+  const ranges = computePremarketRanges(args.completedPremarketCandles, args.minReferenceBars);
+
+  // Opening range: the existing helper, given RECLAIM's own window. Null
+  // until the window has actually closed, so a partial range is never
+  // presented as a level.
+  const openingRangeComplete =
+    findOpeningRangeAvailableFromIndex(args.openingRangeCandles) !== null;
+  const openingRange = openingRangeComplete
+    ? computeOpeningRange(args.openingRangeCandles, RECLAIM_OPENING_RANGE_MINUTES)
+    : null;
+
+  return {
+    priorDayLevel: prior === null ? null : { high: prior.high, low: prior.low },
+    premarketLevel:
+      ranges.sessionHigh === null || ranges.sessionLow === null
+        ? null
+        : { high: ranges.sessionHigh, low: ranges.sessionLow },
+    openingRangeLevel:
+      openingRange === null ? null : { high: openingRange.high, low: openingRange.low },
+  };
+}
+
+/**
+ * The structure level Reclaim measures against, taken from the
+ * structure-shift result the scorer already computed.
+ *
+ * `triggerSwingHigh` is a swing HIGH — the level a bullish shift has to
+ * close above. It is resistance, so it belongs on the bullish side only.
+ * The repo's structure-shift detector has no bearish mirror, so `low`
+ * stays null rather than borrowing the high and relabelling it support.
+ */
+function structureLevelFrom(evidence: SetupEvidence | undefined): DirectionalLevel | null {
+  const swingHigh = evidence?.structureShift.triggerSwingHigh ?? null;
+  return swingHigh === null ? null : { high: swingHigh, low: null };
+}
+
+/**
+ * The sweep evidence Reclaim consumes, taken from the liquidity-sweep
+ * result the scorer already computed.
+ *
+ * The detector is BULLISH-only, so the direction is a constant here, not
+ * an inference. A bearish sweep stays null until a real bearish detector
+ * exists — the alternative would be presenting a bullish sweep as bearish
+ * evidence, which is worse than having none.
+ *
+ * Every field is required by `ReclaimSweepEvidence`, so a sweep is only
+ * mapped when all three are actually present — a partial sweep is not a
+ * sweep.
+ */
+function sweepEvidenceFrom(evidence: SetupEvidence | undefined): ReclaimSweepEvidence | null {
+  const sweep = evidence?.liquiditySweep;
+  if (!sweep || !sweep.passed) return null;
+  if (
+    sweep.sweptLevel === null ||
+    sweep.sweepCandleTime === null ||
+    sweep.reclaimCandleTime === null
+  ) {
+    return null;
+  }
+  return {
+    direction: "bullish",
+    sweptLevel: sweep.sweptLevel,
+    sweepCandleTime: sweep.sweepCandleTime,
+    reclaimCandleTime: sweep.reclaimCandleTime,
+  };
 }
 
 /** A provider with no feed concept is treated as having no KNOWN delay. */
@@ -522,11 +627,28 @@ export async function scanWatchlistWithProvider(
               // Sourced only from what this scan already computed. Every
               // field without a real source is null — never zero, and
               // never invented.
-              priorDayLevel: null,
-              premarketLevel: null,
-              openingRangeLevel: null,
-              structureLevel: null,
-              sweepEvidence: null,
+              ...reclaimLevelsFor({
+                dailyCandles,
+                todayTradingDate,
+                completedPremarketCandles: filterToCompletedBars(
+                  premarketCandles,
+                  5,
+                  new Date(now)
+                ),
+                // Prefer the one-minute bars when they exist — the window
+                // is defined in one-minute candles — and fall back to the
+                // completed five-minute series, whose 9:30 bar spans the
+                // identical clock window.
+                openingRangeCandles:
+                  oneMinuteHistory?.completedOneMinuteBars ??
+                  filterToCompletedBars(series5m.candles, 5, new Date(now)),
+                minReferenceBars: config.premarketExpansion.minReferenceBars,
+              }),
+              // Read off the SetupResult already scored above, from the
+              // SAME five-minute candles this runner is given. No detector
+              // is called a second time.
+              structureLevel: structureLevelFrom(result5m.evidence),
+              sweepEvidence: sweepEvidenceFrom(result5m.evidence),
               freshness: oneMinuteHistory?.freshness.status ?? null,
               volumePace: null,
               benchmarkRelativeMove: null,

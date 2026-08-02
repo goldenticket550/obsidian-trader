@@ -5,12 +5,20 @@ import {
 } from "@/lib/scanner/scanService";
 import { defaultStrategyConfig, type StrategyConfig } from "@/lib/strategies/config";
 import * as reclaimRunner from "@/lib/scanner/reclaimRunner";
+import * as liquiditySweep from "@/lib/indicators/liquiditySweep";
+import * as structureShift from "@/lib/indicators/structureShift";
 import {
   FixtureProvider,
   standardFixtures,
   STANDARD_SYMBOLS,
   SCAN_NOW,
+  SCAN_NOW_MIDDAY,
+  MIDDAY_LAST_BAR_MINUTE,
+  EXPANDING,
+  TODAY_TRADING_DATE,
+  etTime,
 } from "./support/expansionScanFixture";
+import { structureAndSweepSeries } from "./support/structureSweepFixture";
 
 /**
  * Reclaim & Continuation wired into the scan path — EVALUATION MODE.
@@ -263,6 +271,270 @@ describe("input sourcing", () => {
       expect(entry.fiveMinute.structureLevel).toBeNull();
       expect(entry.fiveMinute.volumePace).not.toBe(0);
     }
+  });
+
+  /**
+   * Captures the input every symbol's runner call received, without
+   * changing what the runner does.
+   */
+  function captureRunnerInputs() {
+    const inputs: reclaimRunner.ReclaimRunnerInput[] = [];
+    const real = reclaimRunner.runReclaimForSymbol;
+    vi.spyOn(reclaimRunner, "runReclaimForSymbol").mockImplementation((input, cfg) => {
+      inputs.push(input);
+      return real(input, cfg);
+    });
+    return inputs;
+  }
+
+  it("sources the prior day's high and low as a directional pair", async () => {
+    const inputs = captureRunnerInputs();
+    await scan(configWith({ enabled: true }));
+
+    const expd = inputs.find((i) => i.symbol === "EXPD")!;
+    expect(expd.priorDayLevel).toEqual({
+      high: EXPANDING.dailyHigh,
+      low: EXPANDING.dailyLow,
+    });
+    // Precondition: the two sides differ, so a single-price bug would be
+    // visible here rather than hidden by coincidence.
+    expect(EXPANDING.dailyHigh).not.toBe(EXPANDING.dailyLow);
+  });
+
+  it("sources the premarket session high and low as a directional pair", async () => {
+    const inputs = captureRunnerInputs();
+    await scan(configWith({ enabled: true }));
+
+    const expd = inputs.find((i) => i.symbol === "EXPD")!;
+    expect(expd.premarketLevel).not.toBeNull();
+    const { high, low } = expd.premarketLevel!;
+    expect(high).toBeGreaterThan(low!);
+    // The fixture's premarket runs from 100 upward with a drift of 4 and a
+    // one-point bar range, so the band must contain that span.
+    expect(low!).toBeLessThanOrEqual(EXPANDING.todayShape.open);
+    expect(high!).toBeGreaterThanOrEqual(
+      EXPANDING.todayShape.open + EXPANDING.todayShape.drift
+    );
+  });
+
+  it("withholds the opening range until its window has actually closed", async () => {
+    // At 9:35 only the first bar has completed — the five-minute opening
+    // range window is not yet behind us in one-minute bars.
+    const inputs = captureRunnerInputs();
+    await scan(configWith({ enabled: true }));
+
+    const expd = inputs.find((i) => i.symbol === "EXPD")!;
+    expect(expd.openingRangeLevel).toBeNull();
+  });
+
+  it("supplies the opening range high and low once the window is complete", async () => {
+    const inputs = captureRunnerInputs();
+    const provider = new FixtureProvider(standardFixtures(), MIDDAY_LAST_BAR_MINUTE);
+    await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      provider,
+      configWith({ enabled: true }),
+      SCAN_NOW_MIDDAY
+    );
+
+    const expd = inputs.find((i) => i.symbol === "EXPD")!;
+    expect(expd.openingRangeLevel).not.toBeNull();
+    const { high, low } = expd.openingRangeLevel!;
+    expect(high).not.toBeNull();
+    expect(low).not.toBeNull();
+    expect(high!).toBeGreaterThan(low!);
+  });
+
+  it("never invents a prior-day level, because a symbol without one is excluded first", async () => {
+    const inputs = captureRunnerInputs();
+    // A symbol whose daily series carries today only. The reversal scanner
+    // already requires a previous close, so this symbol never reaches the
+    // Reclaim runner — which is why `priorDayLevel` has no fabricated
+    // fallback: the unavailable case is unreachable by construction.
+    const provider = new FixtureProvider(standardFixtures());
+    const realGet = provider.getCandles.bind(provider);
+    vi.spyOn(provider, "getCandles").mockImplementation(async (params) => {
+      const series = await realGet(params);
+      if (params.timeframe !== "1d") return series;
+      return { ...series, candles: series.candles.slice(-1) };
+    });
+
+    const result = await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      provider,
+      configWith({ enabled: true }),
+      SCAN_NOW
+    );
+
+    expect(result.errors.map((e) => e.symbol).sort()).toEqual(["CALM", "EXPD"]);
+    expect(inputs).toHaveLength(0);
+    expect(result.reclaimBySymbol).toEqual({});
+  });
+
+  it("reports an unavailable premarket as null, not as zero", async () => {
+    const inputs = captureRunnerInputs();
+    const provider = new FixtureProvider(standardFixtures({ EXPD: { extendedFails: true } }));
+
+    await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      provider,
+      configWith({ enabled: true }),
+      SCAN_NOW
+    );
+
+    const expd = inputs.find((i) => i.symbol === "EXPD");
+    // Either the symbol produced no Reclaim input at all, or its premarket
+    // level is honestly absent — never a zero standing in for a price.
+    if (expd) {
+      expect(expd.premarketLevel === null || expd.premarketLevel.high !== 0).toBe(true);
+      expect(expd.premarketLevel).not.toEqual({ high: 0, low: 0 });
+    }
+  });
+
+  /**
+   * A provider that serves a session with a real structure shift and a
+   * real liquidity sweep for the FIVE-MINUTE regular request — the exact
+   * series the scan both scores and hands to the Reclaim runner.
+   *
+   * Only the response content differs; the request set is untouched, so
+   * this cannot introduce a fetch.
+   */
+  function sweepingProvider() {
+    const provider = new FixtureProvider(standardFixtures(), MIDDAY_LAST_BAR_MINUTE);
+    const realGet = provider.getCandles.bind(provider);
+    vi.spyOn(provider, "getCandles").mockImplementation(async (params) => {
+      const series = await realGet(params);
+      if (params.timeframe !== "5m" || params.sessionScope !== undefined) return series;
+      return {
+        ...series,
+        candles: structureAndSweepSeries(etTime(TODAY_TRADING_DATE, 9 * 60 + 30)),
+      };
+    });
+    return provider;
+  }
+
+  it("sources the structure level from the scored SetupResult's evidence", async () => {
+    const inputs = captureRunnerInputs();
+    const provider = sweepingProvider();
+    const result = await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      provider,
+      configWith({ enabled: true }),
+      SCAN_NOW_MIDDAY
+    );
+
+    const evidence = result.resultsBySymbol.EXPD["5m"].evidence!;
+    // Precondition: this session really did produce a structure level.
+    expect(evidence.structureShift.triggerSwingHigh).not.toBeNull();
+
+    const expd = inputs.find((i) => i.symbol === "EXPD")!;
+    // The swing high is RESISTANCE, so it is the bullish side only.
+    expect(expd.structureLevel).toEqual({
+      high: evidence.structureShift.triggerSwingHigh,
+      low: null,
+    });
+  });
+
+  it("never fills the bearish structure side, because no bearish detector exists", async () => {
+    const inputs = captureRunnerInputs();
+    await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      sweepingProvider(),
+      configWith({ enabled: true }),
+      SCAN_NOW_MIDDAY
+    );
+
+    for (const input of inputs) {
+      // A support level would have to come from a detector this repo does
+      // not have. Null, never the resistance level relabelled.
+      expect(input.structureLevel?.low ?? null).toBeNull();
+    }
+  });
+
+  it("builds sweep evidence from the scored result, tagged bullish", async () => {
+    const inputs = captureRunnerInputs();
+    const provider = sweepingProvider();
+    const result = await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      provider,
+      configWith({ enabled: true }),
+      SCAN_NOW_MIDDAY
+    );
+
+    const sweep = result.resultsBySymbol.EXPD["5m"].evidence!.liquiditySweep;
+    // Precondition: a real sweep, not an empty one matching an empty map.
+    expect(sweep.passed).toBe(true);
+
+    const expd = inputs.find((i) => i.symbol === "EXPD")!;
+    expect(expd.sweepEvidence).toEqual({
+      // The repo's detector is bullish-only; the direction is a constant,
+      // not an inference from the data.
+      direction: "bullish",
+      sweptLevel: sweep.sweptLevel,
+      sweepCandleTime: sweep.sweepCandleTime,
+      reclaimCandleTime: sweep.reclaimCandleTime,
+    });
+  });
+
+  it("never synthesizes a bearish sweep", async () => {
+    const inputs = captureRunnerInputs();
+    await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      sweepingProvider(),
+      configWith({ enabled: true }),
+      SCAN_NOW_MIDDAY
+    );
+
+    for (const input of inputs) {
+      if (input.sweepEvidence !== null) {
+        expect(input.sweepEvidence.direction).toBe("bullish");
+      }
+    }
+  });
+
+  it("passes null when the session produced no sweep and no structure level", async () => {
+    // The standard fixture's flat regular session sweeps nothing and forms
+    // no swing high — absent, not zero.
+    const inputs = captureRunnerInputs();
+    const { result } = await scan(configWith({ enabled: true }));
+
+    const evidence = result.resultsBySymbol.EXPD["5m"].evidence!;
+    // Precondition: the detectors genuinely found nothing here.
+    expect(evidence.liquiditySweep.passed).toBe(false);
+    expect(evidence.structureShift.triggerSwingHigh).toBeNull();
+
+    const expd = inputs.find((i) => i.symbol === "EXPD")!;
+    expect(expd.structureLevel).toBeNull();
+    expect(expd.sweepEvidence).toBeNull();
+    // Explicitly not a fabricated flat level or a zero-priced sweep.
+    expect(expd.structureLevel).not.toEqual({ high: 0, low: 0 });
+  });
+
+  it("calls no detector a second time — the values come off the scored result", async () => {
+    const sweepSpy = vi.spyOn(liquiditySweep, "detectLiquiditySweep");
+    const structureSpy = vi.spyOn(structureShift, "detectStructureShift");
+
+    await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      sweepingProvider(),
+      configWith({ enabled: true }),
+      SCAN_NOW_MIDDAY
+    );
+
+    // scoreSetup runs once per timeframe per symbol (5m and 15m), and the
+    // Reclaim wiring adds none: two symbols x two timeframes.
+    expect(sweepSpy).toHaveBeenCalledTimes(4);
+    expect(structureSpy).toHaveBeenCalledTimes(4);
+  });
+
+  it("sources levels without adding a single provider call", async () => {
+    const off = await scan(configWith({ enabled: false }));
+    resetExpansionBaselineCache();
+    const on = await scan(configWith({ enabled: true }));
+
+    expect(on.provider.calls).toHaveLength(off.provider.calls.length);
+    expect(on.provider.calls.map((c) => `${c.symbol}:${c.timeframe}:${c.sessionScope ?? ""}`))
+      .toEqual(off.provider.calls.map((c) => `${c.symbol}:${c.timeframe}:${c.sessionScope ?? ""}`));
   });
 
   it("uses a five-minute ATR, not the daily one", async () => {

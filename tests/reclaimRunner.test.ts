@@ -5,6 +5,7 @@ import {
   tierForStage,
   rankReclaimCandidates,
   compareReclaimCandidates,
+  levelForDirection,
   MIXED_TIMEFRAMES_LABEL,
   RECLAIM_TIER_ORDER,
   type ReclaimRunnerInput,
@@ -28,6 +29,8 @@ const CONFIG = defaultStrategyConfig.reclaimContinuation;
 const ATR = 1.0;
 const T0 = Math.floor(Date.parse("2026-07-13T13:30:00Z") / 1000);
 const LEVEL = 101.0;
+/** Deliberately different from LEVEL so a mixed-up side is visible. */
+const LEVEL_LOW = 98.5;
 
 function bar(i: number, o: number, h: number, l: number, c: number, step = 300): Candle {
   return { time: T0 + i * step, open: o, high: h, low: l, close: c, volume: 5000 };
@@ -73,10 +76,11 @@ function runnerInput(overrides: Partial<ReclaimRunnerInput> = {}): ReclaimRunner
     fiveMinute: series(fullSequence()),
     oneMinute: series(fullSequence(60)),
     atr: ATR,
-    priorDayLevel: LEVEL,
+    // Directional pairs: the bullish machine takes `high`, bearish `low`.
+    priorDayLevel: { high: LEVEL, low: LEVEL_LOW },
     premarketLevel: null,
     openingRangeLevel: null,
-    structureLevel: 99.5,
+    structureLevel: { high: 99.5, low: 99.5 },
     sweepEvidence: null,
     freshness: "real_time",
     volumePace: null,
@@ -148,6 +152,155 @@ describe("tier by timeframe", () => {
 });
 
 // ---------------------------------------------------------------------------
+// Directional level selection
+// ---------------------------------------------------------------------------
+
+describe("directional level selection", () => {
+  it("hands the bullish machine the high and the bearish machine the low", () => {
+    for (const direction of ["bullish", "bearish"] as const) {
+      const pair = { high: 111, low: 99 };
+      expect(levelForDirection(pair, direction)).toBe(direction === "bullish" ? 111 : 99);
+    }
+  });
+
+  it("treats a missing pair, or a missing side, as unavailable", () => {
+    expect(levelForDirection(null, "bullish")).toBeNull();
+    expect(levelForDirection(null, "bearish")).toBeNull();
+    // One side known and the other not: the unknown side stays null
+    // rather than borrowing the side that happens to exist.
+    expect(levelForDirection({ high: 111, low: null }, "bearish")).toBeNull();
+    expect(levelForDirection({ high: null, low: 99 }, "bullish")).toBeNull();
+  });
+
+  it("never lets a level of zero be mistaken for unavailable", () => {
+    // Zero is a real (if unusual) price and must survive selection.
+    expect(levelForDirection({ high: 0, low: 0 }, "bullish")).toBe(0);
+    expect(levelForDirection({ high: 0, low: 0 }, "bearish")).toBe(0);
+  });
+
+  it("feeds the bearish machine the low, end to end", () => {
+    // Mirror the series so the five-minute machine resolves bearish, then
+    // check which side of the prior-day pair actually reached the detector.
+    const bearishSeries = fullSequence().map((c) => ({
+      ...c,
+      open: 200 - c.open,
+      high: 200 - c.low,
+      low: 200 - c.high,
+      close: 200 - c.close,
+    }));
+
+    const directBearish = (priorDayLevel: number) =>
+      runReclaimMachine(
+        {
+          symbol: "TEST",
+          sessionDate: "2026-07-13",
+          direction: "bearish",
+          timeframe: "five_minute",
+          candles: bearishSeries,
+          atr: ATR,
+          priorDayLevel,
+          premarketLevel: null,
+          premarketAvailableFromIndex: null,
+          openingRangeLevel: null,
+          openingRangeAvailableFromIndex: null,
+          regularSessionStartIndex: null,
+          structureLevel: 99.5,
+          sweepEvidence: null,
+          freshness: "real_time",
+          volumePace: null,
+          benchmarkRelativeMove: null,
+        },
+        CONFIG
+      );
+
+    const fedLow = directBearish(LEVEL_LOW);
+    const fedHigh = directBearish(LEVEL);
+
+    // Precondition: the two sides genuinely produce different reads, so
+    // matching one of them cannot pass vacuously.
+    expect(fedLow.acceptedLevelPrice).not.toBe(fedHigh.acceptedLevelPrice);
+
+    const result = run({
+      fiveMinute: series(bearishSeries),
+      oneMinute: null,
+      priorDayLevel: { high: LEVEL, low: LEVEL_LOW },
+    });
+
+    expect(result.fiveMinute!.direction).toBe("bearish");
+    expect(result.fiveMinute!.acceptedLevelPrice).toBe(fedLow.acceptedLevelPrice);
+    expect(result.fiveMinute!.acceptedLevelPrice).not.toBe(fedHigh.acceptedLevelPrice);
+  });
+
+  it("sends the bullish machine the structure high and the bearish machine the low", () => {
+    const structure = { high: 103.25, low: 97.75 };
+    expect(levelForDirection(structure, "bullish")).toBe(structure.high);
+    expect(levelForDirection(structure, "bearish")).toBe(structure.low);
+  });
+
+  it("leaves the bearish structure side null when only a resistance level exists", () => {
+    // The repo's structure-shift detector yields a swing HIGH only. The
+    // bearish machine must get nothing rather than the high relabelled.
+    const resistanceOnly = { high: 103.25, low: null };
+    expect(levelForDirection(resistanceOnly, "bullish")).toBe(103.25);
+    expect(levelForDirection(resistanceOnly, "bearish")).toBeNull();
+  });
+
+  it("keeps sweep evidence untouched — it is already self-directional", () => {
+    // The detector compares sweep.direction to the machine direction, so
+    // the runner must not pick a side for it, rewrite its direction, or
+    // mutate it. Frozen so any in-place edit throws.
+    const sweep = Object.freeze({
+      direction: "bullish" as const,
+      sweptLevel: 99,
+      sweepCandleTime: T0,
+      reclaimCandleTime: T0 + 300,
+    });
+    const result = run({ oneMinute: null, sweepEvidence: sweep });
+    expect(result.fiveMinute).not.toBeNull();
+    expect(sweep.direction).toBe("bullish");
+
+    // The bearish machine receives the SAME bullish sweep, not a flipped
+    // or dropped one: its read matches a direct run given that sweep.
+    const bearishSeries = fullSequence().map((c) => ({
+      ...c,
+      open: 200 - c.open,
+      high: 200 - c.low,
+      low: 200 - c.high,
+      close: 200 - c.close,
+    }));
+    const viaRunner = run({
+      fiveMinute: series(bearishSeries),
+      oneMinute: null,
+      sweepEvidence: sweep,
+    });
+    const direct = runReclaimMachine(
+      {
+        symbol: "TEST",
+        sessionDate: "2026-07-13",
+        direction: "bearish",
+        timeframe: "five_minute",
+        candles: bearishSeries,
+        atr: ATR,
+        priorDayLevel: LEVEL_LOW,
+        premarketLevel: null,
+        premarketAvailableFromIndex: null,
+        openingRangeLevel: null,
+        openingRangeAvailableFromIndex: null,
+        regularSessionStartIndex: null,
+        structureLevel: 99.5,
+        sweepEvidence: sweep,
+        freshness: "real_time",
+        volumePace: null,
+        benchmarkRelativeMove: null,
+      },
+      CONFIG
+    );
+    expect(viaRunner.fiveMinute!.direction).toBe("bearish");
+    expect(viaRunner.fiveMinute).toEqual(direct);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // 43, 44 — alignment
 // ---------------------------------------------------------------------------
 
@@ -196,7 +349,7 @@ describe("alignment", () => {
     const result = run({
       fiveMinute: series(fullSequence()),
       oneMinute: series(bearishOneMinute),
-      priorDayLevel: LEVEL,
+      priorDayLevel: { high: LEVEL, low: LEVEL_LOW },
     });
 
     // Precondition: the fixture really does produce opposing directions,

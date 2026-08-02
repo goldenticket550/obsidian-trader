@@ -244,7 +244,30 @@ describe("the reversal output is unchanged by the integration", () => {
     );
 
     expect(result.watchlist).toEqual(baseline.watchlist);
-    expect(result.resultsBySymbol).toEqual(baseline.resultsBySymbol);
+
+    // `evidence` is a purely ADDITIVE read-only republication of detector
+    // results scoreSetup already computed (see SetupResult.evidence). The
+    // baseline JSON predates it, so it is stripped here rather than
+    // regenerated: keeping the captured file untouched means every
+    // PRE-EXISTING field is still compared against the original snapshot,
+    // which is exactly the guarantee this test exists to give. Asserting
+    // it was present first means the strip can never quietly hide it
+    // going missing.
+    const stripEvidence = (bySymbol: typeof result.resultsBySymbol) =>
+      Object.fromEntries(
+        Object.entries(bySymbol).map(([symbol, byTimeframe]) => [
+          symbol,
+          Object.fromEntries(
+            Object.entries(byTimeframe).map(([timeframe, setup]) => {
+              const { evidence, ...rest } = setup;
+              expect(evidence).toBeDefined();
+              return [timeframe, rest];
+            })
+          ),
+        ])
+      );
+
+    expect(stripEvidence(result.resultsBySymbol)).toEqual(baseline.resultsBySymbol);
     expect(result.errors).toEqual(baseline.errors);
   });
 

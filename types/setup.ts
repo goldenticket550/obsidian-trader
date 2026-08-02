@@ -1,4 +1,21 @@
 import type { Timeframe, DataQuality } from "./candle";
+import type { StructureShiftResult } from "@/lib/indicators/structureShift";
+import type { LiquiditySweepResult } from "@/lib/indicators/liquiditySweep";
+
+/**
+ * A READ-ONLY view of detector results `scoreSetup` already computed for
+ * its own scoring, published so other features can consume them without
+ * re-running a detector over the same candles.
+ *
+ * Nothing here participates in scoring, status, stage, or ordering — it is
+ * the exact object the detector returned, carried out unchanged. Both
+ * detectors in this repo are BULLISH-only; there is no bearish mirror, and
+ * none is synthesized here.
+ */
+export interface SetupEvidence {
+  structureShift: StructureShiftResult;
+  liquiditySweep: LiquiditySweepResult;
+}
 
 export type SetupStatus = "red" | "yellow" | "green";
 
@@ -122,4 +139,10 @@ export interface SetupResult {
    * — computed from already-known structural levels, never a prediction.
    */
   invalidationNote?: string | null;
+  /**
+   * Detector results this scan already produced, republished for readers.
+   * Optional and purely additive: absent when no detectors ran at all (an
+   * empty candle series), never a fabricated stand-in for one that did.
+   */
+  evidence?: SetupEvidence;
 }
