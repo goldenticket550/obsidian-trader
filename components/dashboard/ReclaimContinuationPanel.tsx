@@ -10,31 +10,21 @@ import type {
 } from "@/lib/scanner/reclaimContinuation";
 
 /**
- * Reclaim & Continuation — EVALUATION display.
- *
- * `alertingEnabled` is false, so nothing here is a live alert and nothing
- * is a directive. The rules-derived tier is presented as what the system
- * WOULD surface ("Would alert on: …"), never as an instruction to act.
- *
- * Presentational only: every value comes from the runner result. Anything
- * the runner could not measure renders as "Unavailable" — never a zero, a
- * dash standing in for a number, or a guess.
+ * Presentational view of the existing Reclaim & Continuation runner output.
+ * It does not gate alerts or add directives; every displayed fact comes from
+ * the result object. Unmeasured values remain "Unavailable" rather than zero.
  */
 
 // ---------------------------------------------------------------------------
-// Evaluation-mode vocabulary
+// Neutral, rules-based vocabulary
 // ---------------------------------------------------------------------------
 
-/**
- * The rules-derived tier, stated as evaluation criteria rather than as a
- * call to action. Deliberately NOT the phrase "Review Now": while alerting
- * is off there is nothing to review now.
- */
+/** Rules-derived status language, never a trading instruction. */
 const TIER_CRITERIA: Record<ReclaimSymbolResult["alertTier"], string> = {
   review_now: "Review criteria met",
   monitor: "Monitor criteria met",
   early: "Early criteria met",
-  none: "Evaluation",
+  none: "No active tier",
 };
 
 const ALIGNMENT_LABEL: Record<ReclaimSymbolResult["alignment"], string> = {
@@ -121,6 +111,22 @@ function directionColor(result: ReclaimSymbolResult): string {
   return result.direction === "bullish" ? "var(--green)" : "var(--red)";
 }
 
+function reclaimedControls(five: ReclaimMachineResult | null): string {
+  if (five === null) return UNAVAILABLE;
+  const controls: string[] = [];
+  if (five.vwapReclaimed) controls.push("VWAP");
+  if (five.emaReclaimed) controls.push("9 EMA");
+  if (five.structureReclaimed) controls.push("Structure");
+  return controls.length > 0 ? `${controls.join(" + ")} reclaimed` : "None confirmed";
+}
+
+function benchmarkContext(value: number | null | undefined): string {
+  if (value === null || value === undefined || !Number.isFinite(value)) {
+    return "Benchmark unavailable";
+  }
+  return `Benchmark relative move ${value > 0 ? "+" : ""}${value.toFixed(2)} pp`;
+}
+
 // ---------------------------------------------------------------------------
 // Small building blocks
 // ---------------------------------------------------------------------------
@@ -153,12 +159,7 @@ function DecisionSection({
   return (
     <section
       data-testid={testId}
-      className="min-w-0 rounded"
-      style={{
-        padding: "10px 12px",
-        background: "var(--panel)",
-        border: "1px solid var(--border)",
-      }}
+      className="reclaim-decision-card"
     >
       <h4
         className="uppercase"
@@ -184,7 +185,7 @@ function StageRail({ stage, accent }: { stage: ReclaimStage; accent: string }) {
     <ol
       data-testid="reclaim-rail"
       aria-label="Setup progression"
-      style={{ display: "flex", alignItems: "flex-start", width: "100%", margin: "12px 0" }}
+      className="reclaim-stage-rail"
     >
       {RAIL.map((step, index) => {
         const state =
@@ -289,8 +290,7 @@ function ReclaimDetail({ result }: { result: ReclaimSymbolResult }) {
     <div data-testid="reclaim-detail" data-symbol={result.symbol} className="min-w-0">
       {/* Summary */}
       <div
-        className="rounded"
-        style={{ padding: "10px 12px", background: "var(--panel)", border: "1px solid var(--border)" }}
+        className="reclaim-summary-card"
       >
         <div className="flex items-baseline flex-wrap gap-x-2 gap-y-1">
           <span className="font-mono text-[13px]" style={{ color: "var(--text)" }}>
@@ -335,15 +335,7 @@ function ReclaimDetail({ result }: { result: ReclaimSymbolResult }) {
       <StageRail stage={result.stage} accent={accent} />
 
       {/* Three decision sections */}
-      <div
-        data-testid="reclaim-decisions"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-          gap: "8px",
-          marginBottom: "12px",
-        }}
-      >
+      <div data-testid="reclaim-decisions" className="reclaim-decision-grid">
         <DecisionSection heading="What changed" testId="reclaim-what-changed">
           <Fact
             label="Reset"
@@ -354,6 +346,7 @@ function ReclaimDetail({ result }: { result: ReclaimSymbolResult }) {
             }
           />
           <Fact label="Severity" value={five?.resetSeverity ?? UNAVAILABLE} />
+          <Fact label="Control" value={reclaimedControls(five)} />
           <Fact
             label="Recovery"
             value={five === null ? UNAVAILABLE : atrMultiple(five.recoveryAtr)}
@@ -408,14 +401,13 @@ function ReclaimDetail({ result }: { result: ReclaimSymbolResult }) {
         </DecisionSection>
       </div>
 
-      {/* Evaluation row — what the system WOULD surface, not a directive. */}
+      {/* Existing rules status, framed as evidence rather than a directive. */}
       <div
         data-testid="reclaim-evaluation"
-        className="flex items-baseline flex-wrap gap-x-3 gap-y-1 rounded"
-        style={{ padding: "8px 12px", background: "var(--panel)", border: "1px solid var(--border)" }}
+        className="reclaim-evaluation-row flex items-baseline flex-wrap gap-x-3 gap-y-1 px-3 py-3"
       >
         <span className="text-[11px]" style={{ color: "var(--text-secondary)" }}>
-          Would alert on: {TIER_CRITERIA[result.alertTier]}
+          Criteria status: {TIER_CRITERIA[result.alertTier]}
         </span>
         <span
           data-testid="reclaim-alignment"
@@ -440,6 +432,9 @@ function ReclaimDetail({ result }: { result: ReclaimSymbolResult }) {
             Review criteria blocked — mixed timeframes
           </span>
         )}
+        <span className="ml-auto text-[10px]" style={{ color: "var(--text-muted)" }}>
+          {benchmarkContext(five?.benchmarkRelativeMove)}
+        </span>
       </div>
 
       {/* Evidence, collapsed by default */}
@@ -499,9 +494,11 @@ function formatPace(five: ReclaimMachineResult): string {
 export function ReclaimContinuationPanel({
   reclaimBySymbol,
   reclaimErrors,
+  embedded = false,
 }: {
   reclaimBySymbol?: Record<string, ReclaimSymbolResult>;
   reclaimErrors?: { symbol: string; message: string }[];
+  embedded?: boolean;
 }) {
   const [selected, setSelected] = useState<string | null>(null);
 
@@ -521,7 +518,10 @@ export function ReclaimContinuationPanel({
   const chosen = active.find((e) => e.symbol === selected) ?? active[0] ?? null;
 
   return (
-    <section className="command-panel overflow-hidden" aria-label="Reclaim and continuation">
+    <section
+      className={embedded ? "overflow-hidden" : "command-panel overflow-hidden"}
+      aria-label="Reclaim and continuation"
+    >
       <div
         className="px-4 py-2.5 flex items-baseline justify-between flex-wrap gap-2"
         style={{ borderBottom: "1px solid var(--border)" }}
@@ -533,16 +533,16 @@ export function ReclaimContinuationPanel({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[10px]" style={{ color: "var(--text-muted)" }}>
-            {active.length} evaluated
+          <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ color: "var(--blue)", background: "rgba(77, 163, 229, 0.1)" }}>
+            {active.length} active
           </span>
-          {/* Unmissable, and never removed while alerting is off. */}
+          {/* Describes the source and bar basis without making an alerting claim. */}
           <span
             data-testid="reclaim-evaluation-banner"
             className="text-[9px] uppercase tracking-[0.1em] px-1.5 py-0.5 rounded"
-            style={{ color: "var(--amber)", border: "1px solid var(--amber)" }}
+            style={{ color: "var(--text-muted)", border: "1px solid var(--border)" }}
           >
-            Evaluation — not live alerting
+            Rules-based / completed bars
           </span>
         </div>
       </div>
@@ -554,21 +554,13 @@ export function ReclaimContinuationPanel({
       )}
 
       {active.length > 0 && (
-        <div
-          className="p-3"
-          style={{ display: "grid", gap: "12px", gridTemplateColumns: "minmax(0, 1fr)" }}
-        >
+        <div className="p-4">
           <div
-            style={{
-              display: "grid",
-              gap: "12px",
-              gridTemplateColumns: "minmax(200px, 0.78fr) minmax(0, 1.72fr)",
-              alignItems: "start",
-            }}
+            className="reclaim-layout-grid"
             data-testid="reclaim-layout"
           >
             {/* Ranked candidates */}
-            <aside data-testid="reclaim-ranked" aria-label="Ranked candidates" className="min-w-0">
+            <aside data-testid="reclaim-ranked" aria-label="Ranked candidates" className="reclaim-ranked-list">
               <table className="w-full text-[12px]">
                 <thead>
                   <tr className="text-[10px]" style={{ color: "var(--text-muted)" }}>
@@ -586,6 +578,7 @@ export function ReclaimContinuationPanel({
                       data-testid="reclaim-row"
                       data-symbol={entry.symbol}
                       data-active={String(entry.symbol === chosen?.symbol)}
+                      className="reclaim-candidate-row"
                     >
                       <td
                         className="font-mono tabular text-[10px] align-top py-1"
@@ -598,9 +591,14 @@ export function ReclaimContinuationPanel({
                           type="button"
                           onClick={() => setSelected(entry.symbol)}
                           aria-pressed={entry.symbol === chosen?.symbol}
-                          className="font-mono text-left focus:outline-none focus-visible:ring-1 focus-visible:ring-accent-champagne"
+                          className="font-mono text-left inline-flex items-center gap-2 focus:outline-none focus-visible:ring-1 focus-visible:ring-accent-champagne"
                           style={{ color: "var(--text)" }}
                         >
+                          <span
+                            aria-hidden="true"
+                            className="h-1.5 w-1.5 rounded-full shrink-0"
+                            style={{ background: directionColor(entry) }}
+                          />
                           {entry.symbol}
                         </button>
                         <span className="block text-[10px]" style={{ color: "var(--text-muted)" }}>

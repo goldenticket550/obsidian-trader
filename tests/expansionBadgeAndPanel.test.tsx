@@ -1,7 +1,9 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeAll, afterEach } from "vitest";
-import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
+import { describe, it, expect, beforeAll, afterEach, vi } from "vitest";
+import { render, screen, fireEvent, cleanup, within, waitFor } from "@testing-library/react";
 import { RankedOpportunities } from "@/components/dashboard/RankedOpportunities";
+import { LiveLeaders } from "@/components/dashboard/LiveLeaders";
+import { expansionQueueItems } from "@/components/dashboard/ActionQueue";
 import {
   ExpansionCandidatePanel,
   buildStageRail,
@@ -118,6 +120,121 @@ describe("the fixtures really are what these tests assume", () => {
       expect(expansionBySymbol.CALM[direction].qualified).toBe(false);
       expect(expansionBySymbol.NEAR[direction].qualified).toBe(false);
     }
+  });
+});
+
+describe("live expansion leaders", () => {
+  it("replaces counts with no more than five real, clickable leaders", () => {
+    const many = Object.fromEntries(
+      ["AAA", "BBB", "CCC", "DDD", "EEE", "FFF"].map((symbol) => [
+        symbol,
+        expansionBySymbol.EXPD,
+      ])
+    );
+    const onSelect = vi.fn();
+    render(
+      <LiveLeaders
+        expansionBySymbol={many}
+        selectedSymbol={null}
+        onSelect={onSelect}
+        loading={false}
+      />
+    );
+    const cards = screen.getAllByTestId("live-leader-card");
+    expect(cards).toHaveLength(5);
+    expect(cards[0].tagName).toBe("BUTTON");
+    fireEvent.click(cards[0]);
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText(/liquidity sweep/i)).toBeNull();
+  });
+
+  it("shows the honest empty state without placeholder cards", () => {
+    const inactive = {
+      CALM: {
+        bullish: { ...expansionBySymbol.CALM.bullish, stage: "inactive" as const },
+        bearish: { ...expansionBySymbol.CALM.bearish, stage: "inactive" as const },
+      },
+    };
+    render(
+      <LiveLeaders
+        expansionBySymbol={inactive}
+        selectedSymbol={null}
+        onSelect={() => {}}
+        loading={false}
+      />
+    );
+    expect(screen.getByText("No active expansion leaders right now.")).toBeTruthy();
+    expect(screen.queryByTestId("live-leader-card")).toBeNull();
+  });
+
+  it("excludes invalidated symbols and never displays an expansion score", () => {
+    const invalidated = {
+      DEAD: {
+        bullish: { ...expansionBySymbol.EXPD.bullish, stage: "invalidated" as const },
+        bearish: { ...expansionBySymbol.EXPD.bearish, stage: "invalidated" as const },
+      },
+      LIVE: expansionBySymbol.EXPD,
+    };
+    render(
+      <LiveLeaders
+        expansionBySymbol={invalidated}
+        selectedSymbol="LIVE"
+        onSelect={() => {}}
+        loading={false}
+      />
+    );
+    expect(screen.queryByText("DEAD")).toBeNull();
+    expect(screen.getByText("LIVE")).toBeTruthy();
+    expect(document.body.textContent).not.toMatch(/confidence|expansion score/i);
+  });
+
+  it("activates Expansion and opens the matching row from an external leader selection", async () => {
+    render(
+      <RankedOpportunities
+        symbols={symbols}
+        resultsBySymbol={resultsBySymbol}
+        loading={false}
+        scoreThreshold={6}
+        expansionBySymbol={expansionBySymbol}
+        expansionMonitorBySymbol={monitorBySymbol}
+        selectedExpansionSymbol="EXPD"
+      />
+    );
+    await waitFor(() => {
+      expect(screen.getByRole("tab", { name: "expansion" }).getAttribute("aria-selected")).toBe(
+        "true"
+      );
+      expect(screen.getByTestId("expansion-panel")).toBeTruthy();
+    });
+  });
+});
+
+describe("expansion action-queue triage", () => {
+  it("routes accepted and invalidated states to review, driving states to monitor, and candidates to informational", () => {
+    const base = expansionBySymbol.EXPD;
+    const bySymbol = {
+      ACCEPT: {
+        bullish: { ...base.bullish, stage: "breakout_accepted" as const },
+        bearish: base.bearish,
+      },
+      DRIVE: {
+        bullish: { ...base.bullish, stage: "opening_drive" as const },
+        bearish: base.bearish,
+      },
+      CAND: {
+        bullish: { ...base.bullish, stage: "premarket_candidate" as const },
+        bearish: base.bearish,
+      },
+      DEAD: {
+        bullish: { ...base.bullish, stage: "invalidated" as const },
+        bearish: base.bearish,
+      },
+    };
+    const items = expansionQueueItems(bySymbol);
+    expect(items.find((item) => item.symbol === "ACCEPT")?.bucket).toBe("risk_review");
+    expect(items.find((item) => item.symbol === "DRIVE")?.bucket).toBe("monitor");
+    expect(items.find((item) => item.symbol === "CAND")?.bucket).toBe("informational");
+    expect(items.find((item) => item.symbol === "DEAD")?.bucket).toBe("risk_review");
   });
 });
 
@@ -404,13 +521,10 @@ describe("card arrangement", () => {
     ]);
   });
 
-  it("holds three across in one row, stated inline so it cannot collapse", () => {
-    // A utility class missing from the stylesheet would silently turn this
-    // into a vertical stack; the inline template makes that impossible.
+  it("uses the responsive three-card decision grid", () => {
     renderCard();
     const grid = screen.getByTestId("expansion-cards") as HTMLElement;
-    expect(grid.style.display).toBe("grid");
-    expect(grid.style.gridTemplateColumns).toBe("repeat(3, minmax(0, 1fr))");
+    expect(grid.className).toContain("expansion-decision-grid");
     expect(grid.children).toHaveLength(3);
     expect([...grid.children].map((c) => c.getAttribute("data-testid"))).toEqual([
       "card-what-changed",
@@ -483,7 +597,7 @@ describe("stage rail", () => {
     const rail = railFor("breakout_accepted");
     expect(rail.map((s) => s.state)).toEqual([
       "done", // Premarket
-      "done", // Early Acceleration
+      "skipped", // Early Acceleration was not observed
       "done", // Opening Drive
       "done", // Level Break
       "current", // Accepted
@@ -494,7 +608,8 @@ describe("stage rail", () => {
   it("lights the whole rail once expansion is active", () => {
     const rail = railFor("expansion_active");
     expect(rail[rail.length - 1].state).toBe("current");
-    expect(rail.slice(0, -1).every((s) => s.state === "done")).toBe(true);
+    expect(rail[1].state).toBe("skipped");
+    expect(rail.filter((_, index) => index !== 1).slice(0, -1).every((s) => s.state === "done")).toBe(true);
   });
 
   it("shows early acceleration even when the stage outranks opening drive", () => {
@@ -503,6 +618,10 @@ describe("stage rail", () => {
     const withSignal = railFor("level_break", true);
     expect(withSignal[1].state).not.toBe("pending");
     expect(withSignal[3].state).toBe("current");
+  });
+
+  it("shows an unobserved optional stage as skipped instead of completed", () => {
+    expect(railFor("breakout_accepted", false)[1].state).toBe("skipped");
   });
 
   it("never marks a milestone reached that the stage has not reached", () => {
@@ -546,7 +665,8 @@ describe("stage rail", () => {
       } else {
         // A small muted dot.
         expect(node.textContent).toBe("");
-        expect(node.style.background).toBe("var(--text-muted)");
+        if (state === "skipped") expect(node.style.background).toBe("transparent");
+        else expect(node.style.background).toBe("var(--text-muted)");
         expect(parseInt(node.style.width, 10)).toBeLessThan(14);
       }
     }
@@ -589,11 +709,7 @@ describe("stage rail", () => {
       />
     );
     const rail = screen.getByTestId("expansion-stage-rail") as HTMLElement;
-    // A single horizontal row, not a wrapped pile — stated inline so it
-    // survives a missing utility class.
-    expect(rail.style.display).toBe("flex");
-    expect(rail.style.flexWrap).not.toBe("wrap");
-    expect(rail.className).not.toContain("flex-wrap");
+    expect(rail.className).toContain("expansion-stage-rail");
 
     const steps = screen.getAllByTestId("expansion-rail-step");
     for (const [index, step] of steps.entries()) {

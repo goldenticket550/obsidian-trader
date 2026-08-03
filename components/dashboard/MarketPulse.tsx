@@ -2,8 +2,6 @@
 
 import type { MarketContextQuote } from "@/lib/market-data/marketContext";
 
-const PULSE_SYMBOLS = ["QQQ", "SPY", "IWM", "XLC"] as const;
-
 function formatChange(value: number | null): string {
   if (value === null) return "--";
   return `${value > 0 ? "+" : ""}${(value * 100).toFixed(2)}%`;
@@ -72,12 +70,15 @@ export function MarketPulse({
   quotes,
   loading,
   error,
+  sectorSymbol = "XLC",
 }: {
   quotes: MarketContextQuote[] | null;
   loading: boolean;
   error: string | null;
+  sectorSymbol?: string;
 }) {
   const bySymbol = new Map((quotes ?? []).map((quote) => [quote.symbol, quote]));
+  const pulseSymbols = ["QQQ", "SPY", "IWM", sectorSymbol];
 
   return (
     <section aria-label="Market pulse" className="space-y-2">
@@ -89,7 +90,7 @@ export function MarketPulse({
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-        {PULSE_SYMBOLS.map((symbol) => {
+        {pulseSymbols.map((symbol) => {
           const quote = bySymbol.get(symbol);
           const change = quote?.changePct ?? null;
           const positive = change === null || change >= 0;
@@ -98,8 +99,9 @@ export function MarketPulse({
 
           return (
             <article
-              key={symbol}
+              key={`${symbol}-${sectorSymbol}`}
               className="command-panel min-h-[72px] px-3 py-2.5 flex items-center justify-between gap-3 overflow-hidden"
+              title={quote?.asOf ? `Market data as of ${quote.asOf}` : quote?.unavailableReason}
             >
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">

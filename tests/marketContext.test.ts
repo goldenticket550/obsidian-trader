@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { quoteFromDailyCandles, MARKET_CONTEXT_SYMBOLS } from "@/lib/market-data/marketContext";
+import {
+  quoteFromDailyCandles,
+  MARKET_CONTEXT_SYMBOLS,
+  sectorBenchmarkForSymbol,
+} from "@/lib/market-data/marketContext";
 import { makeCandle } from "@/lib/fixtures/candles";
 
 const MON = Math.floor(Date.parse("2026-07-13T20:00:00Z") / 1000);
@@ -67,10 +71,26 @@ describe("quoteFromDailyCandles", () => {
 
 describe("MARKET_CONTEXT_SYMBOLS", () => {
   it("covers the four pulse ETFs and the oil context ETF", () => {
-    expect(MARKET_CONTEXT_SYMBOLS.map((s) => s.symbol)).toEqual(["QQQ", "SPY", "IWM", "XLC", "USO"]);
+    expect(MARKET_CONTEXT_SYMBOLS.map((s) => s.symbol)).toEqual([
+      "QQQ",
+      "SPY",
+      "IWM",
+      "XLC",
+      "XLK",
+      "SMH",
+      "XLY",
+      "USO",
+    ]);
   });
 
   it("labels USO as an ETF rather than implying spot crude", () => {
     expect(MARKET_CONTEXT_SYMBOLS.find((s) => s.symbol === "USO")?.label).toBe("USO ETF");
+  });
+
+  it("selects the sector ETF for the focused leader", () => {
+    expect(sectorBenchmarkForSymbol("NVDA")).toBe("SMH");
+    expect(sectorBenchmarkForSymbol("AAPL")).toBe("XLK");
+    expect(sectorBenchmarkForSymbol("TSLA")).toBe("XLY");
+    expect(sectorBenchmarkForSymbol("GOOGL")).toBe("XLC");
   });
 });

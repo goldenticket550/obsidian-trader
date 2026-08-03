@@ -104,6 +104,7 @@ describe("stage-based prioritization", () => {
       stage: "inactive",
       atrNormalizedMove: null,
       relativeDollarVolume: null,
+      sectorRelativePerformance: null,
       lastConfirmedTransitionAt: null,
       ...overrides,
     };
@@ -161,13 +162,19 @@ describe("stage-based prioritization", () => {
     expect(sorted[0].symbol).toBe("DOWN");
   });
 
-  it("falls through to dollar volume, then transition time, then ticker", () => {
+  it("falls through to dollar volume, sector-relative move, transition time, then ticker", () => {
     const base = { stage: "level_break" as const, atrNormalizedMove: 1 };
     const byVolume = sortByExpansionStage([
       item({ ...base, symbol: "LOW", relativeDollarVolume: 1.1 }),
       item({ ...base, symbol: "HIGH", relativeDollarVolume: 3.2 }),
     ]);
     expect(byVolume[0].symbol).toBe("HIGH");
+
+    const bySector = sortByExpansionStage([
+      item({ ...base, symbol: "WEAK", relativeDollarVolume: 2, sectorRelativePerformance: 0.4 }),
+      item({ ...base, symbol: "STRONG", relativeDollarVolume: 2, sectorRelativePerformance: -1.8 }),
+    ]);
+    expect(bySector[0].symbol).toBe("STRONG");
 
     const byTransition = sortByExpansionStage([
       item({ ...base, symbol: "OLD", relativeDollarVolume: 2, lastConfirmedTransitionAt: 1000 }),
@@ -1244,6 +1251,7 @@ const EXPANSION_MODULES = [
   "premarketExpansionDisplay",
   "earlyAcceleration",
   "expansionPriority",
+  "expansionPresentation",
   "expansionMonitor",
   "dollarVolume",
   "historicalBaseline",

@@ -15,6 +15,7 @@ import {
 } from "@/lib/indicators/premarketExpansion";
 import { stageLabel } from "@/lib/indicators/premarketExpansionDisplay";
 import { EXPANSION_STAGE_PRIORITY } from "@/lib/scanner/expansionPriority";
+import { selectPreferredExpansion } from "@/lib/scanner/expansionPresentation";
 import { formatEasternTime } from "@/lib/market-data/freshness";
 
 /**
@@ -94,13 +95,7 @@ export function selectQualifyingExpansion(
 }
 
 export function selectDisplayExpansion(expansion: SymbolExpansion): PremarketExpansionResult {
-  const qualifying = selectQualifyingExpansion(expansion);
-  if (qualifying) return qualifying;
-
-  const { bullish, bearish } = expansion;
-  return EXPANSION_STAGE_PRIORITY[bearish.stage] > EXPANSION_STAGE_PRIORITY[bullish.stage]
-    ? bearish
-    : bullish;
+  return selectPreferredExpansion(expansion).result;
 }
 
 function hasNoPremarketWindow(result: PremarketExpansionResult): boolean {
@@ -116,7 +111,7 @@ function hasNoPremarketWindow(result: PremarketExpansionResult): boolean {
 // Stage rail
 // ---------------------------------------------------------------------------
 
-export type RailStepState = "done" | "current" | "pending";
+export type RailStepState = "done" | "current" | "pending" | "skipped";
 
 export interface RailStep {
   label: string;
@@ -150,7 +145,7 @@ export function buildStageRail(
   const priority = EXPANSION_STAGE_PRIORITY[stage];
 
   const satisfied = RAIL_STEPS.map((step, index) => {
-    if (index === 1) return earlyAccelerationFired || priority >= step.atLeast;
+    if (index === 1) return earlyAccelerationFired;
     return priority >= step.atLeast;
   });
 
@@ -163,7 +158,14 @@ export function buildStageRail(
 
   return RAIL_STEPS.map((step, index) => ({
     label: step.label,
-    state: !satisfied[index] ? "pending" : index === currentIndex ? "current" : "done",
+    state:
+      index === 1 && !earlyAccelerationFired && priority > step.atLeast
+        ? "skipped"
+        : !satisfied[index]
+        ? "pending"
+        : index === currentIndex
+        ? "current"
+        : "done",
   }));
 }
 
@@ -479,13 +481,15 @@ function RailNode({
     ) : (
       <span
         data-testid="expansion-rail-node"
-        data-node-state="pending"
+        data-node-state={step.state}
+        title={step.state === "skipped" ? `${step.label} skipped` : `${step.label} waiting`}
         style={{
           ...nodeBase,
           width: "8px",
           height: "8px",
-          background: "var(--text-muted)",
-          opacity: 0.45,
+          background: step.state === "skipped" ? "transparent" : "var(--text-muted)",
+          border: step.state === "skipped" ? "1px solid var(--text-muted)" : undefined,
+          opacity: step.state === "skipped" ? 0.7 : 0.45,
         }}
       />
     );
@@ -514,6 +518,9 @@ function RailNode({
         }}
       >
         {step.label}
+        {step.state === "skipped" && (
+          <span className="block normal-case tracking-normal">Skipped</span>
+        )}
       </span>
     </>
   );
@@ -732,12 +739,7 @@ export function ExpansionCandidatePanel({
           <ol
             data-testid="expansion-stage-rail"
             aria-label="Expansion stage progress"
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              width: "100%",
-              marginBottom: "14px",
-            }}
+            className="expansion-stage-rail"
           >
             {rail.map((step, index) => (
               <li
@@ -768,12 +770,7 @@ export function ExpansionCandidatePanel({
               missing from the stylesheet. */}
           <div
             data-testid="expansion-cards"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-              gap: "8px",
-              marginBottom: "12px",
-            }}
+            className="expansion-decision-grid"
           >
             <MiniCard testId="card-what-changed" heading="What changed">
               <CardLine label="Dollar volume" value={dollarVolumeValue(monitor)} />

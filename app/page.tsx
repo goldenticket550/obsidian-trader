@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { SignalRow } from "@/components/dashboard/SignalRow";
 import { MarketPulse } from "@/components/dashboard/MarketPulse";
+import { LiveLeaders } from "@/components/dashboard/LiveLeaders";
 import { AccountRiskPanel } from "@/components/dashboard/AccountRiskPanel";
 import { TradingSessionPanel } from "@/components/dashboard/TradingSessionPanel";
 import { MarketContextPanel } from "@/components/dashboard/MarketContextPanel";
@@ -14,16 +14,20 @@ import type { SetupResult } from "@/types/setup";
 import type { SymbolExpansion } from "@/lib/scanner/scanService";
 import type { SymbolExpansionMonitor } from "@/lib/scanner/expansionMonitor";
 import type { ReclaimSymbolResult } from "@/lib/scanner/reclaimRunner";
-import { ReclaimContinuationPanel } from "@/components/dashboard/ReclaimContinuationPanel";
+
 import { ReclaimEvaluationCapture } from "@/components/dashboard/ReclaimEvaluationCapture";
 import type { DataQuality } from "@/types/candle";
 import type { SessionInfo } from "@/lib/market-data/types";
-import type { MarketContextQuote } from "@/lib/market-data/marketContext";
+import {
+  sectorBenchmarkForSymbol,
+  type MarketContextQuote,
+} from "@/lib/market-data/marketContext";
 import type { AlertEvent } from "@/lib/alerts/types";
 import type { RiskSettings, DailyTradingStatus } from "@/types/risk";
 import { DEFAULT_SIGNAL_WINDOW, filterEventsByWindow, type SignalWindow } from "@/lib/alerts/signalCounts";
 import { dedupeAlerts } from "@/lib/alerts/triage";
 import { describeFeed, latestCandleLabel, scannedLabel } from "@/lib/market-data/freshness";
+import { buildExpansionLeaders } from "@/lib/scanner/expansionPresentation";
 
 interface ScanApiResponse {
   provider: string;
@@ -123,6 +127,7 @@ export default function DashboardPage() {
   // Default to the last 60 minutes so a Monday view isn't dominated by
   // Friday's alerts. "Recent" (the full loaded set) stays user-selectable.
   const [signalWindow, setSignalWindow] = useState<SignalWindow>(DEFAULT_SIGNAL_WINDOW);
+  const [selectedExpansionSymbol, setSelectedExpansionSymbol] = useState<string | null>(null);
 
   // Synchronous guard: at most one dashboard scan in flight at a time. A ref
   // (not state) so two callbacks in the same tick can't both pass the check.
@@ -174,6 +179,23 @@ export default function DashboardPage() {
     () => filterEventsByWindow(allAlerts, signalWindow, windowNow),
     [allAlerts, signalWindow, windowNow]
   );
+
+  const liveLeaders = useMemo(
+    () => buildExpansionLeaders(scan?.expansionBySymbol, scan?.expansionMonitorBySymbol),
+    [scan?.expansionBySymbol, scan?.expansionMonitorBySymbol]
+  );
+
+  useEffect(() => {
+    if (liveLeaders.length === 0) {
+      setSelectedExpansionSymbol(null);
+      return;
+    }
+    setSelectedExpansionSymbol((current) =>
+      current && liveLeaders.some((leader) => leader.symbol === current)
+        ? current
+        : liveLeaders[0].symbol
+    );
+  }, [liveLeaders]);
 
   const fetchRisk = useCallback(() => {
     const scoreParam = topScore !== null ? `?selectedScore=${topScore.toFixed(2)}` : "";
@@ -325,9 +347,6 @@ export default function DashboardPage() {
   }, [fetchRisk]);
 
   const scoreThreshold = risk?.settings.minSetupScore ?? FALLBACK_SCORE_THRESHOLD;
-  const expansionCount = Object.values(scan?.expansionBySymbol ?? {}).filter(
-    (expansion) => expansion.bullish.qualified || expansion.bearish.qualified
-  ).length;
   const compactContext = context?.filter((quote) =>
     ["USO", "SPY", "IWM"].includes(quote.symbol)
   ) ?? null;
@@ -336,12 +355,12 @@ export default function DashboardPage() {
   const feed = describeFeed(dataQuality, newestCandleTime, Date.now());
 
   return (
-    <div className="space-y-3">
+    <div className="dashboard-shell">
       {/* Status group. No "Real-time data" badge: the dot reports PROVIDER
           CONNECTIVITY, and scan time / candle time are shown as separate
           labelled values so neither can be mistaken for the other. Green
           is reserved for a genuinely current candle. */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="command-statusbar flex flex-wrap items-center justify-between gap-3">
         <div
           className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] uppercase tracking-[0.1em] px-3 py-1.5 rounded"
           style={{ background: "var(--panel)", border: "1px solid var(--border)" }}
@@ -410,15 +429,15 @@ export default function DashboardPage() {
         quotes={context}
         loading={context === null && !contextError}
         error={contextError}
+        sectorSymbol={sectorBenchmarkForSymbol(selectedExpansionSymbol)}
       />
 
-      <SignalRow
-        events={allAlerts}
-        window={signalWindow}
-        now={windowNow}
-        onWindowChange={setSignalWindow}
-        loading={alerts === null && !alertsError}
-        expansionCount={expansionCount}
+      <LiveLeaders
+        expansionBySymbol={scan?.expansionBySymbol}
+        expansionMonitorBySymbol={scan?.expansionMonitorBySymbol}
+        selectedSymbol={selectedExpansionSymbol}
+        onSelect={setSelectedExpansionSymbol}
+        loading={scan === null && !scanError}
       />
       {scanError && (
         <div className="command-panel p-4 border-signal-red/40 text-sm text-signal-red">
@@ -444,8 +463,8 @@ export default function DashboardPage() {
 
       {/* Left compact, centre dominant, queue readable but not dominant.
           All three columns start at the same vertical position. */}
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(230px,0.78fr)_minmax(620px,2.65fr)_minmax(300px,1fr)] gap-3 items-start">
-        <div className="space-y-3">
+      <div className="command-grid">
+        <div className="command-side-stack">
           <AccountRiskPanel
             settings={risk?.settings ?? null}
             status={risk?.status ?? null}
@@ -470,6 +489,10 @@ export default function DashboardPage() {
             scoreThreshold={scoreThreshold}
             expansionBySymbol={scan?.expansionBySymbol}
             expansionMonitorBySymbol={scan?.expansionMonitorBySymbol}
+            selectedExpansionSymbol={selectedExpansionSymbol}
+            onExpansionSelectionChange={setSelectedExpansionSymbol}
+            reclaimBySymbol={scan?.reclaimBySymbol}
+            reclaimErrors={scan?.reclaimErrors}
           />
         </div>
 
@@ -480,25 +503,29 @@ export default function DashboardPage() {
             resultsBySymbol={scan?.resultsBySymbol ?? {}}
             loading={alerts === null && !alertsError}
             error={alertsError}
+            onWindowChange={setSignalWindow}
+            expansionBySymbol={scan?.expansionBySymbol}
+            expansionMonitorBySymbol={scan?.expansionMonitorBySymbol}
           />
         </div>
       </div>
 
-      {/* Additive section: renders only when the scan actually evaluated
-          Reclaim. Absent means "not evaluated", so the screen stays silent
-          rather than claiming nothing was found. */}
-      <ReclaimContinuationPanel
-        reclaimBySymbol={scan?.reclaimBySymbol}
-        reclaimErrors={scan?.reclaimErrors}
-      />
-
-      {/* Client-side session transcript of the same Reclaim reads, for
-          threshold review. Reads the scan payload already in memory —
-          no route, no storage, no extra fetch. */}
-      <ReclaimEvaluationCapture
-        reclaimBySymbol={scan?.reclaimBySymbol}
-        scanTime={scanTime}
-      />
+      {/* The in-memory review transcript remains reachable without
+          competing with the primary scanner view. */}
+      {scan?.reclaimBySymbol !== undefined && (
+        <details className="command-disclosure">
+          <summary>
+            Evaluation capture
+            <span>Session-only review log</span>
+          </summary>
+          <div className="p-3">
+            <ReclaimEvaluationCapture
+              reclaimBySymbol={scan.reclaimBySymbol}
+              scanTime={scanTime}
+            />
+          </div>
+        </details>
+      )}
     </div>
   );
 }

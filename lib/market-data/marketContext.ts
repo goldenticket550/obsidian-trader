@@ -16,8 +16,28 @@ export const MARKET_CONTEXT_SYMBOLS = [
   { symbol: "SPY", label: "SPY" },
   { symbol: "IWM", label: "IWM" },
   { symbol: "XLC", label: "XLC" },
+  { symbol: "XLK", label: "XLK" },
+  { symbol: "SMH", label: "SMH" },
+  { symbol: "XLY", label: "XLY" },
   { symbol: "USO", label: "USO ETF" },
 ] as const;
+
+export const DEFAULT_SECTOR_BENCHMARKS: Readonly<Record<string, string>> = {
+  AAPL: "XLK",
+  MSFT: "XLK",
+  NVDA: "SMH",
+  AMD: "SMH",
+  AVGO: "SMH",
+  MU: "SMH",
+  GOOGL: "XLC",
+  META: "XLC",
+  AMZN: "XLY",
+  TSLA: "XLY",
+};
+
+export function sectorBenchmarkForSymbol(symbol: string | null): string {
+  return symbol ? DEFAULT_SECTOR_BENCHMARKS[symbol] ?? "XLC" : "XLC";
+}
 
 export interface MarketContextQuote {
   symbol: string;

@@ -57,6 +57,8 @@ export interface ExpansionPriorityItem {
   atrNormalizedMove: number | null;
   /** Time-adjusted dollar volume against this symbol's own baseline. */
   relativeDollarVolume: number | null;
+  /** Absolute performance versus the configured benchmark/sector ETF. */
+  sectorRelativePerformance: number | null;
   /** Epoch seconds of the most recent CONFIRMED state transition. */
   lastConfirmedTransitionAt: number | null;
 }
@@ -103,6 +105,12 @@ export function compareExpansionPriority(
   const volumeDelta = compareDescendingNullsLast(a.relativeDollarVolume, b.relativeDollarVolume);
   if (volumeDelta !== 0) return volumeDelta;
 
+  const sectorDelta = compareDescendingNullsLast(
+    a.sectorRelativePerformance === null ? null : Math.abs(a.sectorRelativePerformance),
+    b.sectorRelativePerformance === null ? null : Math.abs(b.sectorRelativePerformance)
+  );
+  if (sectorDelta !== 0) return sectorDelta;
+
   const transitionDelta = compareDescendingNullsLast(
     a.lastConfirmedTransitionAt,
     b.lastConfirmedTransitionAt
@@ -133,6 +141,9 @@ export function describePriorityReason(item: ExpansionPriorityItem, position: nu
   }
   if (item.relativeDollarVolume !== null) {
     parts.push(`${item.relativeDollarVolume.toFixed(1)}x dollar-volume pace`);
+  }
+  if (item.sectorRelativePerformance !== null) {
+    parts.push(`${Math.abs(item.sectorRelativePerformance).toFixed(1)} pp sector-relative`);
   }
 
   const placement = position === 0 ? "moved to the top" : `is ranked #${position + 1}`;

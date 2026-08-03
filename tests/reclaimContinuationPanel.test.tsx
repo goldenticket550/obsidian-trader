@@ -12,10 +12,10 @@ import { defaultStrategyConfig } from "@/lib/strategies/config";
 import type { Candle } from "@/types/candle";
 
 /**
- * The Reclaim & Continuation SETUPS section, in evaluation mode.
+ * The Reclaim & Continuation SETUPS section.
  *
- * Two things run through every test: nothing may read as a directive
- * while alerting is off, and nothing unmeasured may render as a number.
+ * Two things run through every test: rules status must not read as a trading
+ * directive, and nothing unmeasured may render as a number.
  */
 
 afterEach(cleanup);
@@ -116,24 +116,24 @@ describe("isolation", () => {
 // Evaluation-mode language
 // ---------------------------------------------------------------------------
 
-describe("evaluation-mode language", () => {
-  it("labels the whole section as an evaluation, not live alerting", () => {
+describe("rules-based language", () => {
+  it("labels the section by its rules source and completed-bar basis", () => {
     renderPanel({ EXPD: base });
     expect(screen.getByTestId("reclaim-evaluation-banner").textContent).toMatch(
-      /Evaluation — not live alerting/i
+      /Rules-based \/ completed bars/i
     );
   });
 
-  it("frames the tier as what the system WOULD surface", () => {
+  it("frames the tier as criteria status", () => {
     renderPanel({ EXPD: base });
-    expect(screen.getByTestId("reclaim-evaluation").textContent).toMatch(/Would alert on:/i);
+    expect(screen.getByTestId("reclaim-evaluation").textContent).toMatch(/Criteria status:/i);
     expect(screen.getByTestId("reclaim-tier").textContent).toMatch(/criteria met|Evaluation/i);
   });
 
   it("never renders the phrase 'Review Now', and never as a control", () => {
     renderPanel({ EXPD: base });
-    // The runner's top tier is `review_now`; the UI must not surface it as
-    // an instruction while alerting is off.
+    // The runner's top tier is `review_now`; the UI must not surface the
+    // internal tier name as an instruction.
     expect(base.alertTier).toBe("review_now");
     const html = document.body.innerHTML;
     expect(html).not.toMatch(/Review Now/);
@@ -224,7 +224,7 @@ describe("layout", () => {
   it("renders the ranked list beside the detail", () => {
     renderPanel({ EXPD: base });
     const layout = screen.getByTestId("reclaim-layout");
-    expect(layout.style.gridTemplateColumns).toContain("minmax(200px, 0.78fr)");
+    expect(layout.className).toContain("reclaim-layout-grid");
     expect(screen.getByTestId("reclaim-ranked")).toBeTruthy();
     expect(screen.getByTestId("reclaim-detail")).toBeTruthy();
   });
@@ -248,7 +248,7 @@ describe("layout", () => {
   it("renders the three decision sections in one row", () => {
     renderPanel({ EXPD: base });
     const grid = screen.getByTestId("reclaim-decisions");
-    expect(grid.style.gridTemplateColumns).toBe("repeat(3, minmax(0, 1fr))");
+    expect(grid.className).toContain("reclaim-decision-grid");
     for (const id of ["reclaim-what-changed", "reclaim-whats-next", "reclaim-what-breaks-it"]) {
       expect(screen.getByTestId(id)).toBeTruthy();
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { WatchlistSymbol } from "@/types/watchlist";
 import type { SetupResult } from "@/types/setup";
 import { SetupDetail } from "./SetupDetail";
@@ -14,7 +14,10 @@ import type { SymbolExpansionMonitor } from "@/lib/scanner/expansionMonitor";
 import { stageLabel } from "@/lib/indicators/premarketExpansionDisplay";
 import { rankOpportunities, RANKING_RULE_DESCRIPTION } from "@/lib/scanner/ranking";
 import { formatEasternTime } from "@/lib/market-data/freshness";
-import { EXPANSION_STAGE_PRIORITY } from "@/lib/scanner/expansionPriority";
+import { compareExpansionPriority } from "@/lib/scanner/expansionPriority";
+import { selectPreferredExpansion } from "@/lib/scanner/expansionPresentation";
+import type { ReclaimSymbolResult } from "@/lib/scanner/reclaimRunner";
+import { ReclaimContinuationPanel } from "./ReclaimContinuationPanel";
 
 const STATUS_DOT: Record<"red" | "yellow" | "green", string> = {
   red: "var(--red)",
@@ -66,6 +69,10 @@ export function RankedOpportunities({
   scoreThreshold,
   expansionBySymbol,
   expansionMonitorBySymbol,
+  selectedExpansionSymbol,
+  onExpansionSelectionChange,
+  reclaimBySymbol,
+  reclaimErrors,
 }: {
   symbols: WatchlistSymbol[];
   resultsBySymbol: Record<string, { "5m": SetupResult; "15m": SetupResult }>;
@@ -79,12 +86,29 @@ export function RankedOpportunities({
   expansionBySymbol?: Record<string, SymbolExpansion>;
   /** The one-minute layer, when the scan evaluated it. Equally optional. */
   expansionMonitorBySymbol?: Record<string, SymbolExpansionMonitor>;
+  selectedExpansionSymbol?: string | null;
+  onExpansionSelectionChange?: (symbol: string) => void;
+  /** Existing Reclaim output, displayed without deriving any new values. */
+  reclaimBySymbol?: Record<string, ReclaimSymbolResult>;
+  reclaimErrors?: { symbol: string; message: string }[];
 }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [timeframes, setTimeframes] = useState<Record<string, "5m" | "15m">>({});
   const [activeView, setActiveView] = useState<"setups" | "expansion">("setups");
 
   const ranked = rankOpportunities(symbols);
+  useEffect(() => {
+    if (!selectedExpansionSymbol || !expansionBySymbol?.[selectedExpansionSymbol]) return;
+    setActiveView("expansion");
+    setExpanded(selectedExpansionSymbol);
+    const frame = requestAnimationFrame(() => {
+      const row = document.querySelector<HTMLElement>(`[data-ticker="${selectedExpansionSymbol}"]`);
+      row?.scrollIntoView?.({ block: "nearest", behavior: "smooth" });
+      row?.querySelector<HTMLButtonElement>("[data-expansion-toggle]")?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [selectedExpansionSymbol, expansionBySymbol]);
+
   const displayed =
     activeView === "setups"
       ? ranked
@@ -94,26 +118,44 @@ export function RankedOpportunities({
           if (!expansionA && !expansionB) return a.ticker.localeCompare(b.ticker);
           if (!expansionA) return 1;
           if (!expansionB) return -1;
-          const selectedA = selectDisplayExpansion(expansionA);
-          const selectedB = selectDisplayExpansion(expansionB);
-          const stageA =
-            expansionMonitorBySymbol?.[a.ticker]?.[selectedA.direction].stage ?? selectedA.stage;
-          const stageB =
-            expansionMonitorBySymbol?.[b.ticker]?.[selectedB.direction].stage ?? selectedB.stage;
-          const stageDelta =
-            EXPANSION_STAGE_PRIORITY[stageB] - EXPANSION_STAGE_PRIORITY[stageA];
-          if (stageDelta !== 0) return stageDelta;
-
-          const moveA = selectedA.move.percentMove;
-          const moveB = selectedB.move.percentMove;
-          if (moveA === null && moveB !== null) return 1;
-          if (moveA !== null && moveB === null) return -1;
-          if (moveA !== null && moveB !== null) {
-            const moveDelta = Math.abs(moveB) - Math.abs(moveA);
-            if (moveDelta !== 0) return moveDelta;
-          }
-
-          return a.ticker.localeCompare(b.ticker);
+          const selectedA = selectPreferredExpansion(
+            expansionA,
+            expansionMonitorBySymbol?.[a.ticker]
+          );
+          const selectedB = selectPreferredExpansion(
+            expansionB,
+            expansionMonitorBySymbol?.[b.ticker]
+          );
+          const monitorA = expansionMonitorBySymbol?.[a.ticker];
+          const monitorB = expansionMonitorBySymbol?.[b.ticker];
+          return compareExpansionPriority(
+            {
+              symbol: a.ticker,
+              stage: selectedA.stage,
+              atrNormalizedMove: null,
+              relativeDollarVolume:
+                monitorA?.dollarVolume.cumulativeRelativeDollarVolume ??
+                selectedA.result.volumePace.multiple,
+              sectorRelativePerformance: selectedA.result.relativeStrength.relativePct,
+              lastConfirmedTransitionAt:
+                monitorA?.[selectedA.result.direction].earlyAcceleration.fired
+                  ? monitorA[selectedA.result.direction].earlyAcceleration.barTime
+                  : null,
+            },
+            {
+              symbol: b.ticker,
+              stage: selectedB.stage,
+              atrNormalizedMove: null,
+              relativeDollarVolume:
+                monitorB?.dollarVolume.cumulativeRelativeDollarVolume ??
+                selectedB.result.volumePace.multiple,
+              sectorRelativePerformance: selectedB.result.relativeStrength.relativePct,
+              lastConfirmedTransitionAt:
+                monitorB?.[selectedB.result.direction].earlyAcceleration.fired
+                  ? monitorB[selectedB.result.direction].earlyAcceleration.barTime
+                  : null,
+            }
+          );
         });
 
   return (
@@ -151,6 +193,8 @@ export function RankedOpportunities({
               key={view}
               type="button"
               role="tab"
+              id={`opportunities-${view}-tab`}
+              aria-controls={`opportunities-${view}-panel`}
               aria-selected={activeView === view}
               onClick={() => {
                 setActiveView(view);
@@ -167,7 +211,11 @@ export function RankedOpportunities({
             </button>
           ))}
           <span className="ml-auto text-[9px]" style={{ color: "var(--text-muted)" }}>
-            {activeView === "expansion" ? "Stage, then measured move" : "Ordered by setup score"}
+            {activeView === "expansion"
+              ? "Stage, then measured move"
+              : reclaimBySymbol !== undefined
+              ? "Reclaim stages, then supporting evidence"
+              : "Ordered by setup score"}
           </span>
         </div>
       )}
@@ -178,14 +226,41 @@ export function RankedOpportunities({
         </p>
       )}
 
-      {!loading && ranked.length === 0 && (
-        <p className="px-4 py-8 text-[12px] text-center" style={{ color: "var(--text-muted)" }}>
-          No symbols scanned successfully.
-        </p>
+      {!loading &&
+        ranked.length === 0 &&
+        !(activeView === "setups" && reclaimBySymbol !== undefined) && (
+          <p className="px-4 py-8 text-[12px] text-center" style={{ color: "var(--text-muted)" }}>
+            No symbols scanned successfully.
+          </p>
+        )}
+
+      {!loading && activeView === "setups" && reclaimBySymbol !== undefined && (
+        <ReclaimContinuationPanel
+          reclaimBySymbol={reclaimBySymbol}
+          reclaimErrors={reclaimErrors}
+          embedded
+        />
       )}
 
       {!loading && ranked.length > 0 && (
-        <div className="overflow-x-auto">
+        <details
+          id={`opportunities-${activeView}-panel`}
+          role="tabpanel"
+          aria-labelledby={`opportunities-${activeView}-tab`}
+          className={
+            activeView === "setups" && reclaimBySymbol !== undefined
+              ? "supporting-evidence"
+              : ""
+          }
+          open={activeView === "setups" && reclaimBySymbol !== undefined ? undefined : true}
+        >
+          {activeView === "setups" && reclaimBySymbol !== undefined && (
+            <summary>
+              Supporting 5m / 15m score evidence
+              <span>{ranked.length} symbols</span>
+            </summary>
+          )}
+          <div className="overflow-x-auto">
           <div className="min-w-[600px]">
             <div
               className={`${COLS} px-4 py-1.5 text-[10px] uppercase tracking-[0.1em]`}
@@ -353,7 +428,13 @@ export function RankedOpportunities({
                     </span>
 
                     <button
-                      onClick={() => setExpanded(isOpen ? null : s.ticker)}
+                      data-expansion-toggle={activeView === "expansion" ? "true" : undefined}
+                      onClick={() => {
+                        setExpanded(isOpen ? null : s.ticker);
+                        if (!isOpen && activeView === "expansion") {
+                          onExpansionSelectionChange?.(s.ticker);
+                        }
+                      }}
                       aria-expanded={isOpen}
                       aria-controls={panelId}
                       aria-label={`${isOpen ? "Collapse" : "Expand"} ${s.ticker} setup detail`}
@@ -402,7 +483,8 @@ export function RankedOpportunities({
               );
             })}
           </div>
-        </div>
+          </div>
+        </details>
       )}
     </section>
   );
