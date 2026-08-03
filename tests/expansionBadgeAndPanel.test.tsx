@@ -1085,3 +1085,48 @@ describe("the move columns say which move they mean", () => {
     expect(header).not.toContain("PM $");
   });
 });
+
+describe("a symbol with no price is not given one", () => {
+  /**
+   * REGRESSION (live, 2026-08-03): the expansion-only row fix used
+   * `?? 0` when the expansion result had no price, so SMH, XLF and SPX
+   * rendered "$0.00" in production — a fabricated price, visually
+   * identical to a real one, on symbols the provider simply cannot serve.
+   */
+  it("renders a dash, never $0.00, when the expansion result has no price", () => {
+    const map = structuredClone(expansionBySymbol) as typeof expansionBySymbol;
+    map.SPX = structuredClone(map.EXPD);
+    for (const direction of ["bullish", "bearish"] as const) {
+      map.SPX[direction].move = {
+        ...map.SPX[direction].move,
+        currentPrice: null,
+        dollarMove: null,
+        percentMove: null,
+      };
+    }
+
+    const { container } = renderRanked(map, monitorBySymbol);
+    fireEvent.click(screen.getByRole("tab", { name: "expansion" }));
+    const text = rowFor(container, "SPX").textContent ?? "";
+
+    expect(text).not.toContain("$0.00");
+    expect(text).toContain("—");
+  });
+
+  it("still shows a real price when there is one", () => {
+    const map = structuredClone(expansionBySymbol) as typeof expansionBySymbol;
+    map.SPY = structuredClone(map.EXPD);
+    const price = selectDisplayExpansionPrice(map.SPY);
+
+    const { container } = renderRanked(map, monitorBySymbol);
+    fireEvent.click(screen.getByRole("tab", { name: "expansion" }));
+    // Precondition: the fixture genuinely has a price, so the dash
+    // assertion above is not passing for the wrong reason.
+    expect(price).not.toBeNull();
+    expect(rowFor(container, "SPY").textContent ?? "").toContain(`$${price!.toFixed(2)}`);
+  });
+});
+
+function selectDisplayExpansionPrice(entry: SymbolExpansion): number | null {
+  return entry.bullish.move.currentPrice ?? entry.bearish.move.currentPrice ?? null;
+}

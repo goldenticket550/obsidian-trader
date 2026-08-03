@@ -133,7 +133,11 @@ export function RankedOpportunities({
             // completed PREMARKET bar. Real and dated, not a live quote —
             // `hasCandle` is false for these rows, which is what makes the
             // price render muted with its "previous close" tooltip.
-            price: selectDisplayExpansion(expansionBySymbol[ticker])?.move.currentPrice ?? 0,
+            // NaN, deliberately, when the expansion result has no price:
+            // it is not a number, and it renders as "—". A `?? 0` here put
+            // "$0.00" on SMH, XLF and SPX in production — a fabricated
+            // price, indistinguishable from a real one that had crashed.
+            price: selectDisplayExpansion(expansionBySymbol[ticker])?.move.currentPrice ?? NaN,
             dailyChangePct: 0,
             distanceFromSessionLowPct: 0,
             score5m: 0,
@@ -418,9 +422,15 @@ export function RankedOpportunities({
                     <span
                       className="font-mono tabular text-[12px] text-right"
                       style={{ color: hasCandle ? "var(--text)" : "var(--text-muted)" }}
-                      title={hasCandle ? undefined : "Previous close — no session candle yet"}
+                      title={
+                        !Number.isFinite(s.price)
+                          ? "No price available for this symbol"
+                          : hasCandle
+                          ? undefined
+                          : "Previous close — no session candle yet"
+                      }
                     >
-                      ${s.price.toFixed(2)}
+                      {Number.isFinite(s.price) ? `$${s.price.toFixed(2)}` : "—"}
                     </span>
 
                     <span
