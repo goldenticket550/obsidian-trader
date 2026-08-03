@@ -106,6 +106,42 @@ export function RankedOpportunities({
   const [activeView, setActiveView] = useState<"setups" | "expansion">("setups");
 
   const ranked = rankOpportunities(symbols);
+
+  /**
+   * Expansion universe symbols that are NOT on the watchlist.
+   *
+   * The two sides scan different lists: the watchlist drives setups, the
+   * expansion universe drives expansion. Before this, the table was built
+   * only from `symbols`, so an expansion-only name (SPY, QQQ, SPX…) was
+   * fetched and evaluated and then had nowhere to render — the whole
+   * point of a separate universe was invisible.
+   *
+   * These rows carry NO setup data, because the setups side never scored
+   * them. That is rendered as "—", never as a zero score, which would
+   * read as "evaluated and failed" rather than "not evaluated".
+   */
+  const expansionOnly: WatchlistSymbol[] =
+    expansionBySymbol === undefined
+      ? []
+      : Object.keys(expansionBySymbol)
+          .filter((ticker) => !symbols.some((s) => s.ticker === ticker))
+          .sort()
+          .map((ticker) => ({
+            ticker,
+            exchange: "",
+            // The expansion result's own price: the close of the latest
+            // completed PREMARKET bar. Real and dated, not a live quote —
+            // `hasCandle` is false for these rows, which is what makes the
+            // price render muted with its "previous close" tooltip.
+            price: selectDisplayExpansion(expansionBySymbol[ticker])?.move.currentPrice ?? 0,
+            dailyChangePct: 0,
+            distanceFromSessionLowPct: 0,
+            score5m: 0,
+            score15m: 0,
+            status5m: "red",
+            status15m: "red",
+            lastSignalTime: null,
+          }));
   useEffect(() => {
     if (!selectedExpansionSymbol || !expansionBySymbol?.[selectedExpansionSymbol]) return;
     setActiveView("expansion");
@@ -118,10 +154,12 @@ export function RankedOpportunities({
     return () => cancelAnimationFrame(frame);
   }, [selectedExpansionSymbol, expansionBySymbol]);
 
+  const expansionOnlyTickers = new Set(expansionOnly.map((s) => s.ticker));
+
   const displayed =
     activeView === "setups"
       ? ranked
-      : [...ranked].sort((a, b) => {
+      : [...ranked, ...expansionOnly].sort((a, b) => {
           const expansionA = expansionBySymbol?.[a.ticker];
           const expansionB = expansionBySymbol?.[b.ticker];
           if (!expansionA && !expansionB) return a.ticker.localeCompare(b.ticker);
@@ -288,6 +326,9 @@ export function RankedOpportunities({
 
             {displayed.map((s, index) => {
               const isOpen = expanded === s.ticker;
+              // Never scored by the setups side, so every setup-derived
+              // cell must read "not evaluated", not a zero.
+              const isExpansionOnly = expansionOnlyTickers.has(s.ticker);
               const timeframe = timeframes[s.ticker] ?? "5m";
               const detail = resultsBySymbol[s.ticker]?.[timeframe] ?? null;
               const row = resultsBySymbol[s.ticker]?.["5m"] ?? null;
@@ -334,7 +375,12 @@ export function RankedOpportunities({
                     <span className="flex items-center gap-1.5 min-w-0">
                       <span
                         className="inline-block h-1.5 w-1.5 rounded-full shrink-0"
-                        style={{ background: STATUS_DOT[s.status5m] }}
+                        style={{
+                          background: isExpansionOnly
+                            ? "var(--text-muted)"
+                            : STATUS_DOT[s.status5m],
+                        }}
+                        title={isExpansionOnly ? "Expansion universe only — not scored for setups" : undefined}
                         aria-hidden="true"
                       />
                       <span className="font-mono truncate" style={{ color: "var(--text)" }}>

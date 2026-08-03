@@ -1009,3 +1009,59 @@ describe("the % MOVE column renders the right unit", () => {
     expect(row.textContent ?? "").toContain(`${pct}%`);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Expansion-universe symbols that are not on the watchlist
+// ---------------------------------------------------------------------------
+
+describe("expansion-only symbols are visible", () => {
+  /**
+   * REGRESSION (live, 2026-08-03): the scan was split into two universes
+   * so the expansion side could run on 0DTE names, but the table was built
+   * only from the WATCHLIST. SPY/QQQ/SPX were fetched, evaluated, then had
+   * nowhere to render — the feature was invisible and the fetches wasted.
+   *
+   * The earlier tests all asserted SCAN OUTPUT and never that a row could
+   * render for a symbol outside the watchlist, which is exactly why this
+   * shipped.
+   */
+  function withExpansionOnly() {
+    const map = structuredClone(expansionBySymbol) as typeof expansionBySymbol;
+    // SPY is in no watchlist fixture, so it can only appear via the
+    // expansion universe.
+    map.SPY = structuredClone(map.EXPD);
+    return map;
+  }
+
+  it("renders a row for a symbol that is only in the expansion universe", () => {
+    const map = withExpansionOnly();
+
+    // Precondition: SPY genuinely is not a watchlist row.
+    expect(symbols.some((s) => s.ticker === "SPY")).toBe(false);
+
+    const { container } = renderRanked(map, monitorBySymbol);
+    // Not on the setups tab — it was never scored for setups.
+    expect(within(container).queryByText("SPY")).toBeNull();
+
+    fireEvent.click(screen.getByRole("tab", { name: "expansion" }));
+    expect(rowFor(container, "SPY")).toBeTruthy();
+  });
+
+  it("shows no fabricated setup score for an unscored symbol", () => {
+    const { container } = renderRanked(withExpansionOnly(), monitorBySymbol);
+    fireEvent.click(screen.getByRole("tab", { name: "expansion" }));
+    const text = rowFor(container, "SPY").textContent ?? "";
+
+    // A 0.0 score would read as "evaluated and failed" rather than
+    // "never evaluated".
+    expect(text).not.toContain("0.0");
+    expect(text).toContain("—");
+  });
+
+  it("leaves the setups tab exactly as it was", () => {
+    const withOnly = renderRanked(withExpansionOnly(), monitorBySymbol).container.innerHTML;
+    cleanup();
+    const without = renderRanked(expansionBySymbol, monitorBySymbol).container.innerHTML;
+    expect(withOnly).toBe(without);
+  });
+});
