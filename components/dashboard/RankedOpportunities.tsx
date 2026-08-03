@@ -317,8 +317,31 @@ export function RankedOpportunities({
               <span>Ticker</span>
               <span className="text-right">Price</span>
               <span className="text-right">Chg</span>
-              <span className="text-right">{activeView === "expansion" ? "$ move" : "5m"}</span>
-              <span className="text-right">{activeView === "expansion" ? "% move" : "15m"}</span>
+              {/* PM, not live: these two measure the move to the last
+                  completed PREMARKET bar, while `Chg` beside them is the
+                  live daily change. Unlabelled, the two read as
+                  contradicting each other — AMZN showed Chg +5.3% next to
+                  a +1.9% move on 2026-08-03 and looked broken. */}
+              <span
+                className="text-right"
+                title={
+                  activeView === "expansion"
+                    ? "Move from prior close to the last completed premarket bar"
+                    : undefined
+                }
+              >
+                {activeView === "expansion" ? "PM $" : "5m"}
+              </span>
+              <span
+                className="text-right"
+                title={
+                  activeView === "expansion"
+                    ? "Move from prior close to the last completed premarket bar"
+                    : undefined
+                }
+              >
+                {activeView === "expansion" ? "PM %" : "15m"}
+              </span>
               <span>Stage / entry</span>
               <span className="text-right">Candle</span>
               <span />

@@ -1065,3 +1065,23 @@ describe("expansion-only symbols are visible", () => {
     expect(withOnly).toBe(without);
   });
 });
+
+describe("the move columns say which move they mean", () => {
+  it("labels them PM on the expansion tab, so they cannot be read as live", () => {
+    // `Chg` is the live daily change; these two are the premarket move.
+    // Unlabelled they contradict each other on any gap-and-go day.
+    const { container } = renderRanked(expansionBySymbol, monitorBySymbol);
+    fireEvent.click(screen.getByRole("tab", { name: "expansion" }));
+    const header = container.textContent ?? "";
+    expect(header).toContain("PM $");
+    expect(header).toContain("PM %");
+  });
+
+  it("still shows the timeframe scores on the setups tab", () => {
+    const { container } = renderRanked(expansionBySymbol, monitorBySymbol);
+    const header = container.textContent ?? "";
+    expect(header).toContain("5m");
+    expect(header).toContain("15m");
+    expect(header).not.toContain("PM $");
+  });
+});
