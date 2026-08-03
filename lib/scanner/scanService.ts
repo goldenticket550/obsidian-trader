@@ -712,6 +712,13 @@ export async function scanWatchlistWithProvider(
       // reversal scoring above, and reads that scoring's evidence.
       if (reclaimEnabled && inWatchlist && result5m !== null) {
         try {
+          // The five-minute machine's own freshness reference: the latest
+          // bar that has actually closed. Null when none has, which
+          // `assessFreshness` reports as "unavailable" rather than
+          // guessing.
+          const completed5m = filterToCompletedBars(series5m.candles, 5, new Date(now));
+          const lastCompleted5mBar = completed5m[completed5m.length - 1] ?? null;
+
           reclaimBySymbol[symbol] = runReclaimForSymbol(
             {
               symbol,
@@ -750,7 +757,27 @@ export async function scanWatchlistWithProvider(
               // is called a second time.
               ...structureLevelFrom(result5m.evidence),
               sweepEvidence: sweepEvidenceFrom(result5m.evidence),
-              freshness: oneMinuteHistory?.freshness.status ?? null,
+              // Judged from the FIVE-minute series, which is the machine
+              // of record and the data this runner actually evaluates.
+              //
+              // This used to read `oneMinuteHistory?.freshness.status ??
+              // null`. A one-minute fetch that failed — a rate limit, a
+              // timeout — is swallowed to `oneMinuteHistory = null`, which
+              // made freshness null, which `freshnessAllowsEvaluation`
+              // rejects, which blanked the ENTIRE Reclaim result for every
+              // symbol including the five-minute machine that never needed
+              // 1m data. Observed live on 2026-08-03: eleven symbols went
+              // from full reads to "unavailable" across a single 69-second
+              // refresh, then back. The scout being unavailable is already
+              // expressed by `oneMinute: null` on its own.
+              freshness: assessFreshness(
+                new Date(now),
+                lastCompleted5mBar,
+                5,
+                feedInfo,
+                false,
+                config.premarketExpansion
+              ).status,
               volumePace: null,
               benchmarkRelativeMove: null,
               previousSetupKeys: undefined,

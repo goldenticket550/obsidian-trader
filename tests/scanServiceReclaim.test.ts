@@ -750,3 +750,120 @@ describe("input sourcing", () => {
     }
   });
 });
+
+// ---------------------------------------------------------------------------
+// The one-minute scout must not be able to blank the five-minute machine
+// ---------------------------------------------------------------------------
+
+describe("a failed one-minute fetch does not disable Reclaim", () => {
+  /**
+   * REGRESSION (live, 2026-08-03). Reclaim's freshness was read from the
+   * ONE-MINUTE history:
+   *
+   *   freshness: oneMinuteHistory?.freshness.status ?? null
+   *
+   * A 1m fetch that throws is swallowed to `oneMinuteHistory = null`, so
+   * freshness became null, which `freshnessAllowsEvaluation` rejects,
+   * which returned `unavailable` for the FIVE-minute machine as well — a
+   * machine that never reads 1m data.
+   *
+   * Observed in an exported evaluation log: at 15:20:06Z all eleven
+   * symbols had full reads (AMZN acceptance, GOOGL review_now); 69
+   * seconds later at 15:21:15Z every one was "unavailable" with every
+   * field null. Eleven symbols do not all invalidate at once — the 1m
+   * fetch had failed, most likely on a rate limit.
+   */
+  function providerWithFailing1m() {
+    const provider = new FixtureProvider(standardFixtures());
+    const realGet = provider.getCandles.bind(provider);
+    vi.spyOn(provider, "getCandles").mockImplementation(async (params) => {
+      if (params.timeframe === "1m") throw new Error("429 rate limited");
+      return realGet(params);
+    });
+    return provider;
+  }
+
+  /** Captures what the runner was actually handed. */
+  function captureInputs() {
+    const inputs: reclaimRunner.ReclaimRunnerInput[] = [];
+    const real = reclaimRunner.runReclaimForSymbol;
+    vi.spyOn(reclaimRunner, "runReclaimForSymbol").mockImplementation((input, cfg) => {
+      inputs.push(input);
+      return real(input, cfg);
+    });
+    return inputs;
+  }
+
+  it("still hands the runner a real freshness when the 1m fetch fails", async () => {
+    const inputs = captureInputs();
+    await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      providerWithFailing1m(),
+      configWith({ enabled: true }),
+      SCAN_NOW
+    );
+
+    // Precondition: the runner really was invoked, so an empty loop
+    // cannot pass this vacuously.
+    expect(inputs.length).toBeGreaterThan(0);
+
+    for (const input of inputs) {
+      // A null here is exactly what re-introduces the defect: it blocks
+      // evaluation for every symbol at once, whatever the 5m data says.
+      expect(input.freshness).not.toBeNull();
+      expect(["real_time", "delayed"]).toContain(input.freshness);
+    }
+  });
+
+  it("produces the SAME five-minute read with and without the 1m fetch", async () => {
+    const healthy = await scan(configWith({ enabled: true }));
+    resetExpansionBaselineCache();
+    const degraded = await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      providerWithFailing1m(),
+      configWith({ enabled: true }),
+      SCAN_NOW
+    );
+
+    for (const symbol of Object.keys(healthy.result.reclaimBySymbol!)) {
+      const before = healthy.result.reclaimBySymbol![symbol];
+      const after = degraded.reclaimBySymbol![symbol];
+      // The five-minute machine is the system of record and does not
+      // read 1m data, so losing the scout must not change its verdict.
+      expect(after.stage).toBe(before.stage);
+      expect(after.fiveMinute?.unavailableReason ?? null).toBe(
+        before.fiveMinute?.unavailableReason ?? null
+      );
+    }
+  });
+
+  it("never blocks the five-minute machine on freshness when 5m bars are fresh", async () => {
+    const result = await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      providerWithFailing1m(),
+      configWith({ enabled: true }),
+      SCAN_NOW
+    );
+
+    for (const entry of Object.values(result.reclaimBySymbol!)) {
+      // Whatever else it says, it must not claim the DATA was too stale
+      // to look at — the five-minute series was right there.
+      expect(entry.fiveMinute?.unavailableReason).not.toBe("freshness_blocked");
+    }
+  });
+
+  it("reports the missing scout precisely, rather than by erasure", async () => {
+    const result = await scanWatchlistWithProvider(
+      STANDARD_SYMBOLS,
+      providerWithFailing1m(),
+      configWith({ enabled: true }),
+      SCAN_NOW
+    );
+
+    for (const entry of Object.values(result.reclaimBySymbol!)) {
+      expect(entry.oneMinute).toBeNull();
+      expect(entry.oneMinuteStage).toBe("unavailable");
+      expect(entry.alignment).toBe("unavailable");
+    }
+  });
+});
