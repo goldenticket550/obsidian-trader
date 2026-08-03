@@ -173,6 +173,22 @@ export interface StrategyConfig {
    * numerical score — evidence groups are presented as counts and states,
    * never blended into one number.
    */
+  /**
+   * The symbols the EXPANSION side scans — Premarket Expansion, the
+   * Expansion Monitor and Live Leaders.
+   *
+   * Deliberately separate from the watchlist, which drives the SETUPS side
+   * (reversal scoring and Reclaim & Continuation). The two lists answer
+   * different questions: the watchlist is names you are tracking for a
+   * setup, this is the same-day-expiration (0DTE) universe where expansion
+   * is worth measuring at all. Overlap is fine and costs no extra fetch.
+   *
+   * Lives in the strategy config rather than its own table so it is
+   * per-user and editable with no database migration. An empty list is a
+   * legitimate choice — it means "scan nothing for expansion" — and is
+   * NOT the same as the field being absent, which takes the default below.
+   */
+  expansionUniverse: { symbol: string; exchange: string }[];
   premarketExpansion: {
     /**
      * Whether the scanner evaluates the Premarket Expansion Candidate at
@@ -360,6 +376,29 @@ export const defaultStrategyConfig: StrategyConfig = {
     volumeBaselineSessions: 20,
     minVolumeBaselineSessions: 10,
   },
+  // Same-day-expiration (0DTE) names. The provider keys on SYMBOL, so the
+  // exchange here is descriptive only — SPX is carried as INDEX because
+  // that is what it is, not because anything switches on the value.
+  expansionUniverse: [
+    { symbol: "AAPL", exchange: "NASDAQ" },
+    { symbol: "AMD", exchange: "NASDAQ" },
+    { symbol: "AMZN", exchange: "NASDAQ" },
+    { symbol: "AVGO", exchange: "NASDAQ" },
+    { symbol: "GOOGL", exchange: "NASDAQ" },
+    { symbol: "INTC", exchange: "NASDAQ" },
+    { symbol: "META", exchange: "NASDAQ" },
+    { symbol: "MSFT", exchange: "NASDAQ" },
+    { symbol: "MU", exchange: "NASDAQ" },
+    { symbol: "NVDA", exchange: "NASDAQ" },
+    { symbol: "TSLA", exchange: "NASDAQ" },
+    { symbol: "SMH", exchange: "NASDAQ" },
+    { symbol: "XLF", exchange: "NYSE" },
+    { symbol: "IBIT", exchange: "NASDAQ" },
+    { symbol: "SPY", exchange: "NYSE" },
+    { symbol: "QQQ", exchange: "NASDAQ" },
+    { symbol: "IWM", exchange: "NYSE" },
+    { symbol: "SPX", exchange: "INDEX" },
+  ],
   premarketExpansion: {
     enabled: true,
     monitorEnabled: true,

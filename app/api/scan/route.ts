@@ -68,7 +68,17 @@ export async function GET() {
   try {
     const { symbols, config, usingFallback, supabase, userId } = await resolveWatchlistAndConfig();
     const provider = getMarketDataProvider();
-    const result = await scanWatchlistWithProvider(symbols, provider, config);
+    // Two universes: the watchlist drives the SETUPS side, the config's
+    // expansion universe drives the EXPANSION side. Overlap is fetched
+    // once, inside the scan.
+    const result = await scanWatchlistWithProvider(
+      symbols,
+      provider,
+      config,
+      undefined,
+      undefined,
+      config.expansionUniverse
+    );
     const newEvents: AlertEvent[] = [];
 
     if (supabase && userId) {

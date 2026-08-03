@@ -419,7 +419,18 @@ export async function scanWatchlistWithProvider(
    * retry delays can't consume the entire route's time budget and starve
    * every later symbol/user.
    */
-  deadlineAt?: number
+  deadlineAt?: number,
+  /**
+   * The EXPANSION universe — the symbols Premarket Expansion, the
+   * Expansion Monitor and Live Leaders run on.
+   *
+   * Defaults to `symbols` so every existing caller keeps its current
+   * behaviour: one list feeding both sides. Passing a different list
+   * splits them, and the two sides are then genuinely independent — a
+   * watchlist-only name never appears in the expansion output and an
+   * expansion-only name never appears in the setups output.
+   */
+  expansionUniverse: WatchedSymbol[] = symbols
 ): Promise<ScanOutput> {
   const watchlist: WatchlistSymbol[] = [];
   const resultsBySymbol: Record<string, { "5m": SetupResult; "15m": SetupResult }> = {};
@@ -444,19 +455,48 @@ export async function scanWatchlistWithProvider(
   const reclaimEnabled = config.reclaimContinuation.enabled;
   // One raw 1m history serves both consumers. Fetched when either needs
   // it, never twice, and not at all when neither does.
-  const needsOneMinuteHistory = monitorEnabled || reclaimEnabled;
   const feedInfo = resolveFeedInfo(provider);
 
-  for (const { symbol, exchange } of symbols) {
+  // Membership by SYMBOL, because that is what the provider keys on and
+  // what both result maps are keyed by. Exchange is descriptive only.
+  const watchlistSymbols = new Set(symbols.map((s) => s.symbol));
+  const expansionSymbols = new Set(expansionUniverse.map((s) => s.symbol));
+
+  // The UNION of both lists, de-duplicated by symbol, in watchlist-first
+  // order. This is what makes overlap free: a name in both lists is
+  // visited once, so its bars are fetched once and handed to both sides,
+  // rather than being scanned twice under two different lists.
+  const scanTargets: WatchedSymbol[] = [];
+  const alreadyTargeted = new Set<string>();
+  for (const entry of [...symbols, ...expansionUniverse]) {
+    if (alreadyTargeted.has(entry.symbol)) continue;
+    alreadyTargeted.add(entry.symbol);
+    scanTargets.push(entry);
+  }
+
+  for (const { symbol, exchange } of scanTargets) {
+    // Which side(s) this symbol belongs to. A symbol can be in one, the
+    // other, or both — and only does the work its own lists ask for.
+    const inWatchlist = watchlistSymbols.has(symbol);
+    const inExpansionUniverse = expansionSymbols.has(symbol);
+    // The shared 1m history is needed only by a consumer that actually
+    // runs for THIS symbol.
+    const needsOneMinuteHistory =
+      (monitorEnabled && inExpansionUniverse) || (reclaimEnabled && inWatchlist);
     // FIX (Codex review): one bad symbol (rate limit, malformed ticker,
     // transient network error) used to throw and take down the ENTIRE
     // scan, silently losing every other symbol's real data too.
     // Isolating each symbol's work in its own try/catch means a single
     // failure is reported and skipped, not fatal to everyone else.
     try {
-      const [series5m, series15m, seriesDaily, seriesPremarket] = await Promise.all([
+      const [series5m, series15mOrNull, seriesDaily, seriesPremarket] = await Promise.all([
         provider.getCandles({ symbol, timeframe: "5m", limit: 100, deadlineAt }),
-        provider.getCandles({ symbol, timeframe: "15m", limit: 100, deadlineAt }),
+        // 15m feeds ONLY the reversal scorer, so an expansion-only symbol
+        // never pays for a request nothing will read. Kept in position so
+        // the request ORDER for a watchlist symbol is unchanged.
+        inWatchlist
+          ? provider.getCandles({ symbol, timeframe: "15m", limit: 100, deadlineAt })
+          : null,
         provider.getCandles({ symbol, timeframe: "1d", limit: 30, deadlineAt }),
         // Rule A2 needs premarket bars, which the default "regular" scope
         // filters out entirely. Requested explicitly here rather than by
@@ -503,61 +543,75 @@ export async function scanWatchlistWithProvider(
       // reported in `errors`, same mechanism as any other provider
       // failure) rather than silently substituting a wrong value.
       const prevClose = findPreviousClose(dailyCandles, todayTradingDate);
-      if (prevClose === null) {
+      // Only the SETUPS side needs a previous close. An expansion-only
+      // symbol without one (a young listing, or an index the provider
+      // serves no daily bars for) must not be excluded from the scan on
+      // behalf of a calculation it never runs.
+      if (prevClose === null && inWatchlist) {
         throw new Error(
           `Insufficient daily history to determine previous close for ${symbol} ` +
             `(need at least one daily candle from before ${todayTradingDate})`
         );
       }
 
-      const result5m = scoreSetup({
-        symbol,
-        timeframe: "5m",
-        sessionCandles: series5m.candles,
-        dailyCandles,
-        prevClose,
-        config,
-        now,
-        quality: series5m.quality,
-        premarketCandles,
-        benchmarkCandles,
-      });
-      const result15m = scoreSetup({
-        symbol,
-        timeframe: "15m",
-        sessionCandles: series15m.candles,
-        dailyCandles,
-        prevClose,
-        config,
-        now,
-        quality: series15m.quality,
-        premarketCandles,
-        benchmarkCandles,
-      });
+      // SETUPS SIDE — reversal scoring, watchlist only.
+      //
+      // Held outside the block because Reclaim reads its `evidence` for
+      // the structure and sweep levels. Null for an expansion-only
+      // symbol, which is exactly when Reclaim does not run either.
+      let result5m: SetupResult | null = null;
 
-      resultsBySymbol[symbol] = { "5m": result5m, "15m": result15m };
+      if (inWatchlist && prevClose !== null && series15mOrNull !== null) {
+        const series15m = series15mOrNull;
+        result5m = scoreSetup({
+          symbol,
+          timeframe: "5m",
+          sessionCandles: series5m.candles,
+          dailyCandles,
+          prevClose,
+          config,
+          now,
+          quality: series5m.quality,
+          premarketCandles,
+          benchmarkCandles,
+        });
+        const result15m = scoreSetup({
+          symbol,
+          timeframe: "15m",
+          sessionCandles: series15m.candles,
+          dailyCandles,
+          prevClose,
+          config,
+          now,
+          quality: series15m.quality,
+          premarketCandles,
+          benchmarkCandles,
+        });
 
-      const last5m = series5m.candles[series5m.candles.length - 1];
-      const currentPrice = last5m?.close ?? prevClose;
-      const dailyChangePct = prevClose === 0 ? 0 : (currentPrice - prevClose) / prevClose;
-      const lows5m = series5m.candles.map((c) => c.low);
-      const sessionLow = lows5m.length > 0 ? Math.min(...lows5m) : currentPrice;
-      const distanceFromSessionLowPct =
-        sessionLow === 0 ? 0 : (currentPrice - sessionLow) / sessionLow;
-      const hasAnyPass = result5m.conditions.some((c) => c.state === "pass");
+        resultsBySymbol[symbol] = { "5m": result5m, "15m": result15m };
 
-      watchlist.push({
-        ticker: symbol,
-        exchange,
-        price: currentPrice,
-        dailyChangePct,
-        distanceFromSessionLowPct,
-        score5m: result5m.score,
-        score15m: result15m.score,
-        status5m: toWatchlistStatus(result5m),
-        status15m: toWatchlistStatus(result15m),
-        lastSignalTime: hasAnyPass ? result5m.lastUpdated : null,
-      });
+        const last5m = series5m.candles[series5m.candles.length - 1];
+        const currentPrice = last5m?.close ?? prevClose;
+        const dailyChangePct = prevClose === 0 ? 0 : (currentPrice - prevClose) / prevClose;
+        const lows5m = series5m.candles.map((c) => c.low);
+        const sessionLow = lows5m.length > 0 ? Math.min(...lows5m) : currentPrice;
+        const distanceFromSessionLowPct =
+          sessionLow === 0 ? 0 : (currentPrice - sessionLow) / sessionLow;
+        const hasAnyPass = result5m.conditions.some((c) => c.state === "pass");
+
+        watchlist.push({
+          ticker: symbol,
+          exchange,
+          price: currentPrice,
+          dailyChangePct,
+          distanceFromSessionLowPct,
+          score5m: result5m.score,
+          score15m: result15m.score,
+          status5m: toWatchlistStatus(result5m),
+          status15m: toWatchlistStatus(result15m),
+          lastSignalTime: hasAnyPass ? result5m.lastUpdated : null,
+        });
+      }
 
       // The shared one-minute history: loaded at most ONCE per symbol,
       // whenever EITHER consumer needs it.
@@ -589,7 +643,10 @@ export async function scanWatchlistWithProvider(
       // fails, or a config that will not validate, must cost this symbol
       // its expansion result and nothing else — the reversal rows above
       // are already committed and stay exactly as they are.
-      if (expansionEnabled) {
+      // EXPANSION SIDE — expansion universe only. A watchlist-only name
+      // is never evaluated for expansion and never appears in
+      // `expansionBySymbol`.
+      if (expansionEnabled && inExpansionUniverse) {
         let expansion: SymbolExpansion | null = null;
         try {
           expansion = await evaluateExpansion({
@@ -651,7 +708,9 @@ export async function scanWatchlistWithProvider(
       // Display-only: the runner computes a rules-derived tier, and this
       // phase emits NO alert of any kind. `alertingEnabled` is the only
       // switch that could ever change that, and no alert path exists yet.
-      if (reclaimEnabled) {
+      // SETUPS SIDE — Reclaim runs on the watchlist, alongside the
+      // reversal scoring above, and reads that scoring's evidence.
+      if (reclaimEnabled && inWatchlist && result5m !== null) {
         try {
           reclaimBySymbol[symbol] = runReclaimForSymbol(
             {

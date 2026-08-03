@@ -12,6 +12,11 @@ export default function SettingsPage() {
   const [newExchange, setNewExchange] = useState("NASDAQ");
   const [watchlistError, setWatchlistError] = useState<string | null>(null);
 
+  const [newUniverseSymbol, setNewUniverseSymbol] = useState("");
+  const [newUniverseExchange, setNewUniverseExchange] = useState("NASDAQ");
+  const [universeError, setUniverseError] = useState<string | null>(null);
+  const [universeStatus, setUniverseStatus] = useState<"idle" | "saving">("idle");
+
   const [config, setConfig] = useState<StrategyConfig | null>(null);
   const [configError, setConfigError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
@@ -77,6 +82,64 @@ export default function SettingsPage() {
       return;
     }
     setSymbols(json.symbols);
+  }
+
+  /**
+   * Persists a new expansion universe through the EXISTING config route,
+   * which validates it server-side. Local state is updated only after the
+   * save succeeds, so a rejected list never lingers on screen looking
+   * saved.
+   */
+  async function saveUniverse(next: StrategyConfig["expansionUniverse"]) {
+    if (!config) return;
+    setUniverseStatus("saving");
+    setUniverseError(null);
+
+    const res = await fetch("/api/settings/config", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...config, expansionUniverse: next }),
+    });
+    const json = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      const fieldErrors: { field: string; message: string }[] = json.fieldErrors ?? [];
+      setUniverseError(
+        fieldErrors.length > 0
+          ? fieldErrors.map((e) => `${e.field} ${e.message}`).join("; ")
+          : json.error ?? "Failed to save expansion universe"
+      );
+      setUniverseStatus("idle");
+      return;
+    }
+
+    setConfig({ ...config, expansionUniverse: next });
+    setUniverseStatus("idle");
+  }
+
+  async function handleAddUniverseSymbol(e: React.FormEvent) {
+    e.preventDefault();
+    if (!config) return;
+
+    const symbol = newUniverseSymbol.trim().toUpperCase();
+    if (!symbol) return;
+    // Caught here so the round-trip is not spent to learn something
+    // already on screen; the server validates regardless.
+    if (config.expansionUniverse.some((s) => s.symbol === symbol)) {
+      setUniverseError(`${symbol} is already in the expansion universe`);
+      return;
+    }
+
+    await saveUniverse([
+      ...config.expansionUniverse,
+      { symbol, exchange: newUniverseExchange },
+    ]);
+    setNewUniverseSymbol("");
+  }
+
+  async function handleRemoveUniverseSymbol(symbol: string) {
+    if (!config) return;
+    await saveUniverse(config.expansionUniverse.filter((s) => s.symbol !== symbol));
   }
 
   async function handleSaveConfig() {
@@ -181,6 +244,77 @@ export default function SettingsPage() {
               <button
                 type="submit"
                 className="bg-white/[0.08] hover:bg-white/[0.12] border border-obsidian-border rounded px-4 py-2 text-sm text-platinum-bright transition-colors"
+              >
+                Add
+              </button>
+            </form>
+          </>
+        )}
+      </section>
+
+      {/* The EXPANSION side's own universe. Separate from the watchlist
+          above on purpose: the watchlist is names you are tracking for a
+          setup, this is where measuring expansion is worth the fetch. */}
+      <section className="panel p-5">
+        <h2 className="text-sm font-display uppercase tracking-wider text-platinum-dim mb-1">
+          Expansion universe (0DTE names)
+        </h2>
+        <p className="text-xs text-platinum-dim mb-4">
+          Scanned for Premarket Expansion, the Expansion Monitor and Live Leaders. The
+          watchlist above is scanned for setups. A name may appear in both.
+        </p>
+
+        {universeError && <div className="text-xs text-signal-red mb-3">{universeError}</div>}
+
+        {!config && !configError && <div className="text-sm text-platinum-dim">Loading…</div>}
+
+        {config && (
+          <>
+            {config.expansionUniverse.length === 0 && (
+              <div className="text-sm text-platinum-dim mb-4">
+                The expansion universe is empty, so nothing is scanned for expansion.
+              </div>
+            )}
+            <ul className="divide-y divide-obsidian-border/60 mb-4">
+              {config.expansionUniverse.map((s) => (
+                <li key={s.symbol} className="py-2.5 flex items-center justify-between text-sm">
+                  <span className="font-mono text-platinum-bright">
+                    {s.symbol} <span className="text-platinum-dim">· {s.exchange}</span>
+                  </span>
+                  <button
+                    onClick={() => handleRemoveUniverseSymbol(s.symbol)}
+                    disabled={universeStatus === "saving"}
+                    className="text-xs text-signal-red hover:underline disabled:opacity-50"
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            <form onSubmit={handleAddUniverseSymbol} className="flex gap-2">
+              <input
+                value={newUniverseSymbol}
+                onChange={(e) => setNewUniverseSymbol(e.target.value.toUpperCase())}
+                placeholder="TICKER"
+                aria-label="Expansion universe ticker"
+                className="flex-1 bg-obsidian-charcoal border border-obsidian-border rounded px-3 py-2 text-sm font-mono text-platinum-bright focus:outline-none focus:border-platinum-dim"
+              />
+              <select
+                value={newUniverseExchange}
+                onChange={(e) => setNewUniverseExchange(e.target.value)}
+                aria-label="Expansion universe exchange"
+                className="bg-obsidian-charcoal border border-obsidian-border rounded px-3 py-2 text-sm text-platinum-bright focus:outline-none"
+              >
+                <option value="NASDAQ">NASDAQ</option>
+                <option value="NYSE">NYSE</option>
+                <option value="AMEX">AMEX</option>
+                <option value="INDEX">INDEX</option>
+              </select>
+              <button
+                type="submit"
+                disabled={universeStatus === "saving"}
+                className="bg-white/[0.08] hover:bg-white/[0.12] disabled:opacity-50 border border-obsidian-border rounded px-4 py-2 text-sm text-platinum-bright transition-colors"
               >
                 Add
               </button>

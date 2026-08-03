@@ -1,4 +1,8 @@
 import { defaultStrategyConfig, type StrategyConfig } from "./config";
+import {
+  normalizeExpansionUniverse,
+  validateExpansionUniverse,
+} from "./expansionUniverseConfig";
 
 export type ReclaimContinuationConfig = StrategyConfig["reclaimContinuation"];
 
@@ -64,6 +68,10 @@ export function normalizeStrategyConfig(merged: StrategyConfig): StrategyConfig 
     reclaimContinuation: normalizeReclaimContinuationConfig(
       merged.reclaimContinuation as Partial<ReclaimContinuationConfig> | undefined
     ),
+    // A second nested block the top-level shallow merge cannot reach: a
+    // config stored before this field existed arrives without it and must
+    // take the shipped universe rather than scanning nothing.
+    expansionUniverse: normalizeExpansionUniverse(merged.expansionUniverse),
   };
 }
 
@@ -263,7 +271,13 @@ export function normalizeAndValidateStrategyConfig(merged: StrategyConfig): {
   errors: ConfigFieldError[];
 } {
   const config = normalizeStrategyConfig(merged);
-  return { config, errors: validateReclaimContinuationConfig(config.reclaimContinuation) };
+  return {
+    config,
+    errors: [
+      ...validateReclaimContinuationConfig(config.reclaimContinuation),
+      ...validateExpansionUniverse(config.expansionUniverse),
+    ],
+  };
 }
 
 /** True when the block is usable. Convenience over the error list. */

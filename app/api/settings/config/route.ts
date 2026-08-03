@@ -7,6 +7,10 @@ import {
   normalizeReclaimContinuationConfig,
   validateReclaimContinuationConfig,
 } from "@/lib/strategies/reclaimContinuationConfig";
+import {
+  normalizeExpansionUniverse,
+  validateExpansionUniverse,
+} from "@/lib/strategies/expansionUniverseConfig";
 
 export async function GET() {
   const supabase = await createClient();
@@ -57,7 +61,17 @@ export async function PUT(request: Request) {
       body.reclaimContinuation as Partial<StrategyConfig["reclaimContinuation"]> | undefined
     );
 
-    const fieldErrors = validateReclaimContinuationConfig(reclaimContinuation);
+    // Same rule for the expansion universe: an omitted field takes the
+    // shipped list, a present-but-malformed one is rejected rather than
+    // quietly repaired into a universe the caller never chose.
+    const expansionUniverse = normalizeExpansionUniverse(
+      body.expansionUniverse as StrategyConfig["expansionUniverse"] | undefined
+    );
+
+    const fieldErrors = [
+      ...validateReclaimContinuationConfig(reclaimContinuation),
+      ...validateExpansionUniverse(expansionUniverse),
+    ];
     if (fieldErrors.length > 0) {
       return NextResponse.json(
         { error: "Invalid strategy configuration", fieldErrors },
@@ -73,6 +87,7 @@ export async function PUT(request: Request) {
       ...defaultStrategyConfig,
       ...(body as Partial<StrategyConfig>),
       reclaimContinuation,
+      expansionUniverse,
     } as StrategyConfig;
 
     await upsertStrategyConfig(supabase, user.id, toPersist);

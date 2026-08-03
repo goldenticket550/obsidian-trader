@@ -79,7 +79,10 @@ export async function GET(request: Request) {
         provider,
         config,
         new Date().toISOString(),
-        deadlineAt
+        deadlineAt,
+        // The EXPANSION side scans its own universe; the watchlist above
+        // still drives reversal scoring and Reclaim.
+        config.expansionUniverse
       );
 
       let alertsFired = 0;
