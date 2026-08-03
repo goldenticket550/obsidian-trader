@@ -960,3 +960,52 @@ describe("backward compatibility", () => {
     expect(screen.getByRole("button", { name: /view full checklist/i })).toBeTruthy();
   });
 });
+
+// ---------------------------------------------------------------------------
+// Percentage units in the ranked table
+// ---------------------------------------------------------------------------
+
+describe("the % MOVE column renders the right unit", () => {
+  /**
+   * REGRESSION (live dashboard, 2026-08-03): AMZN moved +$5.31 on a
+   * ~$280 prior close — a 1.95% move — and the table rendered "+195.4%".
+   *
+   * `percentMove` is already a PERCENTAGE, because the expansion result
+   * computes `(dollarMove / priorClose) * 100`. It was being passed to a
+   * formatter that multiplies a FRACTION by 100, so every value in the
+   * column was 100x too large.
+   */
+  it("does not multiply an already-converted percentage again", () => {
+    const withMove = structuredClone(expansionBySymbol) as typeof expansionBySymbol;
+    // AMZN's real numbers from the live dashboard.
+    withMove.EXPD.bullish.move = {
+      ...withMove.EXPD.bullish.move,
+      dollarMove: 5.31,
+      priorClose: 280.51,
+      percentMove: (5.31 / 280.51) * 100,
+    };
+
+    const { container } = renderRanked(withMove, monitorBySymbol);
+    // The $ MOVE / % MOVE columns only exist on the expansion tab.
+    fireEvent.click(screen.getByRole("tab", { name: "expansion" }));
+    const row = rowFor(container, "EXPD");
+    const text = row.textContent ?? "";
+
+    // Precondition: the fixture really is the ~1.9% case, so a passing
+    // assertion cannot be a coincidence of some other number.
+    expect(withMove.EXPD.bullish.move.percentMove).toBeCloseTo(1.893, 2);
+
+    expect(text).toContain("+1.9%");
+    expect(text).not.toContain("189.3%");
+    expect(text).not.toMatch(/\+\d{3}\.\d%/);
+  });
+
+  it("still renders the daily CHG column, which really is a fraction", () => {
+    // The two columns use different units on purpose — this is the one
+    // that must keep being multiplied.
+    const { container } = renderRanked(expansionBySymbol, monitorBySymbol);
+    const row = rowFor(container, "EXPD");
+    const pct = (symbols.find((s) => s.ticker === "EXPD")!.dailyChangePct * 100).toFixed(1);
+    expect(row.textContent ?? "").toContain(`${pct}%`);
+  });
+});

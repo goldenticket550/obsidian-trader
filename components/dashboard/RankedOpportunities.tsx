@@ -54,9 +54,18 @@ function formatMoneyMove(value: number | null): string {
   return `${prefix}${Math.abs(value).toFixed(2)}`;
 }
 
-function formatNullablePct(value: number | null): string {
+/**
+ * For values ALREADY expressed as a percentage (1.95 = 1.95%), which is
+ * how the expansion result reports `percentMove`:
+ * `(dollarMove / priorClose) * 100`.
+ *
+ * Deliberately NOT `formatPct`, which takes a fraction and multiplies by
+ * 100. Routing an already-converted percentage through it rendered a
+ * 1.95% move as "+195.4%" on the live dashboard.
+ */
+function formatAlreadyPct(value: number | null): string {
   if (value === null) return "--";
-  return formatPct(value, true);
+  return `${value > 0 ? "+" : ""}${value.toFixed(1)}%`;
 }
 
 const COLS =
@@ -372,7 +381,7 @@ export function RankedOpportunities({
                       style={{ color: "var(--text-secondary)" }}
                     >
                       {activeView === "expansion"
-                        ? formatNullablePct(displayExpansion?.move.percentMove ?? null)
+                        ? formatAlreadyPct(displayExpansion?.move.percentMove ?? null)
                         : s.score15m.toFixed(1)}
                     </span>
 
