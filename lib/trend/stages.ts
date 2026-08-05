@@ -122,6 +122,20 @@ const ALERT_SIGNIFICANCE: Record<TrendStage, number> = {
   idle: 0,
 };
 
+/**
+ * Stages that are recorded but never ALERTED.
+ *
+ * `extended` is a caution state — its own reason says "stretched, not a
+ * signal" — so pinging on it tells the reader something they must not
+ * act on. The stage, its ordinal position and every downstream
+ * behaviour are unchanged; only the notification is suppressed.
+ */
+const NON_ALERTABLE_STAGES: readonly TrendStage[] = ["extended"];
+
+export function isAlertable(stage: TrendStage): boolean {
+  return !NON_ALERTABLE_STAGES.includes(stage);
+}
+
 export function mostSignificant(transitions: TrendTransition[]): TrendTransition[] {
   if (transitions.length <= 1) return transitions;
   return [
@@ -813,7 +827,7 @@ export function advanceLifecycle(input: AdvanceInput): AdvanceOutput {
   // only what the alert pipeline consumes is collapsed.
   return {
     lifecycle,
-    newTransitions: mostSignificant(newTransitions),
+    newTransitions: mostSignificant(newTransitions.filter((t) => isAlertable(t.stage))),
     newMilestones,
     blockers,
     nextConfirmation,

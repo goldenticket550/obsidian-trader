@@ -1785,3 +1785,102 @@ describe("one alert per bar", () => {
     expect(out.newTransitions[0].stage).toBe("trend_confirmed");
   });
 });
+
+// ---------------------------------------------------------------------------
+// `extended` IS RECORDED BUT NEVER ALERTED
+//
+// It is a caution state — its own reason ends "stretched, not a signal" —
+// so alerting on it asks the reader to act on something the detector has
+// just told them not to act on. The stage and every downstream behaviour
+// stay exactly as they were.
+// ---------------------------------------------------------------------------
+
+describe("extended is a state, not an alert", () => {
+  /** Well past the extension threshold, with the ride otherwise healthy. */
+  function stretchedFacts(): TrendFacts {
+    return factsWith({
+      price: 110,
+      vwap: { value: 99, above: true, reclaimedAt: null },
+      atr5m: 0.5,
+      fromOriginDollars: 10,
+      fromOriginPct: 10,
+      // Comfortably beyond `extendedAtrFromFiveMinuteEma`.
+      atrFromFiveMinuteEma: CONFIG.extendedAtrFromFiveMinuteEma + 1,
+      levels: [],
+      adversePivots: [],
+    });
+  }
+
+  function advanceStretched(previous: TrendLifecycle) {
+    return advanceLifecycle({
+      previous,
+      facts: stretchedFacts(),
+      direction: "bullish",
+      config: CONFIG,
+      marketDataAt: "2026-08-03T17:00:00.000Z",
+      candidateOrigin: null,
+      hasBasingCandidate: false,
+      blueSkyReference: null,
+      previousClose: 109.5,
+      evaluable: true,
+    });
+  }
+
+  it("reaches the extended stage but emits no alert for it", () => {
+    // Already entered and confirmed, so `extended` is the only thing left
+    // this bar can newly record.
+    const previous: TrendLifecycle = {
+      ...liveLifecycle(),
+      transitions: [
+        { stage: "trend_watch", marketDataAt: "2026-08-03T16:00:00.000Z", reason: "entered" },
+        { stage: "trend_confirmed", marketDataAt: "2026-08-03T16:30:00.000Z", reason: "confirmed" },
+      ],
+    };
+    const out = advanceStretched(previous);
+
+    // PRECONDITION: the stage really was reached and recorded in history,
+    // so the empty alert list below is suppression and not absence.
+    expect(out.lifecycle.transitions.some((t) => t.stage === "extended")).toBe(true);
+    expect(out.lifecycle.stage).toBe("extended");
+
+    // ...but nothing was emitted for it.
+    expect(out.newTransitions.some((t) => t.stage === "extended")).toBe(false);
+  });
+
+  it("still alerts everything else on a bar that also went extended", () => {
+    // A bar that records BOTH a real level break and `extended`: the
+    // level break must survive, only `extended` is dropped.
+    const previous: TrendLifecycle = {
+      ...liveLifecycle(),
+      transitions: [
+        { stage: "trend_watch", marketDataAt: "2026-08-03T16:00:00.000Z", reason: "entered" },
+      ],
+    };
+    const facts = factsWith({
+      price: 110,
+      vwap: { value: 99, above: true, reclaimedAt: null },
+      atr5m: 0.5,
+      fromOriginDollars: 10,
+      fromOriginPct: 10,
+      atrFromFiveMinuteEma: CONFIG.extendedAtrFromFiveMinuteEma + 1,
+      levels: [{ name: "Premarket high", price: 108, availableFrom: null }],
+      adversePivots: [],
+    });
+    const out = advanceLifecycle({
+      previous,
+      facts,
+      direction: "bullish",
+      config: CONFIG,
+      marketDataAt: "2026-08-03T17:00:00.000Z",
+      candidateOrigin: null,
+      hasBasingCandidate: false,
+      blueSkyReference: null,
+      previousClose: 107.5,
+      evaluable: true,
+    });
+
+    expect(out.lifecycle.transitions.some((t) => t.stage === "extended")).toBe(true);
+    expect(out.newTransitions.some((t) => t.stage === "extended")).toBe(false);
+    expect(out.newTransitions.some((t) => t.reason.includes("premarket high"))).toBe(true);
+  });
+});
