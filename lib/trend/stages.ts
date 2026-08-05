@@ -1,4 +1,5 @@
 import { opsFor } from "./direction";
+import { PRICE_EPSILON } from "./origin";
 import type { TrendScannerConfig } from "./config";
 import { assertValidTrendScannerConfig } from "./config";
 import type {
@@ -72,6 +73,175 @@ export function emptyLifecycle(): TrendLifecycle {
     firedMilestones: [],
     clearedLevels: [],
     failedAt: null,
+    structureStop: null,
+    lastContinuationLow: null,
+    continuationCount: 0,
+    holding: false,
+    lastContinuationAt: null,
+    legCount: 0,
+  };
+}
+
+/**
+ * Has a genuine pullback happened since the last continuation alert?
+ *
+ * "Genuine" means the same structure a re-entry requires: a CONFIRMED
+ * higher low, formed after that alert and inside this setup. The first
+ * continuation of a leg needs nothing — there is no earlier alert to
+ * have pulled back from.
+ */
+export function hasPullbackSince(
+  facts: TrendFacts,
+  lastContinuationAt: string | null,
+  origin: TrendOrigin | null
+): boolean {
+  if (lastContinuationAt === null) return true;
+  return facts.adversePivots.some(
+    (p) =>
+      p.availableFrom !== null &&
+      p.availableFrom > lastContinuationAt &&
+      (origin === null || p.availableFrom >= origin.establishedAt)
+  );
+}
+
+/**
+ * Which single transition represents this bar.
+ *
+ * One alert per bar per symbol per direction. Real NVDA 2026-07-22
+ * recorded a continuation AND a blue-sky break on the 12:15 bar — two
+ * notifications for one event. History still keeps both; only the
+ * emitted alert collapses to the most significant.
+ */
+const ALERT_SIGNIFICANCE: Record<TrendStage, number> = {
+  failed: 6,
+  level_break: 5,
+  trend_confirmed: 4,
+  trend_watch: 3,
+  extended: 2,
+  basing: 1,
+  idle: 0,
+};
+
+export function mostSignificant(transitions: TrendTransition[]): TrendTransition[] {
+  if (transitions.length <= 1) return transitions;
+  return [
+    transitions.reduce((best, t) =>
+      ALERT_SIGNIFICANCE[t.stage] > ALERT_SIGNIFICANCE[best.stage] ? t : best
+    ),
+  ];
+}
+
+/**
+ * The trailing structure stop: the highest CONFIRMED higher low since the
+ * origin. Trails UP only — a lower low never loosens it, because a stop
+ * that walks back down is not a stop.
+ *
+ * Causal by construction: `adversePivots` are already confirmed pivots
+ * (`index + pivotLength`), each carrying the time it became knowable, and
+ * anything not yet knowable at this bar is ignored.
+ */
+export function trailStructureStop(args: {
+  facts: TrendFacts;
+  origin: TrendOrigin | null;
+  current: number | null;
+  direction: TrendDirection;
+  marketDataAt: string;
+}): number | null {
+  const { facts, origin, current, direction, marketDataAt } = args;
+  if (origin === null) return null;
+  const ops = opsFor(direction);
+
+  let stop = current ?? origin.price;
+  for (const pivot of facts.adversePivots) {
+    if (!Number.isFinite(pivot.price)) continue;
+    // Not knowable yet at this bar.
+    if (pivot.availableFrom !== null && pivot.availableFrom > marketDataAt) continue;
+    // Must be part of THIS setup, not the one before it.
+    if (pivot.availableFrom !== null && pivot.availableFrom < origin.establishedAt) continue;
+    if (ops.beyond(pivot.price, stop)) stop = pivot.price;
+  }
+  return stop;
+}
+
+export interface ContinuationTrigger {
+  reason: string;
+  /** The higher low that armed it — becomes the new structure stop. */
+  higherLow: number;
+  /** The swing high taken out. */
+  reclaimedHigh: KeyLevel;
+}
+
+/**
+ * CONTINUATION AFTER A PULLBACK.
+ *
+ * Requires BOTH halves of the owner's model, and both from confirmed
+ * pivots only:
+ *
+ *  1. a NEW higher low, strictly better than the one that armed the last
+ *     continuation (or the origin), by more than an epsilon AND more than
+ *     a fraction of ATR; and
+ *  2. a completed close back through the swing high that leg pulled back
+ *     from, using the same break buffer as every other level.
+ *
+ * Requiring the take-out as WELL as the higher low is the anti-spam
+ * guard. A base alone must never re-arm — a base alone re-arming is
+ * exactly what produced the trend_watch -> failed storm, 14 times in one
+ * real GOOGL session.
+ */
+export function detectContinuation(args: {
+  facts: TrendFacts;
+  lifecycle: TrendLifecycle;
+  direction: TrendDirection;
+  config: TrendScannerConfig;
+  marketDataAt: string;
+}): ContinuationTrigger | null {
+  const { facts, lifecycle, direction, config, marketDataAt } = args;
+  const ops = opsFor(direction);
+  const origin = lifecycle.origin;
+  if (origin === null || facts.price === null) return null;
+  if (lifecycle.continuationCount >= config.maxContinuationsPerSession) return null;
+
+  const reference = lifecycle.lastContinuationLow ?? origin.price;
+  const minGain =
+    facts.atr5m === null ? null : facts.atr5m * config.continuationHigherLowAtr;
+  if (minGain === null) return null;
+
+  // The best confirmed higher low that is knowable now and genuinely
+  // beats the reference.
+  let higherLow: KeyLevel | null = null;
+  for (const pivot of facts.adversePivots) {
+    if (!Number.isFinite(pivot.price)) continue;
+    if (pivot.availableFrom === null || pivot.availableFrom > marketDataAt) continue;
+    if (pivot.availableFrom < origin.establishedAt) continue;
+    if (!ops.beyond(pivot.price, reference)) continue;
+    if (Math.abs(pivot.price - reference) <= PRICE_EPSILON) continue;
+    if (Math.abs(pivot.price - reference) < minGain) continue;
+    if (higherLow === null || ops.beyond(pivot.price, higherLow.price)) higherLow = pivot;
+  }
+  if (higherLow === null) return null;
+
+  // The swing high THAT leg pulled back from: the most recent confirmed
+  // direction-side pivot knowable before the higher low confirmed.
+  let reclaimed: KeyLevel | null = null;
+  for (const level of facts.levels) {
+    if (!level.name.toLowerCase().includes("pivot")) continue;
+    if (!Number.isFinite(level.price)) continue;
+    if (level.availableFrom === null || level.availableFrom > higherLow.availableFrom!) continue;
+    if (reclaimed === null || level.availableFrom > reclaimed.availableFrom!) reclaimed = level;
+  }
+  if (reclaimed === null) return null;
+
+  const buffer = Math.abs(reclaimed.price) * config.levelBreakBufferPct;
+  const threshold =
+    direction === "bullish" ? reclaimed.price + buffer : reclaimed.price - buffer;
+  if (!ops.beyond(facts.price, threshold)) return null;
+
+  return {
+    higherLow: higherLow.price,
+    reclaimedHigh: reclaimed,
+    reason:
+      `Continuation — higher low at ${higherLow.price.toFixed(2)} then a completed close ` +
+      `back through ${reclaimed.price.toFixed(2)}`,
   };
 }
 
@@ -293,11 +463,25 @@ export function detectTap2(args: {
   };
 }
 
-/** Failure conditions. Any one ends the setup on a completed candle. */
+/**
+ * Failure conditions. Any one ends the setup on a completed candle.
+ *
+ * STRUCTURE ONLY. The old two-sided moving-average test — wrong side of
+ * both the 1m 9 EMA and the 5m 20 SMA — is deliberately gone. It never
+ * referenced the origin, so a trend that had already run 2.50% and
+ * paused for one bar scored identically to a setup that never worked;
+ * on real GOOGL 2026-08-04 it killed the trade at 11:30 and the machine
+ * then watched price walk another 4.80 points without it.
+ *
+ * A pullback to the averages is now a HOLDING state. The setup dies only
+ * when price closes below the trailing structure stop, or through the
+ * origin's own invalidation.
+ */
 function failureReason(
   facts: TrendFacts,
   origin: TrendOrigin | null,
-  direction: TrendDirection
+  direction: TrendDirection,
+  structureStop: number | null
 ): string | null {
   if (origin === null || facts.price === null) return null;
   const ops = opsFor(direction);
@@ -305,9 +489,8 @@ function failureReason(
   if (ops.adverse(facts.price, origin.invalidationPrice)) {
     return `Closed through the invalidation at ${origin.invalidationPrice.toFixed(2)}`;
   }
-  // Two-sided breakdown: wrong side of the 1m 9 EMA AND the 5m 20 SMA.
-  if (facts.oneMinuteEma9.above === false && facts.fiveMinuteSma20.above === false) {
-    return "Lost both the 1m 9 EMA and the 5m 20 SMA";
+  if (structureStop !== null && ops.adverse(facts.price, structureStop)) {
+    return `Structure break — closed below the higher low at ${structureStop.toFixed(2)}`;
   }
   return null;
 }
@@ -358,7 +541,18 @@ export function advanceLifecycle(input: AdvanceInput): AdvanceOutput {
 
   // ---- Failure first: a live setup can fail on any candle. ----
   if (isLiveStage(previous.stage)) {
-    const reason = failureReason(facts, lifecycle.origin, direction);
+    // Trail the stop BEFORE testing it, so a higher low that confirmed on
+    // this very bar protects the trade on this very bar.
+    const trailed = trailStructureStop({
+      facts,
+      origin: lifecycle.origin,
+      current: previous.structureStop,
+      direction,
+      marketDataAt,
+    });
+    if (trailed !== null) lifecycle = { ...lifecycle, structureStop: trailed };
+
+    const reason = failureReason(facts, lifecycle.origin, direction, trailed);
     if (reason !== null) {
       record("failed", reason);
       // RELEASE the origin. History is kept — the fact that this setup
@@ -369,6 +563,12 @@ export function advanceLifecycle(input: AdvanceInput): AdvanceOutput {
         origin: null,
         setupKey: null,
         failedAt: marketDataAt,
+        // The stop and the continuation arming belong to the dead setup.
+        // `continuationCount` deliberately survives: the cap is per
+        // session, so a failed leg cannot buy back its own budget.
+        structureStop: null,
+        lastContinuationLow: null,
+        holding: false,
       };
       return {
         lifecycle,
@@ -382,7 +582,16 @@ export function advanceLifecycle(input: AdvanceInput): AdvanceOutput {
 
   // ---- Lock an origin when there is none and one is available. ----
   // A new setup may start only after the previous one is terminal.
-  const mayStartNew = previous.stage === "idle" || previous.stage === "failed";
+  // `basing` MUST be in this set.
+  //
+  // It is enterable from `failed` (basing outranks failed in the ordinal
+  // order), so leaving it out made it a one-way trap: on GOOGL
+  // 2026-08-04 the machine failed at 11:30, recorded `basing` at 11:35,
+  // and from 11:40 to the close could never lock another origin — not
+  // because no base formed, but because it had disqualified itself. It
+  // sat there while price walked another 4.80 points.
+  const mayStartNew =
+    previous.stage === "idle" || previous.stage === "failed" || previous.stage === "basing";
   // After a failure the replacement must be a GENUINELY new origin —
   // established strictly after the failure. Re-locking the same base
   // immediately is what produced the oscillation.
@@ -390,11 +599,22 @@ export function advanceLifecycle(input: AdvanceInput): AdvanceOutput {
     lifecycle.failedAt === null ||
     (input.candidateOrigin !== null && input.candidateOrigin.establishedAt > lifecycle.failedAt);
 
+  // CHOP GUARD. A failure must be followed by a quiet period before the
+  // next leg, and a direction only gets so many legs in a day. Real IWM
+  // 2026-07-22 failed and re-locked its way to eight exits without these.
+  const cooldownElapsed =
+    lifecycle.failedAt === null ||
+    Date.parse(marketDataAt) - Date.parse(lifecycle.failedAt) >=
+      config.newLegCooldownMinutes * 60_000;
+  const legsRemaining = lifecycle.legCount < config.maxLegsPerSession;
+
   if (
     lifecycle.origin === null &&
     input.candidateOrigin !== null &&
     mayStartNew &&
-    isGenuinelyNew
+    isGenuinelyNew &&
+    cooldownElapsed &&
+    legsRemaining
   ) {
     lifecycle = {
       ...lifecycle,
@@ -403,6 +623,14 @@ export function advanceLifecycle(input: AdvanceInput): AdvanceOutput {
       firedMilestones: [],
       // History from the previous setup does not carry into this one.
       transitions: [],
+      // The structure stop starts AT the base and only ever trails up.
+      structureStop: input.candidateOrigin.price,
+      lastContinuationLow: null,
+      holding: false,
+      // A fresh leg gets a fresh pullback gate, and spends one from the
+      // session's budget. `legCount` deliberately never resets.
+      lastContinuationAt: null,
+      legCount: lifecycle.legCount + 1,
     };
     lifecycle.setupKey = null; // assigned by the caller with symbol/date
   }
@@ -463,6 +691,30 @@ export function advanceLifecycle(input: AdvanceInput): AdvanceOutput {
     record("trend_confirmed", "Measured move from the locked origin with participation");
   }
 
+  // ---- continuation after a pullback ----
+  //
+  // Runs BEFORE TAP 2 and retires the reclaimed pivot into
+  // `clearedLevels`, so the same take-out cannot be reported twice — once
+  // as a continuation and again as an ordinary level break.
+  if (actionable()) {
+    const cont = detectContinuation({ facts, lifecycle, direction, config, marketDataAt });
+    if (cont !== null) {
+      const key = levelKey(cont.reclaimedHigh);
+      if (!lifecycle.clearedLevels.includes(key)) {
+        lifecycle = {
+          ...lifecycle,
+          clearedLevels: [...lifecycle.clearedLevels, key],
+          lastContinuationLow: cont.higherLow,
+          continuationCount: lifecycle.continuationCount + 1,
+          structureStop: cont.higherLow,
+          holding: false,
+          lastContinuationAt: marketDataAt,
+        };
+        record("level_break", cont.reason);
+      }
+    }
+  }
+
   // ---- level_break — TAP 2, RUNNING and re-arming ----
   //
   // Only after TAP 1, and deliberately NOT gated on `reached(...)`: this
@@ -477,13 +729,29 @@ export function advanceLifecycle(input: AdvanceInput): AdvanceOutput {
       cleared: lifecycle.clearedLevels,
       blueSkyReference: input.blueSkyReference,
     });
-    if (trigger !== null) {
+    // A NAMED level take-out still alerts once each — that is the model's
+    // entry signal. A BLUE-SKY new high must wait for a genuine pullback
+    // since the last continuation, otherwise it pings on every
+    // incremental high, which is noise rather than a new leg.
+    const gated =
+      trigger !== null &&
+      trigger.level === null &&
+      !hasPullbackSince(facts, lifecycle.lastContinuationAt, lifecycle.origin);
+
+    if (trigger !== null && !gated) {
       // A blue-sky continuation has no level to retire, so it is keyed on
       // the bar instead — otherwise every later bar would re-fire it.
       const key =
         trigger.level === null ? `blue-sky@${marketDataAt}` : levelKey(trigger.level);
       if (!lifecycle.clearedLevels.includes(key)) {
-        lifecycle = { ...lifecycle, clearedLevels: [...lifecycle.clearedLevels, key] };
+        lifecycle = {
+          ...lifecycle,
+          clearedLevels: [...lifecycle.clearedLevels, key],
+          // Only a blue-sky continuation re-arms the pullback gate; a
+          // named level is a one-off take-out, not a running ladder.
+          lastContinuationAt:
+            trigger.level === null ? marketDataAt : lifecycle.lastContinuationAt,
+        };
         record("level_break", trigger.reason);
       }
     }
@@ -510,6 +778,28 @@ export function advanceLifecycle(input: AdvanceInput): AdvanceOutput {
     lifecycle.firedMilestones = [...lifecycle.firedMilestones, ...newMilestones];
   }
 
+  // ---- holding: pulled back, but the structure stop still holds ----
+  //
+  // Recorded as a FACT about the live setup, not a stage. The stage keeps
+  // whatever it earned; this simply says the trade is in a pullback and
+  // waiting for continuation rather than in trouble.
+  {
+    const dirOps = opsFor(direction);
+    let lastSwingHigh: KeyLevel | null = null;
+    for (const level of facts.levels) {
+      if (!level.name.toLowerCase().includes("pivot")) continue;
+      if (level.availableFrom === null || level.availableFrom > marketDataAt) continue;
+      if (lastSwingHigh === null || level.availableFrom > lastSwingHigh.availableFrom!) {
+        lastSwingHigh = level;
+      }
+    }
+    const pulledBack =
+      lastSwingHigh !== null &&
+      facts.price !== null &&
+      !dirOps.beyond(facts.price, lastSwingHigh.price);
+    lifecycle = { ...lifecycle, holding: actionable() && pulledBack };
+  }
+
   const blockers = reached("trend_confirmed") ? [] : actionable() ? cBlockers : wBlockers;
   const nextConfirmation = reached("level_break")
     ? null
@@ -519,5 +809,13 @@ export function advanceLifecycle(input: AdvanceInput): AdvanceOutput {
     ? "A measured move from the origin with participation"
     : "Trend Watch conditions on a completed candle";
 
-  return { lifecycle, newTransitions, newMilestones, blockers, nextConfirmation };
+  // ONE alert per bar. History (lifecycle.transitions) keeps everything;
+  // only what the alert pipeline consumes is collapsed.
+  return {
+    lifecycle,
+    newTransitions: mostSignificant(newTransitions),
+    newMilestones,
+    blockers,
+    nextConfirmation,
+  };
 }

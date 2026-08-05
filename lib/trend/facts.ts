@@ -210,6 +210,48 @@ export function moveFromOrigin(
   return { dollars, pct, atrs };
 }
 
+/**
+ * The REGULAR-SESSION OPENING PRICE as a key level.
+ *
+ * Knowable the moment the session opens, so `availableFrom` is the first
+ * regular bar itself. Returns null before the regular session starts
+ * rather than borrowing a premarket bar's open.
+ */
+export function sessionOpenLevel(fiveMinute: readonly Candle[]): KeyLevel | null {
+  const regular = fiveMinute.filter(
+    (c) => getSessionTypeForTimestamp(new Date(c.time * 1000)) === "regular"
+  );
+  if (regular.length === 0) return null;
+  return {
+    name: "Session open",
+    price: regular[0].open,
+    availableFrom: iso(regular[0].time),
+  };
+}
+
+/**
+ * The swing extreme the base retraced FROM, as a key level.
+ *
+ * Path A already locates this causally while proving the pullback was
+ * deep enough; this exposes it so the continuation can trade against it.
+ * Null whenever the origin did not record one — never guessed from the
+ * visible series, which would be a different (and later) high.
+ */
+export function pullbackSwingLevel(
+  origin: TrendOrigin | null,
+  direction: TrendDirection
+): KeyLevel | null {
+  const from = origin?.pullbackFrom;
+  if (origin === null || from === null || from === undefined || !Number.isFinite(from)) {
+    return null;
+  }
+  return {
+    name: direction === "bullish" ? "Pullback swing high" : "Pullback swing low",
+    price: from,
+    availableFrom: origin.establishedAt,
+  };
+}
+
 export interface TrendFactsInput {
   direction: TrendDirection;
   /** Completed 1m candles for the session, ascending. */
@@ -264,7 +306,18 @@ export function computeTrendFacts(input: TrendFactsInput): TrendFacts {
   const vwap = vwapFact(fiveMinute, price, input.direction);
 
   const pivots = confirmedPivotLevels(fiveMinute, input.pivotLength, input.direction);
-  const levels = [...input.levels, ...pivots];
+  // The three entry levels the model is built on are the pullback swing
+  // high, the session open and the premarket high. The premarket level is
+  // supplied by the caller; the other two are derived here so the live
+  // scan and the replay cannot disagree about which levels exist.
+  const sessionOpen = sessionOpenLevel(fiveMinute);
+  const pullback = pullbackSwingLevel(input.origin, input.direction);
+  const levels = [
+    ...input.levels,
+    ...(sessionOpen ? [sessionOpen] : []),
+    ...(pullback ? [pullback] : []),
+    ...pivots,
+  ];
 
   const { level: nearestLevel, distancePct } = nearestLevelAhead(
     levels,
@@ -301,6 +354,13 @@ export function computeTrendFacts(input: TrendFactsInput): TrendFacts {
     nearestLevel,
     distanceToNearestLevelPct: distancePct,
     atrFromFiveMinuteEma,
+    // The mirror side: swing lows for a long, swing highs for a short.
+    // Same causal confirmation rule (index + pivotLength).
+    adversePivots: confirmedPivotLevels(
+      fiveMinute,
+      input.pivotLength,
+      input.direction === "bullish" ? "bearish" : "bullish"
+    ),
   };
 }
 

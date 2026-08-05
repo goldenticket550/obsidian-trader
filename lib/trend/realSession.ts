@@ -152,6 +152,12 @@ export async function loadRealSession(args: {
       oneMinute: regularOne,
       fiveMinute: regularFive,
       daily: dailyRaw.candles,
+      // Supplied for the BASE-FINDER only. The lifecycle, relative volume
+      // and every baseline above still run on regular-session bars.
+      premarketOneMinute: oneMinuteAll.filter(
+        (c) => getSessionTypeForTimestamp(new Date(c.time * 1000)) === "pre-market"
+      ),
+      premarketFiveMinute: premarket,
       premarketHigh,
       premarketLow,
       previousDayHigh: prior?.high ?? premarketHigh,

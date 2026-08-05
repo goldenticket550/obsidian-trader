@@ -163,6 +163,11 @@ export function replaySession(input: ReplayInput): ReplayOutcome {
       daily: session.daily,
       levels,
       premarketLevel,
+      // Base-finder only. Every premarket bar closed before the opening
+      // bell, so the whole set is knowable at every regular-session step
+      // and needs no per-step truncation.
+      premarketOneMinute: session.premarketOneMinute,
+      premarketFiveMinute: session.premarketFiveMinute,
       relativeVolume: rv,
       // Not modelled by the fixture: unavailable, never zero.
       relativeToBenchmark: null,

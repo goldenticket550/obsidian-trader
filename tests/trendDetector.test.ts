@@ -8,6 +8,7 @@ import {
 import {
   candleColourCounts,
   closeTransitions,
+  computeTrendFacts,
   movingAverageFact,
   nearestLevelAhead,
   openingRangeLevels,
@@ -23,7 +24,7 @@ import {
   bearishLifecycleSession,
   bullishLifecycleSession,
 } from "@/lib/trend/fixtures/syntheticSession";
-import type { RelativeVolumeFact, TrendFacts, TrendResult } from "@/lib/trend/types";
+import type { RelativeVolumeFact, TrendFacts, TrendLifecycle, TrendResult } from "@/lib/trend/types";
 
 /**
  * TREND SCANNER — pure detector coverage.
@@ -72,6 +73,7 @@ function factsWith(overrides: Partial<TrendFacts>): TrendFacts {
     nearestLevel: null,
     distanceToNearestLevelPct: null,
     atrFromFiveMinuteEma: 0.5,
+    adversePivots: [],
     ...overrides,
   };
 }
@@ -779,6 +781,7 @@ describe("a failed setup releases its origin", () => {
     nearestLevel: null,
     distanceToNearestLevelPct: null,
     atrFromFiveMinuteEma: 1,
+    adversePivots: [],
   };
 
   const deadOrigin = {
@@ -817,6 +820,7 @@ describe("a failed setup releases its origin", () => {
         nearestLevel: null,
         distanceToNearestLevelPct: null,
         atrFromFiveMinuteEma: 1,
+        adversePivots: [],
       },
       direction: "bullish",
       config: CONFIG,
@@ -1198,5 +1202,586 @@ describe("TAP 2 runs and re-arms", () => {
     });
     expect(out.newTransitions.some((x) => x.stage === "level_break")).toBe(false);
     expect(out.newMilestones).toEqual([3, 5]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// A PREMARKET-FORMED BASE IS THE ORIGIN
+//
+// On a gap-and-go the base forms before the bell. Fed regular bars alone the
+// base-finder anchors at the post-run shelf instead (real GOOGL 2026-08-04:
+// 376.14 at 10:55 against a base of 366.56). Each test below asserts the
+// premarket feed is what changes the answer, so none can pass vacuously.
+// ---------------------------------------------------------------------------
+
+/** A premarket 1m bar, `back` minutes before the opening bell. */
+function preBar(back: number, o: number, h: number, l: number, c: number): Candle {
+  return { time: T0 - back * 60, open: o, high: h, low: l, close: c, volume: 10_000 };
+}
+
+function agg5(oneMinute: Candle[]): Candle[] {
+  const buckets = new Map<number, Candle[]>();
+  for (const c of oneMinute) {
+    const k = Math.floor(c.time / 300) * 300;
+    if (!buckets.has(k)) buckets.set(k, []);
+    buckets.get(k)!.push(c);
+  }
+  return [...buckets.entries()].sort((a, b) => a[0] - b[0]).map(([time, bs]) => ({
+    time,
+    open: bs[0].open,
+    high: Math.max(...bs.map((b) => b.high)),
+    low: Math.min(...bs.map((b) => b.low)),
+    close: bs[bs.length - 1].close,
+    volume: bs.reduce((a, b) => a + b.volume, 0),
+  }));
+}
+
+/**
+ * 90 premarket minutes ending at the bell. The last 30 — the base-finder
+ * lookback — hold the shape: a 100.00 low, a rally to ~104, a 101.00 higher
+ * low, then a hold and a drift into the open.
+ */
+function premarketWithHeldBase(): Candle[] {
+  const bars: Candle[] = [];
+  for (let i = 0; i < 60; i++) {
+    const drift = 103 + (i % 5) * 0.2;
+    bars.push(preBar(90 - i, drift, drift + 0.5, drift - 0.5, drift + 0.1));
+  }
+  bars.push(preBar(30, 100.4, 100.5, 100.0, 100.2)); // session extreme
+  for (let i = 0; i < 6; i++) {
+    const up = 100.8 + i * 0.55;
+    bars.push(preBar(29 - i, up, up + 0.35, up - 0.2, up + 0.3)); // rally to ~104
+  }
+  bars.push(preBar(23, 103.4, 103.5, 101.0, 101.2)); // the higher low: candidate
+  for (let i = 0; i < 5; i++) {
+    const hold = 101.3 + i * 0.25;
+    bars.push(preBar(22 - i, hold, hold + 0.3, hold - 0.2, hold + 0.2)); // holds
+  }
+  for (let i = 0; i < 17; i++) {
+    const up = 102.6 + i * 0.05;
+    bars.push(preBar(17 - i, up, up + 0.25, up - 0.1, up + 0.15));
+  }
+  return bars;
+}
+
+/** Five regular 1m bars running up from the base, never breaching it. */
+function regularRunUp(lowOverride?: number): Candle[] {
+  return [0, 1, 2, 3, 4].map((i) => {
+    const base = 103.6 + i * 0.5;
+    const low = i === 2 && lowOverride !== undefined ? lowOverride : base - 0.3;
+    return bar(i, base, base + 0.6, low, base + 0.45);
+  });
+}
+
+function evaluateAtOpen(args: { premarket: Candle[] | undefined; regularOne: Candle[] }) {
+  const regularFive = agg5(args.regularOne);
+  return evaluateTrend({
+    symbol: "TEST",
+    direction: "bullish",
+    tradingDate: DATE,
+    oneMinute: args.regularOne,
+    fiveMinute: regularFive,
+    daily: [],
+    levels: [{ name: "Premarket high", price: 104.0, availableFrom: null }],
+    premarketLevel: { name: "Premarket high", price: 104.0, availableFrom: null },
+    premarketOneMinute: args.premarket,
+    premarketFiveMinute: args.premarket === undefined ? undefined : agg5(args.premarket),
+    relativeVolume: okVolume,
+    relativeToBenchmark: null,
+    relativeToSector: null,
+    previous: emptyLifecycle(),
+    config: CONFIG,
+    evaluatedAt: new Date((regularFive[regularFive.length - 1].time + 300) * 1000),
+    pivotLength: 3,
+    feedLabel: "test",
+  });
+}
+
+describe("a premarket-formed base anchors the origin", () => {
+  it("locks the premarket base at the open, which regular bars alone cannot find", () => {
+    const regularOne = regularRunUp();
+
+    // PRECONDITION: without premarket bars there is no origin at all, so a
+    // pass below cannot come from the regular session finding it anyway.
+    const without = evaluateAtOpen({ premarket: undefined, regularOne });
+    expect(without.result.lifecycle.origin).toBeNull();
+
+    const withPre = evaluateAtOpen({ premarket: premarketWithHeldBase(), regularOne });
+    const origin = withPre.result.lifecycle.origin;
+    expect(origin).not.toBeNull();
+    expect(origin?.mode).toBe("held_base");
+    // The base region, not an exact bar: which candidate in the base wins
+    // depends on stabilisation, and pinning one would test the fixture
+    // rather than the behaviour. What matters is that it anchors DOWN in
+    // the base and not up at the post-run shelf.
+    expect(origin!.price).toBeGreaterThan(100.5);
+    expect(origin!.price).toBeLessThan(102);
+    // Below the opening price — the whole point of anchoring premarket.
+    expect(origin!.price).toBeLessThan(regularOne[0].open);
+    // It locked BEFORE the bell — that is what makes it a premarket base.
+    expect(Date.parse(origin!.establishedAt) / 1000).toBeLessThan(T0);
+  });
+
+  it("refuses a premarket base that price has already traded through", () => {
+    const premarket = premarketWithHeldBase();
+    // PRECONDITION: with the base intact this same fixture DOES lock, so
+    // the null below is caused by the breach and nothing else.
+    const intact = evaluateAtOpen({ premarket, regularOne: regularRunUp() });
+    expect(intact.result.lifecycle.origin).not.toBeNull();
+
+    // Now a regular bar trades below the base: it is history, not an origin.
+    const breached = evaluateAtOpen({ premarket, regularOne: regularRunUp(100.0) });
+    expect(breached.result.lifecycle.origin).toBeNull();
+  });
+
+  it("records the swing high the base retraced from", () => {
+    const attempt = detectHeldBaseOrigin({
+      oneMinute: premarketWithHeldBase(),
+      fiveMinute: agg5(premarketWithHeldBase()),
+      direction: "bullish",
+      atr5m: 0.6,
+      levels: [],
+      config: CONFIG,
+    });
+    expect(attempt.origin?.price).toBeCloseTo(101.0, 6);
+    // The rally high before the candidate, not a later one.
+    expect(attempt.origin?.pullbackFrom).toBeGreaterThan(103.0);
+  });
+});
+
+describe("the three entry levels are tracked", () => {
+  it("tracks the session open and the pullback swing high alongside the premarket high", () => {
+    const regularOne = regularRunUp();
+    const facts = computeTrendFacts({
+      direction: "bullish",
+      oneMinute: regularOne,
+      fiveMinute: agg5(regularOne),
+      daily: [],
+      levels: [{ name: "Premarket high", price: 104.0, availableFrom: null }],
+      relativeVolume: okVolume,
+      relativeToBenchmark: null,
+      relativeToSector: null,
+      origin: {
+        mode: "held_base",
+        price: 101.0,
+        establishedAt: new Date((T0 - 60) * 1000).toISOString(),
+        invalidationPrice: 100.8,
+        pullbackFrom: 103.5,
+      },
+      transitions: CONFIG.higherCloseTransitions,
+      pivotLength: 3,
+    });
+
+    const names = facts.levels.map((l) => l.name);
+    expect(names).toContain("Premarket high");
+    expect(names).toContain("Session open");
+    expect(names).toContain("Pullback swing high");
+
+    expect(facts.levels.find((l) => l.name === "Session open")?.price).toBeCloseTo(103.6, 6);
+    expect(facts.levels.find((l) => l.name === "Pullback swing high")?.price).toBeCloseTo(103.5, 6);
+  });
+
+  it("omits the pullback swing high when the origin never recorded one", () => {
+    const regularOne = regularRunUp();
+    const facts = computeTrendFacts({
+      direction: "bullish",
+      oneMinute: regularOne,
+      fiveMinute: agg5(regularOne),
+      daily: [],
+      levels: [],
+      relativeVolume: okVolume,
+      relativeToBenchmark: null,
+      relativeToSector: null,
+      // Path B locks no pullback high — it stays absent, never guessed.
+      origin: {
+        mode: "momentum_expansion",
+        price: 101.0,
+        establishedAt: new Date(T0 * 1000).toISOString(),
+        invalidationPrice: 100.8,
+      },
+      transitions: CONFIG.higherCloseTransitions,
+      pivotLength: 3,
+    });
+    expect(facts.levels.map((l) => l.name)).not.toContain("Pullback swing high");
+    // PRECONDITION: the session-open level still IS derived, so the negative
+    // above is about the pullback level specifically, not an empty list.
+    expect(facts.levels.map((l) => l.name)).toContain("Session open");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// HOLD THROUGH PULLBACKS, CONTINUE ON RECLAIM, FAIL ONLY ON STRUCTURE BREAK
+//
+// The old failure rule ("lost both the 1m 9 EMA and the 5m 20 SMA") never
+// referenced the origin, so a trend that had run 2.50% and paused for one
+// bar was killed exactly like a setup that never worked — real GOOGL
+// 2026-08-04 at 11:30. Failure is now a structure break only.
+// ---------------------------------------------------------------------------
+
+const LIVE_ORIGIN = {
+  mode: "held_base" as const,
+  price: 100,
+  establishedAt: "2026-08-03T13:35:00.000Z",
+  invalidationPrice: 99.0,
+};
+
+/** A live, already-entered setup with its stop trailed to `stop`. */
+function liveLifecycle(overrides: Partial<TrendLifecycle> = {}): TrendLifecycle {
+  return {
+    ...emptyLifecycle(),
+    stage: "level_break",
+    origin: LIVE_ORIGIN,
+    setupKey: "k",
+    structureStop: 100,
+    transitions: [
+      { stage: "trend_watch", marketDataAt: "2026-08-03T13:40:00.000Z", reason: "entered" },
+    ],
+    ...overrides,
+  };
+}
+
+/** Price pulled back to the averages: both MAs against, structure intact. */
+function pullbackFacts(price: number, overrides: Partial<TrendFacts> = {}): TrendFacts {
+  return factsWith({
+    price,
+    // BOTH of these are what used to kill the setup outright.
+    oneMinuteEma9: { value: price + 0.5, above: false, rising: false },
+    fiveMinuteSma20: { value: price + 0.5, above: false, rising: false },
+    fiveMinuteEma9: { value: price + 0.5, above: false, rising: false },
+    vwap: { value: price + 0.5, above: false, reclaimedAt: null },
+    atr5m: 0.5,
+    fromOriginDollars: price - 100,
+    fromOriginPct: price - 100,
+    ...overrides,
+  });
+}
+
+function advance(lifecycle: TrendLifecycle, facts: TrendFacts, marketDataAt: string) {
+  return advanceLifecycle({
+    previous: lifecycle,
+    facts,
+    direction: "bullish",
+    config: CONFIG,
+    marketDataAt,
+    candidateOrigin: null,
+    hasBasingCandidate: false,
+    blueSkyReference: null,
+    previousClose: facts.price === null ? null : facts.price - 0.1,
+    evaluable: true,
+  });
+}
+
+describe("a pullback to the averages is held, not failed", () => {
+  it("does not fail while price is above the trailing structure stop", () => {
+    // PRECONDITION: both moving-average facts are against the setup —
+    // exactly the condition that used to fail it.
+    const facts = pullbackFacts(101, {
+      // A swing high overhead, so there is something to have pulled back
+      // FROM. Without one there is no pullback to be holding through.
+      levels: [{ name: "Pivot high", price: 103, availableFrom: "2026-08-03T14:30:00.000Z" }],
+    });
+    expect(facts.oneMinuteEma9.above).toBe(false);
+    expect(facts.fiveMinuteSma20.above).toBe(false);
+
+    const out = advance(liveLifecycle(), facts, "2026-08-03T15:30:00.000Z");
+    expect(out.newTransitions.map((t) => t.stage)).not.toContain("failed");
+    expect(out.lifecycle.origin).not.toBeNull();
+    // And it is marked as holding rather than quietly carrying on.
+    expect(out.lifecycle.holding).toBe(true);
+  });
+
+  it("fails when a completed close breaks the trailing structure stop", () => {
+    // Same setup, same averages — only the close relative to the stop
+    // differs, so this isolates the structure rule.
+    const out = advance(liveLifecycle(), pullbackFacts(99.5), "2026-08-03T15:30:00.000Z");
+    const failed = out.newTransitions.find((t) => t.stage === "failed");
+    expect(failed).toBeDefined();
+    expect(failed?.reason).toContain("Structure break");
+    expect(out.lifecycle.origin).toBeNull();
+  });
+
+  it("trails the stop up to a confirmed higher low", () => {
+    const facts = pullbackFacts(103, {
+      adversePivots: [
+        { name: "Pivot low", price: 102, availableFrom: "2026-08-03T15:00:00.000Z" },
+      ],
+    });
+    const out = advance(liveLifecycle(), facts, "2026-08-03T15:30:00.000Z");
+    expect(out.lifecycle.structureStop).toBeCloseTo(102, 6);
+    // PRECONDITION: it started at the origin, so this is a real trail.
+    expect(liveLifecycle().structureStop).toBeCloseTo(100, 6);
+  });
+});
+
+describe("continuation on the reclaim", () => {
+  /** A confirmed higher low at 102 and the swing high it pulled back from. */
+  function continuationFacts(price: number): TrendFacts {
+    return pullbackFacts(price, {
+      adversePivots: [
+        { name: "Pivot low", price: 102, availableFrom: "2026-08-03T15:00:00.000Z" },
+      ],
+      levels: [
+        { name: "Pivot high", price: 103, availableFrom: "2026-08-03T14:30:00.000Z" },
+      ],
+    });
+  }
+
+  it("fires a continuation on a higher low plus a close back through the swing high", () => {
+    const out = advance(liveLifecycle(), continuationFacts(103.5), "2026-08-03T15:30:00.000Z");
+    const fire = out.newTransitions.find((t) => t.reason.startsWith("Continuation"));
+    expect(fire).toBeDefined();
+    expect(fire?.stage).toBe("level_break");
+    expect(out.lifecycle.continuationCount).toBe(1);
+    // The stop trails up to the higher low that armed it.
+    expect(out.lifecycle.structureStop).toBeCloseTo(102, 6);
+  });
+
+  it("does not fire on the higher low alone, without the take-out", () => {
+    // PRECONDITION: the SAME higher low fires once price clears the high.
+    const fires = advance(liveLifecycle(), continuationFacts(103.5), "2026-08-03T15:30:00.000Z");
+    expect(fires.newTransitions.some((t) => t.reason.startsWith("Continuation"))).toBe(true);
+
+    // Below the swing high: a base alone must never re-arm. This is the
+    // guard that stops the old trend_watch -> failed storm returning.
+    const out = advance(liveLifecycle(), continuationFacts(102.5), "2026-08-03T15:30:00.000Z");
+    expect(out.newTransitions.some((t) => t.reason.startsWith("Continuation"))).toBe(false);
+  });
+
+  it("does not re-fire without a FRESH higher low", () => {
+    const first = advance(liveLifecycle(), continuationFacts(103.5), "2026-08-03T15:30:00.000Z");
+    // PRECONDITION: the first one fired.
+    expect(first.newTransitions.some((t) => t.reason.startsWith("Continuation"))).toBe(true);
+
+    // A DIFFERENT swing high is taken out — so `clearedLevels` cannot be
+    // what blocks this — but the higher low is the SAME 102 that already
+    // armed the last continuation. Only the fresh-higher-low rule can
+    // stop it, which is exactly the rule under test.
+    const sameLowNewHigh = pullbackFacts(104.5, {
+      adversePivots: [
+        { name: "Pivot low", price: 102, availableFrom: "2026-08-03T15:00:00.000Z" },
+      ],
+      levels: [
+        { name: "Pivot high", price: 104, availableFrom: "2026-08-03T14:45:00.000Z" },
+      ],
+    });
+    const second = advance(first.lifecycle, sameLowNewHigh, "2026-08-03T15:35:00.000Z");
+    expect(second.newTransitions.some((t) => t.reason.startsWith("Continuation"))).toBe(false);
+    expect(second.lifecycle.continuationCount).toBe(1);
+  });
+
+  it("stops at the per-session continuation cap", () => {
+    const capped = liveLifecycle({ continuationCount: CONFIG.maxContinuationsPerSession });
+    const out = advance(capped, continuationFacts(103.5), "2026-08-03T15:30:00.000Z");
+    expect(out.newTransitions.some((t) => t.reason.startsWith("Continuation"))).toBe(false);
+    // PRECONDITION: one under the cap, the identical facts DO fire.
+    const under = liveLifecycle({ continuationCount: CONFIG.maxContinuationsPerSession - 1 });
+    const ok = advance(under, continuationFacts(103.5), "2026-08-03T15:30:00.000Z");
+    expect(ok.newTransitions.some((t) => t.reason.startsWith("Continuation"))).toBe(true);
+  });
+});
+
+describe("basing is not a one-way trap", () => {
+  it("allows a new origin to lock from basing", () => {
+    const newOrigin = {
+      mode: "held_base" as const,
+      price: 105,
+      establishedAt: "2026-08-03T15:40:00.000Z",
+      invalidationPrice: 104,
+    };
+    const out = advanceLifecycle({
+      previous: { ...emptyLifecycle(), stage: "basing", failedAt: "2026-08-03T15:00:00.000Z" },
+      facts: pullbackFacts(106),
+      direction: "bullish",
+      config: CONFIG,
+      marketDataAt: "2026-08-03T15:45:00.000Z",
+      candidateOrigin: newOrigin,
+      hasBasingCandidate: true,
+      blueSkyReference: null,
+      previousClose: 105.9,
+      evaluable: true,
+    });
+    expect(out.lifecycle.origin?.price).toBeCloseTo(105, 6);
+    // The stop starts at the new base.
+    expect(out.lifecycle.structureStop).toBeCloseTo(105, 6);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// ALERT-WORTHINESS: quiet the ladder without changing the ride
+// ---------------------------------------------------------------------------
+
+describe("blue-sky continuation is pullback-gated", () => {
+  /** No tracked level ahead, price making a new high: a blue-sky setup. */
+  function blueSkyFacts(price: number, adversePivots: TrendFacts["adversePivots"]): TrendFacts {
+    return factsWith({
+      price,
+      levels: [],
+      adversePivots,
+      atr5m: 0.5,
+      fromOriginDollars: price - 100,
+      fromOriginPct: price - 100,
+    });
+  }
+
+  function advanceBlueSky(lifecycle: TrendLifecycle, facts: TrendFacts) {
+    return advanceLifecycle({
+      previous: lifecycle,
+      facts,
+      direction: "bullish",
+      config: CONFIG,
+      marketDataAt: "2026-08-03T17:00:00.000Z",
+      candidateOrigin: null,
+      hasBasingCandidate: false,
+      // Everything since the origin topped out here.
+      blueSkyReference: facts.price === null ? null : facts.price - 0.2,
+      previousClose: facts.price === null ? null : facts.price - 0.1,
+      evaluable: true,
+    });
+  }
+
+  it("fires the FIRST new-high continuation of a leg with no pullback needed", () => {
+    const out = advanceBlueSky(liveLifecycle(), blueSkyFacts(105, []));
+    expect(out.newTransitions.some((t) => t.reason.startsWith("New-high"))).toBe(true);
+    // And it stamps the gate for next time.
+    expect(out.lifecycle.lastContinuationAt).toBe("2026-08-03T17:00:00.000Z");
+  });
+
+  it("does NOT fire again on a bare incremental high with no pullback", () => {
+    const armed = liveLifecycle({ lastContinuationAt: "2026-08-03T16:00:00.000Z" });
+    // No confirmed higher low since that alert — just a higher close.
+    const out = advanceBlueSky(armed, blueSkyFacts(106, []));
+    expect(out.newTransitions.some((t) => t.reason.startsWith("New-high"))).toBe(false);
+  });
+
+  it("fires again once a genuine higher low has confirmed since the last one", () => {
+    const armed = liveLifecycle({ lastContinuationAt: "2026-08-03T16:00:00.000Z" });
+    // PRECONDITION: identical bar without the pullback stays silent.
+    expect(
+      advanceBlueSky(armed, blueSkyFacts(106, [])).newTransitions.some((t) =>
+        t.reason.startsWith("New-high")
+      )
+    ).toBe(false);
+
+    const withPullback = blueSkyFacts(106, [
+      { name: "Pivot low", price: 103, availableFrom: "2026-08-03T16:30:00.000Z" },
+    ]);
+    const out = advanceBlueSky(armed, withPullback);
+    expect(out.newTransitions.some((t) => t.reason.startsWith("New-high"))).toBe(true);
+  });
+
+  it("still alerts a NAMED key level once, pullback or not", () => {
+    const armed = liveLifecycle({ lastContinuationAt: "2026-08-03T16:00:00.000Z" });
+    const facts = factsWith({
+      price: 106,
+      levels: [{ name: "Premarket high", price: 105, availableFrom: null }],
+      adversePivots: [],
+      atr5m: 0.5,
+      fromOriginDollars: 6,
+      fromOriginPct: 6,
+    });
+    const out = advanceLifecycle({
+      previous: armed,
+      facts,
+      direction: "bullish",
+      config: CONFIG,
+      marketDataAt: "2026-08-03T17:00:00.000Z",
+      candidateOrigin: null,
+      hasBasingCandidate: false,
+      blueSkyReference: 105.8,
+      previousClose: 104.5,
+      evaluable: true,
+    });
+    expect(
+      out.newTransitions.some((t) => t.reason.includes("premarket high"))
+    ).toBe(true);
+  });
+});
+
+describe("chop guard on new legs", () => {
+  const freshOrigin = (at: string) => ({
+    mode: "held_base" as const,
+    price: 105,
+    establishedAt: at,
+    invalidationPrice: 104,
+  });
+
+  function tryLock(previous: TrendLifecycle, marketDataAt: string, originAt: string) {
+    return advanceLifecycle({
+      previous,
+      facts: factsWith({ price: 106, atr5m: 0.5, adversePivots: [] }),
+      direction: "bullish",
+      config: CONFIG,
+      marketDataAt,
+      candidateOrigin: freshOrigin(originAt),
+      hasBasingCandidate: true,
+      blueSkyReference: null,
+      previousClose: 105.5,
+      evaluable: true,
+    });
+  }
+
+  it("refuses a new leg until the cooldown has elapsed", () => {
+    const failed: TrendLifecycle = {
+      ...emptyLifecycle(),
+      stage: "failed",
+      failedAt: "2026-08-03T17:00:00.000Z",
+    };
+    // Five minutes later: too soon.
+    const tooSoon = tryLock(failed, "2026-08-03T17:05:00.000Z", "2026-08-03T17:02:00.000Z");
+    expect(tooSoon.lifecycle.origin).toBeNull();
+
+    // PRECONDITION: the SAME candidate locks once the cooldown passes.
+    const later = tryLock(failed, "2026-08-03T17:20:00.000Z", "2026-08-03T17:02:00.000Z");
+    expect(later.lifecycle.origin).not.toBeNull();
+  });
+
+  it("refuses a new leg once the per-session cap is spent", () => {
+    const spent: TrendLifecycle = {
+      ...emptyLifecycle(),
+      stage: "failed",
+      failedAt: "2026-08-03T17:00:00.000Z",
+      legCount: CONFIG.maxLegsPerSession,
+    };
+    const out = tryLock(spent, "2026-08-03T17:20:00.000Z", "2026-08-03T17:02:00.000Z");
+    expect(out.lifecycle.origin).toBeNull();
+
+    // PRECONDITION: one under the cap, the identical call locks.
+    const under = tryLock(
+      { ...spent, legCount: CONFIG.maxLegsPerSession - 1 },
+      "2026-08-03T17:20:00.000Z",
+      "2026-08-03T17:02:00.000Z"
+    );
+    expect(under.lifecycle.origin).not.toBeNull();
+    expect(under.lifecycle.legCount).toBe(CONFIG.maxLegsPerSession);
+  });
+});
+
+describe("one alert per bar", () => {
+  it("collapses two transitions on the same bar to the most significant", () => {
+    const out = advanceLifecycle({
+      previous: { ...emptyLifecycle(), stage: "idle", origin: LIVE_ORIGIN, setupKey: "k" },
+      facts: factsWith({
+        price: 102,
+        vwap: { value: 99, above: true, reclaimedAt: null },
+        atr5m: 0.5,
+        fromOriginDollars: 1,
+        fromOriginPct: 1,
+        adversePivots: [],
+      }),
+      direction: "bullish",
+      config: CONFIG,
+      marketDataAt: "2026-08-03T17:00:00.000Z",
+      candidateOrigin: null,
+      hasBasingCandidate: false,
+      blueSkyReference: null,
+      previousClose: 101.5,
+      evaluable: true,
+    });
+
+    // PRECONDITION: the bar really did produce more than one transition —
+    // history proves it, so this is a dedup and not an empty bar.
+    expect(out.lifecycle.transitions.length).toBeGreaterThan(1);
+    expect(out.newTransitions).toHaveLength(1);
+    expect(out.newTransitions[0].stage).toBe("trend_confirmed");
   });
 });

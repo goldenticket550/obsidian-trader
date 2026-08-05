@@ -34,6 +34,14 @@ export interface SyntheticSession {
   oneMinute: Candle[];
   fiveMinute: Candle[];
   daily: Candle[];
+  /**
+   * The day's PREMARKET bars, for the base-finder only. Optional: a
+   * fixture without them behaves exactly as before. Never merged into
+   * `oneMinute`/`fiveMinute`, which stay regular-session so no volume
+   * threshold ever sees premarket participation.
+   */
+  premarketOneMinute?: Candle[];
+  premarketFiveMinute?: Candle[];
   premarketHigh: number;
   premarketLow: number;
   previousDayHigh: number;

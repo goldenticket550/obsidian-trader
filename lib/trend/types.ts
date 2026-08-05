@@ -71,6 +71,13 @@ export interface TrendOrigin {
   establishedAt: string;
   /** Completed close beyond this fails the setup. */
   invalidationPrice: number;
+  /**
+   * The swing extreme price retraced FROM before this base formed — the
+   * level the last retracement started at, and the first key level a
+   * continuation has to take out. Optional: only Path A knows it, and it
+   * stays null rather than being guessed.
+   */
+  pullbackFrom?: number | null;
 }
 
 /** A directional boolean pair: is it true, and could it be measured. */
@@ -158,6 +165,14 @@ export interface TrendFacts {
   distanceToNearestLevelPct: Measured<number>;
   /** ATR distance from the 5m 9 EMA — the extension measure. */
   atrFromFiveMinuteEma: Measured<number>;
+  /**
+   * Confirmed pivots on the ADVERSE side — swing LOWS for a long.
+   *
+   * These are the structure the trailing stop walks up. Separate from
+   * `levels`, which are entry/continuation targets ahead of price;
+   * these sit behind it and are never trade targets.
+   */
+  adversePivots: KeyLevel[];
 }
 
 /** One recorded lifecycle transition. Append-only. */
@@ -197,6 +212,40 @@ export interface TrendLifecycle {
    * observed 14 times in one real GOOGL session.
    */
   failedAt: string | null;
+  /**
+   * TRAILING STRUCTURE STOP — the most recent confirmed higher low.
+   *
+   * Starts at the origin base and trails UP only, as each new higher low
+   * confirms. A completed close below it is the ONLY structural way a
+   * live setup dies. It replaced a two-sided moving-average test that
+   * killed GOOGL 2026-08-04 at 11:30 while the trade was +2.50% from
+   * origin and had merely paused — that rule never looked at the origin,
+   * so a normal pullback scored the same as a setup that never worked.
+   */
+  structureStop: number | null;
+  /** The confirmed higher low that armed the last continuation. */
+  lastContinuationLow: number | null;
+  /** Continuation confirms fired for this setup, for the spam cap. */
+  continuationCount: number;
+  /**
+   * True while price has pulled back but the structure stop still holds.
+   * A HOLDING state, not a failure and not `basing` — the setup keeps
+   * its stage and waits for continuation.
+   */
+  holding: boolean;
+  /**
+   * Market time of the last CONTINUATION alert — a blue-sky new-high or a
+   * pullback reclaim.
+   *
+   * The blue-sky ladder is structurally guaranteed to re-fire: its
+   * reference is the best extreme so far, so every marginally higher
+   * close beats it. Gating the next one on a confirmed higher low formed
+   * AFTER this time is what turns "a ping per new high" back into "an
+   * alert per genuine leg".
+   */
+  lastContinuationAt: string | null;
+  /** Origins locked this session, for the per-direction leg cap. */
+  legCount: number;
 }
 
 /** Why a stage could not advance — shown to the user, never hidden. */

@@ -38,6 +38,30 @@ export interface TrendScannerConfig {
 
   /** Close must exceed the level by this fraction to count as a break. */
   levelBreakBufferPct: number;
+
+  /**
+   * CONTINUATION AFTER A PULLBACK.
+   *
+   * How much a new higher low must beat the previous one by, in ATR,
+   * before it counts as genuine structure rather than noise. This is the
+   * guard that stops the old trend_watch -> failed oscillation from
+   * returning as a continuation storm. UNVALIDATED starting parameter.
+   */
+  continuationHigherLowAtr: number;
+  /** Continuation confirms allowed per direction per session. */
+  maxContinuationsPerSession: number;
+
+  /**
+   * CHOP GUARD. Minutes that must pass after a failure before a new
+   * origin may lock, and how many legs a direction gets per session.
+   *
+   * Real IWM 2026-07-22 recorded EIGHT exits in one session: failure,
+   * re-lock, failure, re-lock. These two values bound that churn without
+   * touching the ride. UNVALIDATED starting parameters, chosen
+   * conservatively rather than fitted to a target count.
+   */
+  newLegCooldownMinutes: number;
+  maxLegsPerSession: number;
   /**
    * Opening-range window, in minutes from the regular open. Defines the
    * opening-range high/low used as the TAP 2 level on a gap day, when the
@@ -79,6 +103,10 @@ export const defaultTrendScannerConfig: TrendScannerConfig = {
   trendConfirmedMinimumAtr: 0.75,
 
   levelBreakBufferPct: 0.0005,
+  continuationHigherLowAtr: 0.1,
+  maxContinuationsPerSession: 3,
+  newLegCooldownMinutes: 15,
+  maxLegsPerSession: 3,
   openingRangeMinutes: 15,
   extendedAtrFromFiveMinuteEma: 2.0,
 
@@ -152,6 +180,9 @@ export function validateTrendScannerConfig(
     "fiveMinuteFreshnessSeconds",
     "setupExpiryMinutes",
     "openingRangeMinutes",
+    "maxContinuationsPerSession",
+    "newLegCooldownMinutes",
+    "maxLegsPerSession",
   ];
   for (const key of positiveIntegers) {
     if (!isPositiveInteger(c[key])) at(`trendScanner.${key}`, "must be a positive integer");
@@ -167,6 +198,7 @@ export function validateTrendScannerConfig(
     "trendConfirmedMinimumAtr",
     "levelBreakBufferPct",
     "extendedAtrFromFiveMinuteEma",
+    "continuationHigherLowAtr",
   ];
   for (const key of positiveNumbers) {
     if (!isPositive(c[key])) at(`trendScanner.${key}`, "must be a positive number");

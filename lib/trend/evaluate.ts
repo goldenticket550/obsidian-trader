@@ -1,8 +1,10 @@
 import type { Candle } from "@/types/candle";
 import { getSessionTypeForTimestamp } from "@/lib/market-data/session";
+import { calculateAtr } from "@/lib/indicators/atr";
+import { latestValid } from "@/lib/indicators/movingAverages";
 import type { TrendScannerConfig } from "./config";
 import { computeTrendFacts, openingRangeLevels, selectTap2Level } from "./facts";
-import { detectHeldBaseOrigin, detectMomentumOrigin } from "./origin";
+import { detectHeldBaseOrigin, detectMomentumOrigin, type OriginAttempt } from "./origin";
 import { advanceLifecycle, buildSetupKey, emptyLifecycle } from "./stages";
 import { opsFor } from "./direction";
 import type {
@@ -38,6 +40,19 @@ export interface EvaluateInput {
   levels: readonly KeyLevel[];
   /** The frozen premarket level for this direction, when it exists. */
   premarketLevel: KeyLevel | null;
+  /**
+   * PREMARKET bars, used by the BASE-FINDER ONLY.
+   *
+   * On a gap-and-go the base forms before the bell, so a base-finder fed
+   * regular bars alone anchors at the post-run shelf instead of the base
+   * (GOOGL 2026-08-04: 376.14 at 10:55 against a real base of 366.56).
+   * These bars reach `detectHeldBaseOrigin` and nothing else — stage
+   * logic, relative volume and every volume baseline stay strictly
+   * regular-session, so premarket volume never enters a threshold.
+   * Omit them and behaviour is exactly as before.
+   */
+  premarketOneMinute?: readonly Candle[];
+  premarketFiveMinute?: readonly Candle[];
   relativeVolume: RelativeVolumeFact;
   relativeToBenchmark: Measured<number>;
   relativeToSector: Measured<number>;
@@ -172,6 +187,65 @@ function unavailableFacts(result: Pick<TrendResult, "facts">): string[] {
   return out;
 }
 
+const NO_ATTEMPT: OriginAttempt = { origin: null, rejections: [], stabilisation: [] };
+
+/**
+ * PATH A, fed a window that INCLUDES premarket.
+ *
+ * Uses the same `detectHeldBaseOrigin` — the base logic is not
+ * duplicated or relaxed, it is simply handed the bars where the base
+ * actually formed. Two guards keep it honest:
+ *
+ *  - the base must have locked BEFORE the opening bell, otherwise it is a
+ *    regular-session base and belongs to the unchanged path below;
+ *  - it must have HELD into the open — no completed regular bar may have
+ *    traded through it — because a premarket base that price has already
+ *    broken is not an origin, it is history.
+ *
+ * Causal: every premarket bar closed before the first regular bar, so all
+ * of this is knowable at the open. ATR comes from the combined series
+ * because a 14-period 5m ATR is not measurable from the one regular bar
+ * that exists at 9:30, and premarket range is real data, not a stand-in.
+ */
+function detectPremarketAnchoredBase(args: {
+  premarketOneMinute: readonly Candle[];
+  premarketFiveMinute: readonly Candle[];
+  oneMinute: readonly Candle[];
+  fiveMinute: readonly Candle[];
+  direction: TrendDirection;
+  levels: readonly KeyLevel[];
+  config: TrendScannerConfig;
+}): OriginAttempt {
+  const { premarketOneMinute, premarketFiveMinute, oneMinute, fiveMinute } = args;
+  if (premarketOneMinute.length === 0 || fiveMinute.length === 0) return NO_ATTEMPT;
+
+  const combinedOne = [...premarketOneMinute, ...oneMinute];
+  const combinedFive = [...premarketFiveMinute, ...fiveMinute];
+  const atr5m = latestValid(calculateAtr(combinedFive as Candle[], 14));
+  if (atr5m === null || !(atr5m > 0)) return NO_ATTEMPT;
+
+  const attempt = detectHeldBaseOrigin({
+    oneMinute: combinedOne,
+    fiveMinute: combinedFive,
+    direction: args.direction,
+    atr5m,
+    levels: args.levels,
+    config: args.config,
+  });
+  const origin = attempt.origin;
+  if (origin === null) return attempt;
+
+  // Must have formed premarket.
+  if (origin.establishedAt >= iso(fiveMinute[0].time)) return NO_ATTEMPT;
+
+  // Must still be holding: no completed regular bar through the base.
+  const ops = opsFor(args.direction);
+  const breached = fiveMinute.some((c) => ops.adverse(ops.adverseExtreme(c), origin.price));
+  if (breached) return NO_ATTEMPT;
+
+  return attempt;
+}
+
 export function evaluateTrend(input: EvaluateInput): EvaluateOutput {
   const gate = computeGate({
     oneMinute: input.oneMinute,
@@ -201,19 +275,37 @@ export function evaluateTrend(input: EvaluateInput): EvaluateOutput {
 
   // Only look for a NEW origin when there is no live one.
   const needsOrigin = previous.origin === null;
-  const basePath = needsOrigin
-    ? detectHeldBaseOrigin({
+
+  // A premarket-formed base that held into the open wins, because it is
+  // where the move actually started. When none qualifies — the name
+  // drifted down premarket, or there is no premarket data at all — this
+  // is null and the regular-session path below runs UNCHANGED.
+  const premarketBasePath = needsOrigin
+    ? detectPremarketAnchoredBase({
+        premarketOneMinute: input.premarketOneMinute ?? [],
+        premarketFiveMinute: input.premarketFiveMinute ?? [],
         oneMinute: input.oneMinute,
         fiveMinute: input.fiveMinute,
         direction: input.direction,
-        atr5m: factsWithPrevOrigin.atr5m,
         levels: input.levels,
         config: input.config,
       })
-    : { origin: null, rejections: [], stabilisation: [] };
+    : NO_ATTEMPT;
+
+  const basePath =
+    needsOrigin && premarketBasePath.origin === null
+      ? detectHeldBaseOrigin({
+          oneMinute: input.oneMinute,
+          fiveMinute: input.fiveMinute,
+          direction: input.direction,
+          atr5m: factsWithPrevOrigin.atr5m,
+          levels: input.levels,
+          config: input.config,
+        })
+      : NO_ATTEMPT;
 
   const momentumPath =
-    needsOrigin && basePath.origin === null
+    needsOrigin && premarketBasePath.origin === null && basePath.origin === null
       ? detectMomentumOrigin({
           oneMinute: input.oneMinute,
           fiveMinute: input.fiveMinute,
@@ -223,9 +315,10 @@ export function evaluateTrend(input: EvaluateInput): EvaluateOutput {
           relativeVolume: input.relativeVolume.multiple,
           config: input.config,
         })
-      : { origin: null, rejections: [], stabilisation: [] };
+      : NO_ATTEMPT;
 
-  const candidateOrigin = basePath.origin ?? momentumPath.origin;
+  const candidateOrigin =
+    premarketBasePath.origin ?? basePath.origin ?? momentumPath.origin;
 
   const fiveMinuteBars = input.fiveMinute;
   const previousClose =
@@ -263,7 +356,9 @@ export function evaluateTrend(input: EvaluateInput): EvaluateOutput {
     candidateOrigin,
     // A base candidate exists but has not earned Trend Watch yet.
     hasBasingCandidate:
-      basePath.origin !== null || basePath.rejections.includes("stabilisation_insufficient"),
+      premarketBasePath.origin !== null ||
+      basePath.origin !== null ||
+      basePath.rejections.includes("stabilisation_insufficient"),
     blueSkyReference,
     previousClose,
     evaluable: gate.alertable,

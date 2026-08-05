@@ -212,6 +212,9 @@ export function detectHeldBaseOrigin(args: {
           candidateLow,
           config.originInvalidationAtr * atr5m
         ),
+        // The causal high this base retraced from — computed above from
+        // bars strictly BEFORE the candidate, so it is knowable at the lock.
+        pullbackFrom: priorHigh,
       },
       rejections: [],
       stabilisation: signals,
