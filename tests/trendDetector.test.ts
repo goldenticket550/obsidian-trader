@@ -1757,9 +1757,10 @@ describe("chop guard on new legs", () => {
 });
 
 describe("one alert per bar", () => {
-  it("collapses two transitions on the same bar to the most significant", () => {
-    const out = advanceLifecycle({
-      previous: { ...emptyLifecycle(), stage: "idle", origin: LIVE_ORIGIN, setupKey: "k" },
+  /** A bar strong enough to confirm AND take out a level at once. */
+  function busyBar(previous: TrendLifecycle) {
+    return advanceLifecycle({
+      previous,
       facts: factsWith({
         price: 102,
         vwap: { value: 99, above: true, reclaimedAt: null },
@@ -1767,6 +1768,7 @@ describe("one alert per bar", () => {
         fromOriginDollars: 1,
         fromOriginPct: 1,
         adversePivots: [],
+        levels: [{ name: "Premarket high", price: 101, availableFrom: null }],
       }),
       direction: "bullish",
       config: CONFIG,
@@ -1774,15 +1776,148 @@ describe("one alert per bar", () => {
       candidateOrigin: null,
       hasBasingCandidate: false,
       blueSkyReference: null,
-      previousClose: 101.5,
+      previousClose: 100.5,
       evaluable: true,
     });
+  }
 
-    // PRECONDITION: the bar really did produce more than one transition —
-    // history proves it, so this is a dedup and not an empty bar.
-    expect(out.lifecycle.transitions.length).toBeGreaterThan(1);
+  it("collapses non-exempt transitions to the most significant", () => {
+    // Already at trend_watch, so TAP 1 is not among this bar's output and
+    // the collapse is purely between trend_confirmed and level_break.
+    const out = busyBar({
+      ...emptyLifecycle(),
+      stage: "trend_watch",
+      origin: LIVE_ORIGIN,
+      setupKey: "k",
+      structureStop: 100,
+      transitions: [
+        { stage: "trend_watch", marketDataAt: "2026-08-03T16:00:00.000Z", reason: "entered" },
+      ],
+    });
+
+    // PRECONDITION: the bar really did record more than one transition,
+    // so this is a collapse and not an empty bar.
+    expect(out.lifecycle.transitions.length).toBeGreaterThan(2);
     expect(out.newTransitions).toHaveLength(1);
-    expect(out.newTransitions[0].stage).toBe("trend_confirmed");
+    expect(out.newTransitions[0].stage).toBe("level_break");
+  });
+
+  it("never swallows TAP 1, even when a bigger alert lands on the same bar", () => {
+    // Entering from idle: this bar records trend_watch AND the bigger
+    // events. Real AAPL 2026-07-13 reported a level break as its first
+    // alert of the session and never announced TAP 1 at all.
+    const out = busyBar({
+      ...emptyLifecycle(),
+      stage: "idle",
+      origin: LIVE_ORIGIN,
+      setupKey: "k",
+      structureStop: 100,
+    });
+
+    const stages = out.newTransitions.map((t) => t.stage);
+    expect(stages).toContain("trend_watch");
+    // The bigger event still gets through too.
+    expect(stages).toContain("level_break");
+    // ...but the rest is still collapsed: trend_confirmed loses to
+    // level_break, so exactly two alerts leave this bar.
+    expect(out.newTransitions).toHaveLength(2);
+    // TAP 1 reads as the heads-up that PRECEDED the entry.
+    expect(stages[0]).toBe("trend_watch");
+  });
+});
+
+describe("bearish alerts read bearish", () => {
+  const shortOrigin = {
+    mode: "held_base" as const,
+    price: 100,
+    establishedAt: "2026-08-03T13:35:00.000Z",
+    invalidationPrice: 101,
+  };
+
+  function shortLifecycle(overrides: Partial<TrendLifecycle> = {}): TrendLifecycle {
+    return {
+      ...emptyLifecycle(),
+      stage: "level_break",
+      origin: shortOrigin,
+      setupKey: "k",
+      structureStop: 100,
+      transitions: [
+        { stage: "trend_watch", marketDataAt: "2026-08-03T13:40:00.000Z", reason: "entered" },
+      ],
+      ...overrides,
+    };
+  }
+
+  function advanceShort(previous: TrendLifecycle, facts: TrendFacts, blueSky: number | null) {
+    return advanceLifecycle({
+      previous,
+      facts,
+      direction: "bearish",
+      config: CONFIG,
+      marketDataAt: "2026-08-03T17:00:00.000Z",
+      candidateOrigin: null,
+      hasBasingCandidate: false,
+      blueSkyReference: blueSky,
+      previousClose: facts.price === null ? null : facts.price + 0.1,
+      evaluable: true,
+    });
+  }
+
+  it("calls a structure break a LOWER HIGH closed ABOVE", () => {
+    // For a short, price rising through the stop is the break.
+    const out = advanceShort(
+      shortLifecycle(),
+      factsWith({ price: 100.5, atr5m: 0.5, adversePivots: [], levels: [] }),
+      null
+    );
+    const failed = out.newTransitions.find((t) => t.stage === "failed");
+    expect(failed?.reason).toContain("closed above the lower high");
+    expect(failed?.reason).not.toContain("higher low");
+  });
+
+  it("calls a fresh extreme a NEW-LOW continuation", () => {
+    const out = advanceShort(
+      shortLifecycle(),
+      factsWith({ price: 95, atr5m: 0.5, adversePivots: [], levels: [] }),
+      95.2
+    );
+    const fire = out.newTransitions.find((t) => t.reason.includes("continuation"));
+    expect(fire?.reason).toContain("New-low");
+    expect(fire?.reason).not.toContain("New-high");
+  });
+
+  it("calls the continuation pivot a LOWER HIGH", () => {
+    const facts = factsWith({
+      price: 96,
+      atr5m: 0.5,
+      // For a short the adverse pivots are swing HIGHS, and 98 is a
+      // LOWER high than the 100 origin.
+      adversePivots: [{ name: "Pivot high", price: 98, availableFrom: "2026-08-03T15:00:00.000Z" }],
+      levels: [{ name: "Pivot low", price: 97, availableFrom: "2026-08-03T14:30:00.000Z" }],
+    });
+    const out = advanceShort(shortLifecycle(), facts, null);
+    const fire = out.newTransitions.find((t) => t.reason.startsWith("Continuation"));
+    expect(fire?.reason).toContain("lower high at 98.00");
+    expect(fire?.reason).not.toContain("higher low");
+  });
+
+  it("names the wrong side of the 1m 9 EMA as BELOW for a short", () => {
+    const out = advanceShort(
+      shortLifecycle({ stage: "basing", origin: null, structureStop: null }),
+      factsWith({
+        price: 99,
+        atr5m: 0.5,
+        adversePivots: [],
+        levels: [],
+        // Wrong side for a short.
+        oneMinuteEma9: { value: 98, above: false, rising: false },
+      }),
+      null
+    );
+    const requirements = out.blockers.map((b) => b.requirement);
+    expect(requirements).toContain("Below the 1m 9 EMA");
+    expect(requirements).toContain("1m 9 EMA turning down");
+    expect(requirements).not.toContain("Above the 1m 9 EMA");
   });
 });
 

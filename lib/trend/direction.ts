@@ -27,6 +27,23 @@ export interface DirectionOps {
   closeStrength(candle: Candle): number | null;
   /** More favourable of two values. */
   best(a: number, b: number): number;
+
+  /**
+   * WORDING. The logic mirrors through the operations above, but the
+   * sentences shown to the reader were hardcoded long, so a short
+   * printed "closed below the higher low" — the opposite of what
+   * happened. These are labels only; nothing here affects a decision.
+   */
+  /** The structural pivot the stop trails: "higher low" / "lower high". */
+  structureLabel: string;
+  /** How price violates that pivot: "closed below" / "closed above". */
+  structureBreachPhrase: string;
+  /** A fresh extreme in the trade's favour: "New-high" / "New-low". */
+  newExtremeLabel: string;
+  /** Favourable side of a level: "Above" / "Below". */
+  sideLabel: string;
+  /** Favourable slope: "turning up" / "turning down". */
+  slopeLabel: string;
 }
 
 const BULLISH: DirectionOps = {
@@ -44,6 +61,11 @@ const BULLISH: DirectionOps = {
     return (c.close - c.low) / range;
   },
   best: (a, b) => Math.max(a, b),
+  structureLabel: "higher low",
+  structureBreachPhrase: "closed below",
+  newExtremeLabel: "New-high",
+  sideLabel: "Above",
+  slopeLabel: "turning up",
 };
 
 const BEARISH: DirectionOps = {
@@ -60,6 +82,11 @@ const BEARISH: DirectionOps = {
     return (c.high - c.close) / range;
   },
   best: (a, b) => Math.min(a, b),
+  structureLabel: "lower high",
+  structureBreachPhrase: "closed above",
+  newExtremeLabel: "New-low",
+  sideLabel: "Below",
+  slopeLabel: "turning down",
 };
 
 export function opsFor(direction: TrendDirection): DirectionOps {

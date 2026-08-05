@@ -136,13 +136,36 @@ export function isAlertable(stage: TrendStage): boolean {
   return !NON_ALERTABLE_STAGES.includes(stage);
 }
 
+/**
+ * Stages EXEMPT from same-bar collapsing.
+ *
+ * TAP 1 is a distinct heads-up, deliberately separate from the entry it
+ * precedes. Collapsing by significance alone silently ate it whenever a
+ * bigger event landed on the same bar — real AAPL 2026-07-13 reported a
+ * level break as its FIRST alert of the session and never announced TAP
+ * 1 at all. An exemption is not a duplicate: it is a different message.
+ */
+const ALWAYS_ALERT_STAGES: readonly TrendStage[] = ["trend_watch"];
+
 export function mostSignificant(transitions: TrendTransition[]): TrendTransition[] {
   if (transitions.length <= 1) return transitions;
-  return [
-    transitions.reduce((best, t) =>
-      ALERT_SIGNIFICANCE[t.stage] > ALERT_SIGNIFICANCE[best.stage] ? t : best
-    ),
-  ];
+
+  const exempt = transitions.filter((t) => ALWAYS_ALERT_STAGES.includes(t.stage));
+  const rest = transitions.filter((t) => !ALWAYS_ALERT_STAGES.includes(t.stage));
+
+  const collapsed =
+    rest.length <= 1
+      ? rest
+      : [
+          rest.reduce((best, t) =>
+            ALERT_SIGNIFICANCE[t.stage] > ALERT_SIGNIFICANCE[best.stage] ? t : best
+          ),
+        ];
+
+  const kept = new Set<TrendTransition>([...exempt, ...collapsed]);
+  // Emit in the order they actually happened, so TAP 1 still reads as
+  // the heads-up that preceded the entry rather than trailing it.
+  return transitions.filter((t) => kept.has(t));
 }
 
 /**
@@ -254,7 +277,7 @@ export function detectContinuation(args: {
     higherLow: higherLow.price,
     reclaimedHigh: reclaimed,
     reason:
-      `Continuation — higher low at ${higherLow.price.toFixed(2)} then a completed close ` +
+      `Continuation — ${ops.structureLabel} at ${higherLow.price.toFixed(2)} then a completed close ` +
       `back through ${reclaimed.price.toFixed(2)}`,
   };
 }
@@ -296,12 +319,17 @@ function transitionsOk(facts: TrendFacts, config: TrendScannerConfig): boolean {
 }
 
 /** Trend Watch gate. Returns the unmet requirements rather than a boolean. */
-function watchBlockers(facts: TrendFacts, config: TrendScannerConfig): TrendBlocker[] {
+function watchBlockers(
+  facts: TrendFacts,
+  config: TrendScannerConfig,
+  direction: TrendDirection
+): TrendBlocker[] {
   const blockers: TrendBlocker[] = [];
+  const ops = opsFor(direction);
 
   if (facts.oneMinuteEma9.above !== true) {
     blockers.push({
-      requirement: "Above the 1m 9 EMA",
+      requirement: `${ops.sideLabel} the 1m 9 EMA`,
       detail:
         facts.oneMinuteEma9.above === null
           ? "1-minute EMA not measurable"
@@ -310,7 +338,7 @@ function watchBlockers(facts: TrendFacts, config: TrendScannerConfig): TrendBloc
   }
   if (facts.oneMinuteEma9.rising !== true) {
     blockers.push({
-      requirement: "1m 9 EMA turning up",
+      requirement: `1m 9 EMA ${ops.slopeLabel}`,
       detail: facts.oneMinuteEma9.rising === null ? "not enough history" : "slope is against it",
     });
   }
@@ -473,7 +501,9 @@ export function detectTap2(args: {
   if (!ops.beyond(facts.price, reference)) return null;
   return {
     level: null,
-    reason: `New-high continuation — closed beyond every level since the origin (${reference.toFixed(2)})`,
+    reason:
+      `${ops.newExtremeLabel} continuation — closed beyond every level since ` +
+      `the origin (${reference.toFixed(2)})`,
   };
 }
 
@@ -504,7 +534,10 @@ function failureReason(
     return `Closed through the invalidation at ${origin.invalidationPrice.toFixed(2)}`;
   }
   if (structureStop !== null && ops.adverse(facts.price, structureStop)) {
-    return `Structure break — closed below the higher low at ${structureStop.toFixed(2)}`;
+    return (
+      `Structure break — ${ops.structureBreachPhrase} the ${ops.structureLabel} ` +
+      `at ${structureStop.toFixed(2)}`
+    );
   }
   return null;
 }
@@ -660,7 +693,7 @@ export function advanceLifecycle(input: AdvanceInput): AdvanceOutput {
       lifecycle,
       newTransitions,
       newMilestones: [],
-      blockers: watchBlockers(facts, config),
+      blockers: watchBlockers(facts, config, direction),
       nextConfirmation: "A base or momentum origin must lock first",
     };
   }
@@ -676,7 +709,7 @@ export function advanceLifecycle(input: AdvanceInput): AdvanceOutput {
     };
   }
 
-  const wBlockers = watchBlockers(facts, config);
+  const wBlockers = watchBlockers(facts, config, direction);
   const cBlockers = confirmedBlockers(facts, config);
 
   /**
