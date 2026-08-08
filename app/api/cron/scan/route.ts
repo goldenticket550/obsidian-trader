@@ -9,6 +9,7 @@ import {
 import { buildReclaimAlertCandidates } from "@/lib/alerts/reclaimAlerts";
 import { defaultAlertRules } from "@/lib/alerts/defaultRules";
 import { listAllWatchlists, getWatchlistSymbols, getStrategyConfig } from "@/lib/watchlist/queries";
+import { enqueueCoreEvents, recordAndEnqueueHealth, drainCoreOutbox } from "@/lib/core/reporting";
 
 // Allow up to Vercel's Pro-tier max; harmless on Hobby (just capped lower
 // there). See README for the Hobby-plan cron-frequency limitation this
@@ -95,6 +96,7 @@ export async function GET(request: Request) {
             defaultAlertRules
           );
           alertsFired += fired.length;
+          await enqueueCoreEvents(supabase, fired);
         }
       }
 
@@ -110,6 +112,7 @@ export async function GET(request: Request) {
         if (events.length > 0) {
           const fired = await recordCandidatesPersistent(supabase, userId, events, rules);
           alertsFired += fired.length;
+          await enqueueCoreEvents(supabase, fired);
         }
       } catch (error) {
         console.error("[cron/scan] reclaim alert emission failed:", error);
@@ -137,10 +140,13 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.json({
+  const report = {
     scannedAt: new Date().toISOString(),
     provider: provider.name,
     usersScanned: results.length,
     results,
-  });
+  };
+  await recordAndEnqueueHealth(supabase, report);
+  await drainCoreOutbox(supabase);
+  return NextResponse.json(report);
 }

@@ -10,6 +10,7 @@ import {
 import { buildReclaimAlertCandidates } from "@/lib/alerts/reclaimAlerts";
 import { defaultAlertRules } from "@/lib/alerts/defaultRules";
 import type { AlertEvent } from "@/lib/alerts/types";
+import { enqueueCoreEvents } from "@/lib/core/reporting";
 import { defaultStrategyConfig, type StrategyConfig } from "@/lib/strategies/config";
 import { createClient } from "@/lib/supabase/server";
 import { getOrCreateDefaultWatchlist, getWatchlistSymbols, getStrategyConfig } from "@/lib/watchlist/queries";
@@ -122,6 +123,8 @@ export async function GET() {
     } catch (error) {
       console.error("[/api/scan] reclaim alert emission failed:", error);
     }
+
+    if (supabase && newEvents.length > 0) await enqueueCoreEvents(supabase, newEvents);
 
     return NextResponse.json({
       provider: provider.name,
