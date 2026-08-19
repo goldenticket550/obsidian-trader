@@ -42,7 +42,7 @@ Status: ${result.status}
 Conviction level: ${result.convictionLevel ?? "unknown"}
 Entry status: ${result.entryStatus ?? "unknown"}
 Score: ${result.score.toFixed(1)}/10 (weighted — core signals count more than supporting ones)
-Invalidation note (already computed, do not invent your own): ${result.invalidationNote ?? "none yet — not enough has formed to define one"}
+Invalidation note (already computed, do not invent your own): ${result.invalidationNote ? `${result.invalidationNote.reason.replace(/_/g, " ")} at $${result.invalidationNote.level.toFixed(2)}` : "none yet â€” not enough has formed to define one"}
 
 Conditions (grouped by weight tier — core signals matter most):
 ${conditionLines || "(none evaluated)"}

@@ -1,0 +1,2312 @@
+{
+  "phase": "A2",
+  "scope": "replay_only",
+  "generatedAt": "2026-08-17T05:30:00.000Z",
+  "disclosure": "Timing statistics derived from historical pulls assume instantaneous bar availability. Real arrival latency is not represented. Human-relative latency and move-capture figures are therefore OPTIMISTICALLY BIASED and must not be used to justify lowering thresholds.",
+  "calibrationStatus": "pending_calibration",
+  "conclusionsAllowed": false,
+  "calibrationStore": {
+    "schemaVersion": 4,
+    "modeMapVersion": 3,
+    "sets": {
+      "sip": {
+        "premarket_early": {
+          "subWindow": "premarket_early",
+          "feedMode": "sip",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:sip:premarket_early",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        },
+        "premarket_core": {
+          "subWindow": "premarket_core",
+          "feedMode": "sip",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:sip:premarket_core",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        },
+        "premarket_final": {
+          "subWindow": "premarket_final",
+          "feedMode": "sip",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:sip:premarket_final",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        },
+        "regular": {
+          "subWindow": "regular",
+          "feedMode": "sip",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:sip:regular",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        },
+        "after_hours_core": {
+          "subWindow": "after_hours_core",
+          "feedMode": "sip",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:sip:after_hours_core",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        },
+        "after_hours_late": {
+          "subWindow": "after_hours_late",
+          "feedMode": "sip",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:sip:after_hours_late",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        }
+      },
+      "iex_partial": {
+        "premarket_early": {
+          "subWindow": "premarket_early",
+          "feedMode": "iex_partial",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:iex_partial:premarket_early",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        },
+        "premarket_core": {
+          "subWindow": "premarket_core",
+          "feedMode": "iex_partial",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:iex_partial:premarket_core",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        },
+        "premarket_final": {
+          "subWindow": "premarket_final",
+          "feedMode": "iex_partial",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:iex_partial:premarket_final",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        },
+        "regular": {
+          "subWindow": "regular",
+          "feedMode": "iex_partial",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:iex_partial:regular",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        },
+        "after_hours_core": {
+          "subWindow": "after_hours_core",
+          "feedMode": "iex_partial",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:iex_partial:after_hours_core",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        },
+        "after_hours_late": {
+          "subWindow": "after_hours_late",
+          "feedMode": "iex_partial",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:iex_partial:after_hours_late",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        }
+      }
+    },
+    "feedModeInvalidations": [],
+    "normalizationInvalidations": []
+  },
+  "normalizationCurves": [
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_early",
+      "axis": "participation_dense",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_early",
+      "axis": "participation_presence",
+      "inputKind": "surprise_bits",
+      "normalizationVersion": 1,
+      "z50": 3,
+      "k": 1.3,
+      "values": {
+        "0": 0.0198403057340775,
+        "1": 0.06913842034334682,
+        "2": 0.2141650169574414,
+        "3": 0.5,
+        "4": 0.7858349830425586,
+        "6": 0.9801596942659225
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_early",
+      "axis": "displacement",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_early",
+      "axis": "idiosyncrasy",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_core",
+      "axis": "participation_dense",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_core",
+      "axis": "participation_presence",
+      "inputKind": "surprise_bits",
+      "normalizationVersion": 1,
+      "z50": 3,
+      "k": 1.3,
+      "values": {
+        "0": 0.0198403057340775,
+        "1": 0.06913842034334682,
+        "2": 0.2141650169574414,
+        "3": 0.5,
+        "4": 0.7858349830425586,
+        "6": 0.9801596942659225
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_core",
+      "axis": "displacement",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_core",
+      "axis": "idiosyncrasy",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_final",
+      "axis": "participation_dense",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_final",
+      "axis": "participation_presence",
+      "inputKind": "surprise_bits",
+      "normalizationVersion": 1,
+      "z50": 3,
+      "k": 1.3,
+      "values": {
+        "0": 0.0198403057340775,
+        "1": 0.06913842034334682,
+        "2": 0.2141650169574414,
+        "3": 0.5,
+        "4": 0.7858349830425586,
+        "6": 0.9801596942659225
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_final",
+      "axis": "displacement",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_final",
+      "axis": "idiosyncrasy",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "regular",
+      "axis": "participation_dense",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "regular",
+      "axis": "participation_presence",
+      "inputKind": "surprise_bits",
+      "normalizationVersion": 1,
+      "z50": 3,
+      "k": 1.3,
+      "values": {
+        "0": 0.0198403057340775,
+        "1": 0.06913842034334682,
+        "2": 0.2141650169574414,
+        "3": 0.5,
+        "4": 0.7858349830425586,
+        "6": 0.9801596942659225
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "regular",
+      "axis": "displacement",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "regular",
+      "axis": "idiosyncrasy",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "after_hours_core",
+      "axis": "participation_dense",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "after_hours_core",
+      "axis": "participation_presence",
+      "inputKind": "surprise_bits",
+      "normalizationVersion": 1,
+      "z50": 3,
+      "k": 1.3,
+      "values": {
+        "0": 0.0198403057340775,
+        "1": 0.06913842034334682,
+        "2": 0.2141650169574414,
+        "3": 0.5,
+        "4": 0.7858349830425586,
+        "6": 0.9801596942659225
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "after_hours_core",
+      "axis": "displacement",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "after_hours_core",
+      "axis": "idiosyncrasy",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "after_hours_late",
+      "axis": "participation_dense",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "after_hours_late",
+      "axis": "participation_presence",
+      "inputKind": "surprise_bits",
+      "normalizationVersion": 1,
+      "z50": 3,
+      "k": 1.3,
+      "values": {
+        "0": 0.0198403057340775,
+        "1": 0.06913842034334682,
+        "2": 0.2141650169574414,
+        "3": 0.5,
+        "4": 0.7858349830425586,
+        "6": 0.9801596942659225
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "after_hours_late",
+      "axis": "displacement",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "after_hours_late",
+      "axis": "idiosyncrasy",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "premarket_early",
+      "axis": "participation_dense",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "premarket_early",
+      "axis": "participation_presence",
+      "inputKind": "surprise_bits",
+      "normalizationVersion": 1,
+      "z50": 3,
+      "k": 1.3,
+      "values": {
+        "0": 0.0198403057340775,
+        "1": 0.06913842034334682,
+        "2": 0.2141650169574414,
+        "3": 0.5,
+        "4": 0.7858349830425586,
+        "6": 0.9801596942659225
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "premarket_early",
+      "axis": "displacement",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "premarket_early",
+      "axis": "idiosyncrasy",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "premarket_core",
+      "axis": "participation_dense",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "premarket_core",
+      "axis": "participation_presence",
+      "inputKind": "surprise_bits",
+      "normalizationVersion": 1,
+      "z50": 3,
+      "k": 1.3,
+      "values": {
+        "0": 0.0198403057340775,
+        "1": 0.06913842034334682,
+        "2": 0.2141650169574414,
+        "3": 0.5,
+        "4": 0.7858349830425586,
+        "6": 0.9801596942659225
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "premarket_core",
+      "axis": "displacement",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "premarket_core",
+      "axis": "idiosyncrasy",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "premarket_final",
+      "axis": "participation_dense",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "premarket_final",
+      "axis": "participation_presence",
+      "inputKind": "surprise_bits",
+      "normalizationVersion": 1,
+      "z50": 3,
+      "k": 1.3,
+      "values": {
+        "0": 0.0198403057340775,
+        "1": 0.06913842034334682,
+        "2": 0.2141650169574414,
+        "3": 0.5,
+        "4": 0.7858349830425586,
+        "6": 0.9801596942659225
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "premarket_final",
+      "axis": "displacement",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "premarket_final",
+      "axis": "idiosyncrasy",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "regular",
+      "axis": "participation_dense",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "regular",
+      "axis": "participation_presence",
+      "inputKind": "surprise_bits",
+      "normalizationVersion": 1,
+      "z50": 3,
+      "k": 1.3,
+      "values": {
+        "0": 0.0198403057340775,
+        "1": 0.06913842034334682,
+        "2": 0.2141650169574414,
+        "3": 0.5,
+        "4": 0.7858349830425586,
+        "6": 0.9801596942659225
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "regular",
+      "axis": "displacement",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "regular",
+      "axis": "idiosyncrasy",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "after_hours_core",
+      "axis": "participation_dense",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "after_hours_core",
+      "axis": "participation_presence",
+      "inputKind": "surprise_bits",
+      "normalizationVersion": 1,
+      "z50": 3,
+      "k": 1.3,
+      "values": {
+        "0": 0.0198403057340775,
+        "1": 0.06913842034334682,
+        "2": 0.2141650169574414,
+        "3": 0.5,
+        "4": 0.7858349830425586,
+        "6": 0.9801596942659225
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "after_hours_core",
+      "axis": "displacement",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "after_hours_core",
+      "axis": "idiosyncrasy",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "after_hours_late",
+      "axis": "participation_dense",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "after_hours_late",
+      "axis": "participation_presence",
+      "inputKind": "surprise_bits",
+      "normalizationVersion": 1,
+      "z50": 3,
+      "k": 1.3,
+      "values": {
+        "0": 0.0198403057340775,
+        "1": 0.06913842034334682,
+        "2": 0.2141650169574414,
+        "3": 0.5,
+        "4": 0.7858349830425586,
+        "6": 0.9801596942659225
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "after_hours_late",
+      "axis": "displacement",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "after_hours_late",
+      "axis": "idiosyncrasy",
+      "inputKind": "z",
+      "normalizationVersion": 1,
+      "z50": 2,
+      "k": 1.2,
+      "values": {
+        "0": 0.08317269649392238,
+        "1": 0.23147521650098238,
+        "2": 0.5,
+        "3": 0.7685247834990175,
+        "4": 0.9168273035060777,
+        "6": 0.9918374288468401
+      }
+    }
+  ],
+  "scenario20": {
+    "inputs": {
+      "participationZ": 3,
+      "displacementZ": 2.5,
+      "idiosyncrasyZ": 0.2
+    },
+    "statedCurve": {
+      "participationDense": {
+        "z50": 2,
+        "k": 1.2
+      },
+      "displacement": {
+        "z50": 2,
+        "k": 1.2
+      }
+    },
+    "expectedPathAAttentionFourDecimals": 71.1461,
+    "pathA": {
+      "status": "ok",
+      "attention": 71.14608567612062,
+      "feedMode": "sip",
+      "subWindow": "regular",
+      "participationScoringWeight": 1,
+      "participationDisplayOnly": false,
+      "volumeAccelerationEnabled": true,
+      "thresholdCalibrationStatus": "pending_calibration",
+      "normalizationCalibrationStatus": "pending_calibration",
+      "calibrationId": "mode-map-v3:curve-v1:state-v1:sip:regular",
+      "normalizationVersion": 1,
+      "provisional": true,
+      "conclusionsAllowed": false,
+      "explanation": {
+        "feedMode": "sip",
+        "subWindow": "regular",
+        "participation": {
+          "axis": "participation",
+          "status": "ok",
+          "value": 3,
+          "normalizationInput": 3,
+          "normalizationInputKind": "z",
+          "z50": 2,
+          "k": 1.2,
+          "normalized": 0.7685247834990175,
+          "baselineMode": "dense",
+          "unavailableReason": null,
+          "firstObservedActivity": false,
+          "requiresDisplacementConfluence": false,
+          "currentVolume": 3000000,
+          "currentDollarVolume": 450000000,
+          "components": [
+            {
+              "name": "volume",
+              "rawValue": 3000000,
+              "baselineMedian": 1000000,
+              "baselineMad": 449667,
+              "pPresent": null,
+              "surpriseBits": null,
+              "signalKind": "median_mad_z",
+              "baselineMode": "dense",
+              "baselineState": "ok",
+              "z": 3
+            },
+            {
+              "name": "dollar_volume",
+              "rawValue": 450000000,
+              "baselineMedian": 150000000,
+              "baselineMad": 67450000,
+              "pPresent": null,
+              "surpriseBits": null,
+              "signalKind": "median_mad_z",
+              "baselineMode": "continuous",
+              "baselineState": "ok",
+              "z": 3
+            }
+          ]
+        },
+        "displacement": {
+          "axis": "displacement",
+          "status": "ok",
+          "value": 2.5,
+          "normalizationInput": 2.5,
+          "normalizationInputKind": "z",
+          "z50": 2,
+          "k": 1.2,
+          "normalized": 0.6456563062257954,
+          "baselineMode": "continuous",
+          "unavailableReason": null,
+          "components": [
+            {
+              "name": "range_atr",
+              "rawValue": 1.5,
+              "baselineMedian": 0.5,
+              "baselineMad": 0.27,
+              "pPresent": null,
+              "surpriseBits": null,
+              "signalKind": "median_mad_z",
+              "baselineMode": "continuous",
+              "baselineState": "ok",
+              "z": 2.5
+            },
+            {
+              "name": "path_efficiency",
+              "rawValue": 0.8,
+              "baselineMedian": 0.45,
+              "baselineMad": 0.094,
+              "pPresent": null,
+              "surpriseBits": null,
+              "signalKind": "median_mad_z",
+              "baselineMode": "continuous",
+              "baselineState": "ok",
+              "z": 2.5
+            }
+          ]
+        },
+        "idiosyncrasy": {
+          "axis": "idiosyncrasy",
+          "status": "ok",
+          "value": 0.2,
+          "normalizationInput": 0.2,
+          "normalizationInputKind": "z",
+          "z50": 2,
+          "k": 1.2,
+          "normalized": 0.10340045145824957,
+          "baselineMode": "continuous",
+          "unavailableReason": null,
+          "stockReturn": 0.02,
+          "benchmarkReturn": 0.01,
+          "sectorReturn": 0.011,
+          "stockVsBenchmark": 0.01,
+          "sectorVsBenchmark": 0.001,
+          "classification": "stock_specific",
+          "components": [
+            {
+              "name": "stock_vs_benchmark",
+              "rawValue": 0.01,
+              "baselineMedian": 0.008,
+              "baselineMad": 0.0067,
+              "pPresent": null,
+              "surpriseBits": null,
+              "signalKind": "median_mad_z",
+              "baselineMode": "continuous",
+              "baselineState": "ok",
+              "z": 0.2
+            },
+            {
+              "name": "sector_vs_benchmark",
+              "rawValue": 0.001,
+              "baselineMedian": 0.001,
+              "baselineMad": 0.0008,
+              "pPresent": null,
+              "surpriseBits": null,
+              "signalKind": "median_mad_z",
+              "baselineMode": "continuous",
+              "baselineState": "ok",
+              "z": 0.2
+            }
+          ]
+        },
+        "coreAxes": [
+          "participation",
+          "displacement"
+        ],
+        "core": 0.7044166898625804,
+        "modifier": 1.01,
+        "modifierKind": "bounded_idiosyncrasy",
+        "modifierContext": 0.06666666666666667,
+        "idiosyncrasyInfluence": 0.15,
+        "final": 71.14608567612062
+      }
+    },
+    "pathB": {
+      "status": "ok",
+      "attention": 25.83817980249636,
+      "feedMode": "iex_partial",
+      "subWindow": "regular",
+      "participationScoringWeight": 0,
+      "participationDisplayOnly": true,
+      "volumeAccelerationEnabled": false,
+      "thresholdCalibrationStatus": "pending_calibration",
+      "normalizationCalibrationStatus": "pending_calibration",
+      "calibrationId": "mode-map-v3:curve-v1:state-v1:iex_partial:regular",
+      "normalizationVersion": 1,
+      "provisional": true,
+      "conclusionsAllowed": false,
+      "explanation": {
+        "feedMode": "iex_partial",
+        "subWindow": "regular",
+        "participation": {
+          "axis": "participation",
+          "status": "ok",
+          "value": 3,
+          "normalizationInput": 3,
+          "normalizationInputKind": "z",
+          "z50": 2,
+          "k": 1.2,
+          "normalized": 0.7685247834990175,
+          "baselineMode": "dense",
+          "unavailableReason": null,
+          "firstObservedActivity": false,
+          "requiresDisplacementConfluence": false,
+          "currentVolume": 3000000,
+          "currentDollarVolume": 450000000,
+          "components": [
+            {
+              "name": "volume",
+              "rawValue": 3000000,
+              "baselineMedian": 1000000,
+              "baselineMad": 449667,
+              "pPresent": null,
+              "surpriseBits": null,
+              "signalKind": "median_mad_z",
+              "baselineMode": "dense",
+              "baselineState": "ok",
+              "z": 3
+            },
+            {
+              "name": "dollar_volume",
+              "rawValue": 450000000,
+              "baselineMedian": 150000000,
+              "baselineMad": 67450000,
+              "pPresent": null,
+              "surpriseBits": null,
+              "signalKind": "median_mad_z",
+              "baselineMode": "continuous",
+              "baselineState": "ok",
+              "z": 3
+            }
+          ]
+        },
+        "displacement": {
+          "axis": "displacement",
+          "status": "ok",
+          "value": 2.5,
+          "normalizationInput": 2.5,
+          "normalizationInputKind": "z",
+          "z50": 2,
+          "k": 1.2,
+          "normalized": 0.6456563062257954,
+          "baselineMode": "continuous",
+          "unavailableReason": null,
+          "components": [
+            {
+              "name": "range_atr",
+              "rawValue": 1.5,
+              "baselineMedian": 0.5,
+              "baselineMad": 0.27,
+              "pPresent": null,
+              "surpriseBits": null,
+              "signalKind": "median_mad_z",
+              "baselineMode": "continuous",
+              "baselineState": "ok",
+              "z": 2.5
+            },
+            {
+              "name": "path_efficiency",
+              "rawValue": 0.8,
+              "baselineMedian": 0.45,
+              "baselineMad": 0.094,
+              "pPresent": null,
+              "surpriseBits": null,
+              "signalKind": "median_mad_z",
+              "baselineMode": "continuous",
+              "baselineState": "ok",
+              "z": 2.5
+            }
+          ]
+        },
+        "idiosyncrasy": {
+          "axis": "idiosyncrasy",
+          "status": "ok",
+          "value": 0.2,
+          "normalizationInput": 0.2,
+          "normalizationInputKind": "z",
+          "z50": 2,
+          "k": 1.2,
+          "normalized": 0.10340045145824957,
+          "baselineMode": "continuous",
+          "unavailableReason": null,
+          "stockReturn": 0.02,
+          "benchmarkReturn": 0.01,
+          "sectorReturn": 0.011,
+          "stockVsBenchmark": 0.01,
+          "sectorVsBenchmark": 0.001,
+          "classification": "stock_specific",
+          "components": [
+            {
+              "name": "stock_vs_benchmark",
+              "rawValue": 0.01,
+              "baselineMedian": 0.008,
+              "baselineMad": 0.0067,
+              "pPresent": null,
+              "surpriseBits": null,
+              "signalKind": "median_mad_z",
+              "baselineMode": "continuous",
+              "baselineState": "ok",
+              "z": 0.2
+            },
+            {
+              "name": "sector_vs_benchmark",
+              "rawValue": 0.001,
+              "baselineMedian": 0.001,
+              "baselineMad": 0.0008,
+              "pPresent": null,
+              "surpriseBits": null,
+              "signalKind": "median_mad_z",
+              "baselineMode": "continuous",
+              "baselineState": "ok",
+              "z": 0.2
+            }
+          ]
+        },
+        "coreAxes": [
+          "displacement",
+          "idiosyncrasy"
+        ],
+        "core": 0.2583817980249636,
+        "modifier": 1,
+        "modifierKind": "none_idiosyncrasy_in_core",
+        "modifierContext": null,
+        "idiosyncrasyInfluence": 0.15,
+        "final": 25.83817980249636
+      }
+    }
+  },
+  "invariants": {
+    "deadStockCeiling": 15,
+    "provisionalWatchingCoreFloor": 0.25,
+    "unremarkable": {
+      "sip": {
+        "status": "ok",
+        "attention": 8.317269649392237,
+        "feedMode": "sip",
+        "subWindow": "regular",
+        "participationScoringWeight": 1,
+        "participationDisplayOnly": false,
+        "volumeAccelerationEnabled": true,
+        "thresholdCalibrationStatus": "pending_calibration",
+        "normalizationCalibrationStatus": "pending_calibration",
+        "calibrationId": "mode-map-v3:curve-v1:state-v1:sip:regular",
+        "normalizationVersion": 1,
+        "provisional": true,
+        "conclusionsAllowed": false,
+        "explanation": {
+          "feedMode": "sip",
+          "subWindow": "regular",
+          "participation": {
+            "axis": "participation",
+            "status": "ok",
+            "value": 0,
+            "normalizationInput": 0,
+            "normalizationInputKind": "z",
+            "z50": 2,
+            "k": 1.2,
+            "normalized": 0.08317269649392238,
+            "baselineMode": "dense",
+            "unavailableReason": null,
+            "firstObservedActivity": false,
+            "requiresDisplacementConfluence": false,
+            "currentVolume": 3000000,
+            "currentDollarVolume": 450000000,
+            "components": [
+              {
+                "name": "volume",
+                "rawValue": 3000000,
+                "baselineMedian": 1000000,
+                "baselineMad": 449667,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "dense",
+                "baselineState": "ok",
+                "z": 0
+              },
+              {
+                "name": "dollar_volume",
+                "rawValue": 450000000,
+                "baselineMedian": 150000000,
+                "baselineMad": 67450000,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "continuous",
+                "baselineState": "ok",
+                "z": 0
+              }
+            ]
+          },
+          "displacement": {
+            "axis": "displacement",
+            "status": "ok",
+            "value": 0,
+            "normalizationInput": 0,
+            "normalizationInputKind": "z",
+            "z50": 2,
+            "k": 1.2,
+            "normalized": 0.08317269649392238,
+            "baselineMode": "continuous",
+            "unavailableReason": null,
+            "components": [
+              {
+                "name": "range_atr",
+                "rawValue": 1.5,
+                "baselineMedian": 0.5,
+                "baselineMad": 0.27,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "continuous",
+                "baselineState": "ok",
+                "z": 0
+              },
+              {
+                "name": "path_efficiency",
+                "rawValue": 0.8,
+                "baselineMedian": 0.45,
+                "baselineMad": 0.094,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "continuous",
+                "baselineState": "ok",
+                "z": 0
+              }
+            ]
+          },
+          "idiosyncrasy": {
+            "axis": "idiosyncrasy",
+            "status": "ok",
+            "value": 0,
+            "normalizationInput": 0,
+            "normalizationInputKind": "z",
+            "z50": 2,
+            "k": 1.2,
+            "normalized": 0.08317269649392238,
+            "baselineMode": "continuous",
+            "unavailableReason": null,
+            "stockReturn": 0.02,
+            "benchmarkReturn": 0.01,
+            "sectorReturn": 0.011,
+            "stockVsBenchmark": 0.01,
+            "sectorVsBenchmark": 0.001,
+            "classification": "stock_specific",
+            "components": [
+              {
+                "name": "stock_vs_benchmark",
+                "rawValue": 0.01,
+                "baselineMedian": 0.008,
+                "baselineMad": 0.0067,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "continuous",
+                "baselineState": "ok",
+                "z": 0
+              },
+              {
+                "name": "sector_vs_benchmark",
+                "rawValue": 0.001,
+                "baselineMedian": 0.001,
+                "baselineMad": 0.0008,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "continuous",
+                "baselineState": "ok",
+                "z": 0
+              }
+            ]
+          },
+          "coreAxes": [
+            "participation",
+            "displacement"
+          ],
+          "core": 0.08317269649392238,
+          "modifier": 1,
+          "modifierKind": "bounded_idiosyncrasy",
+          "modifierContext": 0,
+          "idiosyncrasyInfluence": 0.15,
+          "final": 8.317269649392237
+        }
+      },
+      "iex_partial": {
+        "status": "ok",
+        "attention": 8.317269649392237,
+        "feedMode": "iex_partial",
+        "subWindow": "regular",
+        "participationScoringWeight": 0,
+        "participationDisplayOnly": true,
+        "volumeAccelerationEnabled": false,
+        "thresholdCalibrationStatus": "pending_calibration",
+        "normalizationCalibrationStatus": "pending_calibration",
+        "calibrationId": "mode-map-v3:curve-v1:state-v1:iex_partial:regular",
+        "normalizationVersion": 1,
+        "provisional": true,
+        "conclusionsAllowed": false,
+        "explanation": {
+          "feedMode": "iex_partial",
+          "subWindow": "regular",
+          "participation": {
+            "axis": "participation",
+            "status": "ok",
+            "value": 0,
+            "normalizationInput": 0,
+            "normalizationInputKind": "z",
+            "z50": 2,
+            "k": 1.2,
+            "normalized": 0.08317269649392238,
+            "baselineMode": "dense",
+            "unavailableReason": null,
+            "firstObservedActivity": false,
+            "requiresDisplacementConfluence": false,
+            "currentVolume": 3000000,
+            "currentDollarVolume": 450000000,
+            "components": [
+              {
+                "name": "volume",
+                "rawValue": 3000000,
+                "baselineMedian": 1000000,
+                "baselineMad": 449667,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "dense",
+                "baselineState": "ok",
+                "z": 0
+              },
+              {
+                "name": "dollar_volume",
+                "rawValue": 450000000,
+                "baselineMedian": 150000000,
+                "baselineMad": 67450000,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "continuous",
+                "baselineState": "ok",
+                "z": 0
+              }
+            ]
+          },
+          "displacement": {
+            "axis": "displacement",
+            "status": "ok",
+            "value": 0,
+            "normalizationInput": 0,
+            "normalizationInputKind": "z",
+            "z50": 2,
+            "k": 1.2,
+            "normalized": 0.08317269649392238,
+            "baselineMode": "continuous",
+            "unavailableReason": null,
+            "components": [
+              {
+                "name": "range_atr",
+                "rawValue": 1.5,
+                "baselineMedian": 0.5,
+                "baselineMad": 0.27,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "continuous",
+                "baselineState": "ok",
+                "z": 0
+              },
+              {
+                "name": "path_efficiency",
+                "rawValue": 0.8,
+                "baselineMedian": 0.45,
+                "baselineMad": 0.094,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "continuous",
+                "baselineState": "ok",
+                "z": 0
+              }
+            ]
+          },
+          "idiosyncrasy": {
+            "axis": "idiosyncrasy",
+            "status": "ok",
+            "value": 0,
+            "normalizationInput": 0,
+            "normalizationInputKind": "z",
+            "z50": 2,
+            "k": 1.2,
+            "normalized": 0.08317269649392238,
+            "baselineMode": "continuous",
+            "unavailableReason": null,
+            "stockReturn": 0.02,
+            "benchmarkReturn": 0.01,
+            "sectorReturn": 0.011,
+            "stockVsBenchmark": 0.01,
+            "sectorVsBenchmark": 0.001,
+            "classification": "stock_specific",
+            "components": [
+              {
+                "name": "stock_vs_benchmark",
+                "rawValue": 0.01,
+                "baselineMedian": 0.008,
+                "baselineMad": 0.0067,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "continuous",
+                "baselineState": "ok",
+                "z": 0
+              },
+              {
+                "name": "sector_vs_benchmark",
+                "rawValue": 0.001,
+                "baselineMedian": 0.001,
+                "baselineMad": 0.0008,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "continuous",
+                "baselineState": "ok",
+                "z": 0
+              }
+            ]
+          },
+          "coreAxes": [
+            "displacement",
+            "idiosyncrasy"
+          ],
+          "core": 0.08317269649392238,
+          "modifier": 1,
+          "modifierKind": "none_idiosyncrasy_in_core",
+          "modifierContext": null,
+          "idiosyncrasyInfluence": 0.15,
+          "final": 8.317269649392237
+        }
+      }
+    },
+    "saturated": {
+      "sip": {
+        "status": "ok",
+        "attention": 100,
+        "feedMode": "sip",
+        "subWindow": "regular",
+        "participationScoringWeight": 1,
+        "participationDisplayOnly": false,
+        "volumeAccelerationEnabled": true,
+        "thresholdCalibrationStatus": "pending_calibration",
+        "normalizationCalibrationStatus": "pending_calibration",
+        "calibrationId": "mode-map-v3:curve-v1:state-v1:sip:regular",
+        "normalizationVersion": 1,
+        "provisional": true,
+        "conclusionsAllowed": false,
+        "explanation": {
+          "feedMode": "sip",
+          "subWindow": "regular",
+          "participation": {
+            "axis": "participation",
+            "status": "ok",
+            "value": 6,
+            "normalizationInput": 6,
+            "normalizationInputKind": "z",
+            "z50": 2,
+            "k": 1.2,
+            "normalized": 0.9918374288468401,
+            "baselineMode": "dense",
+            "unavailableReason": null,
+            "firstObservedActivity": false,
+            "requiresDisplacementConfluence": false,
+            "currentVolume": 3000000,
+            "currentDollarVolume": 450000000,
+            "components": [
+              {
+                "name": "volume",
+                "rawValue": 3000000,
+                "baselineMedian": 1000000,
+                "baselineMad": 449667,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "dense",
+                "baselineState": "ok",
+                "z": 6
+              },
+              {
+                "name": "dollar_volume",
+                "rawValue": 450000000,
+                "baselineMedian": 150000000,
+                "baselineMad": 67450000,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "continuous",
+                "baselineState": "ok",
+                "z": 6
+              }
+            ]
+          },
+          "displacement": {
+            "axis": "displacement",
+            "status": "ok",
+            "value": 6,
+            "normalizationInput": 6,
+            "normalizationInputKind": "z",
+            "z50": 2,
+            "k": 1.2,
+            "normalized": 0.9918374288468401,
+            "baselineMode": "continuous",
+            "unavailableReason": null,
+            "components": [
+              {
+                "name": "range_atr",
+                "rawValue": 1.5,
+                "baselineMedian": 0.5,
+                "baselineMad": 0.27,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "continuous",
+                "baselineState": "ok",
+                "z": 6
+              },
+              {
+                "name": "path_efficiency",
+                "rawValue": 0.8,
+                "baselineMedian": 0.45,
+                "baselineMad": 0.094,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "continuous",
+                "baselineState": "ok",
+                "z": 6
+              }
+            ]
+          },
+          "idiosyncrasy": {
+            "axis": "idiosyncrasy",
+            "status": "ok",
+            "value": 6,
+            "normalizationInput": 6,
+            "normalizationInputKind": "z",
+            "z50": 2,
+            "k": 1.2,
+            "normalized": 0.9918374288468401,
+            "baselineMode": "continuous",
+            "unavailableReason": null,
+            "stockReturn": 0.02,
+            "benchmarkReturn": 0.01,
+            "sectorReturn": 0.011,
+            "stockVsBenchmark": 0.01,
+            "sectorVsBenchmark": 0.001,
+            "classification": "stock_specific",
+            "components": [
+              {
+                "name": "stock_vs_benchmark",
+                "rawValue": 0.01,
+                "baselineMedian": 0.008,
+                "baselineMad": 0.0067,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "continuous",
+                "baselineState": "ok",
+                "z": 6
+              },
+              {
+                "name": "sector_vs_benchmark",
+                "rawValue": 0.001,
+                "baselineMedian": 0.001,
+                "baselineMad": 0.0008,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "continuous",
+                "baselineState": "ok",
+                "z": 6
+              }
+            ]
+          },
+          "coreAxes": [
+            "participation",
+            "displacement"
+          ],
+          "core": 0.9918374288468401,
+          "modifier": 1.15,
+          "modifierKind": "bounded_idiosyncrasy",
+          "modifierContext": 1,
+          "idiosyncrasyInfluence": 0.15,
+          "final": 100
+        }
+      },
+      "iex_partial": {
+        "status": "ok",
+        "attention": 99.18374288468401,
+        "feedMode": "iex_partial",
+        "subWindow": "regular",
+        "participationScoringWeight": 0,
+        "participationDisplayOnly": true,
+        "volumeAccelerationEnabled": false,
+        "thresholdCalibrationStatus": "pending_calibration",
+        "normalizationCalibrationStatus": "pending_calibration",
+        "calibrationId": "mode-map-v3:curve-v1:state-v1:iex_partial:regular",
+        "normalizationVersion": 1,
+        "provisional": true,
+        "conclusionsAllowed": false,
+        "explanation": {
+          "feedMode": "iex_partial",
+          "subWindow": "regular",
+          "participation": {
+            "axis": "participation",
+            "status": "ok",
+            "value": 6,
+            "normalizationInput": 6,
+            "normalizationInputKind": "z",
+            "z50": 2,
+            "k": 1.2,
+            "normalized": 0.9918374288468401,
+            "baselineMode": "dense",
+            "unavailableReason": null,
+            "firstObservedActivity": false,
+            "requiresDisplacementConfluence": false,
+            "currentVolume": 3000000,
+            "currentDollarVolume": 450000000,
+            "components": [
+              {
+                "name": "volume",
+                "rawValue": 3000000,
+                "baselineMedian": 1000000,
+                "baselineMad": 449667,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "dense",
+                "baselineState": "ok",
+                "z": 6
+              },
+              {
+                "name": "dollar_volume",
+                "rawValue": 450000000,
+                "baselineMedian": 150000000,
+                "baselineMad": 67450000,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "continuous",
+                "baselineState": "ok",
+                "z": 6
+              }
+            ]
+          },
+          "displacement": {
+            "axis": "displacement",
+            "status": "ok",
+            "value": 6,
+            "normalizationInput": 6,
+            "normalizationInputKind": "z",
+            "z50": 2,
+            "k": 1.2,
+            "normalized": 0.9918374288468401,
+            "baselineMode": "continuous",
+            "unavailableReason": null,
+            "components": [
+              {
+                "name": "range_atr",
+                "rawValue": 1.5,
+                "baselineMedian": 0.5,
+                "baselineMad": 0.27,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "continuous",
+                "baselineState": "ok",
+                "z": 6
+              },
+              {
+                "name": "path_efficiency",
+                "rawValue": 0.8,
+                "baselineMedian": 0.45,
+                "baselineMad": 0.094,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "continuous",
+                "baselineState": "ok",
+                "z": 6
+              }
+            ]
+          },
+          "idiosyncrasy": {
+            "axis": "idiosyncrasy",
+            "status": "ok",
+            "value": 6,
+            "normalizationInput": 6,
+            "normalizationInputKind": "z",
+            "z50": 2,
+            "k": 1.2,
+            "normalized": 0.9918374288468401,
+            "baselineMode": "continuous",
+            "unavailableReason": null,
+            "stockReturn": 0.02,
+            "benchmarkReturn": 0.01,
+            "sectorReturn": 0.011,
+            "stockVsBenchmark": 0.01,
+            "sectorVsBenchmark": 0.001,
+            "classification": "stock_specific",
+            "components": [
+              {
+                "name": "stock_vs_benchmark",
+                "rawValue": 0.01,
+                "baselineMedian": 0.008,
+                "baselineMad": 0.0067,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "continuous",
+                "baselineState": "ok",
+                "z": 6
+              },
+              {
+                "name": "sector_vs_benchmark",
+                "rawValue": 0.001,
+                "baselineMedian": 0.001,
+                "baselineMad": 0.0008,
+                "pPresent": null,
+                "surpriseBits": null,
+                "signalKind": "median_mad_z",
+                "baselineMode": "continuous",
+                "baselineState": "ok",
+                "z": 6
+              }
+            ]
+          },
+          "coreAxes": [
+            "displacement",
+            "idiosyncrasy"
+          ],
+          "core": 0.9918374288468401,
+          "modifier": 1,
+          "modifierKind": "none_idiosyncrasy_in_core",
+          "modifierContext": null,
+          "idiosyncrasyInfluence": 0.15,
+          "final": 99.18374288468401
+        }
+      }
+    }
+  },
+  "firstBarMeaning": "first bar in provider history; not an asserted exchange listing date",
+  "deterministicHash": "caa5fc13df927aa5402723e34f36d1b61480884e86da1823f6a07b76b103affd"
+}

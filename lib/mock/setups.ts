@@ -15,6 +15,9 @@ export const mockSetupResults: Record<string, SetupResult> = {
     score: 6,
     maxScore: 10,
     lastUpdated: "2026-07-11T14:32:00Z",
+    convictionLevel: "developing",
+    entryStatus: "wait_for_pullback",
+    invalidationNote: { level: 115, reason: "structure_failed" },
     conditions: [
       {
         id: "intraday_decline",

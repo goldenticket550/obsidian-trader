@@ -11,4 +11,13 @@ node_modules
 *.tsbuildinfo
 
 .vercel
+supabase/.temp/
 .env*
+
+# Local Codex review previews and temporary inspection helpers.
+.codex-review/
+
+# Reproducible local market-data assets; reports/hashes remain versionable.
+data/archive/
+data/replay/sessions/
+data/replay/probe/

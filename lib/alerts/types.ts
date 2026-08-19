@@ -1,4 +1,5 @@
 import type { Timeframe } from "@/types/candle";
+import type { EntryStatus, InvalidationNote, SetupCondition, SetupEvidence } from "@/types/setup";
 
 /**
  * One entry per alert type from the spec. Each maps to a specific
@@ -53,4 +54,12 @@ export interface AlertEvent {
   timeframe: Timeframe;
   message: string;
   firedAt: string; // ISO timestamp
+  entryStatus?: EntryStatus;
+  invalidationNote?: InvalidationNote | null;
+  requiredPassing?: { passed: number; total: number };
+  triggeringConditionId?: string;
+  score?: number;
+  maxScore?: number;
+  conditions?: SetupCondition[];
+  evidence?: SetupEvidence;
 }

@@ -6,8 +6,8 @@
       "price": 104,
       "dailyChangePct": 0.04,
       "distanceFromSessionLowPct": 0.0028929604628736465,
-      "score5m": 1.0526315789473684,
-      "score15m": 1.0526315789473684,
+      "score5m": 1.6666666666666665,
+      "score15m": 1.6666666666666665,
       "status5m": "red",
       "status15m": "red",
       "lastSignalTime": "2026-07-13T13:35:00Z"
@@ -18,8 +18,8 @@
       "price": 50.2,
       "dailyChangePct": 0.0040000000000000565,
       "distanceFromSessionLowPct": 0.006012024048096135,
-      "score5m": 1.0526315789473684,
-      "score15m": 1.0526315789473684,
+      "score5m": 1.6666666666666665,
+      "score15m": 1.6666666666666665,
       "status5m": "red",
       "status15m": "red",
       "lastSignalTime": "2026-07-13T13:35:00Z"
@@ -33,7 +33,7 @@
         "quality": "simulated",
         "stage": "none",
         "status": "red",
-        "score": 1.0526315789473684,
+        "score": 1.6666666666666665,
         "maxScore": 10,
         "conditions": [
           {
@@ -58,8 +58,9 @@
             "required": true,
             "category": "supporting",
             "insufficientData": true,
-            "state": "fail",
-            "detail": "Not enough candles yet to evaluate (need 3)"
+            "state": "unavailable",
+            "detail": "Not enough candles yet to evaluate (need 3)",
+            "unavailableReason": "Insufficient candles"
           },
           {
             "id": "liquidity_sweep",
@@ -67,24 +68,27 @@
             "required": true,
             "category": "core",
             "insufficientData": true,
-            "state": "fail",
-            "detail": "Not enough candles yet to evaluate (need 2)"
+            "state": "unavailable",
+            "detail": "Not enough candles yet to evaluate (need 2)",
+            "unavailableReason": "Insufficient candles"
           },
           {
             "id": "structure_shift",
             "label": "Bullish market-structure shift",
             "required": true,
             "category": "core",
-            "state": "waiting",
-            "detail": "No swing high identified yet"
+            "state": "unavailable",
+            "detail": "No swing high identified yet",
+            "unavailableReason": "Insufficient structure history"
           },
           {
             "id": "ema_reclaim",
             "label": "9 EMA reclaim",
             "required": true,
             "category": "secondary",
-            "state": "fail",
-            "detail": "Not enough candles for EMA"
+            "state": "unavailable",
+            "detail": "Not enough candles for EMA",
+            "unavailableReason": "Insufficient EMA history"
           },
           {
             "id": "fair_value_gap",
@@ -117,8 +121,9 @@
             "required": false,
             "category": "supporting",
             "insufficientData": true,
-            "state": "waiting",
-            "detail": "Not enough candles yet to measure a move from the session open"
+            "state": "unavailable",
+            "detail": "Not enough candles yet to measure a move from the session open",
+            "unavailableReason": "Insufficient ladder history"
           },
           {
             "id": "benchmark_alignment",
@@ -126,8 +131,9 @@
             "required": false,
             "category": "secondary",
             "insufficientData": true,
-            "state": "waiting",
-            "detail": "QQQ data unavailable — alignment not evaluated"
+            "state": "unavailable",
+            "detail": "QQQ data unavailable — alignment not evaluated",
+            "unavailableReason": "Benchmark data unavailable"
           },
           {
             "id": "volume_confirmation",
@@ -158,8 +164,9 @@
             "label": "VWAP reclaim",
             "required": false,
             "category": "secondary",
-            "state": "waiting",
-            "detail": "Not enough candles for VWAP"
+            "state": "unavailable",
+            "detail": "Not enough candles for VWAP",
+            "unavailableReason": "Insufficient VWAP history"
           }
         ],
         "lastUpdated": "2026-07-13T13:35:00Z",
@@ -174,7 +181,7 @@
         "quality": "simulated",
         "stage": "none",
         "status": "red",
-        "score": 1.0526315789473684,
+        "score": 1.6666666666666665,
         "maxScore": 10,
         "conditions": [
           {
@@ -199,8 +206,9 @@
             "required": true,
             "category": "supporting",
             "insufficientData": true,
-            "state": "fail",
-            "detail": "Not enough candles yet to evaluate (need 3)"
+            "state": "unavailable",
+            "detail": "Not enough candles yet to evaluate (need 3)",
+            "unavailableReason": "Insufficient candles"
           },
           {
             "id": "liquidity_sweep",
@@ -208,24 +216,27 @@
             "required": true,
             "category": "core",
             "insufficientData": true,
-            "state": "fail",
-            "detail": "Not enough candles yet to evaluate (need 2)"
+            "state": "unavailable",
+            "detail": "Not enough candles yet to evaluate (need 2)",
+            "unavailableReason": "Insufficient candles"
           },
           {
             "id": "structure_shift",
             "label": "Bullish market-structure shift",
             "required": true,
             "category": "core",
-            "state": "waiting",
-            "detail": "No swing high identified yet"
+            "state": "unavailable",
+            "detail": "No swing high identified yet",
+            "unavailableReason": "Insufficient structure history"
           },
           {
             "id": "ema_reclaim",
             "label": "9 EMA reclaim",
             "required": true,
             "category": "secondary",
-            "state": "fail",
-            "detail": "Not enough candles for EMA"
+            "state": "unavailable",
+            "detail": "Not enough candles for EMA",
+            "unavailableReason": "Insufficient EMA history"
           },
           {
             "id": "fair_value_gap",
@@ -258,8 +269,9 @@
             "required": false,
             "category": "supporting",
             "insufficientData": true,
-            "state": "waiting",
-            "detail": "Not enough candles yet to measure a move from the session open"
+            "state": "unavailable",
+            "detail": "Not enough candles yet to measure a move from the session open",
+            "unavailableReason": "Insufficient ladder history"
           },
           {
             "id": "benchmark_alignment",
@@ -267,8 +279,9 @@
             "required": false,
             "category": "secondary",
             "insufficientData": true,
-            "state": "waiting",
-            "detail": "QQQ data unavailable — alignment not evaluated"
+            "state": "unavailable",
+            "detail": "QQQ data unavailable — alignment not evaluated",
+            "unavailableReason": "Benchmark data unavailable"
           },
           {
             "id": "volume_confirmation",
@@ -299,8 +312,9 @@
             "label": "VWAP reclaim",
             "required": false,
             "category": "secondary",
-            "state": "waiting",
-            "detail": "Not enough candles for VWAP"
+            "state": "unavailable",
+            "detail": "Not enough candles for VWAP",
+            "unavailableReason": "Insufficient VWAP history"
           }
         ],
         "lastUpdated": "2026-07-13T13:35:00Z",
@@ -317,7 +331,7 @@
         "quality": "simulated",
         "stage": "none",
         "status": "red",
-        "score": 1.0526315789473684,
+        "score": 1.6666666666666665,
         "maxScore": 10,
         "conditions": [
           {
@@ -342,8 +356,9 @@
             "required": true,
             "category": "supporting",
             "insufficientData": true,
-            "state": "fail",
-            "detail": "Not enough candles yet to evaluate (need 3)"
+            "state": "unavailable",
+            "detail": "Not enough candles yet to evaluate (need 3)",
+            "unavailableReason": "Insufficient candles"
           },
           {
             "id": "liquidity_sweep",
@@ -351,24 +366,27 @@
             "required": true,
             "category": "core",
             "insufficientData": true,
-            "state": "fail",
-            "detail": "Not enough candles yet to evaluate (need 2)"
+            "state": "unavailable",
+            "detail": "Not enough candles yet to evaluate (need 2)",
+            "unavailableReason": "Insufficient candles"
           },
           {
             "id": "structure_shift",
             "label": "Bullish market-structure shift",
             "required": true,
             "category": "core",
-            "state": "waiting",
-            "detail": "No swing high identified yet"
+            "state": "unavailable",
+            "detail": "No swing high identified yet",
+            "unavailableReason": "Insufficient structure history"
           },
           {
             "id": "ema_reclaim",
             "label": "9 EMA reclaim",
             "required": true,
             "category": "secondary",
-            "state": "fail",
-            "detail": "Not enough candles for EMA"
+            "state": "unavailable",
+            "detail": "Not enough candles for EMA",
+            "unavailableReason": "Insufficient EMA history"
           },
           {
             "id": "fair_value_gap",
@@ -401,8 +419,9 @@
             "required": false,
             "category": "supporting",
             "insufficientData": true,
-            "state": "waiting",
-            "detail": "Not enough candles yet to measure a move from the session open"
+            "state": "unavailable",
+            "detail": "Not enough candles yet to measure a move from the session open",
+            "unavailableReason": "Insufficient ladder history"
           },
           {
             "id": "benchmark_alignment",
@@ -410,8 +429,9 @@
             "required": false,
             "category": "secondary",
             "insufficientData": true,
-            "state": "waiting",
-            "detail": "QQQ data unavailable — alignment not evaluated"
+            "state": "unavailable",
+            "detail": "QQQ data unavailable — alignment not evaluated",
+            "unavailableReason": "Benchmark data unavailable"
           },
           {
             "id": "volume_confirmation",
@@ -442,8 +462,9 @@
             "label": "VWAP reclaim",
             "required": false,
             "category": "secondary",
-            "state": "waiting",
-            "detail": "Not enough candles for VWAP"
+            "state": "unavailable",
+            "detail": "Not enough candles for VWAP",
+            "unavailableReason": "Insufficient VWAP history"
           }
         ],
         "lastUpdated": "2026-07-13T13:35:00Z",
@@ -458,7 +479,7 @@
         "quality": "simulated",
         "stage": "none",
         "status": "red",
-        "score": 1.0526315789473684,
+        "score": 1.6666666666666665,
         "maxScore": 10,
         "conditions": [
           {
@@ -483,8 +504,9 @@
             "required": true,
             "category": "supporting",
             "insufficientData": true,
-            "state": "fail",
-            "detail": "Not enough candles yet to evaluate (need 3)"
+            "state": "unavailable",
+            "detail": "Not enough candles yet to evaluate (need 3)",
+            "unavailableReason": "Insufficient candles"
           },
           {
             "id": "liquidity_sweep",
@@ -492,24 +514,27 @@
             "required": true,
             "category": "core",
             "insufficientData": true,
-            "state": "fail",
-            "detail": "Not enough candles yet to evaluate (need 2)"
+            "state": "unavailable",
+            "detail": "Not enough candles yet to evaluate (need 2)",
+            "unavailableReason": "Insufficient candles"
           },
           {
             "id": "structure_shift",
             "label": "Bullish market-structure shift",
             "required": true,
             "category": "core",
-            "state": "waiting",
-            "detail": "No swing high identified yet"
+            "state": "unavailable",
+            "detail": "No swing high identified yet",
+            "unavailableReason": "Insufficient structure history"
           },
           {
             "id": "ema_reclaim",
             "label": "9 EMA reclaim",
             "required": true,
             "category": "secondary",
-            "state": "fail",
-            "detail": "Not enough candles for EMA"
+            "state": "unavailable",
+            "detail": "Not enough candles for EMA",
+            "unavailableReason": "Insufficient EMA history"
           },
           {
             "id": "fair_value_gap",
@@ -542,8 +567,9 @@
             "required": false,
             "category": "supporting",
             "insufficientData": true,
-            "state": "waiting",
-            "detail": "Not enough candles yet to measure a move from the session open"
+            "state": "unavailable",
+            "detail": "Not enough candles yet to measure a move from the session open",
+            "unavailableReason": "Insufficient ladder history"
           },
           {
             "id": "benchmark_alignment",
@@ -551,8 +577,9 @@
             "required": false,
             "category": "secondary",
             "insufficientData": true,
-            "state": "waiting",
-            "detail": "QQQ data unavailable — alignment not evaluated"
+            "state": "unavailable",
+            "detail": "QQQ data unavailable — alignment not evaluated",
+            "unavailableReason": "Benchmark data unavailable"
           },
           {
             "id": "volume_confirmation",
@@ -583,8 +610,9 @@
             "label": "VWAP reclaim",
             "required": false,
             "category": "secondary",
-            "state": "waiting",
-            "detail": "Not enough candles for VWAP"
+            "state": "unavailable",
+            "detail": "Not enough candles for VWAP",
+            "unavailableReason": "Insufficient VWAP history"
           }
         ],
         "lastUpdated": "2026-07-13T13:35:00Z",

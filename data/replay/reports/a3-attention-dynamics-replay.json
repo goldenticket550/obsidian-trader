@@ -1,0 +1,890 @@
+{
+  "phase": "A3",
+  "scope": "replay_only",
+  "generatedAt": "2026-08-17T06:30:00.000Z",
+  "disclosure": "Timing statistics derived from historical pulls assume instantaneous bar availability. Real arrival latency is not represented. Human-relative latency and move-capture figures are therefore OPTIMISTICALLY BIASED and must not be used to justify lowering thresholds.",
+  "calibrationStatus": "pending_calibration",
+  "provisional": true,
+  "conclusionsAllowed": false,
+  "calibrationStore": {
+    "schemaVersion": 4,
+    "modeMapVersion": 3,
+    "sets": {
+      "sip": {
+        "premarket_early": {
+          "subWindow": "premarket_early",
+          "feedMode": "sip",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:sip:premarket_early",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        },
+        "premarket_core": {
+          "subWindow": "premarket_core",
+          "feedMode": "sip",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:sip:premarket_core",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        },
+        "premarket_final": {
+          "subWindow": "premarket_final",
+          "feedMode": "sip",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:sip:premarket_final",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        },
+        "regular": {
+          "subWindow": "regular",
+          "feedMode": "sip",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:sip:regular",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        },
+        "after_hours_core": {
+          "subWindow": "after_hours_core",
+          "feedMode": "sip",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:sip:after_hours_core",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        },
+        "after_hours_late": {
+          "subWindow": "after_hours_late",
+          "feedMode": "sip",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:sip:after_hours_late",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        }
+      },
+      "iex_partial": {
+        "premarket_early": {
+          "subWindow": "premarket_early",
+          "feedMode": "iex_partial",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:iex_partial:premarket_early",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        },
+        "premarket_core": {
+          "subWindow": "premarket_core",
+          "feedMode": "iex_partial",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:iex_partial:premarket_core",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        },
+        "premarket_final": {
+          "subWindow": "premarket_final",
+          "feedMode": "iex_partial",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:iex_partial:premarket_final",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        },
+        "regular": {
+          "subWindow": "regular",
+          "feedMode": "iex_partial",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:iex_partial:regular",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        },
+        "after_hours_core": {
+          "subWindow": "after_hours_core",
+          "feedMode": "iex_partial",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:iex_partial:after_hours_core",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        },
+        "after_hours_late": {
+          "subWindow": "after_hours_late",
+          "feedMode": "iex_partial",
+          "calibrationId": "mode-map-v3:curve-v1:state-v1:iex_partial:after_hours_late",
+          "calibrationStatus": "pending_calibration",
+          "normalizationVersion": 1,
+          "normalization": {
+            "participationDense": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "participationPresence": {
+              "z50": 3,
+              "k": 1.3
+            },
+            "displacement": {
+              "z50": 2,
+              "k": 1.2
+            },
+            "idiosyncrasy": {
+              "z50": 2,
+              "k": 1.2
+            }
+          },
+          "thresholdVersion": 1,
+          "provisionalValues": {
+            "watchingEnterCore": 0.25,
+            "watchingExitCore": 0.2,
+            "emergingEnterCore": 0.5,
+            "emergingExitCore": 0.4,
+            "inPlayEnterCore": 0.7,
+            "inPlayExitCore": 0.6,
+            "newInPlayVelocityPerMinute": 2
+          },
+          "values": {
+            "watchingEnterCore": null,
+            "watchingExitCore": null,
+            "emergingEnterCore": null,
+            "emergingExitCore": null,
+            "inPlayEnterCore": null,
+            "inPlayExitCore": null,
+            "newInPlayVelocityPerMinute": null
+          }
+        }
+      }
+    },
+    "feedModeInvalidations": [],
+    "normalizationInvalidations": []
+  },
+  "determinism": {
+    "firstSequenceHash": "4dfc9b9b41fa04d151de7ece3b0f5c372d401c614f7b87079be7e4a019296101",
+    "secondSequenceHash": "4dfc9b9b41fa04d151de7ece3b0f5c372d401c614f7b87079be7e4a019296101",
+    "identical": true,
+    "perMinuteHashes": [
+      "a5ee7bd05418cfac8a18f2773e80e4a80fa0dc6a86146c4eed2a6f4421d23dc8",
+      "3a1652988a43f28f864892e029b6554729b8835b3d74ead0a97e253ba6fd417c",
+      "ac35a91a65832e04edc05fbfa28b087439b7eca85fd758145ec6399789514181",
+      "828e781a80192bbb1081e29a70f2714df5350bc52177cb85784acf8de27b8fe3",
+      "be5faa09d4cd1ae9e4b2cbb004f138e7f17afaec1189d3100ac5b72a6fd1b879",
+      "9786ed688b5d4f46ce919ccc907eee263b4cb3164a3f889cfd174516ef09a0cc",
+      "fd0edfdc423db83e7e57340c7169725e66953f7d709974c489ea7bf8c211af03"
+    ]
+  },
+  "replay": [
+    {
+      "at": 1755523800000,
+      "provisional": true,
+      "conclusionsAllowed": false,
+      "rows": [
+        {
+          "symbol": "AAOI",
+          "score": 30,
+          "core": 0.3,
+          "rank": 1,
+          "percentile": 1,
+          "state": "LOW_PRIORITY",
+          "transition": null,
+          "velocity": {
+            "scoreDelta1m": null,
+            "scoreDelta3m": null,
+            "scoreDelta5m": null,
+            "coreDelta1m": null,
+            "percentileDelta1m": null,
+            "percentileDelta3m": null,
+            "percentileDelta5m": null,
+            "rollingZDelta5m": null,
+            "scoreVelocityPerMinute": null,
+            "velocityEventsSuppressed": false,
+            "suppressVelocityEventsUntil": null,
+            "modeTransition": null,
+            "measurementWindowStartedAt": 1755523800000,
+            "measurementResetReason": "initial"
+          },
+          "episodeId": null,
+          "episodeStartedAt": null,
+          "freshness": null
+        }
+      ],
+      "wakingUp": [],
+      "inPlay": []
+    },
+    {
+      "at": 1755523860000,
+      "provisional": true,
+      "conclusionsAllowed": false,
+      "rows": [
+        {
+          "symbol": "AAOI",
+          "score": 32,
+          "core": 0.3,
+          "rank": 1,
+          "percentile": 1,
+          "state": "WATCHING",
+          "transition": {
+            "at": 1755523860000,
+            "from": "LOW_PRIORITY",
+            "to": "WATCHING",
+            "persistedMinutes": 2,
+            "reason": "watching_enter_core"
+          },
+          "velocity": {
+            "scoreDelta1m": 2,
+            "scoreDelta3m": null,
+            "scoreDelta5m": null,
+            "coreDelta1m": 0,
+            "percentileDelta1m": 0,
+            "percentileDelta3m": null,
+            "percentileDelta5m": null,
+            "rollingZDelta5m": null,
+            "scoreVelocityPerMinute": 2,
+            "velocityEventsSuppressed": false,
+            "suppressVelocityEventsUntil": null,
+            "modeTransition": null,
+            "measurementWindowStartedAt": 1755523800000,
+            "measurementResetReason": null
+          },
+          "episodeId": "a3:AAOI:1755523860000",
+          "episodeStartedAt": 1755523800000,
+          "freshness": "Fresh"
+        }
+      ],
+      "wakingUp": [],
+      "inPlay": []
+    },
+    {
+      "at": 1755523920000,
+      "provisional": true,
+      "conclusionsAllowed": false,
+      "rows": [
+        {
+          "symbol": "AAOI",
+          "score": 50,
+          "core": 0.55,
+          "rank": 1,
+          "percentile": 1,
+          "state": "WATCHING",
+          "transition": null,
+          "velocity": {
+            "scoreDelta1m": 18,
+            "scoreDelta3m": null,
+            "scoreDelta5m": null,
+            "coreDelta1m": 0.25000000000000006,
+            "percentileDelta1m": 0,
+            "percentileDelta3m": null,
+            "percentileDelta5m": null,
+            "rollingZDelta5m": null,
+            "scoreVelocityPerMinute": 18,
+            "velocityEventsSuppressed": false,
+            "suppressVelocityEventsUntil": null,
+            "modeTransition": null,
+            "measurementWindowStartedAt": 1755523800000,
+            "measurementResetReason": null
+          },
+          "episodeId": "a3:AAOI:1755523860000",
+          "episodeStartedAt": 1755523800000,
+          "freshness": "Fresh"
+        }
+      ],
+      "wakingUp": [
+        "AAOI"
+      ],
+      "inPlay": []
+    },
+    {
+      "at": 1755523980000,
+      "provisional": true,
+      "conclusionsAllowed": false,
+      "rows": [
+        {
+          "symbol": "AAOI",
+          "score": 55,
+          "core": 0.55,
+          "rank": 1,
+          "percentile": 1,
+          "state": "EMERGING",
+          "transition": {
+            "at": 1755523980000,
+            "from": "WATCHING",
+            "to": "EMERGING",
+            "persistedMinutes": 2,
+            "reason": "emerging_enter_core"
+          },
+          "velocity": {
+            "scoreDelta1m": 5,
+            "scoreDelta3m": 25,
+            "scoreDelta5m": null,
+            "coreDelta1m": 0,
+            "percentileDelta1m": 0,
+            "percentileDelta3m": 0,
+            "percentileDelta5m": null,
+            "rollingZDelta5m": null,
+            "scoreVelocityPerMinute": 8.333333333333334,
+            "velocityEventsSuppressed": false,
+            "suppressVelocityEventsUntil": null,
+            "modeTransition": null,
+            "measurementWindowStartedAt": 1755523800000,
+            "measurementResetReason": null
+          },
+          "episodeId": "a3:AAOI:1755523860000",
+          "episodeStartedAt": 1755523800000,
+          "freshness": "Fresh"
+        }
+      ],
+      "wakingUp": [],
+      "inPlay": []
+    },
+    {
+      "at": 1755524040000,
+      "provisional": true,
+      "conclusionsAllowed": false,
+      "rows": [
+        {
+          "symbol": "AAOI",
+          "score": 68,
+          "core": 0.72,
+          "rank": 1,
+          "percentile": 1,
+          "state": "EMERGING",
+          "transition": null,
+          "velocity": {
+            "scoreDelta1m": 13,
+            "scoreDelta3m": 36,
+            "scoreDelta5m": null,
+            "coreDelta1m": 0.16999999999999993,
+            "percentileDelta1m": 0,
+            "percentileDelta3m": 0,
+            "percentileDelta5m": null,
+            "rollingZDelta5m": null,
+            "scoreVelocityPerMinute": 12,
+            "velocityEventsSuppressed": false,
+            "suppressVelocityEventsUntil": null,
+            "modeTransition": null,
+            "measurementWindowStartedAt": 1755523800000,
+            "measurementResetReason": null
+          },
+          "episodeId": "a3:AAOI:1755523860000",
+          "episodeStartedAt": 1755523800000,
+          "freshness": "Fresh"
+        }
+      ],
+      "wakingUp": [
+        "AAOI"
+      ],
+      "inPlay": []
+    },
+    {
+      "at": 1755524100000,
+      "provisional": true,
+      "conclusionsAllowed": false,
+      "rows": [
+        {
+          "symbol": "AAOI",
+          "score": 75,
+          "core": 0.72,
+          "rank": 1,
+          "percentile": 1,
+          "state": "IN_PLAY",
+          "transition": {
+            "at": 1755524100000,
+            "from": "EMERGING",
+            "to": "IN_PLAY",
+            "persistedMinutes": 2,
+            "reason": "in_play_enter_core"
+          },
+          "velocity": {
+            "scoreDelta1m": 7,
+            "scoreDelta3m": 25,
+            "scoreDelta5m": 45,
+            "coreDelta1m": 0,
+            "percentileDelta1m": 0,
+            "percentileDelta3m": 0,
+            "percentileDelta5m": 0,
+            "rollingZDelta5m": 1.85,
+            "scoreVelocityPerMinute": 8.333333333333334,
+            "velocityEventsSuppressed": false,
+            "suppressVelocityEventsUntil": null,
+            "modeTransition": null,
+            "measurementWindowStartedAt": 1755523800000,
+            "measurementResetReason": null
+          },
+          "episodeId": "a3:AAOI:1755523860000",
+          "episodeStartedAt": 1755523800000,
+          "freshness": "Developing"
+        }
+      ],
+      "wakingUp": [],
+      "inPlay": [
+        "AAOI"
+      ]
+    },
+    {
+      "at": 1755524160000,
+      "provisional": true,
+      "conclusionsAllowed": false,
+      "rows": [
+        {
+          "symbol": "AAOI",
+          "score": 82,
+          "core": 0.75,
+          "rank": 1,
+          "percentile": 1,
+          "state": "IN_PLAY",
+          "transition": null,
+          "velocity": {
+            "scoreDelta1m": 7,
+            "scoreDelta3m": 27,
+            "scoreDelta5m": 50,
+            "coreDelta1m": 0.030000000000000027,
+            "percentileDelta1m": 0,
+            "percentileDelta3m": 0,
+            "percentileDelta5m": 0,
+            "rollingZDelta5m": 2.0555555555555554,
+            "scoreVelocityPerMinute": 9,
+            "velocityEventsSuppressed": false,
+            "suppressVelocityEventsUntil": null,
+            "modeTransition": null,
+            "measurementWindowStartedAt": 1755523800000,
+            "measurementResetReason": null
+          },
+          "episodeId": "a3:AAOI:1755523860000",
+          "episodeStartedAt": 1755523800000,
+          "freshness": "Developing"
+        }
+      ],
+      "wakingUp": [
+        "AAOI"
+      ],
+      "inPlay": [
+        "AAOI"
+      ]
+    }
+  ],
+  "assertions": {
+    "transitions": [
+      "WATCHING",
+      "EMERGING",
+      "IN_PLAY"
+    ],
+    "episodeBackdatedToFirstActivity": true,
+    "wakingUp": [
+      "AAOI"
+    ],
+    "inPlay": [
+      "AAOI"
+    ],
+    "modeBoundary": {
+      "episodeIdBefore": "a3:AAOI:1755523740000",
+      "episodeIdAfter": "a3:AAOI:1755523740000",
+      "velocityReset": true,
+      "velocitySuppressed": true,
+      "marker": {
+        "at": 1755523800000,
+        "from": "sparse",
+        "to": "dense",
+        "suppressVelocityEventsUntil": 1755524400000
+      }
+    },
+    "inPlayWatchingOrderingAssertedEveryFrame": true,
+    "rankUsedForDecisions": false
+  },
+  "scopeFence": {
+    "marketMap": false,
+    "eventEngine": false,
+    "alerts": false,
+    "directionState": false,
+    "regime": false,
+    "advancedTa": false,
+    "liveWiring": false
+  },
+  "deterministicHash": "43b451c59e3b8599b9d313e1bfb8f4d2179af9b7a97d11a7aac4633e027a21f5"
+}

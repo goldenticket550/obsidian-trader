@@ -12,6 +12,7 @@ const STATE_LABEL: Record<ConditionState, string> = {
   fail: "Fail",
   waiting: "Waiting",
   invalidated: "Invalidated",
+  unavailable: "Unavailable",
 };
 
 const STATE_COLOR: Record<ConditionState, string> = {
@@ -19,6 +20,7 @@ const STATE_COLOR: Record<ConditionState, string> = {
   fail: "var(--red)",
   waiting: "var(--amber)",
   invalidated: "var(--red)",
+  unavailable: "var(--text-muted)",
 };
 
 const CATEGORY_ORDER: ConditionCategory[] = ["core", "secondary", "supporting", "informational"];
@@ -204,6 +206,13 @@ export function SetupDetail({
               / 10
             </span>
           </div>
+          {result.scoreCapReason === "warming_up_required_unavailable" && (
+            <div data-testid="setup-score-warming-up" className="mb-2 text-[10px]" style={{ color: "var(--amber)" }}>
+              Warming up â€” setup score capped
+              {typeof result.scoreCap === "number" ? ` at ${result.scoreCap.toFixed(1)}` : ""}
+            </div>
+          )}
+
 
           <div style={{ borderTop: "1px solid var(--border-soft)" }} className="pt-1.5">
             {result.convictionLevel && (
@@ -292,7 +301,7 @@ export function SetupDetail({
               <span className="block mb-0.5" style={{ color: "var(--red)" }}>
                 Invalidation watch
               </span>
-              {result.invalidationNote}
+              {result.invalidationNote.reason.replace(/_/g, " ")} at ${result.invalidationNote.level.toFixed(2)}
             </div>
           )}
 

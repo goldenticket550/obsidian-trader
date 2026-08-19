@@ -1,0 +1,3558 @@
+{
+  "schemaVersion": 1,
+  "fencingToken": 1,
+  "lease": null,
+  "controls": null,
+  "checkpoint": {
+    "schemaVersion": 1,
+    "identity": {
+      "engineInstanceId": "attention-profile-unoptimized",
+      "runId": "6f8f162a-72a9-4e8c-ae64-6b8182902a99",
+      "userId": "local-profile",
+      "universeHash": "2b9cd60cdb207bd49335898aeaa67545cc6f240c059d4a784cabe3f7986b8a57",
+      "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+      "configHash": "bbbe4b6a00dce0cb04a367bbb2caf917f5033a60f9d58f27bc8e07c05d248996",
+      "feedMode": "iex_partial"
+    },
+    "sequence": 1,
+    "watermarkAt": 1787079360000,
+    "createdAt": 1787079433381,
+    "ingestionMode": "iex_rest_polling",
+    "guard": {
+      "active": false,
+      "reason": "none",
+      "activeSince": null,
+      "contiguousMinutes": 5,
+      "requiredContiguousMinutes": 5
+    },
+    "processorState": {
+      "schemaVersion": 1,
+      "a3": {
+        "history": {
+          "historyMinutes": 120,
+          "bySymbol": {
+            "AAPL": [
+              {
+                "symbol": "AAPL",
+                "at": 1787079360000,
+                "score": 9.004681520597222,
+                "core": 0.10355383748686806,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -0.5578852442229987,
+                "participationInputKind": "z",
+                "displacementZ": -0.2459453569110865,
+                "idiosyncrasyZ": 0.23273378274785553,
+                "price": 310.575,
+                "atr": 0.307142857142862,
+                "vwap": 310.4413761220928,
+                "ema9": 310.64734298757605,
+                "consecutiveExpansionBars": 0,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 29,
+                "percentile": 0.391304347826087,
+                "rollingZComposite": -0.19036560612874323
+              }
+            ],
+            "MSFT": [
+              {
+                "symbol": "MSFT",
+                "at": 1787079360000,
+                "score": 27.447256024101154,
+                "core": 0.31564344427716323,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -1.0775745736362479,
+                "participationInputKind": "z",
+                "displacementZ": 0.9061312752306008,
+                "idiosyncrasyZ": 1.8795897115717857,
+                "price": 482.64,
+                "atr": 0.45428571428571524,
+                "vwap": 482.04396085341693,
+                "ema9": 482.2892481456735,
+                "consecutiveExpansionBars": 7,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 2,
+                "percentile": 0.9782608695652174,
+                "rollingZComposite": 0.5693821377220462
+              }
+            ],
+            "GOOGL": [
+              {
+                "symbol": "GOOGL",
+                "at": 1787079360000,
+                "score": 17.940614316046464,
+                "core": 0.20631706463453428,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 0.11456683292606211,
+                "participationInputKind": "z",
+                "displacementZ": 1.1317713377940404,
+                "idiosyncrasyZ": 0.1380292935399712,
+                "price": 342.845,
+                "atr": 0.40714285714286447,
+                "vwap": 343.56313023272435,
+                "ema9": 342.9680753284348,
+                "consecutiveExpansionBars": 8,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 13,
+                "percentile": 0.7391304347826086,
+                "rollingZComposite": 0.46145582142002456
+              }
+            ],
+            "META": [
+              {
+                "symbol": "META",
+                "at": 1787079360000,
+                "score": 8.321111458066186,
+                "core": 0.09569278176776112,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 0.9097040325161188,
+                "participationInputKind": "z",
+                "displacementZ": -0.18774008884606805,
+                "idiosyncrasyZ": -0.10292295147252553,
+                "price": 545.6,
+                "atr": 0.8746428571428656,
+                "vwap": 548.2583829732573,
+                "ema9": 545.7313855995749,
+                "consecutiveExpansionBars": 0,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 34,
+                "percentile": 0.2826086956521739,
+                "rollingZComposite": 0.20634699739917506
+              }
+            ],
+            "NVDA": [
+              {
+                "symbol": "NVDA",
+                "at": 1787079360000,
+                "score": 21.021930678437794,
+                "core": 0.2417522028020346,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -0.051104608035739185,
+                "participationInputKind": "z",
+                "displacementZ": 0.6732230994542316,
+                "idiosyncrasyZ": 1.309383172361259,
+                "price": 219.815,
+                "atr": 0.30178571428571593,
+                "vwap": 220.04160852624702,
+                "ema9": 219.90764880185202,
+                "consecutiveExpansionBars": 2,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 7,
+                "percentile": 0.8695652173913043,
+                "rollingZComposite": 0.6438338879265838
+              }
+            ],
+            "AMD": [
+              {
+                "symbol": "AMD",
+                "at": 1787079360000,
+                "score": 13.893825853904326,
+                "core": 0.15977899731989975,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 0.06393867343364917,
+                "participationInputKind": "z",
+                "displacementZ": -0.08309315143711693,
+                "idiosyncrasyZ": 1.309383172361259,
+                "price": 479.785,
+                "atr": 1.0035714285714294,
+                "vwap": 478.3812450927613,
+                "ema9": 479.9320278158198,
+                "consecutiveExpansionBars": 3,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 22,
+                "percentile": 0.5434782608695652,
+                "rollingZComposite": 0.43007623145259705
+              }
+            ],
+            "AVGO": [
+              {
+                "symbol": "AVGO",
+                "at": 1787079360000,
+                "score": 23.129048275773695,
+                "core": 0.26598405517139745,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -0.23250775262260442,
+                "participationInputKind": "z",
+                "displacementZ": 0.8713976505302025,
+                "idiosyncrasyZ": 1.309383172361259,
+                "price": 378.725,
+                "atr": 0.6114285714285634,
+                "vwap": 380.6542935180513,
+                "ema9": 378.9296621715825,
+                "consecutiveExpansionBars": 4,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 4,
+                "percentile": 0.9347826086956522,
+                "rollingZComposite": 0.6494243567562857
+              }
+            ],
+            "INTC": [
+              {
+                "symbol": "INTC",
+                "at": 1787079360000,
+                "score": 15.188387805083142,
+                "core": 0.17466645975845613,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -0.5888207939052321,
+                "participationInputKind": "z",
+                "displacementZ": 0.07035631024935224,
+                "idiosyncrasyZ": 1.309383172361259,
+                "price": 95.875,
+                "atr": 0.20964285714285832,
+                "vwap": 95.96421307580803,
+                "ema9": 95.90994326724724,
+                "consecutiveExpansionBars": 14,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 19,
+                "percentile": 0.6086956521739131,
+                "rollingZComposite": 0.2636395629017931
+              }
+            ],
+            "QCOM": [
+              {
+                "symbol": "QCOM",
+                "at": 1787079360000,
+                "score": 13.057661873366436,
+                "core": 0.150163111543714,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -0.5365426904780608,
+                "participationInputKind": "z",
+                "displacementZ": -0.18808204169132647,
+                "idiosyncrasyZ": 1.309383172361259,
+                "price": 159.64,
+                "atr": 0.2521428571428593,
+                "vwap": 159.36444369612065,
+                "ema9": 159.73644018610793,
+                "consecutiveExpansionBars": 0,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 25,
+                "percentile": 0.4782608695652174,
+                "rollingZComposite": 0.19491948006395723
+              }
+            ],
+            "MRVL": [
+              {
+                "symbol": "MRVL",
+                "at": 1787079360000,
+                "score": 21.50389614303595,
+                "core": 0.24729480564491338,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 0.32442533619481057,
+                "participationInputKind": "z",
+                "displacementZ": 0.7190502155106222,
+                "idiosyncrasyZ": 1.309383172361259,
+                "price": 213.07,
+                "atr": 0.615714285714286,
+                "vwap": 213.22516253902404,
+                "ema9": 213.35828615208464,
+                "consecutiveExpansionBars": 3,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 6,
+                "percentile": 0.8913043478260869,
+                "rollingZComposite": 0.7842862413555639
+              }
+            ],
+            "AMAT": [
+              {
+                "symbol": "AMAT",
+                "at": 1787079360000,
+                "score": 19.373295200135335,
+                "core": 0.22279289480155634,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 0.657227060662894,
+                "participationInputKind": "z",
+                "displacementZ": 0.5132082807336541,
+                "idiosyncrasyZ": 1.309383172361259,
+                "price": 507.55,
+                "atr": 1.1678571428571405,
+                "vwap": 505.79440507735535,
+                "ema9": 508.02190764647526,
+                "consecutiveExpansionBars": 3,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 9,
+                "percentile": 0.8260869565217391,
+                "rollingZComposite": 0.8266061712526024
+              }
+            ],
+            "KLAC": [
+              {
+                "symbol": "KLAC",
+                "at": 1787079360000,
+                "score": 15.460701049910679,
+                "core": 0.17779806207397278,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -0.53603691960482,
+                "participationInputKind": "z",
+                "displacementZ": 0.10141300145274396,
+                "idiosyncrasyZ": 1.309383172361259,
+                "price": 193.065,
+                "atr": 0.4617857142857145,
+                "vwap": 193.36818742726214,
+                "ema9": 193.1862479509176,
+                "consecutiveExpansionBars": 13,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 18,
+                "percentile": 0.6304347826086957,
+                "rollingZComposite": 0.2915864180697276
+              }
+            ],
+            "ARM": [
+              {
+                "symbol": "ARM",
+                "at": 1787079360000,
+                "score": 18.06627576864828,
+                "core": 0.20776217133945518,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "sparse",
+                "participationInput": 0.7983661388303496,
+                "participationInputKind": "surprise_bits",
+                "displacementZ": 0.3816505279961224,
+                "idiosyncrasyZ": 1.309383172361259,
+                "price": 253,
+                "atr": 0.7249999999999984,
+                "vwap": 251.84690712689346,
+                "ema9": 253.41931952270906,
+                "consecutiveExpansionBars": 0,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 12,
+                "percentile": 0.7608695652173914,
+                "rollingZComposite": 0.8455168501786907
+              }
+            ],
+            "TSM": [
+              {
+                "symbol": "TSM",
+                "at": 1787079360000,
+                "score": 18.591758097501412,
+                "core": 0.2138052181212662,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 0.5432837821968991,
+                "participationInputKind": "z",
+                "displacementZ": 0.4351319632419213,
+                "idiosyncrasyZ": 1.309383172361259,
+                "price": 412.02,
+                "atr": 0.5464285714285698,
+                "vwap": 412.5127999033023,
+                "ema9": 412.3352481130552,
+                "consecutiveExpansionBars": 1,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 11,
+                "percentile": 0.782608695652174,
+                "rollingZComposite": 0.7625996392666932
+              }
+            ],
+            "SMH": [
+              {
+                "symbol": "SMH",
+                "at": 1787079360000,
+                "score": 19.76293400454896,
+                "core": 0.22727374105231302,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 0.13430741543794064,
+                "participationInputKind": "z",
+                "displacementZ": 0.5515504190023498,
+                "idiosyncrasyZ": 1.309383172361259,
+                "price": 566.53,
+                "atr": 0.8485714285714201,
+                "vwap": 566.2447656866274,
+                "ema9": 566.9651174902959,
+                "consecutiveExpansionBars": 2,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 8,
+                "percentile": 0.8478260869565217,
+                "rollingZComposite": 0.6650803356005165
+              }
+            ],
+            "MU": [
+              {
+                "symbol": "MU",
+                "at": 1787079360000,
+                "score": 7.671791861795416,
+                "core": 0.08822560641064728,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 0.2525575012737461,
+                "participationInputKind": "z",
+                "displacementZ": -0.11571664561977554,
+                "idiosyncrasyZ": -0.4593251401412813,
+                "price": 933.61,
+                "atr": 2.453214285714288,
+                "vwap": 934.9983418867362,
+                "ema9": 934.0690108853747,
+                "consecutiveExpansionBars": 4,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 36,
+                "percentile": 0.2391304347826087,
+                "rollingZComposite": -0.10749476149577024
+              }
+            ],
+            "SNDK": [
+              {
+                "symbol": "SNDK",
+                "at": 1787079360000,
+                "score": 3.734269734257468,
+                "core": 0.04294410194396088,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -0.22395047094913578,
+                "participationInputKind": "z",
+                "displacementZ": -1.153144295137284,
+                "idiosyncrasyZ": -0.6812061700454087,
+                "price": 1612.06,
+                "atr": 6.2303571428571205,
+                "vwap": 1612.0035104387764,
+                "ema9": 1611.8315232401076,
+                "consecutiveExpansionBars": 0,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 47,
+                "percentile": 0,
+                "rollingZComposite": -0.6861003120439428
+              }
+            ],
+            "WDC": [
+              {
+                "symbol": "WDC",
+                "at": 1787079360000,
+                "score": 17.30144760773998,
+                "core": 0.19896664748900975,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 1.5000830162370224,
+                "participationInputKind": "z",
+                "displacementZ": 0.42121992176398754,
+                "idiosyncrasyZ": 1.090032828266048,
+                "price": 495.775,
+                "atr": 1.5314285714285714,
+                "vwap": 497.48533579027895,
+                "ema9": 496.3815617520771,
+                "consecutiveExpansionBars": 2,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 15,
+                "percentile": 0.6956521739130435,
+                "rollingZComposite": 1.003778588755686
+              }
+            ],
+            "DRAM": [
+              {
+                "symbol": "DRAM",
+                "at": 1787079360000,
+                "score": 8.751601457812713,
+                "core": 0.10064341676484619,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "sparse",
+                "participationInput": 1.8624964762500649,
+                "participationInputKind": "surprise_bits",
+                "displacementZ": 0.25085534021170525,
+                "idiosyncrasyZ": -0.6812061700454087,
+                "price": 55.03,
+                "atr": 0.14500000000000007,
+                "vwap": 55.207651097445314,
+                "ema9": 55.07020456183005,
+                "consecutiveExpansionBars": 4,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 30,
+                "percentile": 0.3695652173913043,
+                "rollingZComposite": -0.21517541491685174
+              }
+            ],
+            "SMCI": [
+              {
+                "symbol": "SMCI",
+                "at": 1787079360000,
+                "score": 16.170108986781987,
+                "core": 0.18595625334799284,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 0.7258117298297735,
+                "participationInputKind": "z",
+                "displacementZ": 0.18057342023547207,
+                "idiosyncrasyZ": 1.309383172361259,
+                "price": 37.39,
+                "atr": 0.12357142857142936,
+                "vwap": 37.44475962823801,
+                "ema9": 37.425795525458376,
+                "consecutiveExpansionBars": 15,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 16,
+                "percentile": 0.6739130434782609,
+                "rollingZComposite": 0.7385894408088349
+              }
+            ],
+            "DELL": [
+              {
+                "symbol": "DELL",
+                "at": 1787079360000,
+                "score": 14.813026594268402,
+                "core": 0.1703498058340866,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 0.5014376718914011,
+                "participationInputKind": "z",
+                "displacementZ": 0.6472694246280815,
+                "idiosyncrasyZ": 0.23273378274785553,
+                "price": 469.16,
+                "atr": 1.0492857142857264,
+                "vwap": 465.4659443095744,
+                "ema9": 469.17112737971496,
+                "consecutiveExpansionBars": 1,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 21,
+                "percentile": 0.5652173913043478,
+                "rollingZComposite": 0.4604802930891127
+              }
+            ],
+            "CRWV": [
+              {
+                "symbol": "CRWV",
+                "at": 1787079360000,
+                "score": 10.191604820083898,
+                "core": 0.11720345543096482,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -0.02083728944587606,
+                "participationInputKind": "z",
+                "displacementZ": -0.03662278552865028,
+                "idiosyncrasyZ": 0.23273378274785553,
+                "price": 93.75,
+                "atr": 0.29714285714285793,
+                "vwap": 94.60277429918128,
+                "ema9": 93.91154451170215,
+                "consecutiveExpansionBars": 1,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 26,
+                "percentile": 0.45652173913043476,
+                "rollingZComposite": 0.05842456925777639
+              }
+            ],
+            "AAOI": [
+              {
+                "symbol": "AAOI",
+                "at": 1787079360000,
+                "score": 22.6076995366357,
+                "core": 0.25998854467131055,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 0.9487364952648674,
+                "participationInputKind": "z",
+                "displacementZ": 0.8228224726448435,
+                "idiosyncrasyZ": 1.309383172361259,
+                "price": 133.75,
+                "atr": 0.5914285714285735,
+                "vwap": 133.6866056553748,
+                "ema9": 133.9937381255923,
+                "consecutiveExpansionBars": 0,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 5,
+                "percentile": 0.9130434782608695,
+                "rollingZComposite": 1.0269807134236566
+              }
+            ],
+            "PLTR": [
+              {
+                "symbol": "PLTR",
+                "at": 1787079360000,
+                "score": 5.715545863410228,
+                "core": 0.06572877742921762,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 0.11105242140678993,
+                "participationInputKind": "z",
+                "displacementZ": -0.980820657408684,
+                "idiosyncrasyZ": 0.23273378274785553,
+                "price": 172.67,
+                "atr": 0.28500000000000064,
+                "vwap": 173.0000806487277,
+                "ema9": 172.64493451052516,
+                "consecutiveExpansionBars": 1,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 41,
+                "percentile": 0.13043478260869565,
+                "rollingZComposite": -0.21234481775134617
+              }
+            ],
+            "PANW": [
+              {
+                "symbol": "PANW",
+                "at": 1787079360000,
+                "score": 7.408776596129261,
+                "core": 0.0852009308554865,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 0.4446401871495569,
+                "participationInputKind": "z",
+                "displacementZ": -0.5663077201553899,
+                "idiosyncrasyZ": 0.23273378274785553,
+                "price": 373.735,
+                "atr": 0.6292857142856982,
+                "vwap": 374.0896287425717,
+                "ema9": 373.6430226656595,
+                "consecutiveExpansionBars": 2,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 38,
+                "percentile": 0.1956521739130435,
+                "rollingZComposite": 0.037022083247340846
+              }
+            ],
+            "ORCL": [
+              {
+                "symbol": "ORCL",
+                "at": 1787079360000,
+                "score": 15.924701680330422,
+                "core": 0.18313406932379983,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -1.0761680659540325,
+                "participationInputKind": "z",
+                "displacementZ": 0.7947872665750549,
+                "idiosyncrasyZ": 0.23273378274785553,
+                "price": 143.87,
+                "atr": 0.23964285714285438,
+                "vwap": 143.9229575935969,
+                "ema9": 143.9540376638329,
+                "consecutiveExpansionBars": 0,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 17,
+                "percentile": 0.6521739130434783,
+                "rollingZComposite": -0.016215672210374
+              }
+            ],
+            "CRWD": [
+              {
+                "symbol": "CRWD",
+                "at": 1787079360000,
+                "score": 7.1723951830215,
+                "core": 0.08248254460474724,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 0.12372959850301898,
+                "participationInputKind": "z",
+                "displacementZ": -0.618710616402114,
+                "idiosyncrasyZ": 0.23273378274785553,
+                "price": 213.15,
+                "atr": 0.3817857142857162,
+                "vwap": 212.21336071102115,
+                "ema9": 212.96158535743064,
+                "consecutiveExpansionBars": 1,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 40,
+                "percentile": 0.15217391304347827,
+                "rollingZComposite": -0.08741574505041316
+              }
+            ],
+            "CRM": [
+              {
+                "symbol": "CRM",
+                "at": 1787079360000,
+                "score": 7.300673832538246,
+                "core": 0.08395774907418982,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -0.7002535666978063,
+                "participationInputKind": "z",
+                "displacementZ": -0.5900875024922184,
+                "idiosyncrasyZ": 0.23273378274785553,
+                "price": 198.36,
+                "atr": 0.29714285714285893,
+                "vwap": 198.4735462350198,
+                "ema9": 198.27401803984984,
+                "consecutiveExpansionBars": 0,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 39,
+                "percentile": 0.17391304347826086,
+                "rollingZComposite": -0.3525357621473897
+              }
+            ],
+            "ADBE": [
+              {
+                "symbol": "ADBE",
+                "at": 1787079360000,
+                "score": 13.88418332855291,
+                "core": 0.15966810827835845,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 0.24971880828294643,
+                "participationInputKind": "z",
+                "displacementZ": 0.21037134640180474,
+                "idiosyncrasyZ": 0.7497603916071226,
+                "price": 265.55,
+                "atr": 0.3992857142857125,
+                "vwap": 266.3049448907836,
+                "ema9": 265.4963171085543,
+                "consecutiveExpansionBars": 0,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 23,
+                "percentile": 0.5217391304347826,
+                "rollingZComposite": 0.40328351543062463
+              }
+            ],
+            "NOW": [
+              {
+                "symbol": "NOW",
+                "at": 1787079360000,
+                "score": 8.436364664774976,
+                "core": 0.09701819364491221,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -0.7984850926780096,
+                "participationInputKind": "z",
+                "displacementZ": -0.3541046071505882,
+                "idiosyncrasyZ": 0.23273378274785553,
+                "price": 121.2,
+                "atr": 0.23321428571428474,
+                "vwap": 121.01322776183808,
+                "ema9": 121.10827972058684,
+                "consecutiveExpansionBars": 0,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 33,
+                "percentile": 0.30434782608695654,
+                "rollingZComposite": -0.3066186390269141
+              }
+            ],
+            "NFLX": [
+              {
+                "symbol": "NFLX",
+                "at": 1787079360000,
+                "score": 23.48417480588338,
+                "core": 0.27006801026765886,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -0.9420679201977004,
+                "participationInputKind": "z",
+                "displacementZ": 1.4752038283146227,
+                "idiosyncrasyZ": 0.5582330095280366,
+                "price": 78.685,
+                "atr": 0.08499999999999883,
+                "vwap": 78.63079051116176,
+                "ema9": 78.651192482261,
+                "consecutiveExpansionBars": 6,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 3,
+                "percentile": 0.9565217391304348,
+                "rollingZComposite": 0.36378963921498625
+              }
+            ],
+            "SNAP": [
+              {
+                "symbol": "SNAP",
+                "at": 1787079360000,
+                "score": 5.351477085919214,
+                "core": 0.06154198648807095,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -0.0974996288171375,
+                "participationInputKind": "z",
+                "displacementZ": -0.537082208426876,
+                "idiosyncrasyZ": -0.7574454877683371,
+                "price": 5.175,
+                "atr": 0.00750000000000003,
+                "vwap": 5.181021191262941,
+                "ema9": 5.1779060116177495,
+                "consecutiveExpansionBars": 0,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 44,
+                "percentile": 0.06521739130434782,
+                "rollingZComposite": -0.4640091083374502
+              }
+            ],
+            "MSTR": [
+              {
+                "symbol": "MSTR",
+                "at": 1787079360000,
+                "score": 13.387514116714339,
+                "core": 0.15395641234221488,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 0.04361226998449917,
+                "participationInputKind": "z",
+                "displacementZ": 0.7461715509572234,
+                "idiosyncrasyZ": -0.2084654649501452,
+                "price": 93.22,
+                "atr": 0.25321428571428584,
+                "vwap": 94.23959361640246,
+                "ema9": 93.40124128025698,
+                "consecutiveExpansionBars": 0,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 24,
+                "percentile": 0.5,
+                "rollingZComposite": 0.1937727853305258
+              }
+            ],
+            "HOOD": [
+              {
+                "symbol": "HOOD",
+                "at": 1787079360000,
+                "score": 8.170812708155964,
+                "core": 0.09396434614379358,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -1.1005274153331124,
+                "participationInputKind": "z",
+                "displacementZ": 0.0919278277480079,
+                "idiosyncrasyZ": -0.6224162287456577,
+                "price": 92.92,
+                "atr": 0.18821428571428406,
+                "vwap": 93.03663431484239,
+                "ema9": 92.894354763749,
+                "consecutiveExpansionBars": 3,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 35,
+                "percentile": 0.2608695652173913,
+                "rollingZComposite": -0.5436719387769208
+              }
+            ],
+            "IBIT": [
+              {
+                "symbol": "IBIT",
+                "at": 1787079360000,
+                "score": 18.69628251128589,
+                "core": 0.21500724887978773,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -0.05436771591088855,
+                "participationInputKind": "z",
+                "displacementZ": 2.102067690285744,
+                "idiosyncrasyZ": -0.6224162287456577,
+                "price": 36.665,
+                "atr": 0.01964285714285755,
+                "vwap": 36.664019231968076,
+                "ema9": 36.67276732463236,
+                "consecutiveExpansionBars": 4,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 10,
+                "percentile": 0.8043478260869565,
+                "rollingZComposite": 0.47509458187639925
+              }
+            ],
+            "COIN": [
+              {
+                "symbol": "COIN",
+                "at": 1787079360000,
+                "score": 5.678520790329413,
+                "core": 0.06530298908878825,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -0.08103333494339426,
+                "participationInputKind": "z",
+                "displacementZ": -0.5188285974540694,
+                "idiosyncrasyZ": -0.6224162287456577,
+                "price": 146.98,
+                "atr": 0.2982142857142845,
+                "vwap": 147.5934800133739,
+                "ema9": 147.01056881156376,
+                "consecutiveExpansionBars": 1,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 42,
+                "percentile": 0.10869565217391304,
+                "rollingZComposite": -0.40742605371437374
+              }
+            ],
+            "SOFI": [
+              {
+                "symbol": "SOFI",
+                "at": 1787079360000,
+                "score": 10.175426382748892,
+                "core": 0.11701740340161225,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -1.2878453271918309,
+                "participationInputKind": "z",
+                "displacementZ": -0.5176693678504667,
+                "idiosyncrasyZ": 1.1395053384584977,
+                "price": 17.785,
+                "atr": 0.0264285714285715,
+                "vwap": 17.892596206687617,
+                "ema9": 17.79373127518985,
+                "consecutiveExpansionBars": 1,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 27,
+                "percentile": 0.43478260869565216,
+                "rollingZComposite": -0.22200311886126664
+              }
+            ],
+            "PYPL": [
+              {
+                "symbol": "PYPL",
+                "at": 1787079360000,
+                "score": 17.7345015738361,
+                "core": 0.20394676809911513,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -1.0035220852395235,
+                "participationInputKind": "z",
+                "displacementZ": 0.41582600698805816,
+                "idiosyncrasyZ": 1.182890277485197,
+                "price": 60.72,
+                "atr": 0.12142857142857112,
+                "vwap": 60.87032999882112,
+                "ema9": 60.71179414549223,
+                "consecutiveExpansionBars": 0,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 14,
+                "percentile": 0.717391304347826,
+                "rollingZComposite": 0.1983980664112439
+              }
+            ],
+            "SLV": [
+              {
+                "symbol": "SLV",
+                "at": 1787079360000,
+                "score": 5.416241036571204,
+                "core": 0.06228677192056885,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -0.778688437521345,
+                "participationInputKind": "z",
+                "displacementZ": -0.4816837701769865,
+                "idiosyncrasyZ": -0.8190143432703105,
+                "price": 57.6,
+                "atr": 0.05821428571428707,
+                "vwap": 57.70422091964199,
+                "ema9": 57.63596439089312,
+                "consecutiveExpansionBars": 0,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 43,
+                "percentile": 0.08695652173913043,
+                "rollingZComposite": -0.6931288503228806
+              }
+            ],
+            "XOM": [
+              {
+                "symbol": "XOM",
+                "at": 1787079360000,
+                "score": 8.49665691923865,
+                "core": 0.09771155457124447,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -0.5304863461361823,
+                "participationInputKind": "z",
+                "displacementZ": -0.2546532633183005,
+                "idiosyncrasyZ": 0.07553517442247598,
+                "price": 165.15,
+                "atr": 0.15999999999999862,
+                "vwap": 164.9322766908345,
+                "ema9": 165.13089974423985,
+                "consecutiveExpansionBars": 0,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 32,
+                "percentile": 0.32608695652173914,
+                "rollingZComposite": -0.2365348116773356
+              }
+            ],
+            "BE": [
+              {
+                "symbol": "BE",
+                "at": 1787079360000,
+                "score": 4.5985176002887345,
+                "core": 0.05288295240332045,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 1.1573034238134947,
+                "participationInputKind": "z",
+                "displacementZ": -0.8218977625816704,
+                "idiosyncrasyZ": -0.6855555476760625,
+                "price": 207.41,
+                "atr": 0.7064285714285725,
+                "vwap": 207.50539251201906,
+                "ema9": 207.2585111015322,
+                "consecutiveExpansionBars": 1,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 45,
+                "percentile": 0.043478260869565216,
+                "rollingZComposite": -0.11671662881474605
+              }
+            ],
+            "LLY": [
+              {
+                "symbol": "LLY",
+                "at": 1787079360000,
+                "score": 15.047488122005719,
+                "core": 0.17304611340306575,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -0.17199256715569536,
+                "participationInputKind": "z",
+                "displacementZ": 0.7983629321172794,
+                "idiosyncrasyZ": 0.05924548241790174,
+                "price": 1219.65,
+                "atr": 1.0796428571428578,
+                "vwap": 1216.5285044134166,
+                "ema9": 1220.1733565893285,
+                "consecutiveExpansionBars": 0,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 20,
+                "percentile": 0.5869565217391305,
+                "rollingZComposite": 0.22853861579316193
+              }
+            ],
+            "UNH": [
+              {
+                "symbol": "UNH",
+                "at": 1787079360000,
+                "score": 7.560862837531521,
+                "core": 0.08694992263161248,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 0.04838176594249166,
+                "participationInputKind": "z",
+                "displacementZ": -0.4382236428549274,
+                "idiosyncrasyZ": 0.05924548241790174,
+                "price": 395.72,
+                "atr": 0.3332142857142791,
+                "vwap": 395.4086158444191,
+                "ema9": 395.6994014472939,
+                "consecutiveExpansionBars": 2,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 37,
+                "percentile": 0.21739130434782608,
+                "rollingZComposite": -0.11019879816484467
+              }
+            ],
+            "COST": [
+              {
+                "symbol": "COST",
+                "at": 1787079360000,
+                "score": 8.531446943949407,
+                "core": 0.09811163985541815,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 0.4300742566568886,
+                "participationInputKind": "z",
+                "displacementZ": -0.7472238834641199,
+                "idiosyncrasyZ": 1.0268552897385879,
+                "price": 965.17,
+                "atr": 0.6253571428571344,
+                "vwap": 965.8193030757689,
+                "ema9": 965.1907802816381,
+                "consecutiveExpansionBars": 0,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 31,
+                "percentile": 0.34782608695652173,
+                "rollingZComposite": 0.23656855431045218
+              }
+            ],
+            "WMT": [
+              {
+                "symbol": "WMT",
+                "at": 1787079360000,
+                "score": 28.43289961109212,
+                "core": 0.32697834552755933,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": -0.47108131536647035,
+                "participationInputKind": "z",
+                "displacementZ": 1.271758368568803,
+                "idiosyncrasyZ": 1.433710177948426,
+                "price": 115.64,
+                "atr": 0.1085714285714293,
+                "vwap": 115.60319688832445,
+                "ema9": 115.59576886664559,
+                "consecutiveExpansionBars": 7,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 1,
+                "percentile": 1,
+                "rollingZComposite": 0.7447957437169196
+              }
+            ],
+            "IBM": [
+              {
+                "symbol": "IBM",
+                "at": 1787079360000,
+                "score": 9.732646902834539,
+                "core": 0.11192543938259718,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 0.15316320011507584,
+                "participationInputKind": "z",
+                "displacementZ": 0.06599467218695043,
+                "idiosyncrasyZ": -0.07890467938126412,
+                "price": 233.965,
+                "atr": 0.19678571428571395,
+                "vwap": 233.57973909737046,
+                "ema9": 233.8587665961755,
+                "consecutiveExpansionBars": 0,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 28,
+                "percentile": 0.41304347826086957,
+                "rollingZComposite": 0.04675106430692072
+              }
+            ],
+            "T": [
+              {
+                "symbol": "T",
+                "at": 1787079360000,
+                "score": 3.9660138579360575,
+                "core": 0.04560915936626466,
+                "feedMode": "iex_partial",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+                "participationBaselineMode": "dense",
+                "participationInput": 0.8235406493869524,
+                "participationInputKind": "z",
+                "displacementZ": -0.9309903490997977,
+                "idiosyncrasyZ": -0.9070218810546653,
+                "price": 25.08,
+                "atr": 0.026785714285714284,
+                "vwap": 25.11085918448335,
+                "ema9": 25.07843916092545,
+                "consecutiveExpansionBars": 0,
+                "pullbackObserved": false,
+                "priceLostVwap": false,
+                "dataQualityState": "ok",
+                "provisional": false,
+                "rank": 46,
+                "percentile": 0.021739130434782608,
+                "rollingZComposite": -0.33815719358917024
+              }
+            ]
+          }
+        },
+        "symbols": {
+          "AAPL": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "MSFT": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "GOOGL": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "META": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "NVDA": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "AMD": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "AVGO": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "INTC": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "QCOM": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "MRVL": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "AMAT": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "KLAC": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "ARM": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "TSM": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "SMH": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "MU": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "SNDK": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "WDC": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "DRAM": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "SMCI": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "DELL": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "CRWV": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "AAOI": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "PLTR": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "PANW": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "ORCL": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "CRWD": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "CRM": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "ADBE": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "NOW": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "NFLX": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "SNAP": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "MSTR": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "HOOD": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "IBIT": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "COIN": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "SOFI": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "PYPL": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "SLV": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "XOM": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "BE": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "LLY": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "UNH": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "COST": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "WMT": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "IBM": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          },
+          "T": {
+            "state": {
+              "state": "LOW_PRIORITY",
+              "stateEnteredAt": 1787079360000,
+              "stateEnterThresholdMetAt": null,
+              "candidateState": null,
+              "candidateSince": null,
+              "candidateObservations": 0,
+              "pendingTransition": "none",
+              "pendingTransitionMinutes": 0,
+              "thresholdRuns": {
+                "watchingEnter": 0,
+                "emergingEnter": 0,
+                "inPlayEnter": 0,
+                "watchingExit": 1,
+                "emergingExit": 1,
+                "inPlayExit": 1
+              },
+              "lastEvaluatedAt": 1787079360000
+            },
+            "episode": null,
+            "cooling": {
+              "armedAt": null,
+              "displacementZAtArm": null,
+              "participationRoseDuringAcceleration": false,
+              "accelerationFailedAt": null
+            },
+            "pullback": null
+          }
+        }
+      },
+      "events": {
+        "schemaVersion": 1,
+        "alerts": [],
+        "suppressions": [],
+        "pending": [],
+        "emitted": [],
+        "symbols": []
+      }
+    },
+    "deliveryState": {
+      "sessionEvents": []
+    },
+    "checksum": "29c9e9357b7c280d42969f210453e02cb9355a1f53b6ab0ec4ecb89cdb0ce1a0"
+  },
+  "snapshot": {
+    "schemaVersion": 1,
+    "engineInstanceId": "attention-profile-unoptimized",
+    "runId": "6f8f162a-72a9-4e8c-ae64-6b8182902a99",
+    "sequence": 1,
+    "asOf": 1787079360000,
+    "tradingDate": "2026-08-18",
+    "minuteOfDay": 896,
+    "health": "ready",
+    "ready": true,
+    "shadow": true,
+    "liveDeliveryEnabled": false,
+    "legacyAlertingEnabled": true,
+    "ingestionMode": "iex_rest_polling",
+    "feedMode": "iex_partial",
+    "feedBadge": "IEX PARTIAL",
+    "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+    "darkWindowReason": null,
+    "guard": {
+      "active": false,
+      "reason": "none",
+      "activeSince": null,
+      "contiguousMinutes": 5,
+      "requiredContiguousMinutes": 5
+    },
+    "rankedRows": [
+      {
+        "symbol": "AAPL",
+        "attentionScore": 9.004681520597222,
+        "core": 0.10355383748686806,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 29,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.104 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "MSFT",
+        "attentionScore": 27.447256024101154,
+        "core": 0.31564344427716323,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 2,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.316 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "GOOGL",
+        "attentionScore": 17.940614316046464,
+        "core": 0.20631706463453428,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 13,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.206 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "META",
+        "attentionScore": 8.321111458066186,
+        "core": 0.09569278176776112,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 34,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.096 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "NVDA",
+        "attentionScore": 21.021930678437794,
+        "core": 0.2417522028020346,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 7,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.242 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "AMD",
+        "attentionScore": 13.893825853904326,
+        "core": 0.15977899731989975,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 22,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.160 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "AVGO",
+        "attentionScore": 23.129048275773695,
+        "core": 0.26598405517139745,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 4,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.266 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "INTC",
+        "attentionScore": 15.188387805083142,
+        "core": 0.17466645975845613,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 19,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.175 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "QCOM",
+        "attentionScore": 13.057661873366436,
+        "core": 0.150163111543714,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 25,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.150 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "MRVL",
+        "attentionScore": 21.50389614303595,
+        "core": 0.24729480564491338,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 6,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.247 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "AMAT",
+        "attentionScore": 19.373295200135335,
+        "core": 0.22279289480155634,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 9,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.223 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "KLAC",
+        "attentionScore": 15.460701049910679,
+        "core": 0.17779806207397278,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 18,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.178 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "ARM",
+        "attentionScore": 18.06627576864828,
+        "core": 0.20776217133945518,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 12,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.208 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "TSM",
+        "attentionScore": 18.591758097501412,
+        "core": 0.2138052181212662,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 11,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.214 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "SMH",
+        "attentionScore": 19.76293400454896,
+        "core": 0.22727374105231302,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 8,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.227 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "MU",
+        "attentionScore": 7.671791861795416,
+        "core": 0.08822560641064728,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 36,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.088 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "SNDK",
+        "attentionScore": 3.734269734257468,
+        "core": 0.04294410194396088,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 47,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.043 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "WDC",
+        "attentionScore": 17.30144760773998,
+        "core": 0.19896664748900975,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 15,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.199 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "DRAM",
+        "attentionScore": 8.751601457812713,
+        "core": 0.10064341676484619,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 30,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.101 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "SMCI",
+        "attentionScore": 16.170108986781987,
+        "core": 0.18595625334799284,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 16,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.186 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "DELL",
+        "attentionScore": 14.813026594268402,
+        "core": 0.1703498058340866,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 21,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.170 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "CRWV",
+        "attentionScore": 10.191604820083898,
+        "core": 0.11720345543096482,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 26,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.117 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "AAOI",
+        "attentionScore": 22.6076995366357,
+        "core": 0.25998854467131055,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 5,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.260 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "PLTR",
+        "attentionScore": 5.715545863410228,
+        "core": 0.06572877742921762,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 41,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.066 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "PANW",
+        "attentionScore": 7.408776596129261,
+        "core": 0.0852009308554865,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 38,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.085 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "ORCL",
+        "attentionScore": 15.924701680330422,
+        "core": 0.18313406932379983,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 17,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.183 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "CRWD",
+        "attentionScore": 7.1723951830215,
+        "core": 0.08248254460474724,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 40,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.082 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "CRM",
+        "attentionScore": 7.300673832538246,
+        "core": 0.08395774907418982,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 39,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.084 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "ADBE",
+        "attentionScore": 13.88418332855291,
+        "core": 0.15966810827835845,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 23,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.160 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "NOW",
+        "attentionScore": 8.436364664774976,
+        "core": 0.09701819364491221,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 33,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.097 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "NFLX",
+        "attentionScore": 23.48417480588338,
+        "core": 0.27006801026765886,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 3,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.270 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "SNAP",
+        "attentionScore": 5.351477085919214,
+        "core": 0.06154198648807095,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 44,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.062 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "MSTR",
+        "attentionScore": 13.387514116714339,
+        "core": 0.15395641234221488,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 24,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.154 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "HOOD",
+        "attentionScore": 8.170812708155964,
+        "core": 0.09396434614379358,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 35,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.094 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "IBIT",
+        "attentionScore": 18.69628251128589,
+        "core": 0.21500724887978773,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 10,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.215 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "COIN",
+        "attentionScore": 5.678520790329413,
+        "core": 0.06530298908878825,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 42,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.065 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "SOFI",
+        "attentionScore": 10.175426382748892,
+        "core": 0.11701740340161225,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 27,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.117 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "PYPL",
+        "attentionScore": 17.7345015738361,
+        "core": 0.20394676809911513,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 14,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.204 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "SLV",
+        "attentionScore": 5.416241036571204,
+        "core": 0.06228677192056885,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 43,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.062 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "XOM",
+        "attentionScore": 8.49665691923865,
+        "core": 0.09771155457124447,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 32,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.098 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "BE",
+        "attentionScore": 4.5985176002887345,
+        "core": 0.05288295240332045,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 45,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.053 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "LLY",
+        "attentionScore": 15.047488122005719,
+        "core": 0.17304611340306575,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 20,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.173 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "UNH",
+        "attentionScore": 7.560862837531521,
+        "core": 0.08694992263161248,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 37,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.087 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "COST",
+        "attentionScore": 8.531446943949407,
+        "core": 0.09811163985541815,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 31,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.098 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "WMT",
+        "attentionScore": 28.43289961109212,
+        "core": 0.32697834552755933,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 1,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.327 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "IBM",
+        "attentionScore": 9.732646902834539,
+        "core": 0.11192543938259718,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 28,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.112 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "T",
+        "attentionScore": 3.9660138579360575,
+        "core": 0.04560915936626466,
+        "state": "LOW_PRIORITY",
+        "freshness": null,
+        "rank": 46,
+        "dataQualityState": "ok",
+        "dataQualityReason": "held in LOW PRIORITY since 14:56; core 0.046 is below WATCHING entry 0.793",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "SPY",
+        "attentionScore": null,
+        "core": null,
+        "state": null,
+        "freshness": null,
+        "rank": null,
+        "dataQualityState": "insufficient_reference",
+        "dataQualityReason": "No synchronized target/benchmark/sector observation with a usable same-time baseline.",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "QQQ",
+        "attentionScore": null,
+        "core": null,
+        "state": null,
+        "freshness": null,
+        "rank": null,
+        "dataQualityState": "insufficient_reference",
+        "dataQualityReason": "No synchronized target/benchmark/sector observation with a usable same-time baseline.",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "IWM",
+        "attentionScore": null,
+        "core": null,
+        "state": null,
+        "freshness": null,
+        "rank": null,
+        "dataQualityState": "insufficient_reference",
+        "dataQualityReason": "No synchronized target/benchmark/sector observation with a usable same-time baseline.",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "AMZN",
+        "attentionScore": null,
+        "core": null,
+        "state": null,
+        "freshness": null,
+        "rank": null,
+        "dataQualityState": "insufficient_reference",
+        "dataQualityReason": "No synchronized target/benchmark/sector observation with a usable same-time baseline.",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "TSLA",
+        "attentionScore": null,
+        "core": null,
+        "state": null,
+        "freshness": null,
+        "rank": null,
+        "dataQualityState": "insufficient_reference",
+        "dataQualityReason": "No synchronized target/benchmark/sector observation with a usable same-time baseline.",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "NBIS",
+        "attentionScore": null,
+        "core": null,
+        "state": null,
+        "freshness": null,
+        "rank": null,
+        "dataQualityState": "insufficient_reference",
+        "dataQualityReason": "No synchronized target/benchmark/sector observation with a usable same-time baseline.",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "UBER",
+        "attentionScore": null,
+        "core": null,
+        "state": null,
+        "freshness": null,
+        "rank": null,
+        "dataQualityState": "insufficient_reference",
+        "dataQualityReason": "No synchronized target/benchmark/sector observation with a usable same-time baseline.",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "GLD",
+        "attentionScore": null,
+        "core": null,
+        "state": null,
+        "freshness": null,
+        "rank": null,
+        "dataQualityState": "insufficient_reference",
+        "dataQualityReason": "No synchronized target/benchmark/sector observation with a usable same-time baseline.",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "GDX",
+        "attentionScore": null,
+        "core": null,
+        "state": null,
+        "freshness": null,
+        "rank": null,
+        "dataQualityState": "insufficient_reference",
+        "dataQualityReason": "No synchronized target/benchmark/sector observation with a usable same-time baseline.",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "USO",
+        "attentionScore": null,
+        "core": null,
+        "state": null,
+        "freshness": null,
+        "rank": null,
+        "dataQualityState": "insufficient_reference",
+        "dataQualityReason": "No synchronized target/benchmark/sector observation with a usable same-time baseline.",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "NKE",
+        "attentionScore": null,
+        "core": null,
+        "state": null,
+        "freshness": null,
+        "rank": null,
+        "dataQualityState": "insufficient_reference",
+        "dataQualityReason": "No synchronized target/benchmark/sector observation with a usable same-time baseline.",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "CCL",
+        "attentionScore": null,
+        "core": null,
+        "state": null,
+        "freshness": null,
+        "rank": null,
+        "dataQualityState": "insufficient_reference",
+        "dataQualityReason": "No synchronized target/benchmark/sector observation with a usable same-time baseline.",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "AAL",
+        "attentionScore": null,
+        "core": null,
+        "state": null,
+        "freshness": null,
+        "rank": null,
+        "dataQualityState": "insufficient_reference",
+        "dataQualityReason": "No synchronized target/benchmark/sector observation with a usable same-time baseline.",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      },
+      {
+        "symbol": "SPCX",
+        "attentionScore": null,
+        "core": null,
+        "state": null,
+        "freshness": null,
+        "rank": null,
+        "dataQualityState": "insufficient_reference",
+        "dataQualityReason": "No synchronized target/benchmark/sector observation with a usable same-time baseline.",
+        "feedBadge": "IEX PARTIAL",
+        "pendingTransition": "none",
+        "pendingTransitionMinutes": 0
+      }
+    ],
+    "eventsDetected": 0,
+    "envelopesCreated": 0,
+    "statusMessage": "UNOPTIMIZED PROFILE. 47 of 61 tradeable symbols scored on IEX PARTIAL; 14 explicitly unavailable; participation is display-only."
+  },
+  "events": [],
+  "outbox": []
+}

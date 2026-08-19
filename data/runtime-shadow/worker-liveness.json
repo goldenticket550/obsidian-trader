@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "runId": "9a62fc00-f159-420f-8659-2cba53779cd8",
+  "pid": 7768,
+  "status": "running",
+  "startedAt": 1787109600259,
+  "lastHeartbeatAt": 1787111703413,
+  "lastCompletedMinuteAt": 1787111640000,
+  "lastSequence": 54,
+  "exit": null
+}

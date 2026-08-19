@@ -14,6 +14,9 @@ function makeResult(score: number): SetupResult {
     maxScore: 11,
     conditions: [],
     lastUpdated: "2026-07-13T00:00:00Z",
+    convictionLevel: "watch",
+    entryStatus: "wait_for_pullback",
+    invalidationNote: null,
   };
 }
 

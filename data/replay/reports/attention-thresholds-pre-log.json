@@ -1,0 +1,559 @@
+{
+  "schemaVersion": 4,
+  "modeMapVersion": 3,
+  "sets": {
+    "sip": {
+      "premarket_early": {
+        "subWindow": "premarket_early",
+        "feedMode": "sip",
+        "calibrationId": "mode-map-v3:curve-v2:state-v2:sip:premarket_early:population-82f216fdd69d",
+        "calibrationStatus": "calibrated",
+        "normalizationVersion": 2,
+        "normalization": {
+          "participationDense": {
+            "z50": 3.25,
+            "k": 0.65
+          },
+          "participationPresence": {
+            "z50": 1.75,
+            "k": 1.75
+          },
+          "displacement": {
+            "z50": 1.55,
+            "k": 1.277
+          },
+          "idiosyncrasy": {
+            "z50": 2.784,
+            "k": 0.744
+          }
+        },
+        "thresholdVersion": 2,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2
+        },
+        "values": {
+          "watchingEnterCore": 0.4622,
+          "watchingExitCore": 0.4472,
+          "emergingEnterCore": 0.6204,
+          "emergingExitCore": 0.6054,
+          "inPlayEnterCore": 0.7844,
+          "inPlayExitCore": 0.7694,
+          "newInPlayVelocityPerMinute": 10.28
+        },
+        "calibrationBasis": "population",
+        "groundTruthValidated": false
+      },
+      "premarket_core": {
+        "subWindow": "premarket_core",
+        "feedMode": "sip",
+        "calibrationId": "mode-map-v3:curve-v2:state-v2:sip:premarket_core:population-82f216fdd69d",
+        "calibrationStatus": "calibrated",
+        "normalizationVersion": 2,
+        "normalization": {
+          "participationDense": {
+            "z50": 3.25,
+            "k": 0.65
+          },
+          "participationPresence": {
+            "z50": 1.75,
+            "k": 1.75
+          },
+          "displacement": {
+            "z50": 1.55,
+            "k": 1.256
+          },
+          "idiosyncrasy": {
+            "z50": 2.923,
+            "k": 0.708
+          }
+        },
+        "thresholdVersion": 2,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2
+        },
+        "values": {
+          "watchingEnterCore": 0.5207,
+          "watchingExitCore": 0.5057,
+          "emergingEnterCore": 0.6876,
+          "emergingExitCore": 0.6726,
+          "inPlayEnterCore": 0.8509,
+          "inPlayExitCore": 0.8359,
+          "newInPlayVelocityPerMinute": 11.555
+        },
+        "calibrationBasis": "population",
+        "groundTruthValidated": false
+      },
+      "premarket_final": {
+        "subWindow": "premarket_final",
+        "feedMode": "sip",
+        "calibrationId": "mode-map-v3:curve-v2:state-v2:sip:premarket_final:population-82f216fdd69d",
+        "calibrationStatus": "calibrated",
+        "normalizationVersion": 2,
+        "normalization": {
+          "participationDense": {
+            "z50": 3.25,
+            "k": 0.65
+          },
+          "participationPresence": {
+            "z50": 1.75,
+            "k": 1.75
+          },
+          "displacement": {
+            "z50": 1.55,
+            "k": 1.272
+          },
+          "idiosyncrasy": {
+            "z50": 2.693,
+            "k": 0.77
+          }
+        },
+        "thresholdVersion": 2,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2
+        },
+        "values": {
+          "watchingEnterCore": 0.3353,
+          "watchingExitCore": 0.3203,
+          "emergingEnterCore": 0.4368,
+          "emergingExitCore": 0.4218,
+          "inPlayEnterCore": 0.7226,
+          "inPlayExitCore": 0.7076,
+          "newInPlayVelocityPerMinute": 11.241
+        },
+        "calibrationBasis": "population",
+        "groundTruthValidated": false
+      },
+      "regular": {
+        "subWindow": "regular",
+        "feedMode": "sip",
+        "calibrationId": "mode-map-v3:curve-v2:state-v2:sip:regular:population-82f216fdd69d",
+        "calibrationStatus": "calibrated",
+        "normalizationVersion": 2,
+        "normalization": {
+          "participationDense": {
+            "z50": 2.3,
+            "k": 0.765
+          },
+          "participationPresence": {
+            "z50": 1.75,
+            "k": 1.75
+          },
+          "displacement": {
+            "z50": 1.55,
+            "k": 1.247
+          },
+          "idiosyncrasy": {
+            "z50": 2.578,
+            "k": 0.828
+          }
+        },
+        "thresholdVersion": 2,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2
+        },
+        "values": {
+          "watchingEnterCore": 0.7828,
+          "watchingExitCore": 0.7678,
+          "emergingEnterCore": 0.9002,
+          "emergingExitCore": 0.8852,
+          "inPlayEnterCore": 0.9672,
+          "inPlayExitCore": 0.9522,
+          "newInPlayVelocityPerMinute": 10.968
+        },
+        "calibrationBasis": "population",
+        "groundTruthValidated": false
+      },
+      "after_hours_core": {
+        "subWindow": "after_hours_core",
+        "feedMode": "sip",
+        "calibrationId": "mode-map-v3:curve-v2:state-v2:sip:after_hours_core:population-82f216fdd69d",
+        "calibrationStatus": "calibrated",
+        "normalizationVersion": 2,
+        "normalization": {
+          "participationDense": {
+            "z50": 3.25,
+            "k": 0.65
+          },
+          "participationPresence": {
+            "z50": 1.75,
+            "k": 1.75
+          },
+          "displacement": {
+            "z50": 1.55,
+            "k": 1.176
+          },
+          "idiosyncrasy": {
+            "z50": 3.25,
+            "k": 0.65
+          }
+        },
+        "thresholdVersion": 2,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2
+        },
+        "values": {
+          "watchingEnterCore": 0.5522,
+          "watchingExitCore": 0.5372,
+          "emergingEnterCore": 0.7336,
+          "emergingExitCore": 0.7186,
+          "inPlayEnterCore": 0.9261,
+          "inPlayExitCore": 0.9111,
+          "newInPlayVelocityPerMinute": 12.823
+        },
+        "calibrationBasis": "population",
+        "groundTruthValidated": false
+      },
+      "after_hours_late": {
+        "subWindow": "after_hours_late",
+        "feedMode": "sip",
+        "calibrationId": "mode-map-v3:curve-v2:state-v2:sip:after_hours_late:population-82f216fdd69d",
+        "calibrationStatus": "calibrated",
+        "normalizationVersion": 2,
+        "normalization": {
+          "participationDense": {
+            "z50": 3.25,
+            "k": 0.65
+          },
+          "participationPresence": {
+            "z50": 1.75,
+            "k": 1.75
+          },
+          "displacement": {
+            "z50": 1.55,
+            "k": 1.297
+          },
+          "idiosyncrasy": {
+            "z50": 3.25,
+            "k": 0.65
+          }
+        },
+        "thresholdVersion": 2,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2
+        },
+        "values": {
+          "watchingEnterCore": 0.55,
+          "watchingExitCore": 0.535,
+          "emergingEnterCore": 0.6877,
+          "emergingExitCore": 0.6727,
+          "inPlayEnterCore": 0.8374,
+          "inPlayExitCore": 0.8224,
+          "newInPlayVelocityPerMinute": 11.094
+        },
+        "calibrationBasis": "population",
+        "groundTruthValidated": false
+      }
+    },
+    "iex_partial": {
+      "premarket_early": {
+        "subWindow": "premarket_early",
+        "feedMode": "iex_partial",
+        "calibrationId": "mode-map-v3:curve-v1:state-v1:iex_partial:premarket_early:unavailable-insufficient-reference",
+        "calibrationStatus": "unavailable_by_construction",
+        "normalizationVersion": 1,
+        "normalization": {
+          "participationDense": {
+            "z50": 2,
+            "k": 1.2
+          },
+          "participationPresence": {
+            "z50": 3,
+            "k": 1.3
+          },
+          "displacement": {
+            "z50": 2,
+            "k": 1.2
+          },
+          "idiosyncrasy": {
+            "z50": 2,
+            "k": 1.2
+          }
+        },
+        "thresholdVersion": 1,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2
+        },
+        "values": {
+          "watchingEnterCore": null,
+          "watchingExitCore": null,
+          "emergingEnterCore": null,
+          "emergingExitCore": null,
+          "inPlayEnterCore": null,
+          "inPlayExitCore": null,
+          "newInPlayVelocityPerMinute": null
+        },
+        "unavailableReason": "insufficient_reference"
+      },
+      "premarket_core": {
+        "subWindow": "premarket_core",
+        "feedMode": "iex_partial",
+        "calibrationId": "mode-map-v3:curve-v1:state-v1:iex_partial:premarket_core:unavailable-insufficient-reference",
+        "calibrationStatus": "unavailable_by_construction",
+        "normalizationVersion": 1,
+        "normalization": {
+          "participationDense": {
+            "z50": 2,
+            "k": 1.2
+          },
+          "participationPresence": {
+            "z50": 3,
+            "k": 1.3
+          },
+          "displacement": {
+            "z50": 2,
+            "k": 1.2
+          },
+          "idiosyncrasy": {
+            "z50": 2,
+            "k": 1.2
+          }
+        },
+        "thresholdVersion": 1,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2
+        },
+        "values": {
+          "watchingEnterCore": null,
+          "watchingExitCore": null,
+          "emergingEnterCore": null,
+          "emergingExitCore": null,
+          "inPlayEnterCore": null,
+          "inPlayExitCore": null,
+          "newInPlayVelocityPerMinute": null
+        },
+        "unavailableReason": "insufficient_reference"
+      },
+      "premarket_final": {
+        "subWindow": "premarket_final",
+        "feedMode": "iex_partial",
+        "calibrationId": "mode-map-v3:curve-v1:state-v1:iex_partial:premarket_final:unavailable-insufficient-reference",
+        "calibrationStatus": "unavailable_by_construction",
+        "normalizationVersion": 1,
+        "normalization": {
+          "participationDense": {
+            "z50": 2,
+            "k": 1.2
+          },
+          "participationPresence": {
+            "z50": 3,
+            "k": 1.3
+          },
+          "displacement": {
+            "z50": 2,
+            "k": 1.2
+          },
+          "idiosyncrasy": {
+            "z50": 2,
+            "k": 1.2
+          }
+        },
+        "thresholdVersion": 1,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2
+        },
+        "values": {
+          "watchingEnterCore": null,
+          "watchingExitCore": null,
+          "emergingEnterCore": null,
+          "emergingExitCore": null,
+          "inPlayEnterCore": null,
+          "inPlayExitCore": null,
+          "newInPlayVelocityPerMinute": null
+        },
+        "unavailableReason": "insufficient_reference"
+      },
+      "regular": {
+        "subWindow": "regular",
+        "feedMode": "iex_partial",
+        "calibrationId": "mode-map-v3:curve-v2:state-v2:iex_partial:regular:population-82f216fdd69d",
+        "calibrationStatus": "calibrated",
+        "normalizationVersion": 2,
+        "normalization": {
+          "participationDense": {
+            "z50": 2.443,
+            "k": 0.762
+          },
+          "participationPresence": {
+            "z50": 1.75,
+            "k": 1.75
+          },
+          "displacement": {
+            "z50": 1.55,
+            "k": 1.259
+          },
+          "idiosyncrasy": {
+            "z50": 2.8,
+            "k": 0.762
+          }
+        },
+        "thresholdVersion": 2,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2
+        },
+        "values": {
+          "watchingEnterCore": 0.8444,
+          "watchingExitCore": 0.8294,
+          "emergingEnterCore": 0.9225,
+          "emergingExitCore": 0.9075,
+          "inPlayEnterCore": 0.9691,
+          "inPlayExitCore": 0.9541,
+          "newInPlayVelocityPerMinute": 12.457
+        },
+        "calibrationBasis": "population",
+        "groundTruthValidated": false
+      },
+      "after_hours_core": {
+        "subWindow": "after_hours_core",
+        "feedMode": "iex_partial",
+        "calibrationId": "mode-map-v3:curve-v1:state-v1:iex_partial:after_hours_core:unavailable-insufficient-reference",
+        "calibrationStatus": "unavailable_by_construction",
+        "normalizationVersion": 1,
+        "normalization": {
+          "participationDense": {
+            "z50": 2,
+            "k": 1.2
+          },
+          "participationPresence": {
+            "z50": 3,
+            "k": 1.3
+          },
+          "displacement": {
+            "z50": 2,
+            "k": 1.2
+          },
+          "idiosyncrasy": {
+            "z50": 2,
+            "k": 1.2
+          }
+        },
+        "thresholdVersion": 1,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2
+        },
+        "values": {
+          "watchingEnterCore": null,
+          "watchingExitCore": null,
+          "emergingEnterCore": null,
+          "emergingExitCore": null,
+          "inPlayEnterCore": null,
+          "inPlayExitCore": null,
+          "newInPlayVelocityPerMinute": null
+        },
+        "unavailableReason": "insufficient_reference"
+      },
+      "after_hours_late": {
+        "subWindow": "after_hours_late",
+        "feedMode": "iex_partial",
+        "calibrationId": "mode-map-v3:curve-v1:state-v1:iex_partial:after_hours_late:unavailable-insufficient-reference",
+        "calibrationStatus": "unavailable_by_construction",
+        "normalizationVersion": 1,
+        "normalization": {
+          "participationDense": {
+            "z50": 2,
+            "k": 1.2
+          },
+          "participationPresence": {
+            "z50": 3,
+            "k": 1.3
+          },
+          "displacement": {
+            "z50": 2,
+            "k": 1.2
+          },
+          "idiosyncrasy": {
+            "z50": 2,
+            "k": 1.2
+          }
+        },
+        "thresholdVersion": 1,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2
+        },
+        "values": {
+          "watchingEnterCore": null,
+          "watchingExitCore": null,
+          "emergingEnterCore": null,
+          "emergingExitCore": null,
+          "inPlayEnterCore": null,
+          "inPlayExitCore": null,
+          "newInPlayVelocityPerMinute": null
+        },
+        "unavailableReason": "insufficient_reference"
+      }
+    }
+  },
+  "feedModeInvalidations": [],
+  "normalizationInvalidations": []
+}

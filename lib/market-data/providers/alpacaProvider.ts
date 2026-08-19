@@ -7,6 +7,8 @@ import type {
 } from "@/types/candle";
 import { DEFAULT_BAR_ADJUSTMENT } from "../types";
 import type {
+  CandlesMultiResult,
+  GetCandlesMultiParams,
   GetCandlesParams,
   MarketDataProvider,
   ProviderFeedInfo,
@@ -240,6 +242,7 @@ export class AlpacaProvider implements MarketDataProvider {
 
   private rateLimiter: RateLimiter;
   private cache = new TtlCache<CandleSeries>(CANDLE_CACHE_TTL_MS["5m"]);
+  private lastRequestStartedAt = 0;
 
   constructor(
     private config: AlpacaProviderConfig,
@@ -263,7 +266,8 @@ export class AlpacaProvider implements MarketDataProvider {
      * the cap is reported rather than hidden, and so an operator can raise
      * it deliberately — not so truncation can be papered over.
      */
-    private maxBarPages: number = DEFAULT_MAX_BAR_PAGES
+    private maxBarPages: number = DEFAULT_MAX_BAR_PAGES,
+    private requestSpacingMs: number = 0
   ) {
     if (!config.apiKeyId || !config.apiSecretKey) {
       throw new Error(
@@ -353,6 +357,13 @@ export class AlpacaProvider implements MarketDataProvider {
       // budget or starting a fetch that couldn't possibly finish in time.
       this.assertWithinDeadline(0, deadlineAt, url);
 
+      if (this.requestSpacingMs > 0) {
+        const spacingDelay = Math.max(0, this.lastRequestStartedAt + this.requestSpacingMs - Date.now());
+        if (spacingDelay > 0) {
+          this.assertWithinDeadline(spacingDelay, deadlineAt, url);
+          await this.wait(spacingDelay);
+        }
+      }
       if (!this.rateLimiter.canProceed()) {
         const waitMs = this.rateLimiter.msUntilNextSlot();
         throw new Error(
@@ -362,6 +373,7 @@ export class AlpacaProvider implements MarketDataProvider {
       }
       this.rateLimiter.recordRequest();
 
+      this.lastRequestStartedAt = Date.now();
       const attemptTimeoutMs = this.computeAttemptTimeoutMs(deadlineAt);
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), attemptTimeoutMs);
@@ -550,6 +562,63 @@ export class AlpacaProvider implements MarketDataProvider {
     const series: CandleSeries = { symbol, timeframe, quality, candles, pagination };
     this.cache.set(cacheKey, series, CANDLE_CACHE_TTL_MS[timeframe]);
     return series;
+  }
+
+  async getCandlesMulti(params: GetCandlesMultiParams): Promise<CandlesMultiResult> {
+    const symbols = [...new Set(params.symbols.map((symbol) => symbol.trim().toUpperCase()).filter(Boolean))];
+    if (symbols.length === 0) throw new Error("getCandlesMulti requires at least one symbol.");
+    if (!Number.isFinite(Date.parse(params.start)) || !Number.isFinite(Date.parse(params.end))) {
+      throw new Error("getCandlesMulti requires valid RFC-3339 start and end timestamps.");
+    }
+    if (Date.parse(params.start) > Date.parse(params.end)) throw new Error("getCandlesMulti start must not be after end.");
+
+    const feed = this.config.feed ?? "iex";
+    const url = new URL(`${ALPACA_DATA_BASE_URL}/stocks/bars`);
+    url.searchParams.set("symbols", symbols.join(","));
+    url.searchParams.set("timeframe", TIMEFRAME_TO_ALPACA[params.timeframe]);
+    url.searchParams.set("limit", String(ALPACA_MAX_BARS_PER_PAGE));
+    url.searchParams.set("feed", feed);
+    url.searchParams.set("adjustment", params.adjustment);
+    url.searchParams.set("start", params.start);
+    url.searchParams.set("end", params.end);
+
+    const candlesBySymbol: Record<string, Candle[]> = Object.fromEntries(symbols.map((symbol) => [symbol, []]));
+    let pageToken: string | null = null;
+    let pagesFetched = 0;
+    let responseFeed: string | null = null;
+    do {
+      if (pageToken) url.searchParams.set("page_token", pageToken);
+      else url.searchParams.delete("page_token");
+      const response = await this.fetchWithRetry(url.toString(), params.deadlineAt);
+      if (!response.ok) throw new Error(`Alpaca multi-symbol request failed: ${response.status} ${response.statusText}`);
+      const data = (await response.json()) as {
+        bars: Record<string, AlpacaBar[] | null> | null;
+        next_page_token: string | null;
+        feed?: string;
+      };
+      const responseUrlFeed = response.url ? new URL(response.url).searchParams.get("feed") : null;
+      const attestedFeed = data.feed ?? responseUrlFeed ?? undefined;
+      if (attestedFeed !== undefined) {
+        if (responseFeed !== null && responseFeed !== attestedFeed) {
+          throw new Error(`Alpaca response feed changed during pagination: ${responseFeed} -> ${attestedFeed}`);
+        }
+        responseFeed = attestedFeed;
+      }
+      for (const [symbol, bars] of Object.entries(data.bars ?? {})) {
+        if (!(symbol in candlesBySymbol)) throw new Error(`Alpaca returned unexpected symbol ${symbol}.`);
+        candlesBySymbol[symbol].push(...(bars ?? []).map(mapAlpacaBar));
+      }
+      pageToken = data.next_page_token ?? null;
+      pagesFetched += 1;
+    } while (pageToken);
+
+    for (const candles of Object.values(candlesBySymbol)) candles.sort((a, b) => a.time - b.time);
+    return {
+      candlesBySymbol,
+      pagination: { complete: true, pagesFetched, nextPageTokenRemaining: false, truncationReason: null },
+      requestedFeed: feed,
+      responseFeed,
+    };
   }
 
   async getSessionInfo(): Promise<SessionInfo> {

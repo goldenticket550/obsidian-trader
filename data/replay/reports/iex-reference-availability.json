@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "feedMode": "iex_partial",
+  "sessions": {
+    "train": 28,
+    "holdoutExcluded": 12
+  },
+  "population": "reference-bar census uses established rankable symbols; sequential rejection counters cover all rankable symbols and retain limited-history rows for audit",
+  "rollingReferenceDefinition": "at least one provider bar in the current causal 5-minute return window",
+  "windows": [
+    {
+      "subWindow": "premarket_early",
+      "evaluated": 302400,
+      "targetBarPresent": 0,
+      "benchmarkCurrentBarPresent": 0,
+      "benchmarkRolling5mPresent": 0,
+      "sectorCurrentBarPresent": 0,
+      "sectorRolling5mPresent": 0,
+      "allCurrentReferencesPresent": 0,
+      "allRolling5mReferencesPresent": 0,
+      "targetPresentBenchmarkRollingMissing": 0,
+      "scoreable": 0,
+      "sequentialRejections": {
+        "no_target_bar": 307440
+      },
+      "targetCoveragePct": 0,
+      "benchmarkRollingAvailabilityPctOfTarget": 0,
+      "allRollingReferenceAvailabilityPctOfTarget": 0,
+      "scoreablePctOfTarget": 0
+    },
+    {
+      "subWindow": "premarket_core",
+      "evaluated": 201600,
+      "targetBarPresent": 3769,
+      "benchmarkCurrentBarPresent": 1146,
+      "benchmarkRolling5mPresent": 2108,
+      "sectorCurrentBarPresent": 1867,
+      "sectorRolling5mPresent": 2025,
+      "allCurrentReferencesPresent": 829,
+      "allRolling5mReferencesPresent": 1295,
+      "targetPresentBenchmarkRollingMissing": 1661,
+      "scoreable": 79,
+      "sequentialRejections": {
+        "no_target_bar": 201182,
+        "displacement_baseline_unavailable": 3381,
+        "benchmark_reference_missing": 212,
+        "reference_baseline_unavailable": 106,
+        "scoreable": 79
+      },
+      "targetCoveragePct": 1.8695436507936507,
+      "benchmarkRollingAvailabilityPctOfTarget": 55.92995489519767,
+      "allRollingReferenceAvailabilityPctOfTarget": 34.35924648447864,
+      "scoreablePctOfTarget": 2.096046696736535
+    },
+    {
+      "subWindow": "premarket_final",
+      "evaluated": 50400,
+      "targetBarPresent": 2122,
+      "benchmarkCurrentBarPresent": 530,
+      "benchmarkRolling5mPresent": 1227,
+      "sectorCurrentBarPresent": 968,
+      "sectorRolling5mPresent": 1066,
+      "allCurrentReferencesPresent": 363,
+      "allRolling5mReferencesPresent": 699,
+      "targetPresentBenchmarkRollingMissing": 895,
+      "scoreable": 118,
+      "sequentialRejections": {
+        "no_target_bar": 49118,
+        "benchmark_reference_missing": 189,
+        "displacement_baseline_unavailable": 1741,
+        "reference_baseline_unavailable": 70,
+        "scoreable": 118,
+        "participation_baseline_unavailable": 4
+      },
+      "targetCoveragePct": 4.2103174603174605,
+      "benchmarkRollingAvailabilityPctOfTarget": 57.82280867106503,
+      "allRollingReferenceAvailabilityPctOfTarget": 32.94062205466541,
+      "scoreablePctOfTarget": 5.5607917059377945
+    },
+    {
+      "subWindow": "regular",
+      "evaluated": 655200,
+      "targetBarPresent": 575836,
+      "benchmarkCurrentBarPresent": 574001,
+      "benchmarkRolling5mPresent": 575828,
+      "sectorCurrentBarPresent": 517709,
+      "sectorRolling5mPresent": 554122,
+      "allCurrentReferencesPresent": 516310,
+      "allRolling5mReferencesPresent": 554121,
+      "targetPresentBenchmarkRollingMissing": 8,
+      "scoreable": 533883,
+      "sequentialRejections": {
+        "reference_baseline_unavailable": 32079,
+        "scoreable": 533883,
+        "no_target_bar": 89110,
+        "displacement_baseline_unavailable": 4689,
+        "participation_baseline_unavailable": 6348,
+        "benchmark_reference_missing": 8,
+        "target_metrics_unavailable": 3
+      },
+      "targetCoveragePct": 87.88705738705738,
+      "benchmarkRollingAvailabilityPctOfTarget": 99.99861071555095,
+      "allRollingReferenceAvailabilityPctOfTarget": 96.22896102362478,
+      "scoreablePctOfTarget": 92.7144186886544
+    },
+    {
+      "subWindow": "after_hours_core",
+      "evaluated": 201600,
+      "targetBarPresent": 2679,
+      "benchmarkCurrentBarPresent": 1272,
+      "benchmarkRolling5mPresent": 2053,
+      "sectorCurrentBarPresent": 1153,
+      "sectorRolling5mPresent": 1417,
+      "allCurrentReferencesPresent": 861,
+      "allRolling5mReferencesPresent": 1249,
+      "targetPresentBenchmarkRollingMissing": 626,
+      "scoreable": 39,
+      "sequentialRejections": {
+        "no_target_bar": 202257,
+        "reference_baseline_unavailable": 179,
+        "scoreable": 39,
+        "displacement_baseline_unavailable": 2482,
+        "benchmark_reference_missing": 2,
+        "participation_baseline_unavailable": 1
+      },
+      "targetCoveragePct": 1.3288690476190477,
+      "benchmarkRollingAvailabilityPctOfTarget": 76.63307204180664,
+      "allRollingReferenceAvailabilityPctOfTarget": 46.62187383351997,
+      "scoreablePctOfTarget": 1.4557670772676372
+    },
+    {
+      "subWindow": "after_hours_late",
+      "evaluated": 201600,
+      "targetBarPresent": 0,
+      "benchmarkCurrentBarPresent": 0,
+      "benchmarkRolling5mPresent": 0,
+      "sectorCurrentBarPresent": 0,
+      "sectorRolling5mPresent": 0,
+      "allCurrentReferencesPresent": 0,
+      "allRolling5mReferencesPresent": 0,
+      "targetPresentBenchmarkRollingMissing": 0,
+      "scoreable": 0,
+      "sequentialRejections": {
+        "no_target_bar": 204960
+      },
+      "targetCoveragePct": 0,
+      "benchmarkRollingAvailabilityPctOfTarget": 0,
+      "allRollingReferenceAvailabilityPctOfTarget": 0,
+      "scoreablePctOfTarget": 0
+    }
+  ]
+}

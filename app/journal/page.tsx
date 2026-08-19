@@ -7,6 +7,7 @@ import { computeJournalStatistics } from "@/lib/journal/statistics";
 
 const emptyForm = (): NewJournalEntry => ({
   tradeDate: new Date().toISOString().slice(0, 10),
+  entryTime: new Date(Date.now() - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 16),
   symbol: "",
   direction: "long" as TradeDirection,
   entryPrice: 0,
@@ -65,6 +66,7 @@ export default function JournalPage() {
 
     const payload: NewJournalEntry = {
       ...form,
+      entryTime: form.entryTime ? new Date(form.entryTime).toISOString() : null,
       symbol: form.symbol.toUpperCase(),
       conditionsPassed: conditionsPassedText
         .split(",")
@@ -248,6 +250,15 @@ export default function JournalPage() {
               required
               value={form.tradeDate}
               onChange={(e) => setForm({ ...form, tradeDate: e.target.value })}
+              className="input"
+            />
+          </Field>
+          <Field label="Entry Time">
+            <input
+              type="datetime-local"
+              required
+              value={form.entryTime ?? ""}
+              onChange={(e) => setForm({ ...form, entryTime: e.target.value })}
               className="input"
             />
           </Field>
@@ -464,7 +475,7 @@ export default function JournalPage() {
                   </div>
                   {entry.lessonLearned && (
                     <div className="text-xs text-platinum-dim mt-1 italic">
-                      "{entry.lessonLearned}"
+                      &ldquo;{entry.lessonLearned}&rdquo;
                     </div>
                   )}
                 </div>

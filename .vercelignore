@@ -1,0 +1,6 @@
+# Local-only market-data and runtime artifacts. The deployed attention page reads Supabase.
+data/archive/
+data/replay/calibration/
+data/replay/reports/
+data/replay/probe/
+data/runtime-shadow/

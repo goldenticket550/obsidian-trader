@@ -15,7 +15,7 @@ import type { SessionScope } from "./sessionFilter";
  */
 export type BarAdjustment = "raw" | "split" | "dividend" | "all";
 
-export const DEFAULT_BAR_ADJUSTMENT: BarAdjustment = "raw";
+export const DEFAULT_BAR_ADJUSTMENT: BarAdjustment = "split";
 
 export interface GetCandlesParams {
   symbol: string;
@@ -72,6 +72,24 @@ export interface GetCandlesParams {
   adjustment?: BarAdjustment;
 }
 
+/** Explicit-window multi-symbol request used by recorders and archives. */
+export interface GetCandlesMultiParams {
+  symbols: string[];
+  timeframe: Timeframe;
+  start: string;
+  end: string;
+  adjustment: BarAdjustment;
+  deadlineAt?: number;
+}
+
+export interface CandlesMultiResult {
+  candlesBySymbol: Record<string, Candle[]>;
+  pagination: PaginationStatus;
+  requestedFeed: string;
+  /** Null when the upstream response does not attest feed provenance. */
+  responseFeed: string | null;
+}
+
 export type SessionType = "pre-market" | "regular" | "after-hours" | "closed";
 
 export interface SessionInfo {
@@ -112,6 +130,7 @@ export interface ProviderFeedInfo {
 export interface MarketDataProvider {
   name: string;
   getCandles(params: GetCandlesParams): Promise<CandleSeries>;
+  getCandlesMulti?(params: GetCandlesMultiParams): Promise<CandlesMultiResult>;
   getSessionInfo(): Promise<SessionInfo>;
   /**
    * Optional: providers with no real feed (the mock provider) omit it and

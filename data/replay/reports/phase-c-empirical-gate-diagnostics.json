@@ -1,0 +1,340 @@
+{
+  "schemaVersion": 1,
+  "status": "DIAGNOSTIC_ONLY_NOT_PUBLISHED",
+  "groundTruthValidation": "REFUSED",
+  "disclosure": "Timing statistics derived from historical pulls assume instantaneous bar availability. Real arrival latency is not represented. Human-relative latency and move-capture figures are therefore OPTIMISTICALLY BIASED and must not be used to justify lowering thresholds.",
+  "splitHash": "82f216fdd69dbb70ae1a5e025e7862486dadf172828c86a7fc11ddf152571a7d",
+  "activePolicyUnchanged": {
+    "freshness": "D3_CURRENT",
+    "keyLevelMinimumRelevance": 90,
+    "accelerationPersistenceMinutes": 2
+  },
+  "freshness": {
+    "fiveSessions": {
+      "D1_EMA9_ONLY": {
+        "total": 47,
+        "counts": {
+          "Fresh": 0,
+          "Developing": 16,
+          "Mature": 7,
+          "Extended": 24
+        },
+        "shares": {
+          "Fresh": 0,
+          "Developing": 0.3404255319148936,
+          "Mature": 0.14893617021276595,
+          "Extended": 0.5106382978723404
+        },
+        "notExtended": 23
+      },
+      "D2_EMA9_OR_TRAVEL": {
+        "total": 47,
+        "counts": {
+          "Fresh": 0,
+          "Developing": 16,
+          "Mature": 4,
+          "Extended": 27
+        },
+        "shares": {
+          "Fresh": 0,
+          "Developing": 0.3404255319148936,
+          "Mature": 0.0851063829787234,
+          "Extended": 0.574468085106383
+        },
+        "notExtended": 20
+      },
+      "D3_CURRENT": {
+        "total": 47,
+        "counts": {
+          "Fresh": 0,
+          "Developing": 1,
+          "Mature": 1,
+          "Extended": 45
+        },
+        "shares": {
+          "Fresh": 0,
+          "Developing": 0.02127659574468085,
+          "Mature": 0.02127659574468085,
+          "Extended": 0.9574468085106383
+        },
+        "notExtended": 2
+      }
+    },
+    "fullCorpus": {
+      "D1_EMA9_ONLY": {
+        "total": 266,
+        "counts": {
+          "Fresh": 1,
+          "Developing": 75,
+          "Mature": 61,
+          "Extended": 129
+        },
+        "shares": {
+          "Fresh": 0.0037593984962406013,
+          "Developing": 0.2819548872180451,
+          "Mature": 0.22932330827067668,
+          "Extended": 0.4849624060150376
+        },
+        "notExtended": 137
+      },
+      "D2_EMA9_OR_TRAVEL": {
+        "total": 266,
+        "counts": {
+          "Fresh": 1,
+          "Developing": 75,
+          "Mature": 36,
+          "Extended": 154
+        },
+        "shares": {
+          "Fresh": 0.0037593984962406013,
+          "Developing": 0.2819548872180451,
+          "Mature": 0.13533834586466165,
+          "Extended": 0.5789473684210527
+        },
+        "notExtended": 112
+      },
+      "D3_CURRENT": {
+        "total": 266,
+        "counts": {
+          "Fresh": 1,
+          "Developing": 3,
+          "Mature": 5,
+          "Extended": 257
+        },
+        "shares": {
+          "Fresh": 0.0037593984962406013,
+          "Developing": 0.011278195488721804,
+          "Mature": 0.018796992481203006,
+          "Extended": 0.9661654135338346
+        },
+        "notExtended": 9
+      }
+    },
+    "fiveNowInPlayCount": 47,
+    "fullNowInPlayCount": 266
+  },
+  "keyLevel": [
+    {
+      "floor": 77.44444444444444,
+      "percentile": "p75",
+      "funnel": {
+        "eligibleSymbolMinutes": 1684,
+        "withMap": 1684,
+        "withAllowedLevel": 1684,
+        "withRelevantLevel": 1518,
+        "selectedLevel": 1518,
+        "semanticTransition": 125,
+        "novelIdentity": 89,
+        "allowedLevelObservations": 33516,
+        "relevantLevelObservations": 8405
+      },
+      "emitted": 21,
+      "relevanceDistribution": {
+        "count": 33516,
+        "min": 7.5,
+        "p25": 15,
+        "median": 67.5,
+        "p75": 77.44444444444444,
+        "p90": 84.11111111111111,
+        "p95": 84.72222222222223,
+        "p99": 88.45624999999997,
+        "max": 92.41666666666666
+      },
+      "fractionAllowedObservationsAtOrAboveFloor": 0.25077574889604964
+    },
+    {
+      "floor": 84.11111111111111,
+      "percentile": "p90",
+      "funnel": {
+        "eligibleSymbolMinutes": 1684,
+        "withMap": 1684,
+        "withAllowedLevel": 1684,
+        "withRelevantLevel": 1063,
+        "selectedLevel": 1063,
+        "semanticTransition": 89,
+        "novelIdentity": 64,
+        "allowedLevelObservations": 33516,
+        "relevantLevelObservations": 3362
+      },
+      "emitted": 15,
+      "relevanceDistribution": {
+        "count": 33516,
+        "min": 7.5,
+        "p25": 15,
+        "median": 67.5,
+        "p75": 77.44444444444444,
+        "p90": 84.11111111111111,
+        "p95": 84.72222222222223,
+        "p99": 88.45624999999997,
+        "max": 92.41666666666666
+      },
+      "fractionAllowedObservationsAtOrAboveFloor": 0.10031029955841986
+    },
+    {
+      "floor": 84.72222222222223,
+      "percentile": "p95",
+      "funnel": {
+        "eligibleSymbolMinutes": 1684,
+        "withMap": 1684,
+        "withAllowedLevel": 1684,
+        "withRelevantLevel": 870,
+        "selectedLevel": 870,
+        "semanticTransition": 83,
+        "novelIdentity": 59,
+        "allowedLevelObservations": 33516,
+        "relevantLevelObservations": 1746
+      },
+      "emitted": 14,
+      "relevanceDistribution": {
+        "count": 33516,
+        "min": 7.5,
+        "p25": 15,
+        "median": 67.5,
+        "p75": 77.44444444444444,
+        "p90": 84.11111111111111,
+        "p95": 84.72222222222223,
+        "p99": 88.45624999999997,
+        "max": 92.41666666666666
+      },
+      "fractionAllowedObservationsAtOrAboveFloor": 0.05209452201933405
+    }
+  ],
+  "acceleration": [
+    {
+      "persistenceMinutes": 1,
+      "definition": "D1_EMA9_ONLY",
+      "funnel": {
+        "activeEpisode": 9751,
+        "inPlay": 1684,
+        "participationDelta": 453,
+        "displacementDelta": 115,
+        "idiosyncrasy": 95,
+        "persistence": 95,
+        "quality": 95,
+        "modeGuard": 95,
+        "extension": 87,
+        "openingProtection": 87,
+        "potentialEvents": 52,
+        "redundantWithEntry": 6,
+        "cooldownSuppressed": 29
+      }
+    },
+    {
+      "persistenceMinutes": 1,
+      "definition": "D2_EMA9_OR_TRAVEL",
+      "funnel": {
+        "activeEpisode": 9751,
+        "inPlay": 1684,
+        "participationDelta": 453,
+        "displacementDelta": 115,
+        "idiosyncrasy": 95,
+        "persistence": 95,
+        "quality": 95,
+        "modeGuard": 95,
+        "extension": 31,
+        "openingProtection": 31,
+        "potentialEvents": 20,
+        "redundantWithEntry": 5,
+        "cooldownSuppressed": 6
+      }
+    },
+    {
+      "persistenceMinutes": 1,
+      "definition": "D3_CURRENT",
+      "funnel": {
+        "activeEpisode": 9751,
+        "inPlay": 1684,
+        "participationDelta": 453,
+        "displacementDelta": 115,
+        "idiosyncrasy": 95,
+        "persistence": 95,
+        "quality": 95,
+        "modeGuard": 95,
+        "extension": 6,
+        "openingProtection": 6,
+        "potentialEvents": 4,
+        "redundantWithEntry": 0,
+        "cooldownSuppressed": 2
+      }
+    },
+    {
+      "persistenceMinutes": 2,
+      "definition": "D1_EMA9_ONLY",
+      "funnel": {
+        "activeEpisode": 9751,
+        "inPlay": 1684,
+        "participationDelta": 453,
+        "displacementDelta": 115,
+        "idiosyncrasy": 95,
+        "persistence": 8,
+        "quality": 8,
+        "modeGuard": 8,
+        "extension": 6,
+        "openingProtection": 6,
+        "potentialEvents": 4,
+        "redundantWithEntry": 2,
+        "cooldownSuppressed": 0
+      }
+    },
+    {
+      "persistenceMinutes": 2,
+      "definition": "D2_EMA9_OR_TRAVEL",
+      "funnel": {
+        "activeEpisode": 9751,
+        "inPlay": 1684,
+        "participationDelta": 453,
+        "displacementDelta": 115,
+        "idiosyncrasy": 95,
+        "persistence": 8,
+        "quality": 8,
+        "modeGuard": 8,
+        "extension": 3,
+        "openingProtection": 3,
+        "potentialEvents": 1,
+        "redundantWithEntry": 2,
+        "cooldownSuppressed": 0
+      }
+    },
+    {
+      "persistenceMinutes": 2,
+      "definition": "D3_CURRENT",
+      "funnel": {
+        "activeEpisode": 9751,
+        "inPlay": 1684,
+        "participationDelta": 453,
+        "displacementDelta": 115,
+        "idiosyncrasy": 95,
+        "persistence": 8,
+        "quality": 8,
+        "modeGuard": 8,
+        "extension": 1,
+        "openingProtection": 1,
+        "potentialEvents": 1,
+        "redundantWithEntry": 0,
+        "cooldownSuppressed": 0
+      }
+    }
+  ],
+  "recommendations": {
+    "freshness": {
+      "definition": "D1_EMA9_ONLY",
+      "status": "for_trader_adjudication_only",
+      "rationale": "EMA9 distance is the direct current-extension claim; VWAP distance and expansion count should remain separate factual badges."
+    },
+    "keyLevel": {
+      "floor": 84.11111111111111,
+      "status": "for_trader_adjudication_only",
+      "rationale": "p90 is the conservative distribution-derived starting point; semantic transition counts determine whether it remains useful."
+    },
+    "acceleration": {
+      "status": "VIABLE_AS_RARE_TWO_MINUTE_D1_CANDIDATE",
+      "definition": "D1_EMA9_ONLY",
+      "persistenceMinutes": 2,
+      "potentialEventsAcrossFiveSessions": 4,
+      "oneMinuteCandidateEvents": 52,
+      "oneMinuteRecommendation": "do_not_publish_without_labels",
+      "published": false
+    }
+  },
+  "artifactHash": "35af47e06a8420dc2c786330ea16cc7ed76734bad4fe1748f7430ba3427c6767"
+}

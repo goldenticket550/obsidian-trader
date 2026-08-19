@@ -1,0 +1,2510 @@
+{
+  "generatedAt": "2026-08-18T23:54:36.934Z",
+  "before": {
+    "tableId": "0a7f4c0b9b8dfe5f0c533541acd144b6436362e465ff3d870ca6542f580ef770",
+    "universeHash": "3366aa05771ddbdc321b9aa44ecff3e907e6c91fdf417bc62695a06d480e24a2",
+    "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d"
+  },
+  "after": {
+    "tableId": "0bdc723e1df978fce3842255a31997e0f1b40d4f3f6c4ed85f6024b2eb817775",
+    "universeHash": "da45bb8793968392c2f872da51bc33caa9331a17251426badde96c5e12b077f7",
+    "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-492b6bc31e5e",
+    "warmup": {
+      "source": "prior_session_regular",
+      "completedFiveMinuteBars": 13,
+      "overnightGapTreatment": "first_current_bar_true_range_vs_previous_regular_close"
+    }
+  },
+  "identitiesInvalidated": true,
+  "numericalCalibrationChanged": false,
+  "coverage": {
+    "curveRows": [
+      {
+        "minuteOfDay": 570,
+        "minuteEt": "09:30",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 571,
+        "minuteEt": "09:31",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 572,
+        "minuteEt": "09:32",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 573,
+        "minuteEt": "09:33",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 574,
+        "minuteEt": "09:34",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 575,
+        "minuteEt": "09:35",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 576,
+        "minuteEt": "09:36",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 577,
+        "minuteEt": "09:37",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 578,
+        "minuteEt": "09:38",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 579,
+        "minuteEt": "09:39",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 580,
+        "minuteEt": "09:40",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 581,
+        "minuteEt": "09:41",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 582,
+        "minuteEt": "09:42",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 583,
+        "minuteEt": "09:43",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 584,
+        "minuteEt": "09:44",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 585,
+        "minuteEt": "09:45",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 586,
+        "minuteEt": "09:46",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 587,
+        "minuteEt": "09:47",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 588,
+        "minuteEt": "09:48",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 589,
+        "minuteEt": "09:49",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 590,
+        "minuteEt": "09:50",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 591,
+        "minuteEt": "09:51",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 592,
+        "minuteEt": "09:52",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 593,
+        "minuteEt": "09:53",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 594,
+        "minuteEt": "09:54",
+        "before": 0,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 595,
+        "minuteEt": "09:55",
+        "before": 3,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 596,
+        "minuteEt": "09:56",
+        "before": 3,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 597,
+        "minuteEt": "09:57",
+        "before": 3,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 598,
+        "minuteEt": "09:58",
+        "before": 3,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 599,
+        "minuteEt": "09:59",
+        "before": 3,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 600,
+        "minuteEt": "10:00",
+        "before": 5,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 601,
+        "minuteEt": "10:01",
+        "before": 5,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 602,
+        "minuteEt": "10:02",
+        "before": 5,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 603,
+        "minuteEt": "10:03",
+        "before": 5,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 604,
+        "minuteEt": "10:04",
+        "before": 5,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 605,
+        "minuteEt": "10:05",
+        "before": 7,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 606,
+        "minuteEt": "10:06",
+        "before": 7,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 607,
+        "minuteEt": "10:07",
+        "before": 7,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 608,
+        "minuteEt": "10:08",
+        "before": 7,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 609,
+        "minuteEt": "10:09",
+        "before": 7,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 610,
+        "minuteEt": "10:10",
+        "before": 9,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 611,
+        "minuteEt": "10:11",
+        "before": 9,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 612,
+        "minuteEt": "10:12",
+        "before": 9,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 613,
+        "minuteEt": "10:13",
+        "before": 8,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 614,
+        "minuteEt": "10:14",
+        "before": 9,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 615,
+        "minuteEt": "10:15",
+        "before": 14,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 616,
+        "minuteEt": "10:16",
+        "before": 14,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 617,
+        "minuteEt": "10:17",
+        "before": 14,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 618,
+        "minuteEt": "10:18",
+        "before": 14,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 619,
+        "minuteEt": "10:19",
+        "before": 14,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 620,
+        "minuteEt": "10:20",
+        "before": 19,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 621,
+        "minuteEt": "10:21",
+        "before": 19,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 622,
+        "minuteEt": "10:22",
+        "before": 19,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 623,
+        "minuteEt": "10:23",
+        "before": 19,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 624,
+        "minuteEt": "10:24",
+        "before": 19,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 625,
+        "minuteEt": "10:25",
+        "before": 26,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 626,
+        "minuteEt": "10:26",
+        "before": 26,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 627,
+        "minuteEt": "10:27",
+        "before": 26,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 628,
+        "minuteEt": "10:28",
+        "before": 25,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 629,
+        "minuteEt": "10:29",
+        "before": 26,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 630,
+        "minuteEt": "10:30",
+        "before": 30,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 631,
+        "minuteEt": "10:31",
+        "before": 30,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 632,
+        "minuteEt": "10:32",
+        "before": 30,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 633,
+        "minuteEt": "10:33",
+        "before": 30,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 634,
+        "minuteEt": "10:34",
+        "before": 30,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 635,
+        "minuteEt": "10:35",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 636,
+        "minuteEt": "10:36",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 637,
+        "minuteEt": "10:37",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 638,
+        "minuteEt": "10:38",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 639,
+        "minuteEt": "10:39",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 640,
+        "minuteEt": "10:40",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 641,
+        "minuteEt": "10:41",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 642,
+        "minuteEt": "10:42",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 643,
+        "minuteEt": "10:43",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 644,
+        "minuteEt": "10:44",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 645,
+        "minuteEt": "10:45",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 646,
+        "minuteEt": "10:46",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 647,
+        "minuteEt": "10:47",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 648,
+        "minuteEt": "10:48",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 649,
+        "minuteEt": "10:49",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 650,
+        "minuteEt": "10:50",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 651,
+        "minuteEt": "10:51",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 652,
+        "minuteEt": "10:52",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 653,
+        "minuteEt": "10:53",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 654,
+        "minuteEt": "10:54",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 655,
+        "minuteEt": "10:55",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 656,
+        "minuteEt": "10:56",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 657,
+        "minuteEt": "10:57",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 658,
+        "minuteEt": "10:58",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 659,
+        "minuteEt": "10:59",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 660,
+        "minuteEt": "11:00",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 661,
+        "minuteEt": "11:01",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 662,
+        "minuteEt": "11:02",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 663,
+        "minuteEt": "11:03",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 664,
+        "minuteEt": "11:04",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 665,
+        "minuteEt": "11:05",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 666,
+        "minuteEt": "11:06",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 667,
+        "minuteEt": "11:07",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 668,
+        "minuteEt": "11:08",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 669,
+        "minuteEt": "11:09",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 670,
+        "minuteEt": "11:10",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 671,
+        "minuteEt": "11:11",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 672,
+        "minuteEt": "11:12",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 673,
+        "minuteEt": "11:13",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 674,
+        "minuteEt": "11:14",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 675,
+        "minuteEt": "11:15",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 676,
+        "minuteEt": "11:16",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 677,
+        "minuteEt": "11:17",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 678,
+        "minuteEt": "11:18",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 679,
+        "minuteEt": "11:19",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 680,
+        "minuteEt": "11:20",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 681,
+        "minuteEt": "11:21",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 682,
+        "minuteEt": "11:22",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 683,
+        "minuteEt": "11:23",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 684,
+        "minuteEt": "11:24",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 685,
+        "minuteEt": "11:25",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 686,
+        "minuteEt": "11:26",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 687,
+        "minuteEt": "11:27",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 688,
+        "minuteEt": "11:28",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 689,
+        "minuteEt": "11:29",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 690,
+        "minuteEt": "11:30",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 691,
+        "minuteEt": "11:31",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 692,
+        "minuteEt": "11:32",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 693,
+        "minuteEt": "11:33",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 694,
+        "minuteEt": "11:34",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 695,
+        "minuteEt": "11:35",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 696,
+        "minuteEt": "11:36",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 697,
+        "minuteEt": "11:37",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 698,
+        "minuteEt": "11:38",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 699,
+        "minuteEt": "11:39",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 700,
+        "minuteEt": "11:40",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 701,
+        "minuteEt": "11:41",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 702,
+        "minuteEt": "11:42",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 703,
+        "minuteEt": "11:43",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 704,
+        "minuteEt": "11:44",
+        "before": 48,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 705,
+        "minuteEt": "11:45",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 706,
+        "minuteEt": "11:46",
+        "before": 48,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 707,
+        "minuteEt": "11:47",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 708,
+        "minuteEt": "11:48",
+        "before": 48,
+        "after": 60
+      },
+      {
+        "minuteOfDay": 709,
+        "minuteEt": "11:49",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 710,
+        "minuteEt": "11:50",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 711,
+        "minuteEt": "11:51",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 712,
+        "minuteEt": "11:52",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 713,
+        "minuteEt": "11:53",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 714,
+        "minuteEt": "11:54",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 715,
+        "minuteEt": "11:55",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 716,
+        "minuteEt": "11:56",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 717,
+        "minuteEt": "11:57",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 718,
+        "minuteEt": "11:58",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 719,
+        "minuteEt": "11:59",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 720,
+        "minuteEt": "12:00",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 721,
+        "minuteEt": "12:01",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 722,
+        "minuteEt": "12:02",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 723,
+        "minuteEt": "12:03",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 724,
+        "minuteEt": "12:04",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 725,
+        "minuteEt": "12:05",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 726,
+        "minuteEt": "12:06",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 727,
+        "minuteEt": "12:07",
+        "before": 51,
+        "after": 60
+      },
+      {
+        "minuteOfDay": 728,
+        "minuteEt": "12:08",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 729,
+        "minuteEt": "12:09",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 730,
+        "minuteEt": "12:10",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 731,
+        "minuteEt": "12:11",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 732,
+        "minuteEt": "12:12",
+        "before": 51,
+        "after": 60
+      },
+      {
+        "minuteOfDay": 733,
+        "minuteEt": "12:13",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 734,
+        "minuteEt": "12:14",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 735,
+        "minuteEt": "12:15",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 736,
+        "minuteEt": "12:16",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 737,
+        "minuteEt": "12:17",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 738,
+        "minuteEt": "12:18",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 739,
+        "minuteEt": "12:19",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 740,
+        "minuteEt": "12:20",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 741,
+        "minuteEt": "12:21",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 742,
+        "minuteEt": "12:22",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 743,
+        "minuteEt": "12:23",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 744,
+        "minuteEt": "12:24",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 745,
+        "minuteEt": "12:25",
+        "before": 48,
+        "after": 60
+      },
+      {
+        "minuteOfDay": 746,
+        "minuteEt": "12:26",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 747,
+        "minuteEt": "12:27",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 748,
+        "minuteEt": "12:28",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 749,
+        "minuteEt": "12:29",
+        "before": 48,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 750,
+        "minuteEt": "12:30",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 751,
+        "minuteEt": "12:31",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 752,
+        "minuteEt": "12:32",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 753,
+        "minuteEt": "12:33",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 754,
+        "minuteEt": "12:34",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 755,
+        "minuteEt": "12:35",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 756,
+        "minuteEt": "12:36",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 757,
+        "minuteEt": "12:37",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 758,
+        "minuteEt": "12:38",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 759,
+        "minuteEt": "12:39",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 760,
+        "minuteEt": "12:40",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 761,
+        "minuteEt": "12:41",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 762,
+        "minuteEt": "12:42",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 763,
+        "minuteEt": "12:43",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 764,
+        "minuteEt": "12:44",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 765,
+        "minuteEt": "12:45",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 766,
+        "minuteEt": "12:46",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 767,
+        "minuteEt": "12:47",
+        "before": 51,
+        "after": 60
+      },
+      {
+        "minuteOfDay": 768,
+        "minuteEt": "12:48",
+        "before": 51,
+        "after": 60
+      },
+      {
+        "minuteOfDay": 769,
+        "minuteEt": "12:49",
+        "before": 51,
+        "after": 60
+      },
+      {
+        "minuteOfDay": 770,
+        "minuteEt": "12:50",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 771,
+        "minuteEt": "12:51",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 772,
+        "minuteEt": "12:52",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 773,
+        "minuteEt": "12:53",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 774,
+        "minuteEt": "12:54",
+        "before": 51,
+        "after": 60
+      },
+      {
+        "minuteOfDay": 775,
+        "minuteEt": "12:55",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 776,
+        "minuteEt": "12:56",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 777,
+        "minuteEt": "12:57",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 778,
+        "minuteEt": "12:58",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 779,
+        "minuteEt": "12:59",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 780,
+        "minuteEt": "13:00",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 781,
+        "minuteEt": "13:01",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 782,
+        "minuteEt": "13:02",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 783,
+        "minuteEt": "13:03",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 784,
+        "minuteEt": "13:04",
+        "before": 51,
+        "after": 60
+      },
+      {
+        "minuteOfDay": 785,
+        "minuteEt": "13:05",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 786,
+        "minuteEt": "13:06",
+        "before": 48,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 787,
+        "minuteEt": "13:07",
+        "before": 50,
+        "after": 60
+      },
+      {
+        "minuteOfDay": 788,
+        "minuteEt": "13:08",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 789,
+        "minuteEt": "13:09",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 790,
+        "minuteEt": "13:10",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 791,
+        "minuteEt": "13:11",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 792,
+        "minuteEt": "13:12",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 793,
+        "minuteEt": "13:13",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 794,
+        "minuteEt": "13:14",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 795,
+        "minuteEt": "13:15",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 796,
+        "minuteEt": "13:16",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 797,
+        "minuteEt": "13:17",
+        "before": 51,
+        "after": 60
+      },
+      {
+        "minuteOfDay": 798,
+        "minuteEt": "13:18",
+        "before": 48,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 799,
+        "minuteEt": "13:19",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 800,
+        "minuteEt": "13:20",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 801,
+        "minuteEt": "13:21",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 802,
+        "minuteEt": "13:22",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 803,
+        "minuteEt": "13:23",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 804,
+        "minuteEt": "13:24",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 805,
+        "minuteEt": "13:25",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 806,
+        "minuteEt": "13:26",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 807,
+        "minuteEt": "13:27",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 808,
+        "minuteEt": "13:28",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 809,
+        "minuteEt": "13:29",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 810,
+        "minuteEt": "13:30",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 811,
+        "minuteEt": "13:31",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 812,
+        "minuteEt": "13:32",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 813,
+        "minuteEt": "13:33",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 814,
+        "minuteEt": "13:34",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 815,
+        "minuteEt": "13:35",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 816,
+        "minuteEt": "13:36",
+        "before": 51,
+        "after": 60
+      },
+      {
+        "minuteOfDay": 817,
+        "minuteEt": "13:37",
+        "before": 50,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 818,
+        "minuteEt": "13:38",
+        "before": 50,
+        "after": 60
+      },
+      {
+        "minuteOfDay": 819,
+        "minuteEt": "13:39",
+        "before": 51,
+        "after": 60
+      },
+      {
+        "minuteOfDay": 820,
+        "minuteEt": "13:40",
+        "before": 50,
+        "after": 59
+      },
+      {
+        "minuteOfDay": 821,
+        "minuteEt": "13:41",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 822,
+        "minuteEt": "13:42",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 823,
+        "minuteEt": "13:43",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 824,
+        "minuteEt": "13:44",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 825,
+        "minuteEt": "13:45",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 826,
+        "minuteEt": "13:46",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 827,
+        "minuteEt": "13:47",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 828,
+        "minuteEt": "13:48",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 829,
+        "minuteEt": "13:49",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 830,
+        "minuteEt": "13:50",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 831,
+        "minuteEt": "13:51",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 832,
+        "minuteEt": "13:52",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 833,
+        "minuteEt": "13:53",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 834,
+        "minuteEt": "13:54",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 835,
+        "minuteEt": "13:55",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 836,
+        "minuteEt": "13:56",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 837,
+        "minuteEt": "13:57",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 838,
+        "minuteEt": "13:58",
+        "before": 47,
+        "after": 60
+      },
+      {
+        "minuteOfDay": 839,
+        "minuteEt": "13:59",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 840,
+        "minuteEt": "14:00",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 841,
+        "minuteEt": "14:01",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 842,
+        "minuteEt": "14:02",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 843,
+        "minuteEt": "14:03",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 844,
+        "minuteEt": "14:04",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 845,
+        "minuteEt": "14:05",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 846,
+        "minuteEt": "14:06",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 847,
+        "minuteEt": "14:07",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 848,
+        "minuteEt": "14:08",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 849,
+        "minuteEt": "14:09",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 850,
+        "minuteEt": "14:10",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 851,
+        "minuteEt": "14:11",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 852,
+        "minuteEt": "14:12",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 853,
+        "minuteEt": "14:13",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 854,
+        "minuteEt": "14:14",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 855,
+        "minuteEt": "14:15",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 856,
+        "minuteEt": "14:16",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 857,
+        "minuteEt": "14:17",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 858,
+        "minuteEt": "14:18",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 859,
+        "minuteEt": "14:19",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 860,
+        "minuteEt": "14:20",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 861,
+        "minuteEt": "14:21",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 862,
+        "minuteEt": "14:22",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 863,
+        "minuteEt": "14:23",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 864,
+        "minuteEt": "14:24",
+        "before": 48,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 865,
+        "minuteEt": "14:25",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 866,
+        "minuteEt": "14:26",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 867,
+        "minuteEt": "14:27",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 868,
+        "minuteEt": "14:28",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 869,
+        "minuteEt": "14:29",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 870,
+        "minuteEt": "14:30",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 871,
+        "minuteEt": "14:31",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 872,
+        "minuteEt": "14:32",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 873,
+        "minuteEt": "14:33",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 874,
+        "minuteEt": "14:34",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 875,
+        "minuteEt": "14:35",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 876,
+        "minuteEt": "14:36",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 877,
+        "minuteEt": "14:37",
+        "before": 48,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 878,
+        "minuteEt": "14:38",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 879,
+        "minuteEt": "14:39",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 880,
+        "minuteEt": "14:40",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 881,
+        "minuteEt": "14:41",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 882,
+        "minuteEt": "14:42",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 883,
+        "minuteEt": "14:43",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 884,
+        "minuteEt": "14:44",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 885,
+        "minuteEt": "14:45",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 886,
+        "minuteEt": "14:46",
+        "before": 48,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 887,
+        "minuteEt": "14:47",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 888,
+        "minuteEt": "14:48",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 889,
+        "minuteEt": "14:49",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 890,
+        "minuteEt": "14:50",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 891,
+        "minuteEt": "14:51",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 892,
+        "minuteEt": "14:52",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 893,
+        "minuteEt": "14:53",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 894,
+        "minuteEt": "14:54",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 895,
+        "minuteEt": "14:55",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 896,
+        "minuteEt": "14:56",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 897,
+        "minuteEt": "14:57",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 898,
+        "minuteEt": "14:58",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 899,
+        "minuteEt": "14:59",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 900,
+        "minuteEt": "15:00",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 901,
+        "minuteEt": "15:01",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 902,
+        "minuteEt": "15:02",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 903,
+        "minuteEt": "15:03",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 904,
+        "minuteEt": "15:04",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 905,
+        "minuteEt": "15:05",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 906,
+        "minuteEt": "15:06",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 907,
+        "minuteEt": "15:07",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 908,
+        "minuteEt": "15:08",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 909,
+        "minuteEt": "15:09",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 910,
+        "minuteEt": "15:10",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 911,
+        "minuteEt": "15:11",
+        "before": 48,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 912,
+        "minuteEt": "15:12",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 913,
+        "minuteEt": "15:13",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 914,
+        "minuteEt": "15:14",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 915,
+        "minuteEt": "15:15",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 916,
+        "minuteEt": "15:16",
+        "before": 48,
+        "after": 60
+      },
+      {
+        "minuteOfDay": 917,
+        "minuteEt": "15:17",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 918,
+        "minuteEt": "15:18",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 919,
+        "minuteEt": "15:19",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 920,
+        "minuteEt": "15:20",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 921,
+        "minuteEt": "15:21",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 922,
+        "minuteEt": "15:22",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 923,
+        "minuteEt": "15:23",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 924,
+        "minuteEt": "15:24",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 925,
+        "minuteEt": "15:25",
+        "before": 51,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 926,
+        "minuteEt": "15:26",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 927,
+        "minuteEt": "15:27",
+        "before": 49,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 928,
+        "minuteEt": "15:28",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 929,
+        "minuteEt": "15:29",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 930,
+        "minuteEt": "15:30",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 931,
+        "minuteEt": "15:31",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 932,
+        "minuteEt": "15:32",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 933,
+        "minuteEt": "15:33",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 934,
+        "minuteEt": "15:34",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 935,
+        "minuteEt": "15:35",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 936,
+        "minuteEt": "15:36",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 937,
+        "minuteEt": "15:37",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 938,
+        "minuteEt": "15:38",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 939,
+        "minuteEt": "15:39",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 940,
+        "minuteEt": "15:40",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 941,
+        "minuteEt": "15:41",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 942,
+        "minuteEt": "15:42",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 943,
+        "minuteEt": "15:43",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 944,
+        "minuteEt": "15:44",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 945,
+        "minuteEt": "15:45",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 946,
+        "minuteEt": "15:46",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 947,
+        "minuteEt": "15:47",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 948,
+        "minuteEt": "15:48",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 949,
+        "minuteEt": "15:49",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 950,
+        "minuteEt": "15:50",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 951,
+        "minuteEt": "15:51",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 952,
+        "minuteEt": "15:52",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 953,
+        "minuteEt": "15:53",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 954,
+        "minuteEt": "15:54",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 955,
+        "minuteEt": "15:55",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 956,
+        "minuteEt": "15:56",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 957,
+        "minuteEt": "15:57",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 958,
+        "minuteEt": "15:58",
+        "before": 52,
+        "after": 61
+      },
+      {
+        "minuteOfDay": 959,
+        "minuteEt": "15:59",
+        "before": 52,
+        "after": 61
+      }
+    ],
+    "beforePeak": 52,
+    "afterPeak": 61,
+    "beforeAtOpen": 0,
+    "afterAtOpen": 61
+  },
+  "warmupOnlyExistingScores": {
+    "replaySession": "2026-08-14",
+    "comparedScoreRows": 11941,
+    "maxAbsoluteAttentionDelta": 0
+  },
+  "liveVsHistoricalAtOpen": {
+    "replaySession": "2026-08-14",
+    "minuteEt": "09:30",
+    "symbol": "SPY",
+    "live": 9.55799617837163,
+    "historical": 9.55799617837163,
+    "delta": 0
+  },
+  "neverScoreable": [],
+  "affectedSymbolEvidence": [
+    {
+      "symbol": "SPY",
+      "scoreableCorpusRows": 15414,
+      "regularIexBarsAcross40Sessions": 15401,
+      "unavailableBuckets": {
+        "volume": 0,
+        "dollarVolume": 0,
+        "rangeAtr": 0,
+        "pathEfficiency": 0,
+        "stockMagnitude": 0,
+        "sectorMagnitude": 0
+      },
+      "maxPresenceProbability": 1
+    },
+    {
+      "symbol": "QQQ",
+      "scoreableCorpusRows": 15466,
+      "regularIexBarsAcross40Sessions": 15359,
+      "unavailableBuckets": {
+        "volume": 0,
+        "dollarVolume": 0,
+        "rangeAtr": 0,
+        "pathEfficiency": 0,
+        "stockMagnitude": 0,
+        "sectorMagnitude": 0
+      },
+      "maxPresenceProbability": 1
+    },
+    {
+      "symbol": "IWM",
+      "scoreableCorpusRows": 15291,
+      "regularIexBarsAcross40Sessions": 15244,
+      "unavailableBuckets": {
+        "volume": 0,
+        "dollarVolume": 0,
+        "rangeAtr": 0,
+        "pathEfficiency": 0,
+        "stockMagnitude": 0,
+        "sectorMagnitude": 0
+      },
+      "maxPresenceProbability": 1
+    },
+    {
+      "symbol": "SMH",
+      "scoreableCorpusRows": 14205,
+      "regularIexBarsAcross40Sessions": 14208,
+      "unavailableBuckets": {
+        "volume": 0,
+        "dollarVolume": 0,
+        "rangeAtr": 0,
+        "pathEfficiency": 0,
+        "stockMagnitude": 0,
+        "sectorMagnitude": 0
+      },
+      "maxPresenceProbability": 1
+    },
+    {
+      "symbol": "GLD",
+      "scoreableCorpusRows": 13130,
+      "regularIexBarsAcross40Sessions": 13158,
+      "unavailableBuckets": {
+        "volume": 0,
+        "dollarVolume": 0,
+        "rangeAtr": 0,
+        "pathEfficiency": 0,
+        "stockMagnitude": 0,
+        "sectorMagnitude": 0
+      },
+      "maxPresenceProbability": 1
+    },
+    {
+      "symbol": "SLV",
+      "scoreableCorpusRows": 14271,
+      "regularIexBarsAcross40Sessions": 14278,
+      "unavailableBuckets": {
+        "volume": 0,
+        "dollarVolume": 0,
+        "rangeAtr": 0,
+        "pathEfficiency": 0,
+        "stockMagnitude": 0,
+        "sectorMagnitude": 0
+      },
+      "maxPresenceProbability": 1
+    },
+    {
+      "symbol": "IBIT",
+      "scoreableCorpusRows": 15359,
+      "regularIexBarsAcross40Sessions": 15038,
+      "unavailableBuckets": {
+        "volume": 0,
+        "dollarVolume": 0,
+        "rangeAtr": 0,
+        "pathEfficiency": 0,
+        "stockMagnitude": 0,
+        "sectorMagnitude": 0
+      },
+      "maxPresenceProbability": 1
+    },
+    {
+      "symbol": "DRAM",
+      "scoreableCorpusRows": 3383,
+      "regularIexBarsAcross40Sessions": 4313,
+      "unavailableBuckets": {
+        "volume": 0,
+        "dollarVolume": 0,
+        "rangeAtr": 0,
+        "pathEfficiency": 0,
+        "stockMagnitude": 0,
+        "sectorMagnitude": 0
+      },
+      "maxPresenceProbability": 1
+    },
+    {
+      "symbol": "SPCX",
+      "scoreableCorpusRows": 1170,
+      "regularIexBarsAcross40Sessions": 1564,
+      "unavailableBuckets": {
+        "volume": 0,
+        "dollarVolume": 0,
+        "rangeAtr": 0,
+        "pathEfficiency": 0,
+        "stockMagnitude": 0,
+        "sectorMagnitude": 0
+      },
+      "maxPresenceProbability": 1
+    }
+  ]
+}

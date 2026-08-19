@@ -1,0 +1,97 @@
+{
+  "scope": "single_gate_counterfactual_not_published",
+  "change": "episode-relative directional pullback history only",
+  "excursionAtr": 0.5,
+  "retracementAtr": 0.3,
+  "rows": [
+    {
+      "tradingDate": "2025-10-01",
+      "wakingRows": 0,
+      "minutesWithWakingUp": 0,
+      "events": []
+    },
+    {
+      "tradingDate": "2025-10-10",
+      "wakingRows": 1,
+      "minutesWithWakingUp": 1,
+      "events": [
+        {
+          "minuteOfDay": 543,
+          "symbol": "ORCL",
+          "attention": 40.48392019042906,
+          "velocityPerMinute": 7.569125055320067,
+          "state": "EMERGING",
+          "freshness": "Fresh",
+          "atrTravelled": 0.023829990720761463
+        }
+      ]
+    },
+    {
+      "tradingDate": "2025-11-04",
+      "wakingRows": 2,
+      "minutesWithWakingUp": 2,
+      "events": [
+        {
+          "minuteOfDay": 1019,
+          "symbol": "AMD",
+          "attention": 49.502947775670215,
+          "velocityPerMinute": 9.147343558155358,
+          "state": "WATCHING",
+          "freshness": "Fresh",
+          "atrTravelled": 0
+        },
+        {
+          "minuteOfDay": 1043,
+          "symbol": "AMD",
+          "attention": 40.32402173745124,
+          "velocityPerMinute": 8.962986589523258,
+          "state": "WATCHING",
+          "freshness": "Fresh",
+          "atrTravelled": 0.3211407024911017
+        }
+      ]
+    },
+    {
+      "tradingDate": "2025-11-28",
+      "wakingRows": 0,
+      "minutesWithWakingUp": 0,
+      "events": []
+    },
+    {
+      "tradingDate": "2026-02-13",
+      "wakingRows": 3,
+      "minutesWithWakingUp": 3,
+      "events": [
+        {
+          "minuteOfDay": 548,
+          "symbol": "QQQ",
+          "attention": 40.068042506142376,
+          "velocityPerMinute": 7.818851987334,
+          "state": "EMERGING",
+          "freshness": "Fresh",
+          "atrTravelled": 0.4402743030945669
+        },
+        {
+          "minuteOfDay": 549,
+          "symbol": "QQQ",
+          "attention": 57.72262414825154,
+          "velocityPerMinute": 9.334912516664994,
+          "state": "EMERGING",
+          "freshness": "Developing",
+          "atrTravelled": 0.6282964745072068
+        },
+        {
+          "minuteOfDay": 634,
+          "symbol": "AMAT",
+          "attention": 59.10526172261582,
+          "velocityPerMinute": 8.27474204414719,
+          "state": "WATCHING",
+          "freshness": "Developing",
+          "atrTravelled": 0.24820494637000512
+        }
+      ]
+    }
+  ],
+  "totalWakingRows": 6,
+  "totalMinutesWithWakingUp": 6
+}

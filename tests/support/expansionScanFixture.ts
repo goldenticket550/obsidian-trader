@@ -32,16 +32,14 @@ export const MIDDAY_LAST_BAR_MINUTE = 10 * 60 + 55;
 export const TODAY_TRADING_DATE = "2026-07-13";
 
 /**
- * Twenty-one consecutive weekday sessions ending today. Deliberately
- * enumerated: no market-holiday calendar exists in this repo, and a
- * generated range would drift if this file were ever re-dated.
+ * Twenty-one exchange sessions ending today. Deliberately enumerated so
+ * Juneteenth and observed Independence Day never enter the baseline.
  */
 export const SESSION_DATES = [
-  "2026-06-15", "2026-06-16", "2026-06-17", "2026-06-18", "2026-06-19",
-  "2026-06-22", "2026-06-23", "2026-06-24", "2026-06-25", "2026-06-26",
-  "2026-06-29", "2026-06-30", "2026-07-01", "2026-07-02", "2026-07-03",
-  "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10",
-  TODAY_TRADING_DATE,
+  "2026-06-11", "2026-06-12", "2026-06-15", "2026-06-16", "2026-06-17",
+  "2026-06-18", "2026-06-22", "2026-06-23", "2026-06-24", "2026-06-25",
+  "2026-06-26", "2026-06-29", "2026-06-30", "2026-07-01", "2026-07-02",
+  "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10", TODAY_TRADING_DATE,
 ];
 
 export const PRIOR_TRADING_DATE = "2026-07-10";
