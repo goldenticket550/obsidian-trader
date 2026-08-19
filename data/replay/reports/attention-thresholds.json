@@ -1,0 +1,703 @@
+{
+  "schemaVersion": 5,
+  "modeMapVersion": 3,
+  "sets": {
+    "sip": {
+      "premarket_early": {
+        "subWindow": "premarket_early",
+        "feedMode": "sip",
+        "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:sip:premarket_early:population-492b6bc31e5e",
+        "measurementVersion": 1,
+        "measurementTransforms": {
+          "participationDense": "log1p",
+          "participationPresence": "presence_surprise_bits",
+          "displacementRange": "log1p",
+          "displacementPathEfficiency": "linear",
+          "idiosyncrasy": "linear"
+        },
+        "calibrationStatus": "calibrated",
+        "normalizationVersion": 3,
+        "normalization": {
+          "participationDense": {
+            "z50": 3.25,
+            "k": 0.65
+          },
+          "participationPresence": {
+            "z50": 1.75,
+            "k": 1.75
+          },
+          "displacement": {
+            "z50": 1.55,
+            "k": 1.277
+          },
+          "idiosyncrasy": {
+            "z50": 2.784,
+            "k": 0.744
+          }
+        },
+        "thresholdVersion": 3,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2,
+          "enterPersistenceMinutes": 2,
+          "exitPersistenceMinutes": 2
+        },
+        "values": {
+          "watchingEnterCore": 0.3464,
+          "watchingExitCore": 0.3314,
+          "emergingEnterCore": 0.4052,
+          "emergingExitCore": 0.3902,
+          "inPlayEnterCore": 0.723,
+          "inPlayExitCore": 0.708,
+          "newInPlayVelocityPerMinute": 6.028,
+          "enterPersistenceMinutes": 2,
+          "exitPersistenceMinutes": 2
+        },
+        "calibrationBasis": "population",
+        "groundTruthValidated": false
+      },
+      "premarket_core": {
+        "subWindow": "premarket_core",
+        "feedMode": "sip",
+        "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:sip:premarket_core:population-492b6bc31e5e",
+        "measurementVersion": 1,
+        "measurementTransforms": {
+          "participationDense": "log1p",
+          "participationPresence": "presence_surprise_bits",
+          "displacementRange": "log1p",
+          "displacementPathEfficiency": "linear",
+          "idiosyncrasy": "linear"
+        },
+        "calibrationStatus": "calibrated",
+        "normalizationVersion": 3,
+        "normalization": {
+          "participationDense": {
+            "z50": 3.25,
+            "k": 0.65
+          },
+          "participationPresence": {
+            "z50": 1.75,
+            "k": 1.75
+          },
+          "displacement": {
+            "z50": 1.55,
+            "k": 1.256
+          },
+          "idiosyncrasy": {
+            "z50": 2.923,
+            "k": 0.708
+          }
+        },
+        "thresholdVersion": 3,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2,
+          "enterPersistenceMinutes": 2,
+          "exitPersistenceMinutes": 2
+        },
+        "values": {
+          "watchingEnterCore": 0.3503,
+          "watchingExitCore": 0.3353,
+          "emergingEnterCore": 0.4162,
+          "emergingExitCore": 0.4012,
+          "inPlayEnterCore": 0.7219,
+          "inPlayExitCore": 0.7069,
+          "newInPlayVelocityPerMinute": 6.232,
+          "enterPersistenceMinutes": 2,
+          "exitPersistenceMinutes": 2
+        },
+        "calibrationBasis": "population",
+        "groundTruthValidated": false
+      },
+      "premarket_final": {
+        "subWindow": "premarket_final",
+        "feedMode": "sip",
+        "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:sip:premarket_final:population-492b6bc31e5e",
+        "measurementVersion": 1,
+        "measurementTransforms": {
+          "participationDense": "log1p",
+          "participationPresence": "presence_surprise_bits",
+          "displacementRange": "log1p",
+          "displacementPathEfficiency": "linear",
+          "idiosyncrasy": "linear"
+        },
+        "calibrationStatus": "calibrated",
+        "normalizationVersion": 3,
+        "normalization": {
+          "participationDense": {
+            "z50": 3.25,
+            "k": 0.65
+          },
+          "participationPresence": {
+            "z50": 1.75,
+            "k": 1.75
+          },
+          "displacement": {
+            "z50": 1.55,
+            "k": 1.272
+          },
+          "idiosyncrasy": {
+            "z50": 2.693,
+            "k": 0.77
+          }
+        },
+        "thresholdVersion": 3,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2,
+          "enterPersistenceMinutes": 2,
+          "exitPersistenceMinutes": 2
+        },
+        "values": {
+          "watchingEnterCore": 0.2581,
+          "watchingExitCore": 0.2431,
+          "emergingEnterCore": 0.3047,
+          "emergingExitCore": 0.2897,
+          "inPlayEnterCore": 0.7227,
+          "inPlayExitCore": 0.7077,
+          "newInPlayVelocityPerMinute": 6.14,
+          "enterPersistenceMinutes": 2,
+          "exitPersistenceMinutes": 2
+        },
+        "calibrationBasis": "population",
+        "groundTruthValidated": false
+      },
+      "regular": {
+        "subWindow": "regular",
+        "feedMode": "sip",
+        "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v4:sip:regular:population-492b6bc31e5e",
+        "measurementVersion": 1,
+        "measurementTransforms": {
+          "participationDense": "log1p",
+          "participationPresence": "presence_surprise_bits",
+          "displacementRange": "log1p",
+          "displacementPathEfficiency": "linear",
+          "idiosyncrasy": "linear"
+        },
+        "calibrationStatus": "calibrated",
+        "normalizationVersion": 3,
+        "normalization": {
+          "participationDense": {
+            "z50": 2.3,
+            "k": 0.765
+          },
+          "participationPresence": {
+            "z50": 1.75,
+            "k": 1.75
+          },
+          "displacement": {
+            "z50": 1.55,
+            "k": 1.247
+          },
+          "idiosyncrasy": {
+            "z50": 2.578,
+            "k": 0.828
+          }
+        },
+        "thresholdVersion": 4,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2,
+          "enterPersistenceMinutes": 2,
+          "exitPersistenceMinutes": 2
+        },
+        "values": {
+          "watchingEnterCore": 0.5759,
+          "watchingExitCore": 0.5609,
+          "emergingEnterCore": 0.6654,
+          "emergingExitCore": 0.6504,
+          "inPlayEnterCore": 0.8,
+          "inPlayExitCore": 0.66,
+          "newInPlayVelocityPerMinute": 7.62,
+          "enterPersistenceMinutes": 2,
+          "exitPersistenceMinutes": 15
+        },
+        "calibrationBasis": "population",
+        "groundTruthValidated": false
+      },
+      "after_hours_core": {
+        "subWindow": "after_hours_core",
+        "feedMode": "sip",
+        "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:sip:after_hours_core:population-492b6bc31e5e",
+        "measurementVersion": 1,
+        "measurementTransforms": {
+          "participationDense": "log1p",
+          "participationPresence": "presence_surprise_bits",
+          "displacementRange": "log1p",
+          "displacementPathEfficiency": "linear",
+          "idiosyncrasy": "linear"
+        },
+        "calibrationStatus": "calibrated",
+        "normalizationVersion": 3,
+        "normalization": {
+          "participationDense": {
+            "z50": 3.25,
+            "k": 0.65
+          },
+          "participationPresence": {
+            "z50": 1.75,
+            "k": 1.75
+          },
+          "displacement": {
+            "z50": 1.55,
+            "k": 1.176
+          },
+          "idiosyncrasy": {
+            "z50": 3.25,
+            "k": 0.65
+          }
+        },
+        "thresholdVersion": 3,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2,
+          "enterPersistenceMinutes": 2,
+          "exitPersistenceMinutes": 2
+        },
+        "values": {
+          "watchingEnterCore": 0.3571,
+          "watchingExitCore": 0.3421,
+          "emergingEnterCore": 0.4243,
+          "emergingExitCore": 0.4093,
+          "inPlayEnterCore": 0.7179,
+          "inPlayExitCore": 0.7029,
+          "newInPlayVelocityPerMinute": 6.328,
+          "enterPersistenceMinutes": 2,
+          "exitPersistenceMinutes": 2
+        },
+        "calibrationBasis": "population",
+        "groundTruthValidated": false
+      },
+      "after_hours_late": {
+        "subWindow": "after_hours_late",
+        "feedMode": "sip",
+        "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:sip:after_hours_late:population-492b6bc31e5e",
+        "measurementVersion": 1,
+        "measurementTransforms": {
+          "participationDense": "log1p",
+          "participationPresence": "presence_surprise_bits",
+          "displacementRange": "log1p",
+          "displacementPathEfficiency": "linear",
+          "idiosyncrasy": "linear"
+        },
+        "calibrationStatus": "calibrated",
+        "normalizationVersion": 3,
+        "normalization": {
+          "participationDense": {
+            "z50": 3.25,
+            "k": 0.65
+          },
+          "participationPresence": {
+            "z50": 1.75,
+            "k": 1.75
+          },
+          "displacement": {
+            "z50": 1.55,
+            "k": 1.297
+          },
+          "idiosyncrasy": {
+            "z50": 3.25,
+            "k": 0.65
+          }
+        },
+        "thresholdVersion": 3,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2,
+          "enterPersistenceMinutes": 2,
+          "exitPersistenceMinutes": 2
+        },
+        "values": {
+          "watchingEnterCore": 0.3479,
+          "watchingExitCore": 0.3329,
+          "emergingEnterCore": 0.4069,
+          "emergingExitCore": 0.3919,
+          "inPlayEnterCore": 0.724,
+          "inPlayExitCore": 0.709,
+          "newInPlayVelocityPerMinute": 5.79,
+          "enterPersistenceMinutes": 2,
+          "exitPersistenceMinutes": 2
+        },
+        "calibrationBasis": "population",
+        "groundTruthValidated": false
+      }
+    },
+    "iex_partial": {
+      "premarket_early": {
+        "subWindow": "premarket_early",
+        "feedMode": "iex_partial",
+        "calibrationId": "mode-map-v3:measure-v1:curve-v1:state-v1:iex_partial:premarket_early:unavailable-insufficient-reference",
+        "measurementVersion": 1,
+        "measurementTransforms": {
+          "participationDense": "log1p",
+          "participationPresence": "presence_surprise_bits",
+          "displacementRange": "log1p",
+          "displacementPathEfficiency": "linear",
+          "idiosyncrasy": "linear"
+        },
+        "calibrationStatus": "unavailable_by_construction",
+        "normalizationVersion": 1,
+        "normalization": {
+          "participationDense": {
+            "z50": 2,
+            "k": 1.2
+          },
+          "participationPresence": {
+            "z50": 3,
+            "k": 1.3
+          },
+          "displacement": {
+            "z50": 2,
+            "k": 1.2
+          },
+          "idiosyncrasy": {
+            "z50": 2,
+            "k": 1.2
+          }
+        },
+        "thresholdVersion": 1,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2,
+          "enterPersistenceMinutes": 2,
+          "exitPersistenceMinutes": 2
+        },
+        "values": {
+          "watchingEnterCore": null,
+          "watchingExitCore": null,
+          "emergingEnterCore": null,
+          "emergingExitCore": null,
+          "inPlayEnterCore": null,
+          "inPlayExitCore": null,
+          "newInPlayVelocityPerMinute": null,
+          "enterPersistenceMinutes": null,
+          "exitPersistenceMinutes": null
+        },
+        "unavailableReason": "insufficient_reference"
+      },
+      "premarket_core": {
+        "subWindow": "premarket_core",
+        "feedMode": "iex_partial",
+        "calibrationId": "mode-map-v3:measure-v1:curve-v1:state-v1:iex_partial:premarket_core:unavailable-insufficient-reference",
+        "measurementVersion": 1,
+        "measurementTransforms": {
+          "participationDense": "log1p",
+          "participationPresence": "presence_surprise_bits",
+          "displacementRange": "log1p",
+          "displacementPathEfficiency": "linear",
+          "idiosyncrasy": "linear"
+        },
+        "calibrationStatus": "unavailable_by_construction",
+        "normalizationVersion": 1,
+        "normalization": {
+          "participationDense": {
+            "z50": 2,
+            "k": 1.2
+          },
+          "participationPresence": {
+            "z50": 3,
+            "k": 1.3
+          },
+          "displacement": {
+            "z50": 2,
+            "k": 1.2
+          },
+          "idiosyncrasy": {
+            "z50": 2,
+            "k": 1.2
+          }
+        },
+        "thresholdVersion": 1,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2,
+          "enterPersistenceMinutes": 2,
+          "exitPersistenceMinutes": 2
+        },
+        "values": {
+          "watchingEnterCore": null,
+          "watchingExitCore": null,
+          "emergingEnterCore": null,
+          "emergingExitCore": null,
+          "inPlayEnterCore": null,
+          "inPlayExitCore": null,
+          "newInPlayVelocityPerMinute": null,
+          "enterPersistenceMinutes": null,
+          "exitPersistenceMinutes": null
+        },
+        "unavailableReason": "insufficient_reference"
+      },
+      "premarket_final": {
+        "subWindow": "premarket_final",
+        "feedMode": "iex_partial",
+        "calibrationId": "mode-map-v3:measure-v1:curve-v1:state-v1:iex_partial:premarket_final:unavailable-insufficient-reference",
+        "measurementVersion": 1,
+        "measurementTransforms": {
+          "participationDense": "log1p",
+          "participationPresence": "presence_surprise_bits",
+          "displacementRange": "log1p",
+          "displacementPathEfficiency": "linear",
+          "idiosyncrasy": "linear"
+        },
+        "calibrationStatus": "unavailable_by_construction",
+        "normalizationVersion": 1,
+        "normalization": {
+          "participationDense": {
+            "z50": 2,
+            "k": 1.2
+          },
+          "participationPresence": {
+            "z50": 3,
+            "k": 1.3
+          },
+          "displacement": {
+            "z50": 2,
+            "k": 1.2
+          },
+          "idiosyncrasy": {
+            "z50": 2,
+            "k": 1.2
+          }
+        },
+        "thresholdVersion": 1,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2,
+          "enterPersistenceMinutes": 2,
+          "exitPersistenceMinutes": 2
+        },
+        "values": {
+          "watchingEnterCore": null,
+          "watchingExitCore": null,
+          "emergingEnterCore": null,
+          "emergingExitCore": null,
+          "inPlayEnterCore": null,
+          "inPlayExitCore": null,
+          "newInPlayVelocityPerMinute": null,
+          "enterPersistenceMinutes": null,
+          "exitPersistenceMinutes": null
+        },
+        "unavailableReason": "insufficient_reference"
+      },
+      "regular": {
+        "subWindow": "regular",
+        "feedMode": "iex_partial",
+        "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-492b6bc31e5e",
+        "measurementVersion": 1,
+        "measurementTransforms": {
+          "participationDense": "log1p",
+          "participationPresence": "presence_surprise_bits",
+          "displacementRange": "log1p",
+          "displacementPathEfficiency": "linear",
+          "idiosyncrasy": "linear"
+        },
+        "calibrationStatus": "calibrated",
+        "normalizationVersion": 3,
+        "normalization": {
+          "participationDense": {
+            "z50": 1.55,
+            "k": 1.278
+          },
+          "participationPresence": {
+            "z50": 1.75,
+            "k": 1.75
+          },
+          "displacement": {
+            "z50": 1.55,
+            "k": 1.312
+          },
+          "idiosyncrasy": {
+            "z50": 2.8,
+            "k": 0.762
+          }
+        },
+        "thresholdVersion": 3,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2,
+          "enterPersistenceMinutes": 2,
+          "exitPersistenceMinutes": 2
+        },
+        "values": {
+          "watchingEnterCore": 0.793,
+          "watchingExitCore": 0.778,
+          "emergingEnterCore": 0.8697,
+          "emergingExitCore": 0.8547,
+          "inPlayEnterCore": 0.9312,
+          "inPlayExitCore": 0.9162,
+          "newInPlayVelocityPerMinute": 10.416,
+          "enterPersistenceMinutes": 2,
+          "exitPersistenceMinutes": 2
+        },
+        "calibrationBasis": "population",
+        "groundTruthValidated": false
+      },
+      "after_hours_core": {
+        "subWindow": "after_hours_core",
+        "feedMode": "iex_partial",
+        "calibrationId": "mode-map-v3:measure-v1:curve-v1:state-v1:iex_partial:after_hours_core:unavailable-insufficient-reference",
+        "measurementVersion": 1,
+        "measurementTransforms": {
+          "participationDense": "log1p",
+          "participationPresence": "presence_surprise_bits",
+          "displacementRange": "log1p",
+          "displacementPathEfficiency": "linear",
+          "idiosyncrasy": "linear"
+        },
+        "calibrationStatus": "unavailable_by_construction",
+        "normalizationVersion": 1,
+        "normalization": {
+          "participationDense": {
+            "z50": 2,
+            "k": 1.2
+          },
+          "participationPresence": {
+            "z50": 3,
+            "k": 1.3
+          },
+          "displacement": {
+            "z50": 2,
+            "k": 1.2
+          },
+          "idiosyncrasy": {
+            "z50": 2,
+            "k": 1.2
+          }
+        },
+        "thresholdVersion": 1,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2,
+          "enterPersistenceMinutes": 2,
+          "exitPersistenceMinutes": 2
+        },
+        "values": {
+          "watchingEnterCore": null,
+          "watchingExitCore": null,
+          "emergingEnterCore": null,
+          "emergingExitCore": null,
+          "inPlayEnterCore": null,
+          "inPlayExitCore": null,
+          "newInPlayVelocityPerMinute": null,
+          "enterPersistenceMinutes": null,
+          "exitPersistenceMinutes": null
+        },
+        "unavailableReason": "insufficient_reference"
+      },
+      "after_hours_late": {
+        "subWindow": "after_hours_late",
+        "feedMode": "iex_partial",
+        "calibrationId": "mode-map-v3:measure-v1:curve-v1:state-v1:iex_partial:after_hours_late:unavailable-insufficient-reference",
+        "measurementVersion": 1,
+        "measurementTransforms": {
+          "participationDense": "log1p",
+          "participationPresence": "presence_surprise_bits",
+          "displacementRange": "log1p",
+          "displacementPathEfficiency": "linear",
+          "idiosyncrasy": "linear"
+        },
+        "calibrationStatus": "unavailable_by_construction",
+        "normalizationVersion": 1,
+        "normalization": {
+          "participationDense": {
+            "z50": 2,
+            "k": 1.2
+          },
+          "participationPresence": {
+            "z50": 3,
+            "k": 1.3
+          },
+          "displacement": {
+            "z50": 2,
+            "k": 1.2
+          },
+          "idiosyncrasy": {
+            "z50": 2,
+            "k": 1.2
+          }
+        },
+        "thresholdVersion": 1,
+        "provisionalValues": {
+          "watchingEnterCore": 0.25,
+          "watchingExitCore": 0.2,
+          "emergingEnterCore": 0.5,
+          "emergingExitCore": 0.4,
+          "inPlayEnterCore": 0.7,
+          "inPlayExitCore": 0.6,
+          "newInPlayVelocityPerMinute": 2,
+          "enterPersistenceMinutes": 2,
+          "exitPersistenceMinutes": 2
+        },
+        "values": {
+          "watchingEnterCore": null,
+          "watchingExitCore": null,
+          "emergingEnterCore": null,
+          "emergingExitCore": null,
+          "inPlayEnterCore": null,
+          "inPlayExitCore": null,
+          "newInPlayVelocityPerMinute": null,
+          "enterPersistenceMinutes": null,
+          "exitPersistenceMinutes": null
+        },
+        "unavailableReason": "insufficient_reference"
+      }
+    }
+  },
+  "feedModeInvalidations": [],
+  "normalizationInvalidations": []
+}

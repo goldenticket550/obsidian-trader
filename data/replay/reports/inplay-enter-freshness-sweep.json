@@ -1,0 +1,2091 @@
+{
+  "schemaVersion": 1,
+  "status": "DIAGNOSTIC_ONLY_NOT_PUBLISHED",
+  "scope": "sip_regular",
+  "groundTruthValidation": "REFUSED",
+  "disclosure": "Timing statistics derived from historical pulls assume instantaneous bar availability. Real arrival latency is not represented. Human-relative latency and move-capture figures are therefore OPTIMISTICALLY BIASED and must not be used to justify lowering thresholds.",
+  "splitHash": "82f216fdd69dbb70ae1a5e025e7862486dadf172828c86a7fc11ddf152571a7d",
+  "frozenPolicy": {
+    "exitCore": 0.66,
+    "exitPersistenceMinutes": 15,
+    "enterPersistenceMinutes": 2,
+    "stateSmoothingMinutes": 0,
+    "delivery": "4 envelopes / rolling 15 minutes with digest compaction",
+    "earlyCloseTreatment": "final 15 regular-session minutes excluded"
+  },
+  "method": {
+    "unit": "first two-consecutive-minute qualification per existing A3 episode",
+    "conversion": "same episode subsequently reaches core 0.80",
+    "lowerThresholdCaveat": "0.60/0.50/0.40 are counterfactual qualification levels only because fixed exit=0.66 and threshold ordering require exit < enter"
+  },
+  "quietSessionsRequired": [
+    "2026-02-13",
+    "2026-04-20",
+    "2026-05-06"
+  ],
+  "results": [
+    {
+      "threshold": 0.8,
+      "splits": [
+        {
+          "split": "train",
+          "threshold": 0.8,
+          "configurationValidity": "deployable_with_fixed_exit",
+          "qualifications": 122,
+          "freshness": {
+            "counts": {
+              "Fresh": 0,
+              "Developing": 0,
+              "Mature": 2,
+              "Extended": 120
+            },
+            "shares": {
+              "Fresh": 0,
+              "Developing": 0,
+              "Mature": 0.01639344262295082,
+              "Extended": 0.9836065573770492
+            }
+          },
+          "atrTravelledAtQualification": {
+            "count": 122,
+            "min": 0.025004592680306137,
+            "p25": 1.1373621451364742,
+            "median": 1.8462598773082384,
+            "p75": 2.861329160658185,
+            "max": 6.530394546619946,
+            "iqr": 1.7239670155217108
+          },
+          "ema9DistanceAtrAtQualification": {
+            "count": 122,
+            "min": 0.03159023829584186,
+            "p25": 1.2000574033627978,
+            "median": 1.653733699287859,
+            "p75": 2.1930647291945298,
+            "max": 4.004982357998617,
+            "iqr": 0.993007325831732
+          },
+          "alertsPerSessionBeforeRateLimit": {
+            "count": 28,
+            "min": 0,
+            "p25": 0,
+            "median": 1.5,
+            "p75": 5.5,
+            "max": 24,
+            "iqr": 5.5
+          },
+          "deliveredAlertsPerSession": {
+            "count": 28,
+            "min": 0,
+            "p25": 0,
+            "median": 1.5,
+            "p75": 5,
+            "max": 9,
+            "iqr": 5
+          },
+          "conversion": {
+            "count": 122,
+            "rate": 1,
+            "leadMinutes": {
+              "count": 122,
+              "min": 0,
+              "p25": 0,
+              "median": 0,
+              "p75": 0,
+              "max": 0,
+              "iqr": 0
+            }
+          },
+          "quietSessions": {
+            "2026-02-13": true,
+            "2026-04-20": true,
+            "2026-05-06": true
+          },
+          "requiredQuietSessionsInSplit": [
+            "2026-02-13",
+            "2026-04-20",
+            "2026-05-06"
+          ],
+          "allRequiredQuietInSplit": true,
+          "perSession": [
+            {
+              "tradingDate": "2025-10-10",
+              "qualifications": 21,
+              "deliveredAlerts": 6,
+              "collapsed": 16
+            },
+            {
+              "tradingDate": "2025-10-24",
+              "qualifications": 0,
+              "deliveredAlerts": 0,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-10-28",
+              "qualifications": 9,
+              "deliveredAlerts": 9,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-11-04",
+              "qualifications": 2,
+              "deliveredAlerts": 2,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-11-14",
+              "qualifications": 0,
+              "deliveredAlerts": 0,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-11-20",
+              "qualifications": 7,
+              "deliveredAlerts": 6,
+              "collapsed": 2
+            },
+            {
+              "tradingDate": "2025-11-24",
+              "qualifications": 3,
+              "deliveredAlerts": 3,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-11-28",
+              "qualifications": 0,
+              "deliveredAlerts": 0,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-12-09",
+              "qualifications": 0,
+              "deliveredAlerts": 0,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-12-10",
+              "qualifications": 4,
+              "deliveredAlerts": 4,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-12-17",
+              "qualifications": 0,
+              "deliveredAlerts": 0,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-12-30",
+              "qualifications": 1,
+              "deliveredAlerts": 1,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-01-20",
+              "qualifications": 0,
+              "deliveredAlerts": 0,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-01-21",
+              "qualifications": 11,
+              "deliveredAlerts": 7,
+              "collapsed": 5
+            },
+            {
+              "tradingDate": "2026-01-29",
+              "qualifications": 5,
+              "deliveredAlerts": 5,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-02-06",
+              "qualifications": 1,
+              "deliveredAlerts": 1,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-02-13",
+              "qualifications": 0,
+              "deliveredAlerts": 0,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-03-09",
+              "qualifications": 11,
+              "deliveredAlerts": 6,
+              "collapsed": 6
+            },
+            {
+              "tradingDate": "2026-03-10",
+              "qualifications": 5,
+              "deliveredAlerts": 5,
+              "collapsed": 1
+            },
+            {
+              "tradingDate": "2026-03-27",
+              "qualifications": 0,
+              "deliveredAlerts": 0,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-03-31",
+              "qualifications": 24,
+              "deliveredAlerts": 5,
+              "collapsed": 20
+            },
+            {
+              "tradingDate": "2026-04-20",
+              "qualifications": 0,
+              "deliveredAlerts": 0,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-05-06",
+              "qualifications": 0,
+              "deliveredAlerts": 0,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-05-27",
+              "qualifications": 1,
+              "deliveredAlerts": 1,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-06-02",
+              "qualifications": 0,
+              "deliveredAlerts": 0,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-06-26",
+              "qualifications": 3,
+              "deliveredAlerts": 3,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-07-22",
+              "qualifications": 3,
+              "deliveredAlerts": 3,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-07-29",
+              "qualifications": 11,
+              "deliveredAlerts": 8,
+              "collapsed": 4
+            }
+          ]
+        },
+        {
+          "split": "holdout",
+          "threshold": 0.8,
+          "configurationValidity": "deployable_with_fixed_exit",
+          "qualifications": 38,
+          "freshness": {
+            "counts": {
+              "Fresh": 0,
+              "Developing": 1,
+              "Mature": 1,
+              "Extended": 36
+            },
+            "shares": {
+              "Fresh": 0,
+              "Developing": 0.02631578947368421,
+              "Mature": 0.02631578947368421,
+              "Extended": 0.9473684210526315
+            }
+          },
+          "atrTravelledAtQualification": {
+            "count": 38,
+            "min": 0,
+            "p25": 0.6185855763598439,
+            "median": 1.1308124981954837,
+            "p75": 1.8291731038010508,
+            "max": 3.5020095693780573,
+            "iqr": 1.210587527441207
+          },
+          "ema9DistanceAtrAtQualification": {
+            "count": 38,
+            "min": 0.2571343488408537,
+            "p25": 0.9081796436019547,
+            "median": 1.108217740560176,
+            "p75": 1.5198233512293111,
+            "max": 2.312797022766355,
+            "iqr": 0.6116437076273564
+          },
+          "alertsPerSessionBeforeRateLimit": {
+            "count": 12,
+            "min": 0,
+            "p25": 1,
+            "median": 2.5,
+            "p75": 4.5,
+            "max": 9,
+            "iqr": 3.5
+          },
+          "deliveredAlertsPerSession": {
+            "count": 12,
+            "min": 0,
+            "p25": 1,
+            "median": 2.5,
+            "p75": 4.5,
+            "max": 6,
+            "iqr": 3.5
+          },
+          "conversion": {
+            "count": 38,
+            "rate": 1,
+            "leadMinutes": {
+              "count": 38,
+              "min": 0,
+              "p25": 0,
+              "median": 0,
+              "p75": 0,
+              "max": 0,
+              "iqr": 0
+            }
+          },
+          "quietSessions": {
+            "2026-02-13": null,
+            "2026-04-20": null,
+            "2026-05-06": null
+          },
+          "requiredQuietSessionsInSplit": [],
+          "allRequiredQuietInSplit": null,
+          "perSession": [
+            {
+              "tradingDate": "2025-10-01",
+              "qualifications": 6,
+              "deliveredAlerts": 6,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-01-27",
+              "qualifications": 0,
+              "deliveredAlerts": 0,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-01-30",
+              "qualifications": 2,
+              "deliveredAlerts": 2,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-02-02",
+              "qualifications": 1,
+              "deliveredAlerts": 1,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-02-12",
+              "qualifications": 3,
+              "deliveredAlerts": 3,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-02-25",
+              "qualifications": 1,
+              "deliveredAlerts": 1,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-04-02",
+              "qualifications": 9,
+              "deliveredAlerts": 6,
+              "collapsed": 4
+            },
+            {
+              "tradingDate": "2026-04-21",
+              "qualifications": 4,
+              "deliveredAlerts": 4,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-04-22",
+              "qualifications": 0,
+              "deliveredAlerts": 0,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-05-07",
+              "qualifications": 1,
+              "deliveredAlerts": 1,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-06-09",
+              "qualifications": 8,
+              "deliveredAlerts": 6,
+              "collapsed": 3
+            },
+            {
+              "tradingDate": "2026-08-14",
+              "qualifications": 3,
+              "deliveredAlerts": 3,
+              "collapsed": 0
+            }
+          ]
+        }
+      ],
+      "corpusQuiet": {
+        "2026-02-13": true,
+        "2026-04-20": true,
+        "2026-05-06": true
+      },
+      "allRequiredQuiet": true
+    },
+    {
+      "threshold": 0.7,
+      "splits": [
+        {
+          "split": "train",
+          "threshold": 0.7,
+          "configurationValidity": "deployable_with_fixed_exit",
+          "qualifications": 289,
+          "freshness": {
+            "counts": {
+              "Fresh": 0,
+              "Developing": 0,
+              "Mature": 14,
+              "Extended": 275
+            },
+            "shares": {
+              "Fresh": 0,
+              "Developing": 0,
+              "Mature": 0.04844290657439446,
+              "Extended": 0.9515570934256056
+            }
+          },
+          "atrTravelledAtQualification": {
+            "count": 289,
+            "min": 0,
+            "p25": 0.5751084369374322,
+            "median": 1.3154910410524236,
+            "p75": 1.9920188407693362,
+            "max": 6.517246890840743,
+            "iqr": 1.416910403831904
+          },
+          "ema9DistanceAtrAtQualification": {
+            "count": 289,
+            "min": 0.03390601654091515,
+            "p25": 0.8552669707559277,
+            "median": 1.2975665983709088,
+            "p75": 1.8522756262801945,
+            "max": 3.847886303928783,
+            "iqr": 0.9970086555242668
+          },
+          "alertsPerSessionBeforeRateLimit": {
+            "count": 28,
+            "min": 0,
+            "p25": 2,
+            "median": 5,
+            "p75": 15,
+            "max": 38,
+            "iqr": 13
+          },
+          "deliveredAlertsPerSession": {
+            "count": 28,
+            "min": 0,
+            "p25": 2,
+            "median": 5,
+            "p75": 9,
+            "max": 19,
+            "iqr": 7
+          },
+          "conversion": {
+            "count": 197,
+            "rate": 0.6816608996539792,
+            "leadMinutes": {
+              "count": 197,
+              "min": 0,
+              "p25": 0,
+              "median": 0,
+              "p75": 1,
+              "max": 21,
+              "iqr": 1
+            }
+          },
+          "quietSessions": {
+            "2026-02-13": true,
+            "2026-04-20": false,
+            "2026-05-06": false
+          },
+          "requiredQuietSessionsInSplit": [
+            "2026-02-13",
+            "2026-04-20",
+            "2026-05-06"
+          ],
+          "allRequiredQuietInSplit": false,
+          "perSession": [
+            {
+              "tradingDate": "2025-10-10",
+              "qualifications": 37,
+              "deliveredAlerts": 11,
+              "collapsed": 28
+            },
+            {
+              "tradingDate": "2025-10-24",
+              "qualifications": 4,
+              "deliveredAlerts": 4,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-10-28",
+              "qualifications": 20,
+              "deliveredAlerts": 19,
+              "collapsed": 3
+            },
+            {
+              "tradingDate": "2025-11-04",
+              "qualifications": 5,
+              "deliveredAlerts": 5,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-11-14",
+              "qualifications": 1,
+              "deliveredAlerts": 1,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-11-20",
+              "qualifications": 14,
+              "deliveredAlerts": 9,
+              "collapsed": 6
+            },
+            {
+              "tradingDate": "2025-11-24",
+              "qualifications": 7,
+              "deliveredAlerts": 7,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-11-28",
+              "qualifications": 0,
+              "deliveredAlerts": 0,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-12-09",
+              "qualifications": 5,
+              "deliveredAlerts": 5,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-12-10",
+              "qualifications": 15,
+              "deliveredAlerts": 13,
+              "collapsed": 4
+            },
+            {
+              "tradingDate": "2025-12-17",
+              "qualifications": 4,
+              "deliveredAlerts": 4,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-12-30",
+              "qualifications": 2,
+              "deliveredAlerts": 2,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-01-20",
+              "qualifications": 1,
+              "deliveredAlerts": 1,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-01-21",
+              "qualifications": 26,
+              "deliveredAlerts": 13,
+              "collapsed": 14
+            },
+            {
+              "tradingDate": "2026-01-29",
+              "qualifications": 15,
+              "deliveredAlerts": 15,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-02-06",
+              "qualifications": 2,
+              "deliveredAlerts": 2,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-02-13",
+              "qualifications": 0,
+              "deliveredAlerts": 0,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-03-09",
+              "qualifications": 20,
+              "deliveredAlerts": 6,
+              "collapsed": 15
+            },
+            {
+              "tradingDate": "2026-03-10",
+              "qualifications": 13,
+              "deliveredAlerts": 6,
+              "collapsed": 8
+            },
+            {
+              "tradingDate": "2026-03-27",
+              "qualifications": 4,
+              "deliveredAlerts": 4,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-03-31",
+              "qualifications": 38,
+              "deliveredAlerts": 7,
+              "collapsed": 32
+            },
+            {
+              "tradingDate": "2026-04-20",
+              "qualifications": 2,
+              "deliveredAlerts": 2,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-05-06",
+              "qualifications": 2,
+              "deliveredAlerts": 2,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-05-27",
+              "qualifications": 1,
+              "deliveredAlerts": 1,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-06-02",
+              "qualifications": 5,
+              "deliveredAlerts": 5,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-06-26",
+              "qualifications": 7,
+              "deliveredAlerts": 6,
+              "collapsed": 2
+            },
+            {
+              "tradingDate": "2026-07-22",
+              "qualifications": 9,
+              "deliveredAlerts": 9,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-07-29",
+              "qualifications": 30,
+              "deliveredAlerts": 14,
+              "collapsed": 17
+            }
+          ]
+        },
+        {
+          "split": "holdout",
+          "threshold": 0.7,
+          "configurationValidity": "deployable_with_fixed_exit",
+          "qualifications": 110,
+          "freshness": {
+            "counts": {
+              "Fresh": 0,
+              "Developing": 1,
+              "Mature": 3,
+              "Extended": 106
+            },
+            "shares": {
+              "Fresh": 0,
+              "Developing": 0.00909090909090909,
+              "Mature": 0.02727272727272727,
+              "Extended": 0.9636363636363636
+            }
+          },
+          "atrTravelledAtQualification": {
+            "count": 110,
+            "min": 0,
+            "p25": 0.4712809020553695,
+            "median": 0.8655080966855712,
+            "p75": 1.56332180047308,
+            "max": 5.611052501400725,
+            "iqr": 1.0920408984177106
+          },
+          "ema9DistanceAtrAtQualification": {
+            "count": 110,
+            "min": 0.047491595049752075,
+            "p25": 0.7834825300380583,
+            "median": 1.0432700411681886,
+            "p75": 1.3656224658123068,
+            "max": 3.4157442375699225,
+            "iqr": 0.5821399357742485
+          },
+          "alertsPerSessionBeforeRateLimit": {
+            "count": 12,
+            "min": 2,
+            "p25": 5.25,
+            "median": 7,
+            "p75": 11.5,
+            "max": 23,
+            "iqr": 6.25
+          },
+          "deliveredAlertsPerSession": {
+            "count": 12,
+            "min": 2,
+            "p25": 5.25,
+            "median": 6.5,
+            "p75": 10,
+            "max": 18,
+            "iqr": 4.75
+          },
+          "conversion": {
+            "count": 66,
+            "rate": 0.6,
+            "leadMinutes": {
+              "count": 66,
+              "min": 0,
+              "p25": 0,
+              "median": 0,
+              "p75": 0,
+              "max": 11,
+              "iqr": 0
+            }
+          },
+          "quietSessions": {
+            "2026-02-13": null,
+            "2026-04-20": null,
+            "2026-05-06": null
+          },
+          "requiredQuietSessionsInSplit": [],
+          "allRequiredQuietInSplit": null,
+          "perSession": [
+            {
+              "tradingDate": "2025-10-01",
+              "qualifications": 18,
+              "deliveredAlerts": 18,
+              "collapsed": 1
+            },
+            {
+              "tradingDate": "2026-01-27",
+              "qualifications": 3,
+              "deliveredAlerts": 3,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-01-30",
+              "qualifications": 7,
+              "deliveredAlerts": 7,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-02-02",
+              "qualifications": 7,
+              "deliveredAlerts": 6,
+              "collapsed": 2
+            },
+            {
+              "tradingDate": "2026-02-12",
+              "qualifications": 6,
+              "deliveredAlerts": 6,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-02-25",
+              "qualifications": 2,
+              "deliveredAlerts": 2,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-04-02",
+              "qualifications": 16,
+              "deliveredAlerts": 8,
+              "collapsed": 9
+            },
+            {
+              "tradingDate": "2026-04-21",
+              "qualifications": 10,
+              "deliveredAlerts": 10,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-04-22",
+              "qualifications": 2,
+              "deliveredAlerts": 2,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-05-07",
+              "qualifications": 10,
+              "deliveredAlerts": 10,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-06-09",
+              "qualifications": 23,
+              "deliveredAlerts": 13,
+              "collapsed": 12
+            },
+            {
+              "tradingDate": "2026-08-14",
+              "qualifications": 6,
+              "deliveredAlerts": 6,
+              "collapsed": 0
+            }
+          ]
+        }
+      ],
+      "corpusQuiet": {
+        "2026-02-13": true,
+        "2026-04-20": false,
+        "2026-05-06": false
+      },
+      "allRequiredQuiet": false
+    },
+    {
+      "threshold": 0.6,
+      "splits": [
+        {
+          "split": "train",
+          "threshold": 0.6,
+          "configurationValidity": "diagnostic_only_enter_not_above_fixed_exit",
+          "qualifications": 531,
+          "freshness": {
+            "counts": {
+              "Fresh": 1,
+              "Developing": 2,
+              "Mature": 19,
+              "Extended": 509
+            },
+            "shares": {
+              "Fresh": 0.0018832391713747645,
+              "Developing": 0.003766478342749529,
+              "Mature": 0.035781544256120526,
+              "Extended": 0.9585687382297552
+            }
+          },
+          "atrTravelledAtQualification": {
+            "count": 531,
+            "min": 0,
+            "p25": 0.39909748878311946,
+            "median": 0.8363820923298068,
+            "p75": 1.4905793062425556,
+            "max": 4.27549951503393,
+            "iqr": 1.091481817459436
+          },
+          "ema9DistanceAtrAtQualification": {
+            "count": 531,
+            "min": 0.001315938670032827,
+            "p25": 0.744466422580696,
+            "median": 1.052920350064755,
+            "p75": 1.5960061031842996,
+            "max": 4.211416408278819,
+            "iqr": 0.8515396806036036
+          },
+          "alertsPerSessionBeforeRateLimit": {
+            "count": 28,
+            "min": 3,
+            "p25": 8,
+            "median": 11.5,
+            "p75": 31.25,
+            "max": 54,
+            "iqr": 23.25
+          },
+          "deliveredAlertsPerSession": {
+            "count": 28,
+            "min": 3,
+            "p25": 8,
+            "median": 10,
+            "p75": 15,
+            "max": 29,
+            "iqr": 7
+          },
+          "conversion": {
+            "count": 246,
+            "rate": 0.4632768361581921,
+            "leadMinutes": {
+              "count": 246,
+              "min": 0,
+              "p25": 0,
+              "median": 0,
+              "p75": 2,
+              "max": 39,
+              "iqr": 2
+            }
+          },
+          "quietSessions": {
+            "2026-02-13": false,
+            "2026-04-20": false,
+            "2026-05-06": false
+          },
+          "requiredQuietSessionsInSplit": [
+            "2026-02-13",
+            "2026-04-20",
+            "2026-05-06"
+          ],
+          "allRequiredQuietInSplit": false,
+          "perSession": [
+            {
+              "tradingDate": "2025-10-10",
+              "qualifications": 52,
+              "deliveredAlerts": 20,
+              "collapsed": 34
+            },
+            {
+              "tradingDate": "2025-10-24",
+              "qualifications": 10,
+              "deliveredAlerts": 10,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-10-28",
+              "qualifications": 30,
+              "deliveredAlerts": 26,
+              "collapsed": 7
+            },
+            {
+              "tradingDate": "2025-11-04",
+              "qualifications": 8,
+              "deliveredAlerts": 8,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-11-14",
+              "qualifications": 3,
+              "deliveredAlerts": 3,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-11-20",
+              "qualifications": 32,
+              "deliveredAlerts": 18,
+              "collapsed": 16
+            },
+            {
+              "tradingDate": "2025-11-24",
+              "qualifications": 8,
+              "deliveredAlerts": 8,
+              "collapsed": 1
+            },
+            {
+              "tradingDate": "2025-11-28",
+              "qualifications": 3,
+              "deliveredAlerts": 3,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-12-09",
+              "qualifications": 11,
+              "deliveredAlerts": 11,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-12-10",
+              "qualifications": 35,
+              "deliveredAlerts": 19,
+              "collapsed": 18
+            },
+            {
+              "tradingDate": "2025-12-17",
+              "qualifications": 12,
+              "deliveredAlerts": 12,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-12-30",
+              "qualifications": 3,
+              "deliveredAlerts": 3,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-01-20",
+              "qualifications": 9,
+              "deliveredAlerts": 9,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-01-21",
+              "qualifications": 45,
+              "deliveredAlerts": 20,
+              "collapsed": 27
+            },
+            {
+              "tradingDate": "2026-01-29",
+              "qualifications": 32,
+              "deliveredAlerts": 29,
+              "collapsed": 5
+            },
+            {
+              "tradingDate": "2026-02-06",
+              "qualifications": 8,
+              "deliveredAlerts": 8,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-02-13",
+              "qualifications": 5,
+              "deliveredAlerts": 5,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-03-09",
+              "qualifications": 31,
+              "deliveredAlerts": 10,
+              "collapsed": 22
+            },
+            {
+              "tradingDate": "2026-03-10",
+              "qualifications": 20,
+              "deliveredAlerts": 9,
+              "collapsed": 12
+            },
+            {
+              "tradingDate": "2026-03-27",
+              "qualifications": 10,
+              "deliveredAlerts": 10,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-03-31",
+              "qualifications": 54,
+              "deliveredAlerts": 10,
+              "collapsed": 46
+            },
+            {
+              "tradingDate": "2026-04-20",
+              "qualifications": 8,
+              "deliveredAlerts": 8,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-05-06",
+              "qualifications": 6,
+              "deliveredAlerts": 6,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-05-27",
+              "qualifications": 3,
+              "deliveredAlerts": 3,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-06-02",
+              "qualifications": 14,
+              "deliveredAlerts": 14,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-06-26",
+              "qualifications": 13,
+              "deliveredAlerts": 11,
+              "collapsed": 3
+            },
+            {
+              "tradingDate": "2026-07-22",
+              "qualifications": 14,
+              "deliveredAlerts": 14,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-07-29",
+              "qualifications": 52,
+              "deliveredAlerts": 24,
+              "collapsed": 30
+            }
+          ]
+        },
+        {
+          "split": "holdout",
+          "threshold": 0.6,
+          "configurationValidity": "diagnostic_only_enter_not_above_fixed_exit",
+          "qualifications": 271,
+          "freshness": {
+            "counts": {
+              "Fresh": 2,
+              "Developing": 1,
+              "Mature": 4,
+              "Extended": 264
+            },
+            "shares": {
+              "Fresh": 0.007380073800738007,
+              "Developing": 0.0036900369003690036,
+              "Mature": 0.014760147601476014,
+              "Extended": 0.974169741697417
+            }
+          },
+          "atrTravelledAtQualification": {
+            "count": 271,
+            "min": 0,
+            "p25": 0.3607260334853238,
+            "median": 0.6223762376237626,
+            "p75": 1.1364112865433045,
+            "max": 7.535446055634433,
+            "iqr": 0.7756852530579808
+          },
+          "ema9DistanceAtrAtQualification": {
+            "count": 271,
+            "min": 0.047491595049752075,
+            "p25": 0.6598466048635502,
+            "median": 0.9171159488059097,
+            "p75": 1.2219119355917374,
+            "max": 3.2270406504079063,
+            "iqr": 0.5620653307281872
+          },
+          "alertsPerSessionBeforeRateLimit": {
+            "count": 12,
+            "min": 5,
+            "p25": 14.75,
+            "median": 18,
+            "p75": 23.75,
+            "max": 63,
+            "iqr": 9
+          },
+          "deliveredAlertsPerSession": {
+            "count": 12,
+            "min": 5,
+            "p25": 13.25,
+            "median": 15,
+            "p75": 17.5,
+            "max": 32,
+            "iqr": 4.25
+          },
+          "conversion": {
+            "count": 93,
+            "rate": 0.34317343173431736,
+            "leadMinutes": {
+              "count": 93,
+              "min": 0,
+              "p25": 0,
+              "median": 0,
+              "p75": 1,
+              "max": 15,
+              "iqr": 1
+            }
+          },
+          "quietSessions": {
+            "2026-02-13": null,
+            "2026-04-20": null,
+            "2026-05-06": null
+          },
+          "requiredQuietSessionsInSplit": [],
+          "allRequiredQuietInSplit": null,
+          "perSession": [
+            {
+              "tradingDate": "2025-10-01",
+              "qualifications": 36,
+              "deliveredAlerts": 32,
+              "collapsed": 7
+            },
+            {
+              "tradingDate": "2026-01-27",
+              "qualifications": 15,
+              "deliveredAlerts": 15,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-01-30",
+              "qualifications": 19,
+              "deliveredAlerts": 19,
+              "collapsed": 2
+            },
+            {
+              "tradingDate": "2026-02-02",
+              "qualifications": 17,
+              "deliveredAlerts": 11,
+              "collapsed": 7
+            },
+            {
+              "tradingDate": "2026-02-12",
+              "qualifications": 14,
+              "deliveredAlerts": 14,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-02-25",
+              "qualifications": 5,
+              "deliveredAlerts": 5,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-04-02",
+              "qualifications": 23,
+              "deliveredAlerts": 9,
+              "collapsed": 15
+            },
+            {
+              "tradingDate": "2026-04-21",
+              "qualifications": 26,
+              "deliveredAlerts": 15,
+              "collapsed": 13
+            },
+            {
+              "tradingDate": "2026-04-22",
+              "qualifications": 16,
+              "deliveredAlerts": 16,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-05-07",
+              "qualifications": 23,
+              "deliveredAlerts": 17,
+              "collapsed": 8
+            },
+            {
+              "tradingDate": "2026-06-09",
+              "qualifications": 63,
+              "deliveredAlerts": 29,
+              "collapsed": 38
+            },
+            {
+              "tradingDate": "2026-08-14",
+              "qualifications": 14,
+              "deliveredAlerts": 14,
+              "collapsed": 0
+            }
+          ]
+        }
+      ],
+      "corpusQuiet": {
+        "2026-02-13": false,
+        "2026-04-20": false,
+        "2026-05-06": false
+      },
+      "allRequiredQuiet": false
+    },
+    {
+      "threshold": 0.5,
+      "splits": [
+        {
+          "split": "train",
+          "threshold": 0.5,
+          "configurationValidity": "diagnostic_only_enter_not_above_fixed_exit",
+          "qualifications": 777,
+          "freshness": {
+            "counts": {
+              "Fresh": 1,
+              "Developing": 5,
+              "Mature": 31,
+              "Extended": 740
+            },
+            "shares": {
+              "Fresh": 0.001287001287001287,
+              "Developing": 0.006435006435006435,
+              "Mature": 0.039897039897039896,
+              "Extended": 0.9523809523809523
+            }
+          },
+          "atrTravelledAtQualification": {
+            "count": 777,
+            "min": 0,
+            "p25": 0.30374004585685616,
+            "median": 0.6782541995858565,
+            "p75": 1.3377845513704187,
+            "max": 5.805278452832116,
+            "iqr": 1.0340445055135625
+          },
+          "ema9DistanceAtrAtQualification": {
+            "count": 777,
+            "min": 0.023532996466890575,
+            "p25": 0.670644948857416,
+            "median": 0.9262735945157937,
+            "p75": 1.349334587068547,
+            "max": 4.211416408278819,
+            "iqr": 0.6786896382111309
+          },
+          "alertsPerSessionBeforeRateLimit": {
+            "count": 28,
+            "min": 4,
+            "p25": 11,
+            "median": 21.5,
+            "p75": 42.5,
+            "max": 68,
+            "iqr": 31.5
+          },
+          "deliveredAlertsPerSession": {
+            "count": 28,
+            "min": 4,
+            "p25": 11,
+            "median": 16.5,
+            "p75": 22.5,
+            "max": 39,
+            "iqr": 11.5
+          },
+          "conversion": {
+            "count": 260,
+            "rate": 0.33462033462033464,
+            "leadMinutes": {
+              "count": 260,
+              "min": 0,
+              "p25": 0,
+              "median": 0,
+              "p75": 2,
+              "max": 39,
+              "iqr": 2
+            }
+          },
+          "quietSessions": {
+            "2026-02-13": false,
+            "2026-04-20": false,
+            "2026-05-06": false
+          },
+          "requiredQuietSessionsInSplit": [
+            "2026-02-13",
+            "2026-04-20",
+            "2026-05-06"
+          ],
+          "allRequiredQuietInSplit": false,
+          "perSession": [
+            {
+              "tradingDate": "2025-10-10",
+              "qualifications": 68,
+              "deliveredAlerts": 25,
+              "collapsed": 47
+            },
+            {
+              "tradingDate": "2025-10-24",
+              "qualifications": 14,
+              "deliveredAlerts": 14,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-10-28",
+              "qualifications": 42,
+              "deliveredAlerts": 34,
+              "collapsed": 12
+            },
+            {
+              "tradingDate": "2025-11-04",
+              "qualifications": 10,
+              "deliveredAlerts": 10,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-11-14",
+              "qualifications": 6,
+              "deliveredAlerts": 6,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-11-20",
+              "qualifications": 39,
+              "deliveredAlerts": 22,
+              "collapsed": 20
+            },
+            {
+              "tradingDate": "2025-11-24",
+              "qualifications": 13,
+              "deliveredAlerts": 12,
+              "collapsed": 2
+            },
+            {
+              "tradingDate": "2025-11-28",
+              "qualifications": 4,
+              "deliveredAlerts": 4,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-12-09",
+              "qualifications": 15,
+              "deliveredAlerts": 15,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-12-10",
+              "qualifications": 46,
+              "deliveredAlerts": 22,
+              "collapsed": 27
+            },
+            {
+              "tradingDate": "2025-12-17",
+              "qualifications": 24,
+              "deliveredAlerts": 19,
+              "collapsed": 7
+            },
+            {
+              "tradingDate": "2025-12-30",
+              "qualifications": 7,
+              "deliveredAlerts": 7,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-01-20",
+              "qualifications": 19,
+              "deliveredAlerts": 17,
+              "collapsed": 3
+            },
+            {
+              "tradingDate": "2026-01-21",
+              "qualifications": 67,
+              "deliveredAlerts": 27,
+              "collapsed": 45
+            },
+            {
+              "tradingDate": "2026-01-29",
+              "qualifications": 47,
+              "deliveredAlerts": 39,
+              "collapsed": 13
+            },
+            {
+              "tradingDate": "2026-02-06",
+              "qualifications": 18,
+              "deliveredAlerts": 18,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-02-13",
+              "qualifications": 10,
+              "deliveredAlerts": 10,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-03-09",
+              "qualifications": 44,
+              "deliveredAlerts": 16,
+              "collapsed": 29
+            },
+            {
+              "tradingDate": "2026-03-10",
+              "qualifications": 30,
+              "deliveredAlerts": 14,
+              "collapsed": 17
+            },
+            {
+              "tradingDate": "2026-03-27",
+              "qualifications": 17,
+              "deliveredAlerts": 17,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-03-31",
+              "qualifications": 63,
+              "deliveredAlerts": 12,
+              "collapsed": 53
+            },
+            {
+              "tradingDate": "2026-04-20",
+              "qualifications": 11,
+              "deliveredAlerts": 11,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-05-06",
+              "qualifications": 11,
+              "deliveredAlerts": 11,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-05-27",
+              "qualifications": 8,
+              "deliveredAlerts": 8,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-06-02",
+              "qualifications": 24,
+              "deliveredAlerts": 24,
+              "collapsed": 2
+            },
+            {
+              "tradingDate": "2026-06-26",
+              "qualifications": 26,
+              "deliveredAlerts": 22,
+              "collapsed": 6
+            },
+            {
+              "tradingDate": "2026-07-22",
+              "qualifications": 27,
+              "deliveredAlerts": 26,
+              "collapsed": 3
+            },
+            {
+              "tradingDate": "2026-07-29",
+              "qualifications": 67,
+              "deliveredAlerts": 28,
+              "collapsed": 41
+            }
+          ]
+        },
+        {
+          "split": "holdout",
+          "threshold": 0.5,
+          "configurationValidity": "diagnostic_only_enter_not_above_fixed_exit",
+          "qualifications": 444,
+          "freshness": {
+            "counts": {
+              "Fresh": 2,
+              "Developing": 1,
+              "Mature": 7,
+              "Extended": 434
+            },
+            "shares": {
+              "Fresh": 0.0045045045045045045,
+              "Developing": 0.0022522522522522522,
+              "Mature": 0.015765765765765764,
+              "Extended": 0.9774774774774775
+            }
+          },
+          "atrTravelledAtQualification": {
+            "count": 444,
+            "min": 0,
+            "p25": 0.30244238971998244,
+            "median": 0.562494685151544,
+            "p75": 0.9484576665915551,
+            "max": 7.535446055634433,
+            "iqr": 0.6460152768715726
+          },
+          "ema9DistanceAtrAtQualification": {
+            "count": 444,
+            "min": 0.006414815142374585,
+            "p25": 0.6090367064841282,
+            "median": 0.8659827112837282,
+            "p75": 1.1489641802796953,
+            "max": 4.413981050776271,
+            "iqr": 0.539927473795567
+          },
+          "alertsPerSessionBeforeRateLimit": {
+            "count": 12,
+            "min": 8,
+            "p25": 26.5,
+            "median": 35.5,
+            "p75": 41.25,
+            "max": 87,
+            "iqr": 14.75
+          },
+          "deliveredAlertsPerSession": {
+            "count": 12,
+            "min": 8,
+            "p25": 21.75,
+            "median": 24,
+            "p75": 27.5,
+            "max": 44,
+            "iqr": 5.75
+          },
+          "conversion": {
+            "count": 103,
+            "rate": 0.23198198198198197,
+            "leadMinutes": {
+              "count": 103,
+              "min": 0,
+              "p25": 0,
+              "median": 0,
+              "p75": 2,
+              "max": 32,
+              "iqr": 2
+            }
+          },
+          "quietSessions": {
+            "2026-02-13": null,
+            "2026-04-20": null,
+            "2026-05-06": null
+          },
+          "requiredQuietSessionsInSplit": [],
+          "allRequiredQuietInSplit": null,
+          "perSession": [
+            {
+              "tradingDate": "2025-10-01",
+              "qualifications": 55,
+              "deliveredAlerts": 44,
+              "collapsed": 16
+            },
+            {
+              "tradingDate": "2026-01-27",
+              "qualifications": 25,
+              "deliveredAlerts": 24,
+              "collapsed": 2
+            },
+            {
+              "tradingDate": "2026-01-30",
+              "qualifications": 41,
+              "deliveredAlerts": 32,
+              "collapsed": 14
+            },
+            {
+              "tradingDate": "2026-02-02",
+              "qualifications": 37,
+              "deliveredAlerts": 24,
+              "collapsed": 16
+            },
+            {
+              "tradingDate": "2026-02-12",
+              "qualifications": 29,
+              "deliveredAlerts": 24,
+              "collapsed": 8
+            },
+            {
+              "tradingDate": "2026-02-25",
+              "qualifications": 8,
+              "deliveredAlerts": 8,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-04-02",
+              "qualifications": 36,
+              "deliveredAlerts": 9,
+              "collapsed": 28
+            },
+            {
+              "tradingDate": "2026-04-21",
+              "qualifications": 42,
+              "deliveredAlerts": 21,
+              "collapsed": 23
+            },
+            {
+              "tradingDate": "2026-04-22",
+              "qualifications": 27,
+              "deliveredAlerts": 24,
+              "collapsed": 6
+            },
+            {
+              "tradingDate": "2026-05-07",
+              "qualifications": 35,
+              "deliveredAlerts": 26,
+              "collapsed": 12
+            },
+            {
+              "tradingDate": "2026-06-09",
+              "qualifications": 87,
+              "deliveredAlerts": 33,
+              "collapsed": 59
+            },
+            {
+              "tradingDate": "2026-08-14",
+              "qualifications": 22,
+              "deliveredAlerts": 22,
+              "collapsed": 0
+            }
+          ]
+        }
+      ],
+      "corpusQuiet": {
+        "2026-02-13": false,
+        "2026-04-20": false,
+        "2026-05-06": false
+      },
+      "allRequiredQuiet": false
+    },
+    {
+      "threshold": 0.4,
+      "splits": [
+        {
+          "split": "train",
+          "threshold": 0.4,
+          "configurationValidity": "diagnostic_only_enter_not_above_fixed_exit",
+          "qualifications": 987,
+          "freshness": {
+            "counts": {
+              "Fresh": 2,
+              "Developing": 8,
+              "Mature": 31,
+              "Extended": 946
+            },
+            "shares": {
+              "Fresh": 0.002026342451874367,
+              "Developing": 0.008105369807497468,
+              "Mature": 0.031408308004052685,
+              "Extended": 0.9584599797365755
+            }
+          },
+          "atrTravelledAtQualification": {
+            "count": 987,
+            "min": 0,
+            "p25": 0.2526496389108976,
+            "median": 0.5672306322350668,
+            "p75": 1.095454812137233,
+            "max": 6.572619429304269,
+            "iqr": 0.8428051732263353
+          },
+          "ema9DistanceAtrAtQualification": {
+            "count": 987,
+            "min": 0.003968165664083631,
+            "p25": 0.5852171290447139,
+            "median": 0.8340250459026504,
+            "p75": 1.2272757867933586,
+            "max": 4.211416408278819,
+            "iqr": 0.6420586577486447
+          },
+          "alertsPerSessionBeforeRateLimit": {
+            "count": 28,
+            "min": 4,
+            "p25": 16.5,
+            "median": 28,
+            "p75": 53,
+            "max": 81,
+            "iqr": 36.5
+          },
+          "deliveredAlertsPerSession": {
+            "count": 28,
+            "min": 4,
+            "p25": 15,
+            "median": 22.5,
+            "p75": 29.25,
+            "max": 41,
+            "iqr": 14.25
+          },
+          "conversion": {
+            "count": 269,
+            "rate": 0.2725430597771023,
+            "leadMinutes": {
+              "count": 269,
+              "min": 0,
+              "p25": 0,
+              "median": 1,
+              "p75": 2,
+              "max": 39,
+              "iqr": 2
+            }
+          },
+          "quietSessions": {
+            "2026-02-13": false,
+            "2026-04-20": false,
+            "2026-05-06": false
+          },
+          "requiredQuietSessionsInSplit": [
+            "2026-02-13",
+            "2026-04-20",
+            "2026-05-06"
+          ],
+          "allRequiredQuietInSplit": false,
+          "perSession": [
+            {
+              "tradingDate": "2025-10-10",
+              "qualifications": 80,
+              "deliveredAlerts": 28,
+              "collapsed": 58
+            },
+            {
+              "tradingDate": "2025-10-24",
+              "qualifications": 21,
+              "deliveredAlerts": 20,
+              "collapsed": 3
+            },
+            {
+              "tradingDate": "2025-10-28",
+              "qualifications": 51,
+              "deliveredAlerts": 37,
+              "collapsed": 19
+            },
+            {
+              "tradingDate": "2025-11-04",
+              "qualifications": 17,
+              "deliveredAlerts": 16,
+              "collapsed": 3
+            },
+            {
+              "tradingDate": "2025-11-14",
+              "qualifications": 9,
+              "deliveredAlerts": 9,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-11-20",
+              "qualifications": 50,
+              "deliveredAlerts": 29,
+              "collapsed": 24
+            },
+            {
+              "tradingDate": "2025-11-24",
+              "qualifications": 13,
+              "deliveredAlerts": 12,
+              "collapsed": 2
+            },
+            {
+              "tradingDate": "2025-11-28",
+              "qualifications": 4,
+              "deliveredAlerts": 4,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2025-12-09",
+              "qualifications": 17,
+              "deliveredAlerts": 17,
+              "collapsed": 1
+            },
+            {
+              "tradingDate": "2025-12-10",
+              "qualifications": 62,
+              "deliveredAlerts": 30,
+              "collapsed": 36
+            },
+            {
+              "tradingDate": "2025-12-17",
+              "qualifications": 30,
+              "deliveredAlerts": 23,
+              "collapsed": 9
+            },
+            {
+              "tradingDate": "2025-12-30",
+              "qualifications": 8,
+              "deliveredAlerts": 8,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-01-20",
+              "qualifications": 24,
+              "deliveredAlerts": 22,
+              "collapsed": 3
+            },
+            {
+              "tradingDate": "2026-01-21",
+              "qualifications": 80,
+              "deliveredAlerts": 32,
+              "collapsed": 54
+            },
+            {
+              "tradingDate": "2026-01-29",
+              "qualifications": 59,
+              "deliveredAlerts": 41,
+              "collapsed": 25
+            },
+            {
+              "tradingDate": "2026-02-06",
+              "qualifications": 24,
+              "deliveredAlerts": 24,
+              "collapsed": 1
+            },
+            {
+              "tradingDate": "2026-02-13",
+              "qualifications": 14,
+              "deliveredAlerts": 14,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-03-09",
+              "qualifications": 61,
+              "deliveredAlerts": 28,
+              "collapsed": 35
+            },
+            {
+              "tradingDate": "2026-03-10",
+              "qualifications": 35,
+              "deliveredAlerts": 18,
+              "collapsed": 19
+            },
+            {
+              "tradingDate": "2026-03-27",
+              "qualifications": 26,
+              "deliveredAlerts": 26,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-03-31",
+              "qualifications": 68,
+              "deliveredAlerts": 15,
+              "collapsed": 55
+            },
+            {
+              "tradingDate": "2026-04-20",
+              "qualifications": 15,
+              "deliveredAlerts": 15,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-05-06",
+              "qualifications": 20,
+              "deliveredAlerts": 20,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-05-27",
+              "qualifications": 13,
+              "deliveredAlerts": 13,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-06-02",
+              "qualifications": 38,
+              "deliveredAlerts": 34,
+              "collapsed": 8
+            },
+            {
+              "tradingDate": "2026-06-26",
+              "qualifications": 35,
+              "deliveredAlerts": 29,
+              "collapsed": 9
+            },
+            {
+              "tradingDate": "2026-07-22",
+              "qualifications": 32,
+              "deliveredAlerts": 31,
+              "collapsed": 2
+            },
+            {
+              "tradingDate": "2026-07-29",
+              "qualifications": 81,
+              "deliveredAlerts": 36,
+              "collapsed": 48
+            }
+          ]
+        },
+        {
+          "split": "holdout",
+          "threshold": 0.4,
+          "configurationValidity": "diagnostic_only_enter_not_above_fixed_exit",
+          "qualifications": 548,
+          "freshness": {
+            "counts": {
+              "Fresh": 2,
+              "Developing": 2,
+              "Mature": 7,
+              "Extended": 537
+            },
+            "shares": {
+              "Fresh": 0.0036496350364963502,
+              "Developing": 0.0036496350364963502,
+              "Mature": 0.012773722627737226,
+              "Extended": 0.9799270072992701
+            }
+          },
+          "atrTravelledAtQualification": {
+            "count": 548,
+            "min": 0,
+            "p25": 0.27553848130895603,
+            "median": 0.5337600753252518,
+            "p75": 0.858944599918114,
+            "max": 7.535446055634433,
+            "iqr": 0.5834061186091579
+          },
+          "ema9DistanceAtrAtQualification": {
+            "count": 548,
+            "min": 0.000032415522901017943,
+            "p25": 0.5629627147089905,
+            "median": 0.7996109578508225,
+            "p75": 1.0958481670867943,
+            "max": 4.413981050776271,
+            "iqr": 0.5328854523778038
+          },
+          "alertsPerSessionBeforeRateLimit": {
+            "count": 12,
+            "min": 13,
+            "p25": 35,
+            "median": 45.5,
+            "p75": 50.25,
+            "max": 101,
+            "iqr": 15.25
+          },
+          "deliveredAlertsPerSession": {
+            "count": 12,
+            "min": 10,
+            "p25": 25,
+            "median": 31,
+            "p75": 33.5,
+            "max": 50,
+            "iqr": 8.5
+          },
+          "conversion": {
+            "count": 106,
+            "rate": 0.19343065693430658,
+            "leadMinutes": {
+              "count": 106,
+              "min": 0,
+              "p25": 0,
+              "median": 0,
+              "p75": 2.75,
+              "max": 32,
+              "iqr": 2.75
+            }
+          },
+          "quietSessions": {
+            "2026-02-13": null,
+            "2026-04-20": null,
+            "2026-05-06": null
+          },
+          "requiredQuietSessionsInSplit": [],
+          "allRequiredQuietInSplit": null,
+          "perSession": [
+            {
+              "tradingDate": "2025-10-01",
+              "qualifications": 65,
+              "deliveredAlerts": 50,
+              "collapsed": 22
+            },
+            {
+              "tradingDate": "2026-01-27",
+              "qualifications": 32,
+              "deliveredAlerts": 31,
+              "collapsed": 3
+            },
+            {
+              "tradingDate": "2026-01-30",
+              "qualifications": 51,
+              "deliveredAlerts": 35,
+              "collapsed": 21
+            },
+            {
+              "tradingDate": "2026-02-02",
+              "qualifications": 50,
+              "deliveredAlerts": 31,
+              "collapsed": 23
+            },
+            {
+              "tradingDate": "2026-02-12",
+              "qualifications": 36,
+              "deliveredAlerts": 28,
+              "collapsed": 11
+            },
+            {
+              "tradingDate": "2026-02-25",
+              "qualifications": 13,
+              "deliveredAlerts": 13,
+              "collapsed": 0
+            },
+            {
+              "tradingDate": "2026-04-02",
+              "qualifications": 43,
+              "deliveredAlerts": 10,
+              "collapsed": 34
+            },
+            {
+              "tradingDate": "2026-04-21",
+              "qualifications": 48,
+              "deliveredAlerts": 25,
+              "collapsed": 26
+            },
+            {
+              "tradingDate": "2026-04-22",
+              "qualifications": 36,
+              "deliveredAlerts": 33,
+              "collapsed": 6
+            },
+            {
+              "tradingDate": "2026-05-07",
+              "qualifications": 48,
+              "deliveredAlerts": 32,
+              "collapsed": 19
+            },
+            {
+              "tradingDate": "2026-06-09",
+              "qualifications": 101,
+              "deliveredAlerts": 37,
+              "collapsed": 70
+            },
+            {
+              "tradingDate": "2026-08-14",
+              "qualifications": 25,
+              "deliveredAlerts": 25,
+              "collapsed": 0
+            }
+          ]
+        }
+      ],
+      "corpusQuiet": {
+        "2026-02-13": false,
+        "2026-04-20": false,
+        "2026-05-06": false
+      },
+      "allRequiredQuiet": false
+    }
+  ],
+  "recommendation": {
+    "threshold": null,
+    "status": "NO_ACCEPTABLE_LOWER_THRESHOLD",
+    "reason": "0.70 is the only lower requested level compatible with the fixed 0.66 exit, but it does not improve Extended share and it activates two mandated quiet sessions. Lower levels are invalid with the fixed exit and also fail freshness/quiet constraints.",
+    "published": false,
+    "currentThresholdUnchanged": 0.8
+  },
+  "artifactHash": "67b96d330389ced3b586abff7848e783cd4e02761f1a0e1fc48bc0bed643d2ee"
+}

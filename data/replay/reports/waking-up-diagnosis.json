@@ -1,0 +1,1171 @@
+{
+  "schemaVersion": 1,
+  "scope": "diagnosis_only_no_gate_changed",
+  "groundTruthValidation": "REFUSED",
+  "disclosure": "Timing statistics derived from historical pulls assume instantaneous bar availability. Real arrival latency is not represented. Human-relative latency and move-capture figures are therefore OPTIMISTICALLY BIASED and must not be used to justify lowering thresholds.",
+  "corpusHash": "82f216fdd69dbb70ae1a5e025e7862486dadf172828c86a7fc11ddf152571a7d",
+  "rawFeaturesSha256": "7d9608733933679eb70dd27972a414b8a63f81f4e39954ac5662d462dd0554ca",
+  "velocityRows": [
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "regular",
+      "publishedVelocityThreshold": 10.416,
+      "units": {
+        "scoreDelta1m": "attention-score points over 1 minute",
+        "scoreDelta3m": "attention-score points over 3 minutes",
+        "scoreDelta5m": "attention-score points over 5 minutes",
+        "rollingZDelta5m": "mean axis-z points over 5 minutes",
+        "scoreVelocityPerMinute": "scoreDelta3m / 3; falls back to 1m, then 5m / 5"
+      },
+      "scoreDelta1m": {
+        "count": 714930,
+        "min": -79.43616371685108,
+        "p50": 0.034600625612299485,
+        "p75": 5.662648314185842,
+        "p90": 14.34879957815817,
+        "p95": 21.479152888260398,
+        "p99": 37.35515254318867,
+        "max": 81.24127499928508
+      },
+      "scoreDelta3m": {
+        "count": 707644,
+        "min": -81.35286274185903,
+        "p50": 0.014805688604097256,
+        "p75": 8.493371398327556,
+        "p90": 21.46773420195966,
+        "p95": 31.754114299783822,
+        "p99": 52.08394849997375,
+        "max": 82.69262851309112
+      },
+      "scoreDelta5m": {
+        "count": 701895,
+        "min": -83.31642089665894,
+        "p50": -0.027587636775461277,
+        "p75": 9.032763726208945,
+        "p90": 23.14298127066015,
+        "p95": 34.31519372132947,
+        "p99": 55.99228044520032,
+        "max": 83.27149958883552
+      },
+      "rollingZDelta5m": {
+        "count": 701895,
+        "min": -7.543048035422483,
+        "p50": -0.0061249662917766115,
+        "p75": 0.726887749871318,
+        "p90": 1.4753364585705708,
+        "p95": 1.9933155343696267,
+        "p99": 3.1181957641507503,
+        "max": 6.925751892284834
+      },
+      "scoreVelocityPerMinute": {
+        "count": 756895,
+        "min": -79.43616371685108,
+        "p50": 0.003121659426783552,
+        "p75": 2.916282429204478,
+        "p90": 7.44543867877346,
+        "p95": 11.056380632038204,
+        "p99": 18.576052962720958,
+        "max": 74.75610290577563
+      },
+      "fractionVelocityAtLeast2": 0.3073107894754226,
+      "fractionVelocityAtLeastPublished": 0.05666968337748301
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_early",
+      "publishedVelocityThreshold": 6.028,
+      "units": {
+        "scoreDelta1m": "attention-score points over 1 minute",
+        "scoreDelta3m": "attention-score points over 3 minutes",
+        "scoreDelta5m": "attention-score points over 5 minutes",
+        "rollingZDelta5m": "mean axis-z points over 5 minutes",
+        "scoreVelocityPerMinute": "scoreDelta3m / 3; falls back to 1m, then 5m / 5"
+      },
+      "scoreDelta1m": {
+        "count": 88640,
+        "min": -61.89656905140775,
+        "p50": 0.005371536232293472,
+        "p75": 4.2317624805647664,
+        "p90": 9.5269453756288,
+        "p95": 13.705758018246256,
+        "p99": 23.40992317836191,
+        "max": 67.86534404799033
+      },
+      "scoreDelta3m": {
+        "count": 82525,
+        "min": -69.75810479503657,
+        "p50": 0.03511423120573909,
+        "p75": 5.791852697680575,
+        "p90": 12.974452718033234,
+        "p95": 18.19371950856742,
+        "p99": 29.635209808347447,
+        "max": 77.30546679503288
+      },
+      "scoreDelta5m": {
+        "count": 78782,
+        "min": -71.40993774216184,
+        "p50": -0.009942500319351177,
+        "p75": 6.2188177276249395,
+        "p90": 13.874684826537987,
+        "p95": 19.576324482874025,
+        "p99": 32.155683036370945,
+        "max": 87.32023385700832
+      },
+      "rollingZDelta5m": {
+        "count": 78782,
+        "min": -7.140865787696046,
+        "p50": -0.009155214104958335,
+        "p75": 0.7278640263292665,
+        "p90": 1.5944974551627762,
+        "p95": 2.2588166325605976,
+        "p99": 3.798610923261883,
+        "max": 9.351187872232519
+      },
+      "scoreVelocityPerMinute": {
+        "count": 106729,
+        "min": -61.89656905140775,
+        "p50": 0.02704837795438945,
+        "p75": 2.1918839845558344,
+        "p90": 5.1573817085754206,
+        "p95": 7.528412231475318,
+        "p99": 14.795246176425334,
+        "max": 60.62070075247539
+      },
+      "fractionVelocityAtLeast2": 0.26562602479176234,
+      "fractionVelocityAtLeastPublished": 0.07702686242726907
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_core",
+      "publishedVelocityThreshold": 6.232,
+      "units": {
+        "scoreDelta1m": "attention-score points over 1 minute",
+        "scoreDelta3m": "attention-score points over 3 minutes",
+        "scoreDelta5m": "attention-score points over 5 minutes",
+        "rollingZDelta5m": "mean axis-z points over 5 minutes",
+        "scoreVelocityPerMinute": "scoreDelta3m / 3; falls back to 1m, then 5m / 5"
+      },
+      "scoreDelta1m": {
+        "count": 128556,
+        "min": -62.71641483531167,
+        "p50": -0.08647356110806337,
+        "p75": 4.092067353149921,
+        "p90": 9.659441392921284,
+        "p95": 14.107622501410152,
+        "p99": 25.066521857411807,
+        "max": 81.7092365842681
+      },
+      "scoreDelta3m": {
+        "count": 123597,
+        "min": -74.37074833453278,
+        "p50": -0.1054447429303007,
+        "p75": 5.574683953189044,
+        "p90": 12.911036371618554,
+        "p95": 18.4347418897413,
+        "p99": 31.420469681380037,
+        "max": 80.93243206889389
+      },
+      "scoreDelta5m": {
+        "count": 119870,
+        "min": -78.45175245378041,
+        "p50": -0.10618095247743664,
+        "p75": 6.030412964505755,
+        "p90": 13.905347822709203,
+        "p95": 19.851077962812294,
+        "p99": 33.30435821720463,
+        "max": 90.5968202365572
+      },
+      "rollingZDelta5m": {
+        "count": 119870,
+        "min": -9.319724274235897,
+        "p50": -0.009870653709399022,
+        "p75": 0.71356777785647,
+        "p90": 1.517245384046716,
+        "p95": 2.1184433901654103,
+        "p99": 3.4595564168569948,
+        "max": 7.3754458928494
+      },
+      "scoreVelocityPerMinute": {
+        "count": 142862,
+        "min": -55.606410956278616,
+        "p50": -0.023509559894131105,
+        "p75": 2.015967735138764,
+        "p90": 4.833508279742658,
+        "p95": 7.0560975345558665,
+        "p99": 13.445056412840916,
+        "max": 71.05232789439256
+      },
+      "fractionVelocityAtLeast2": 0.25135445394856576,
+      "fractionVelocityAtLeastPublished": 0.06413181951813639
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_final",
+      "publishedVelocityThreshold": 6.14,
+      "units": {
+        "scoreDelta1m": "attention-score points over 1 minute",
+        "scoreDelta3m": "attention-score points over 3 minutes",
+        "scoreDelta5m": "attention-score points over 5 minutes",
+        "rollingZDelta5m": "mean axis-z points over 5 minutes",
+        "scoreVelocityPerMinute": "scoreDelta3m / 3; falls back to 1m, then 5m / 5"
+      },
+      "scoreDelta1m": {
+        "count": 41546,
+        "min": -61.65449040040575,
+        "p50": -0.1708995118430776,
+        "p75": 3.9869107401176365,
+        "p90": 9.502492375895118,
+        "p95": 13.840764072276396,
+        "p99": 24.61514032785101,
+        "max": 73.09252376512146
+      },
+      "scoreDelta3m": {
+        "count": 37440,
+        "min": -70.28456071103672,
+        "p50": -0.26595453926720936,
+        "p75": 5.3186108888146375,
+        "p90": 12.762298281110183,
+        "p95": 18.31159177657526,
+        "p99": 31.588650625831683,
+        "max": 69.46015653789765
+      },
+      "scoreDelta5m": {
+        "count": 34056,
+        "min": -75.30139442824775,
+        "p50": -0.33453662137976004,
+        "p75": 5.753660603528317,
+        "p90": 13.64134525232068,
+        "p95": 19.59575036975233,
+        "p99": 33.23026443105784,
+        "max": 68.94199876386313
+      },
+      "rollingZDelta5m": {
+        "count": 34056,
+        "min": -6.078216172103315,
+        "p50": -0.032014027113372215,
+        "p75": 0.6991309972994048,
+        "p90": 1.4687383085662593,
+        "p95": 2.0295633018887598,
+        "p99": 3.2613924848383222,
+        "max": 5.981324927711028
+      },
+      "scoreVelocityPerMinute": {
+        "count": 44287,
+        "min": -42.94883352896555,
+        "p50": -0.0932775943252242,
+        "p75": 1.9546649948739074,
+        "p90": 4.864606813260558,
+        "p95": 7.18919879655754,
+        "p99": 13.825662380674501,
+        "max": 45.59497625370497
+      },
+      "fractionVelocityAtLeast2": 0.246663806534649,
+      "fractionVelocityAtLeastPublished": 0.06792060875651997
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "regular",
+      "publishedVelocityThreshold": 7.62,
+      "units": {
+        "scoreDelta1m": "attention-score points over 1 minute",
+        "scoreDelta3m": "attention-score points over 3 minutes",
+        "scoreDelta5m": "attention-score points over 5 minutes",
+        "rollingZDelta5m": "mean axis-z points over 5 minutes",
+        "scoreVelocityPerMinute": "scoreDelta3m / 3; falls back to 1m, then 5m / 5"
+      },
+      "scoreDelta1m": {
+        "count": 910978,
+        "min": -81.21770053003902,
+        "p50": -0.1985637433263443,
+        "p75": 4.477621126950194,
+        "p90": 11.133039936845343,
+        "p95": 16.58288303168613,
+        "p99": 30.099991260155853,
+        "max": 90.07467103487686
+      },
+      "scoreDelta3m": {
+        "count": 906244,
+        "min": -82.67133375277415,
+        "p50": -0.1702359798345805,
+        "p75": 6.5143442293651255,
+        "p90": 15.782416165230945,
+        "p95": 22.981675268708663,
+        "p99": 39.80601198529117,
+        "max": 91.00098930876358
+      },
+      "scoreDelta5m": {
+        "count": 901480,
+        "min": -85.66467337060061,
+        "p50": -0.14095442362195598,
+        "p75": 7.181724223729027,
+        "p90": 17.275263101095938,
+        "p95": 25.163620165823747,
+        "p99": 43.38692109487595,
+        "max": 94.62118716269464
+      },
+      "rollingZDelta5m": {
+        "count": 901480,
+        "min": -6.857521646360612,
+        "p50": -0.012236951355013598,
+        "p75": 0.7109387052040784,
+        "p90": 1.4706549331040137,
+        "p95": 2.011652696876456,
+        "p99": 3.209330834183593,
+        "max": 7.943761651486019
+      },
+      "scoreVelocityPerMinute": {
+        "count": 911976,
+        "min": -47.52722480195608,
+        "p50": -0.05688460752330175,
+        "p75": 2.1798062757647623,
+        "p90": 5.285340054094071,
+        "p95": 7.709209020946705,
+        "p99": 13.382411569445672,
+        "max": 47.70135299283749
+      },
+      "fractionVelocityAtLeast2": 0.26434577225716466,
+      "fractionVelocityAtLeastPublished": 0.051226128757774325
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "after_hours_core",
+      "publishedVelocityThreshold": 6.328,
+      "units": {
+        "scoreDelta1m": "attention-score points over 1 minute",
+        "scoreDelta3m": "attention-score points over 3 minutes",
+        "scoreDelta5m": "attention-score points over 5 minutes",
+        "rollingZDelta5m": "mean axis-z points over 5 minutes",
+        "scoreVelocityPerMinute": "scoreDelta3m / 3; falls back to 1m, then 5m / 5"
+      },
+      "scoreDelta1m": {
+        "count": 102937,
+        "min": -76.36592910386842,
+        "p50": -0.041951115798351424,
+        "p75": 4.449172110203163,
+        "p90": 10.37281672120121,
+        "p95": 15.035790648649527,
+        "p99": 26.68997418192365,
+        "max": 86.56606479844274
+      },
+      "scoreDelta3m": {
+        "count": 97896,
+        "min": -73.06026885057186,
+        "p50": -0.07095300676908778,
+        "p75": 5.808543441031823,
+        "p90": 13.363729136086324,
+        "p95": 19.06791948481887,
+        "p99": 33.079379671288386,
+        "max": 86.37626429605699
+      },
+      "scoreDelta5m": {
+        "count": 94117,
+        "min": -74.74061247301994,
+        "p50": -0.0756698821293007,
+        "p75": 6.384914494457772,
+        "p90": 14.678213347037412,
+        "p95": 20.86054951185542,
+        "p99": 35.950336935713764,
+        "max": 86.42113372138282
+      },
+      "rollingZDelta5m": {
+        "count": 94117,
+        "min": -7.407836969869575,
+        "p50": -0.01246077039643989,
+        "p75": 0.7464814981839232,
+        "p90": 1.6712110198529462,
+        "p95": 2.3717290148217822,
+        "p99": 3.808401302589585,
+        "max": 8.468615309875585
+      },
+      "scoreVelocityPerMinute": {
+        "count": 116753,
+        "min": -71.37006058691757,
+        "p50": -0.015969753820628856,
+        "p75": 2.1275205906790156,
+        "p90": 5.063306473537969,
+        "p95": 7.537091327041022,
+        "p99": 14.729284550044406,
+        "max": 65.6763399725053
+      },
+      "fractionVelocityAtLeast2": 0.26025883703202485,
+      "fractionVelocityAtLeastPublished": 0.06905175884131456
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "after_hours_late",
+      "publishedVelocityThreshold": 5.79,
+      "units": {
+        "scoreDelta1m": "attention-score points over 1 minute",
+        "scoreDelta3m": "attention-score points over 3 minutes",
+        "scoreDelta5m": "attention-score points over 5 minutes",
+        "rollingZDelta5m": "mean axis-z points over 5 minutes",
+        "scoreVelocityPerMinute": "scoreDelta3m / 3; falls back to 1m, then 5m / 5"
+      },
+      "scoreDelta1m": {
+        "count": 77718,
+        "min": -59.865834807730884,
+        "p50": -0.03351129511207418,
+        "p75": 4.099106788573321,
+        "p90": 9.524086632172578,
+        "p95": 13.80124950845324,
+        "p99": 23.735469914293937,
+        "max": 67.76299030718963
+      },
+      "scoreDelta3m": {
+        "count": 73319,
+        "min": -68.88133652759248,
+        "p50": -0.13080090220057272,
+        "p75": 5.38269320792293,
+        "p90": 12.311265864482388,
+        "p95": 17.44901145256319,
+        "p99": 28.98538320132292,
+        "max": 67.58939393580461
+      },
+      "scoreDelta5m": {
+        "count": 70269,
+        "min": -63.53769868041489,
+        "p50": -0.1535654189877258,
+        "p75": 5.917606159938135,
+        "p90": 13.302393936703586,
+        "p95": 18.830428877965748,
+        "p99": 31.02226201282625,
+        "max": 81.84790897578283
+      },
+      "rollingZDelta5m": {
+        "count": 70269,
+        "min": -7.492941997480988,
+        "p50": -0.014127163478999005,
+        "p75": 0.7172171797882416,
+        "p90": 1.5716694876963104,
+        "p95": 2.2371734961585106,
+        "p99": 3.582089340929075,
+        "max": 7.3578854437507415
+      },
+      "scoreVelocityPerMinute": {
+        "count": 91473,
+        "min": -59.865834807730884,
+        "p50": -0.025877431294164015,
+        "p75": 2.0257774698066235,
+        "p90": 4.8401637553461745,
+        "p95": 7.244736768530536,
+        "p99": 14.434726333315265,
+        "max": 55.005065038324894
+      },
+      "fractionVelocityAtLeast2": 0.2521290435429034,
+      "fractionVelocityAtLeastPublished": 0.07459031626818843
+    }
+  ],
+  "gateRows": [
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "regular",
+      "totalSymbolMinutes": 770052,
+      "independent": {
+        "dataQuality": {
+          "count": 770052,
+          "fraction": 1
+        },
+        "minimumScore": {
+          "count": 69224,
+          "fraction": 0.08989522785474227
+        },
+        "persistence": {
+          "count": 763697,
+          "fraction": 0.9917473105712341
+        },
+        "velocity": {
+          "count": 42893,
+          "fraction": 0.055701433149969094
+        },
+        "atrTravel": {
+          "count": 4541,
+          "fraction": 0.005897004358147242
+        },
+        "freshness": {
+          "count": 0,
+          "fraction": 0
+        }
+      },
+      "cumulative": {
+        "freshness": {
+          "count": 0,
+          "fraction": 0
+        },
+        "atrTravel": {
+          "count": 0,
+          "fraction": 0
+        },
+        "minimumScore": {
+          "count": 0,
+          "fraction": 0
+        },
+        "dataQuality": {
+          "count": 0,
+          "fraction": 0
+        },
+        "persistence": {
+          "count": 0,
+          "fraction": 0
+        },
+        "velocity": {
+          "count": 0,
+          "fraction": 0
+        }
+      },
+      "extra": {
+        "guardClear": {
+          "count": 758922,
+          "fraction": 0.9855464306306587
+        },
+        "eligibleState": {
+          "count": 4990,
+          "fraction": 0.006480081864601352
+        },
+        "activeEpisode": {
+          "count": 207052,
+          "fraction": 0.2688805431321521
+        }
+      },
+      "actualWakingRows": 0
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_early",
+      "totalSymbolMinutes": 125447,
+      "independent": {
+        "dataQuality": {
+          "count": 125447,
+          "fraction": 1
+        },
+        "persistence": {
+          "count": 121640,
+          "fraction": 0.9696525225792566
+        },
+        "velocity": {
+          "count": 8221,
+          "fraction": 0.06553365166165791
+        },
+        "minimumScore": {
+          "count": 2787,
+          "fraction": 0.022216553604310983
+        },
+        "atrTravel": {
+          "count": 3070,
+          "fraction": 0.0244724863886741
+        },
+        "freshness": {
+          "count": 0,
+          "fraction": 0
+        }
+      },
+      "cumulative": {
+        "freshness": {
+          "count": 0,
+          "fraction": 0
+        },
+        "atrTravel": {
+          "count": 0,
+          "fraction": 0
+        },
+        "minimumScore": {
+          "count": 0,
+          "fraction": 0
+        },
+        "dataQuality": {
+          "count": 0,
+          "fraction": 0
+        },
+        "persistence": {
+          "count": 0,
+          "fraction": 0
+        },
+        "velocity": {
+          "count": 0,
+          "fraction": 0
+        }
+      },
+      "extra": {
+        "guardClear": {
+          "count": 105303,
+          "fraction": 0.839422226119397
+        },
+        "eligibleState": {
+          "count": 3850,
+          "fraction": 0.030690251660063613
+        },
+        "activeEpisode": {
+          "count": 35536,
+          "fraction": 0.283275008569356
+        }
+      },
+      "actualWakingRows": 0
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_core",
+      "totalSymbolMinutes": 153722,
+      "independent": {
+        "dataQuality": {
+          "count": 153722,
+          "fraction": 1
+        },
+        "persistence": {
+          "count": 150537,
+          "fraction": 0.9792807795891284
+        },
+        "minimumScore": {
+          "count": 3736,
+          "fraction": 0.024303613015703673
+        },
+        "velocity": {
+          "count": 9162,
+          "fraction": 0.059601098086155525
+        },
+        "atrTravel": {
+          "count": 3768,
+          "fraction": 0.02451178100727287
+        },
+        "freshness": {
+          "count": 0,
+          "fraction": 0
+        }
+      },
+      "cumulative": {
+        "freshness": {
+          "count": 0,
+          "fraction": 0
+        },
+        "atrTravel": {
+          "count": 0,
+          "fraction": 0
+        },
+        "minimumScore": {
+          "count": 0,
+          "fraction": 0
+        },
+        "dataQuality": {
+          "count": 0,
+          "fraction": 0
+        },
+        "persistence": {
+          "count": 0,
+          "fraction": 0
+        },
+        "velocity": {
+          "count": 0,
+          "fraction": 0
+        }
+      },
+      "extra": {
+        "guardClear": {
+          "count": 136366,
+          "fraction": 0.8870948855726571
+        },
+        "activeEpisode": {
+          "count": 74177,
+          "fraction": 0.4825399097071337
+        },
+        "eligibleState": {
+          "count": 4516,
+          "fraction": 0.029377707810202835
+        }
+      },
+      "actualWakingRows": 0
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_final",
+      "totalSymbolMinutes": 49432,
+      "independent": {
+        "dataQuality": {
+          "count": 49432,
+          "fraction": 1
+        },
+        "persistence": {
+          "count": 47178,
+          "fraction": 0.9544020067972164
+        },
+        "atrTravel": {
+          "count": 3300,
+          "fraction": 0.06675837514160868
+        },
+        "velocity": {
+          "count": 3008,
+          "fraction": 0.06085127043210876
+        },
+        "minimumScore": {
+          "count": 1077,
+          "fraction": 0.021787506068943193
+        },
+        "freshness": {
+          "count": 0,
+          "fraction": 0
+        }
+      },
+      "cumulative": {
+        "freshness": {
+          "count": 0,
+          "fraction": 0
+        },
+        "atrTravel": {
+          "count": 0,
+          "fraction": 0
+        },
+        "minimumScore": {
+          "count": 0,
+          "fraction": 0
+        },
+        "dataQuality": {
+          "count": 0,
+          "fraction": 0
+        },
+        "persistence": {
+          "count": 0,
+          "fraction": 0
+        },
+        "velocity": {
+          "count": 0,
+          "fraction": 0
+        }
+      },
+      "extra": {
+        "activeEpisode": {
+          "count": 30640,
+          "fraction": 0.619841398284512
+        },
+        "guardClear": {
+          "count": 44199,
+          "fraction": 0.8941374008739278
+        },
+        "eligibleState": {
+          "count": 4010,
+          "fraction": 0.08112154070237902
+        }
+      },
+      "actualWakingRows": 0
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "regular",
+      "totalSymbolMinutes": 914393,
+      "independent": {
+        "dataQuality": {
+          "count": 914393,
+          "fraction": 1
+        },
+        "persistence": {
+          "count": 910666,
+          "fraction": 0.9959240720346721
+        },
+        "atrTravel": {
+          "count": 43129,
+          "fraction": 0.04716680901975409
+        },
+        "minimumScore": {
+          "count": 49609,
+          "fraction": 0.05425347744350624
+        },
+        "velocity": {
+          "count": 46717,
+          "fraction": 0.05109072357290574
+        },
+        "freshness": {
+          "count": 0,
+          "fraction": 0
+        }
+      },
+      "cumulative": {
+        "freshness": {
+          "count": 0,
+          "fraction": 0
+        },
+        "atrTravel": {
+          "count": 0,
+          "fraction": 0
+        },
+        "minimumScore": {
+          "count": 0,
+          "fraction": 0
+        },
+        "dataQuality": {
+          "count": 0,
+          "fraction": 0
+        },
+        "persistence": {
+          "count": 0,
+          "fraction": 0
+        },
+        "velocity": {
+          "count": 0,
+          "fraction": 0
+        }
+      },
+      "extra": {
+        "activeEpisode": {
+          "count": 562291,
+          "fraction": 0.6149336226327192
+        },
+        "guardClear": {
+          "count": 910398,
+          "fraction": 0.9956309814270232
+        },
+        "eligibleState": {
+          "count": 67653,
+          "fraction": 0.07398678686297905
+        }
+      },
+      "actualWakingRows": 0
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "after_hours_core",
+      "totalSymbolMinutes": 128890,
+      "independent": {
+        "dataQuality": {
+          "count": 128890,
+          "fraction": 1
+        },
+        "persistence": {
+          "count": 125840,
+          "fraction": 0.9763364108930095
+        },
+        "atrTravel": {
+          "count": 4431,
+          "fraction": 0.034378151912483515
+        },
+        "velocity": {
+          "count": 8062,
+          "fraction": 0.06254946078051052
+        },
+        "minimumScore": {
+          "count": 5404,
+          "fraction": 0.04192722476530375
+        },
+        "freshness": {
+          "count": 0,
+          "fraction": 0
+        }
+      },
+      "cumulative": {
+        "freshness": {
+          "count": 0,
+          "fraction": 0
+        },
+        "atrTravel": {
+          "count": 0,
+          "fraction": 0
+        },
+        "minimumScore": {
+          "count": 0,
+          "fraction": 0
+        },
+        "dataQuality": {
+          "count": 0,
+          "fraction": 0
+        },
+        "persistence": {
+          "count": 0,
+          "fraction": 0
+        },
+        "velocity": {
+          "count": 0,
+          "fraction": 0
+        }
+      },
+      "extra": {
+        "activeEpisode": {
+          "count": 113102,
+          "fraction": 0.8775079525176507
+        },
+        "guardClear": {
+          "count": 115477,
+          "fraction": 0.895934517805881
+        },
+        "eligibleState": {
+          "count": 5911,
+          "fraction": 0.04586081154472806
+        }
+      },
+      "actualWakingRows": 0
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "after_hours_late",
+      "totalSymbolMinutes": 103307,
+      "independent": {
+        "dataQuality": {
+          "count": 103307,
+          "fraction": 1
+        },
+        "persistence": {
+          "count": 101893,
+          "fraction": 0.9863126409633423
+        },
+        "velocity": {
+          "count": 6823,
+          "fraction": 0.06604586330064759
+        },
+        "minimumScore": {
+          "count": 2188,
+          "fraction": 0.021179590928010687
+        },
+        "atrTravel": {
+          "count": 2007,
+          "fraction": 0.019427531532229182
+        },
+        "freshness": {
+          "count": 0,
+          "fraction": 0
+        }
+      },
+      "cumulative": {
+        "freshness": {
+          "count": 0,
+          "fraction": 0
+        },
+        "atrTravel": {
+          "count": 0,
+          "fraction": 0
+        },
+        "minimumScore": {
+          "count": 0,
+          "fraction": 0
+        },
+        "dataQuality": {
+          "count": 0,
+          "fraction": 0
+        },
+        "persistence": {
+          "count": 0,
+          "fraction": 0
+        },
+        "velocity": {
+          "count": 0,
+          "fraction": 0
+        }
+      },
+      "extra": {
+        "activeEpisode": {
+          "count": 95556,
+          "fraction": 0.9249712023386605
+        },
+        "guardClear": {
+          "count": 89324,
+          "fraction": 0.8646461517612553
+        },
+        "eligibleState": {
+          "count": 2721,
+          "fraction": 0.026338970253709817
+        }
+      },
+      "actualWakingRows": 0
+    }
+  ],
+  "freshnessVariants": [
+    {
+      "id": "pre_usability",
+      "activeEpisodeMinutes": 7406,
+      "counts": {
+        "Fresh": 0,
+        "Developing": 0,
+        "Mature": 1249,
+        "Extended": 6157
+      },
+      "fractions": {
+        "Fresh": 0,
+        "Developing": 0,
+        "Mature": 0.16864704293815824,
+        "Extended": 0.8313529570618418
+      },
+      "wakingRows": 0
+    },
+    {
+      "id": "selected_with_exit_persistence_2",
+      "activeEpisodeMinutes": 7425,
+      "counts": {
+        "Fresh": 0,
+        "Developing": 0,
+        "Mature": 1249,
+        "Extended": 6176
+      },
+      "fractions": {
+        "Fresh": 0,
+        "Developing": 0,
+        "Mature": 0.1682154882154882,
+        "Extended": 0.8317845117845117
+      },
+      "wakingRows": 0
+    },
+    {
+      "id": "accepted_exit_persistence_30",
+      "activeEpisodeMinutes": 68395,
+      "counts": {
+        "Fresh": 0,
+        "Developing": 0,
+        "Mature": 15073,
+        "Extended": 53322
+      },
+      "fractions": {
+        "Fresh": 0,
+        "Developing": 0,
+        "Mature": 0.22038160684260547,
+        "Extended": 0.7796183931573946
+      },
+      "wakingRows": 0
+    }
+  ],
+  "backdating": {
+    "otherwiseQualifyingMoments": 4324,
+    "blockedByActualAtrButNotQualificationAtr": 360,
+    "blockedByActualFreshnessButNotQualificationFreshness": 0,
+    "eligibilityChangedByBackdating": 0
+  },
+  "exitPersistenceCost": {
+    "full": {
+      "total": 9592,
+      "settled": 1670,
+      "pendingExit": 7922,
+      "fractionSettled": 0.17410341951626354,
+      "fractionPendingExit": 0.8258965804837365,
+      "scoreDecayFromEpisodePeak": {
+        "count": 9592,
+        "min": 0,
+        "p50": 57.744822458702345,
+        "p75": 71.82338012463532,
+        "p90": 79.78812926420156,
+        "p95": 83.83686871471689,
+        "p99": 88.93049418772752,
+        "max": 95.23738186972983
+      }
+    },
+    "displayed": {
+      "total": 8411,
+      "settled": 1567,
+      "pendingExit": 6844,
+      "fractionSettled": 0.1863036499821662,
+      "fractionPendingExit": 0.8136963500178338,
+      "scoreDecayFromEpisodePeak": {
+        "count": 8411,
+        "min": 0,
+        "p50": 56.400617788603114,
+        "p75": 71.29510231831647,
+        "p90": 79.52267683180291,
+        "p95": 83.7742648228719,
+        "p99": 88.92652093404504,
+        "max": 95.23738186972983
+      }
+    }
+  },
+  "proposal": {
+    "scope": "single_gate_counterfactual_not_published",
+    "change": "episode-relative directional pullback history only",
+    "excursionAtr": 0.5,
+    "retracementAtr": 0.3,
+    "rows": [
+      {
+        "tradingDate": "2025-10-01",
+        "wakingRows": 0,
+        "minutesWithWakingUp": 0,
+        "events": []
+      },
+      {
+        "tradingDate": "2025-10-10",
+        "wakingRows": 1,
+        "minutesWithWakingUp": 1,
+        "events": [
+          {
+            "minuteOfDay": 543,
+            "symbol": "ORCL",
+            "attention": 40.48392019042906,
+            "velocityPerMinute": 7.569125055320067,
+            "state": "EMERGING",
+            "freshness": "Fresh",
+            "atrTravelled": 0.023829990720761463
+          }
+        ]
+      },
+      {
+        "tradingDate": "2025-11-04",
+        "wakingRows": 2,
+        "minutesWithWakingUp": 2,
+        "events": [
+          {
+            "minuteOfDay": 1019,
+            "symbol": "AMD",
+            "attention": 49.502947775670215,
+            "velocityPerMinute": 9.147343558155358,
+            "state": "WATCHING",
+            "freshness": "Fresh",
+            "atrTravelled": 0
+          },
+          {
+            "minuteOfDay": 1043,
+            "symbol": "AMD",
+            "attention": 40.32402173745124,
+            "velocityPerMinute": 8.962986589523258,
+            "state": "WATCHING",
+            "freshness": "Fresh",
+            "atrTravelled": 0.3211407024911017
+          }
+        ]
+      },
+      {
+        "tradingDate": "2025-11-28",
+        "wakingRows": 0,
+        "minutesWithWakingUp": 0,
+        "events": []
+      },
+      {
+        "tradingDate": "2026-02-13",
+        "wakingRows": 3,
+        "minutesWithWakingUp": 3,
+        "events": [
+          {
+            "minuteOfDay": 548,
+            "symbol": "QQQ",
+            "attention": 40.068042506142376,
+            "velocityPerMinute": 7.818851987334,
+            "state": "EMERGING",
+            "freshness": "Fresh",
+            "atrTravelled": 0.4402743030945669
+          },
+          {
+            "minuteOfDay": 549,
+            "symbol": "QQQ",
+            "attention": 57.72262414825154,
+            "velocityPerMinute": 9.334912516664994,
+            "state": "EMERGING",
+            "freshness": "Developing",
+            "atrTravelled": 0.6282964745072068
+          },
+          {
+            "minuteOfDay": 634,
+            "symbol": "AMAT",
+            "attention": 59.10526172261582,
+            "velocityPerMinute": 8.27474204414719,
+            "state": "WATCHING",
+            "freshness": "Developing",
+            "atrTravelled": 0.24820494637000512
+          }
+        ]
+      }
+    ],
+    "totalWakingRows": 6,
+    "totalMinutesWithWakingUp": 6
+  },
+  "freshnessInputCensus": [
+    {
+      "feedMode": "iex_partial",
+      "regularRows": 770101,
+      "pullbackObservedRows": 769984,
+      "fractionPullbackObserved": 0.9998480718762863
+    },
+    {
+      "feedMode": "sip",
+      "regularRows": 919368,
+      "pullbackObservedRows": 919368,
+      "fractionPullbackObserved": 1
+    }
+  ],
+  "artifactHash": "cb2ae173a5d34b7ba50a94dee1f1eb5efe79ca3440fc83e9db8e66729a1c5433"
+}

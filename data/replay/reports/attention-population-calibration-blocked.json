@@ -1,0 +1,1158 @@
+{
+  "schemaVersion": 1,
+  "status": "CALIBRATION_FAILED",
+  "thresholdsPublished": false,
+  "thresholdAvailabilityPublished": true,
+  "stateReplayComplete": false,
+  "groundTruthValidation": "REFUSED",
+  "disclosure": "Timing statistics derived from historical pulls assume instantaneous bar availability. Real arrival latency is not represented. Human-relative latency and move-capture figures are therefore OPTIMISTICALLY BIASED and must not be used to justify lowering thresholds.",
+  "contractFixtureNotice": "The A3 report's Final WAKING UP: AAOI was a contract fixture, not a historical session result.",
+  "splitHash": "82f216fdd69dbb70ae1a5e025e7862486dadf172828c86a7fc11ddf152571a7d",
+  "rawFeaturesSha256": "7d9608733933679eb70dd27972a414b8a63f81f4e39954ac5662d462dd0554ca",
+  "sessions": {
+    "total": 40,
+    "train": 28,
+    "holdout": 12,
+    "composition": [
+      {
+        "tradingDate": "2025-10-01",
+        "sessionReturn": 0.007961759428201098,
+        "rangePct": 0.009514905680293227,
+        "bodyEfficiency": 0.8367670364500851,
+        "primaryRegime": "trending_up",
+        "tags": [
+          "trending_up"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "holdout",
+        "haltCandidate": {
+          "tradingDate": "2025-10-01",
+          "symbol": "KLAC",
+          "gapMinutes": 5,
+          "beforeMinute": 689,
+          "afterMinute": 695,
+          "evidence": "inferred_regular_hours_bar_gap"
+        }
+      },
+      {
+        "tradingDate": "2025-10-10",
+        "sessionReturn": -0.028431999761950877,
+        "rangePct": 0.031407614598366405,
+        "bodyEfficiency": 0.9052581714827097,
+        "primaryRegime": "high_volatility",
+        "tags": [
+          "trending_down",
+          "high_volatility"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2025-10-24",
+        "sessionReturn": 0.0011678443662594962,
+        "rangePct": 0.004168760902344632,
+        "bodyEfficiency": 0.28014184397161335,
+        "primaryRegime": "quiet",
+        "tags": [
+          "quiet"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "train",
+        "haltCandidate": {
+          "tradingDate": "2025-10-24",
+          "symbol": "KLAC",
+          "gapMinutes": 6,
+          "beforeMinute": 842,
+          "afterMinute": 849,
+          "evidence": "inferred_regular_hours_bar_gap"
+        }
+      },
+      {
+        "tradingDate": "2025-10-28",
+        "sessionReturn": 0.000014554981442316262,
+        "rangePct": 0.005931154937777355,
+        "bodyEfficiency": 0.002453987730059159,
+        "primaryRegime": "quiet",
+        "tags": [
+          "chopping",
+          "quiet"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "train",
+        "haltCandidate": {
+          "tradingDate": "2025-10-28",
+          "symbol": "KLAC",
+          "gapMinutes": 10,
+          "beforeMinute": 842,
+          "afterMinute": 853,
+          "evidence": "inferred_regular_hours_bar_gap"
+        }
+      },
+      {
+        "tradingDate": "2025-11-04",
+        "sessionReturn": -0.0012867728624040842,
+        "rangePct": 0.007957285057165248,
+        "bodyEfficiency": 0.16171003717472218,
+        "primaryRegime": "chopping",
+        "tags": [
+          "chopping"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2025-11-14",
+        "sessionReturn": 0.009843998917911545,
+        "rangePct": 0.01862845291412423,
+        "bodyEfficiency": 0.528438886647839,
+        "primaryRegime": "high_volatility",
+        "tags": [
+          "trending_up",
+          "high_volatility"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2025-11-20",
+        "sessionReturn": -0.030286368162161348,
+        "rangePct": 0.03517558068686743,
+        "bodyEfficiency": 0.8610054921842007,
+        "primaryRegime": "high_volatility",
+        "tags": [
+          "trending_down",
+          "high_volatility"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2025-11-24",
+        "sessionReturn": 0.009114367200349971,
+        "rangePct": 0.012781240097179545,
+        "bodyEfficiency": 0.7131050767414434,
+        "primaryRegime": "trending_up",
+        "tags": [
+          "trending_up"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": true,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2025-11-28",
+        "sessionReturn": 0.003715888728960337,
+        "rangePct": 0.00464853273800776,
+        "bodyEfficiency": 0.7993680884676151,
+        "primaryRegime": "quiet",
+        "tags": [
+          "quiet"
+        ],
+        "earlyClose": true,
+        "holidayAdjacent": true,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2025-12-09",
+        "sessionReturn": -0.00016101880992458462,
+        "rangePct": 0.004091341579448085,
+        "bodyEfficiency": 0.03935599284437039,
+        "primaryRegime": "quiet",
+        "tags": [
+          "chopping",
+          "quiet"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2025-12-10",
+        "sessionReturn": 0.007340014064697753,
+        "rangePct": 0.01122245663384916,
+        "bodyEfficiency": 0.6540469973890406,
+        "primaryRegime": "trending_up",
+        "tags": [
+          "trending_up"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2025-12-17",
+        "sessionReturn": -0.012487314124343674,
+        "rangePct": 0.013590433746635332,
+        "bodyEfficiency": 0.9188311688311802,
+        "primaryRegime": "trending_down",
+        "tags": [
+          "trending_down"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2025-12-30",
+        "sessionReturn": -0.0006327778949589691,
+        "rangePct": 0.0028729571092958837,
+        "bodyEfficiency": 0.2202531645570021,
+        "primaryRegime": "quiet",
+        "tags": [
+          "chopping",
+          "quiet"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": true,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-01-20",
+        "sessionReturn": -0.005737428282146406,
+        "rangePct": 0.01203245828992345,
+        "bodyEfficiency": 0.476829268292683,
+        "primaryRegime": "trending_down",
+        "tags": [
+          "trending_down"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": true,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-01-21",
+        "sessionReturn": 0.008460236886632888,
+        "rangePct": 0.015603619510041961,
+        "bodyEfficiency": 0.5421970768505413,
+        "primaryRegime": "high_volatility",
+        "tags": [
+          "trending_up",
+          "high_volatility"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": true,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-01-27",
+        "sessionReturn": 0.0018871186147686458,
+        "rangePct": 0.004264023740240173,
+        "bodyEfficiency": 0.4425675675675991,
+        "primaryRegime": "quiet",
+        "tags": [
+          "quiet"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "holdout",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-01-29",
+        "sessionReturn": -0.0033745458722842514,
+        "rangePct": 0.01756199830554704,
+        "bodyEfficiency": 0.19215044971382184,
+        "primaryRegime": "high_volatility",
+        "tags": [
+          "chopping",
+          "high_volatility"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-01-30",
+        "sessionReturn": 0.00026019456771564364,
+        "rangePct": 0.010248774917243719,
+        "bodyEfficiency": 0.025387870239783197,
+        "primaryRegime": "chopping",
+        "tags": [
+          "chopping"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "holdout",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-02-02",
+        "sessionReturn": 0.008454421531946865,
+        "rangePct": 0.9105905043649757,
+        "bodyEfficiency": 0.009284548313890875,
+        "primaryRegime": "high_volatility",
+        "tags": [
+          "chopping",
+          "high_volatility"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "holdout",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-02-06",
+        "sessionReturn": 0.013441728054471191,
+        "rangePct": 0.016816834443694306,
+        "bodyEfficiency": 0.7993019197207705,
+        "primaryRegime": "high_volatility",
+        "tags": [
+          "trending_up",
+          "high_volatility"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-02-12",
+        "sessionReturn": -0.0186823000691404,
+        "rangePct": 0.021577552431435842,
+        "bodyEfficiency": 0.8658210947930581,
+        "primaryRegime": "high_volatility",
+        "tags": [
+          "trending_down",
+          "high_volatility"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "holdout",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-02-13",
+        "sessionReturn": 0.0000880165471108807,
+        "rangePct": 0.012850415878185084,
+        "bodyEfficiency": 0.006849315068486929,
+        "primaryRegime": "chopping",
+        "tags": [
+          "chopping"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": true,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-02-25",
+        "sessionReturn": 0.004303225245588127,
+        "rangePct": 0.005187052652931014,
+        "bodyEfficiency": 0.8296089385475105,
+        "primaryRegime": "quiet",
+        "tags": [
+          "trending_up",
+          "quiet"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "holdout",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-03-09",
+        "sessionReturn": 0.017827398370323655,
+        "rangePct": 0.026305916955536506,
+        "bodyEfficiency": 0.677695379349687,
+        "primaryRegime": "high_volatility",
+        "tags": [
+          "trending_up",
+          "high_volatility"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-03-10",
+        "sessionReturn": -0.0007967892344922234,
+        "rangePct": 0.012689606327096769,
+        "bodyEfficiency": 0.06279069767442742,
+        "primaryRegime": "chopping",
+        "tags": [
+          "chopping"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-03-27",
+        "sessionReturn": -0.013089494163424087,
+        "rangePct": 0.014871595330739222,
+        "bodyEfficiency": 0.8801674515960243,
+        "primaryRegime": "trending_down",
+        "tags": [
+          "trending_down"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-03-31",
+        "sessionReturn": 0.0178420508967978,
+        "rangePct": 0.021222650014085742,
+        "bodyEfficiency": 0.8407079646017717,
+        "primaryRegime": "high_volatility",
+        "tags": [
+          "trending_up",
+          "high_volatility"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": true,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-04-02",
+        "sessionReturn": 0.014557099099656634,
+        "rangePct": 0.020249992265090857,
+        "bodyEfficiency": 0.718869365928194,
+        "primaryRegime": "high_volatility",
+        "tags": [
+          "trending_up",
+          "high_volatility"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": true,
+        "split": "holdout",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-04-20",
+        "sessionReturn": -0.00008465250148137482,
+        "rangePct": 0.005318998843082455,
+        "bodyEfficiency": 0.015915119363380827,
+        "primaryRegime": "quiet",
+        "tags": [
+          "chopping",
+          "quiet"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-04-21",
+        "sessionReturn": -0.008728951962606146,
+        "rangePct": 0.012157177451146015,
+        "bodyEfficiency": 0.7180081065431313,
+        "primaryRegime": "trending_down",
+        "tags": [
+          "trending_down"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "holdout",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-04-22",
+        "sessionReturn": 0.0029048861312839236,
+        "rangePct": 0.004554748642741336,
+        "bodyEfficiency": 0.637770897832832,
+        "primaryRegime": "quiet",
+        "tags": [
+          "quiet"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "holdout",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-05-06",
+        "sessionReturn": 0.007786750164799017,
+        "rangePct": 0.009297407163260798,
+        "bodyEfficiency": 0.8375184638109435,
+        "primaryRegime": "trending_up",
+        "tags": [
+          "trending_up"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-05-07",
+        "sessionReturn": -0.00472076729474169,
+        "rangePct": 0.008679681654309225,
+        "bodyEfficiency": 0.54388714733541,
+        "primaryRegime": "trending_down",
+        "tags": [
+          "trending_down"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "holdout",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-05-27",
+        "sessionReturn": -0.0005593437033879489,
+        "rangePct": 0.004208395482633668,
+        "bodyEfficiency": 0.13291139240505168,
+        "primaryRegime": "quiet",
+        "tags": [
+          "chopping",
+          "quiet"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": true,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-06-02",
+        "sessionReturn": 0.0033552170983977003,
+        "rangePct": 0.004821473389429716,
+        "bodyEfficiency": 0.6958904109589297,
+        "primaryRegime": "quiet",
+        "tags": [
+          "quiet"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-06-09",
+        "sessionReturn": -0.00884848647849068,
+        "rangePct": 0.03269098879819258,
+        "bodyEfficiency": 0.2706705059646259,
+        "primaryRegime": "high_volatility",
+        "tags": [
+          "chopping",
+          "high_volatility"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "holdout",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-06-26",
+        "sessionReturn": 0.00006173305256229611,
+        "rangePct": 0.02736831996927056,
+        "bodyEfficiency": 0.002255639097742317,
+        "primaryRegime": "high_volatility",
+        "tags": [
+          "chopping",
+          "high_volatility"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-07-22",
+        "sessionReturn": 0.0010581018456510272,
+        "rangePct": 0.004888698400792876,
+        "bodyEfficiency": 0.21643835616437496,
+        "primaryRegime": "quiet",
+        "tags": [
+          "chopping",
+          "quiet"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-07-29",
+        "sessionReturn": -0.014203278511290995,
+        "rangePct": 0.018352095355217004,
+        "bodyEfficiency": 0.7739322533137001,
+        "primaryRegime": "high_volatility",
+        "tags": [
+          "trending_down",
+          "high_volatility"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "train",
+        "haltCandidate": null
+      },
+      {
+        "tradingDate": "2026-08-14",
+        "sessionReturn": -0.002825802142471745,
+        "rangePct": 0.004328486654507047,
+        "bodyEfficiency": 0.6528383631561728,
+        "primaryRegime": "quiet",
+        "tags": [
+          "trending_down",
+          "quiet"
+        ],
+        "earlyClose": false,
+        "holidayAdjacent": false,
+        "split": "holdout",
+        "haltCandidate": null
+      }
+    ]
+  },
+  "feedWindowCoverage": [
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_early",
+      "establishedTrainingRows": 86218,
+      "status": "calibrated"
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_core",
+      "establishedTrainingRows": 105125,
+      "status": "calibrated"
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_final",
+      "establishedTrainingRows": 34236,
+      "status": "calibrated"
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "regular",
+      "establishedTrainingRows": 635452,
+      "status": "calibrated"
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "after_hours_core",
+      "establishedTrainingRows": 88103,
+      "status": "calibrated"
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "after_hours_late",
+      "establishedTrainingRows": 69914,
+      "status": "calibrated"
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "premarket_early",
+      "establishedTrainingRows": 0,
+      "status": "unavailable_by_construction"
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "premarket_core",
+      "establishedTrainingRows": 79,
+      "status": "unavailable_by_construction"
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "premarket_final",
+      "establishedTrainingRows": 118,
+      "status": "unavailable_by_construction"
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "regular",
+      "establishedTrainingRows": 533054,
+      "status": "calibrated"
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "after_hours_core",
+      "establishedTrainingRows": 39,
+      "status": "unavailable_by_construction"
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "after_hours_late",
+      "establishedTrainingRows": 0,
+      "status": "unavailable_by_construction"
+    }
+  ],
+  "unpublishedFitProposals": [
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_early",
+      "status": "calibrated",
+      "trainingRows": 86218,
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.277
+        },
+        "idiosyncrasy": {
+          "z50": 2.784,
+          "k": 0.744
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3464,
+        "watchingExitCore": 0.3314,
+        "emergingEnterCore": 0.4052,
+        "emergingExitCore": 0.3902,
+        "inPlayEnterCore": 0.723,
+        "inPlayExitCore": 0.708,
+        "newInPlayVelocityPerMinute": 6.028,
+        "enterPersistenceMinutes": 2,
+        "exitPersistenceMinutes": 2
+      },
+      "confluence": {
+        "firstAxisAtSixRequiresPartnerZ": 1.9010157310144495,
+        "secondAxisAtSixRequiresPartnerZ": 3.400943390492415,
+        "minimumRequiredPartnerZ": 1.9,
+        "passed": true
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_core",
+      "status": "calibrated",
+      "trainingRows": 105125,
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.256
+        },
+        "idiosyncrasy": {
+          "z50": 2.923,
+          "k": 0.708
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3503,
+        "watchingExitCore": 0.3353,
+        "emergingEnterCore": 0.4162,
+        "emergingExitCore": 0.4012,
+        "inPlayEnterCore": 0.7219,
+        "inPlayExitCore": 0.7069,
+        "newInPlayVelocityPerMinute": 6.232,
+        "enterPersistenceMinutes": 2,
+        "exitPersistenceMinutes": 2
+      },
+      "confluence": {
+        "firstAxisAtSixRequiresPartnerZ": 1.9006791316005698,
+        "secondAxisAtSixRequiresPartnerZ": 3.3921788837296796,
+        "minimumRequiredPartnerZ": 1.9,
+        "passed": true
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "premarket_final",
+      "status": "calibrated",
+      "trainingRows": 34236,
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.272
+        },
+        "idiosyncrasy": {
+          "z50": 2.693,
+          "k": 0.77
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.2581,
+        "watchingExitCore": 0.2431,
+        "emergingEnterCore": 0.3047,
+        "emergingExitCore": 0.2897,
+        "inPlayEnterCore": 0.7227,
+        "inPlayExitCore": 0.7077,
+        "newInPlayVelocityPerMinute": 6.14,
+        "enterPersistenceMinutes": 2,
+        "exitPersistenceMinutes": 2
+      },
+      "confluence": {
+        "firstAxisAtSixRequiresPartnerZ": 1.9007224282711273,
+        "secondAxisAtSixRequiresPartnerZ": 3.3985057572334734,
+        "minimumRequiredPartnerZ": 1.9,
+        "passed": true
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "regular",
+      "status": "calibrated",
+      "trainingRows": 635452,
+      "curves": {
+        "participationDense": {
+          "z50": 2.3,
+          "k": 0.765
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.247
+        },
+        "idiosyncrasy": {
+          "z50": 2.578,
+          "k": 0.828
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.5759,
+        "watchingExitCore": 0.5609,
+        "emergingEnterCore": 0.6654,
+        "emergingExitCore": 0.6504,
+        "inPlayEnterCore": 0.8,
+        "inPlayExitCore": 0.5,
+        "newInPlayVelocityPerMinute": 7.62,
+        "enterPersistenceMinutes": 2,
+        "exitPersistenceMinutes": 20
+      },
+      "confluence": {
+        "firstAxisAtSixRequiresPartnerZ": 2.146189139132506,
+        "secondAxisAtSixRequiresPartnerZ": 3.0662592197983782,
+        "minimumRequiredPartnerZ": 1.9,
+        "passed": true
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "after_hours_core",
+      "status": "calibrated",
+      "trainingRows": 88103,
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.176
+        },
+        "idiosyncrasy": {
+          "z50": 3.25,
+          "k": 0.65
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3571,
+        "watchingExitCore": 0.3421,
+        "emergingEnterCore": 0.4243,
+        "emergingExitCore": 0.4093,
+        "inPlayEnterCore": 0.7179,
+        "inPlayExitCore": 0.7029,
+        "newInPlayVelocityPerMinute": 6.328,
+        "enterPersistenceMinutes": 2,
+        "exitPersistenceMinutes": 2
+      },
+      "confluence": {
+        "firstAxisAtSixRequiresPartnerZ": 1.9006113904667095,
+        "secondAxisAtSixRequiresPartnerZ": 3.3616224611806067,
+        "minimumRequiredPartnerZ": 1.9,
+        "passed": true
+      }
+    },
+    {
+      "feedMode": "sip",
+      "subWindow": "after_hours_late",
+      "status": "calibrated",
+      "trainingRows": 69914,
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.297
+        },
+        "idiosyncrasy": {
+          "z50": 3.25,
+          "k": 0.65
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3479,
+        "watchingExitCore": 0.3329,
+        "emergingEnterCore": 0.4069,
+        "emergingExitCore": 0.3919,
+        "inPlayEnterCore": 0.724,
+        "inPlayExitCore": 0.709,
+        "newInPlayVelocityPerMinute": 5.79,
+        "enterPersistenceMinutes": 2,
+        "exitPersistenceMinutes": 2
+      },
+      "confluence": {
+        "firstAxisAtSixRequiresPartnerZ": 1.9010829530052662,
+        "secondAxisAtSixRequiresPartnerZ": 3.4089634685550543,
+        "minimumRequiredPartnerZ": 1.9,
+        "passed": true
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "premarket_early",
+      "status": "unavailable_by_construction",
+      "trainingRows": 0,
+      "curves": {
+        "participationDense": {
+          "z50": 2,
+          "k": 1.2
+        },
+        "participationPresence": {
+          "z50": 3,
+          "k": 1.3
+        },
+        "displacement": {
+          "z50": 2,
+          "k": 1.2
+        },
+        "idiosyncrasy": {
+          "z50": 2,
+          "k": 1.2
+        }
+      },
+      "values": null,
+      "confluence": {
+        "firstAxisAtSixRequiresPartnerZ": 1.9801076423177713,
+        "secondAxisAtSixRequiresPartnerZ": 1.9801076423177713,
+        "minimumRequiredPartnerZ": 1.9,
+        "passed": true
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "premarket_core",
+      "status": "unavailable_by_construction",
+      "trainingRows": 79,
+      "curves": {
+        "participationDense": {
+          "z50": 2,
+          "k": 1.2
+        },
+        "participationPresence": {
+          "z50": 3,
+          "k": 1.3
+        },
+        "displacement": {
+          "z50": 2,
+          "k": 1.2
+        },
+        "idiosyncrasy": {
+          "z50": 2,
+          "k": 1.2
+        }
+      },
+      "values": null,
+      "confluence": {
+        "firstAxisAtSixRequiresPartnerZ": 1.9801076423177713,
+        "secondAxisAtSixRequiresPartnerZ": 1.9801076423177713,
+        "minimumRequiredPartnerZ": 1.9,
+        "passed": true
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "premarket_final",
+      "status": "unavailable_by_construction",
+      "trainingRows": 118,
+      "curves": {
+        "participationDense": {
+          "z50": 2,
+          "k": 1.2
+        },
+        "participationPresence": {
+          "z50": 3,
+          "k": 1.3
+        },
+        "displacement": {
+          "z50": 2,
+          "k": 1.2
+        },
+        "idiosyncrasy": {
+          "z50": 2,
+          "k": 1.2
+        }
+      },
+      "values": null,
+      "confluence": {
+        "firstAxisAtSixRequiresPartnerZ": 1.9801076423177713,
+        "secondAxisAtSixRequiresPartnerZ": 1.9801076423177713,
+        "minimumRequiredPartnerZ": 1.9,
+        "passed": true
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "regular",
+      "status": "calibrated",
+      "trainingRows": 533054,
+      "curves": {
+        "participationDense": {
+          "z50": 1.55,
+          "k": 1.278
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.312
+        },
+        "idiosyncrasy": {
+          "z50": 2.8,
+          "k": 0.762
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.793,
+        "watchingExitCore": 0.778,
+        "emergingEnterCore": 0.8697,
+        "emergingExitCore": 0.8547,
+        "inPlayEnterCore": 0.9312,
+        "inPlayExitCore": 0.9162,
+        "newInPlayVelocityPerMinute": 10.416,
+        "enterPersistenceMinutes": 2,
+        "exitPersistenceMinutes": 2
+      },
+      "confluence": {
+        "firstAxisAtSixRequiresPartnerZ": 5.290753861860093,
+        "secondAxisAtSixRequiresPartnerZ": 3.6863881051533456,
+        "minimumRequiredPartnerZ": 1.9,
+        "passed": true
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "after_hours_core",
+      "status": "unavailable_by_construction",
+      "trainingRows": 39,
+      "curves": {
+        "participationDense": {
+          "z50": 2,
+          "k": 1.2
+        },
+        "participationPresence": {
+          "z50": 3,
+          "k": 1.3
+        },
+        "displacement": {
+          "z50": 2,
+          "k": 1.2
+        },
+        "idiosyncrasy": {
+          "z50": 2,
+          "k": 1.2
+        }
+      },
+      "values": null,
+      "confluence": {
+        "firstAxisAtSixRequiresPartnerZ": 1.9801076423177713,
+        "secondAxisAtSixRequiresPartnerZ": 1.9801076423177713,
+        "minimumRequiredPartnerZ": 1.9,
+        "passed": true
+      }
+    },
+    {
+      "feedMode": "iex_partial",
+      "subWindow": "after_hours_late",
+      "status": "unavailable_by_construction",
+      "trainingRows": 0,
+      "curves": {
+        "participationDense": {
+          "z50": 2,
+          "k": 1.2
+        },
+        "participationPresence": {
+          "z50": 3,
+          "k": 1.3
+        },
+        "displacement": {
+          "z50": 2,
+          "k": 1.2
+        },
+        "idiosyncrasy": {
+          "z50": 2,
+          "k": 1.2
+        }
+      },
+      "values": null,
+      "confluence": {
+        "firstAxisAtSixRequiresPartnerZ": 1.9801076423177713,
+        "secondAxisAtSixRequiresPartnerZ": 1.9801076423177713,
+        "minimumRequiredPartnerZ": 1.9,
+        "passed": true
+      }
+    }
+  ],
+  "productFinding": "ON THE FREE IEX FEED, THE SCANNER OPERATES DURING THE REGULAR SESSION ONLY. Premarket and after-hours coverage require the consolidated feed.",
+  "blockingFailures": [
+    {
+      "kind": "settled_ordering_vs_hysteresis",
+      "detail": "sip 2025-10-10 11:21 ET: I3 SETTLED DEMOTION violated by USO: WATCHING exit persisted without demotion (state=IN_PLAY, pending=exiting:19, runs={\"watchingEnter\":0,\"emergingEnter\":0,\"inPlayEnter\":0,\"watchingExit\":20,\"emergingExit\":20,\"inPlayExit\":19})."
+    }
+  ],
+  "provisionalTranslation": {
+    "curve": {
+      "z50": 2,
+      "k": 1.2
+    },
+    "watchingZ": 1.0844897594432417,
+    "emergingZ": 2,
+    "inPlayZ": 2.7060815503226694,
+    "partnerAtAxisZ6": 1.9801076423177713
+  },
+  "artifactHash": "eb46b850bfbe2c38e504bf64920cb740fe6ffc271e82b3e705cce3c99393268f"
+}

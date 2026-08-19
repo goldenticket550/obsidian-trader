@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "scope": "diagnosis_and_candidate_evaluation_only",
+  "activeCalibrationChanged": false,
+  "proposedForAdjudication": "log_participation_range_theoretical_max_rescale",
+  "sourceHashes": {
+    "publishedDiagnosis": "cc6912d3e2059e38ae3873e43c58b83b2d34d53f0c4163e930acb011b8695e56",
+    "experiments": "7b50a21f9104b6dd52eecfefd9097aaa1a021240b036aa51edb454c7eba8f164",
+    "candidateReplay": "c6f93980190703627cce83f0fe7ffa503c84ab19b9b178a73b309d58a62ae0c7",
+    "population": "4c9c13173c885908e067c5f9c1c1cc2a1c2c31fa4de4be5c0aad988bc51d9fd8"
+  },
+  "artifactHash": "d48d5e02b69d9425ff98987a869ba7520ea0cbf60b84c8bafdae622534bd4331"
+}

@@ -1,0 +1,573 @@
+{
+  "schemaVersion": 1,
+  "status": "diagnosis_before_fix",
+  "disclosure": "Timing statistics derived from historical pulls assume instantaneous bar availability. Real arrival latency is not represented. Human-relative latency and move-capture figures are therefore OPTIMISTICALLY BIASED and must not be used to justify lowering thresholds.",
+  "mechanism": {
+    "classification": "a",
+    "entryTransitionRequired": true,
+    "leaseExpiryCanBypassEntryGate": false,
+    "detail": "The qualifying transition is correct. Suppressed NEW IN PLAY edges remain pending, but payload construction reads the later emission row instead of the qualifying row."
+  },
+  "rows": [
+    {
+      "tradingDate": "2025-10-01",
+      "symbol": "GLD",
+      "episodeId": "a3:GLD:1759330020000",
+      "qualifyingAt": 1759330020000,
+      "qualifyingTimeEt": "10:47",
+      "emissionAt": 1759330080000,
+      "emissionTimeEt": "10:48",
+      "gapMinutes": 1,
+      "qualifyingCore": 0.8087150311232012,
+      "emissionCore": 0.9714164155472452,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": true,
+      "emissionAttention": 97.14164155472453,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 1
+    },
+    {
+      "tradingDate": "2025-10-01",
+      "symbol": "NKE",
+      "episodeId": "a3:NKE:1759329960000",
+      "qualifyingAt": 1759330020000,
+      "qualifyingTimeEt": "10:47",
+      "emissionAt": 1759330260000,
+      "emissionTimeEt": "10:51",
+      "gapMinutes": 4,
+      "qualifyingCore": 0.8153195437024618,
+      "emissionCore": 0.5217565497337332,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 52.17565497337332,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 4
+    },
+    {
+      "tradingDate": "2025-10-01",
+      "symbol": "GDX",
+      "episodeId": "a3:GDX:1759330080000",
+      "qualifyingAt": 1759330080000,
+      "qualifyingTimeEt": "10:48",
+      "emissionAt": 1759330740000,
+      "emissionTimeEt": "10:59",
+      "gapMinutes": 11,
+      "qualifyingCore": 0.923857232261436,
+      "emissionCore": 0.12016059913215878,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 10.542434195219913,
+      "emissionFreshness": "Developing",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 11
+    },
+    {
+      "tradingDate": "2025-10-01",
+      "symbol": "AMD",
+      "episodeId": "a3:AMD:1759341540000",
+      "qualifyingAt": 1759341540000,
+      "qualifyingTimeEt": "13:59",
+      "emissionAt": 1759341660000,
+      "emissionTimeEt": "14:01",
+      "gapMinutes": 2,
+      "qualifyingCore": 0.953111113733898,
+      "emissionCore": 0.7515607641830367,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 75.15607641830367,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 2
+    },
+    {
+      "tradingDate": "2025-10-01",
+      "symbol": "TSM",
+      "episodeId": "a3:TSM:1759341540000",
+      "qualifyingAt": 1759341720000,
+      "qualifyingTimeEt": "14:02",
+      "emissionAt": 1759341960000,
+      "emissionTimeEt": "14:06",
+      "gapMinutes": 4,
+      "qualifyingCore": 0.8978349919762032,
+      "emissionCore": 0.5419886212959998,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 54.19886212959998,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 4
+    },
+    {
+      "tradingDate": "2025-10-10",
+      "symbol": "SNAP",
+      "episodeId": "a3:SNAP:1760086020000",
+      "qualifyingAt": 1760086020000,
+      "qualifyingTimeEt": "04:47",
+      "emissionAt": 1760086020000,
+      "emissionTimeEt": "04:47",
+      "gapMinutes": 0,
+      "qualifyingCore": 0.729134909233668,
+      "emissionCore": 0.729134909233668,
+      "enterThreshold": 0.723,
+      "qualifyingGateMet": true,
+      "emissionGateMet": true,
+      "emissionAttention": 69.08899852210057,
+      "emissionFreshness": "Developing",
+      "delayingReasons": [],
+      "suppressionCount": 0
+    },
+    {
+      "tradingDate": "2025-10-10",
+      "symbol": "USO",
+      "episodeId": "a3:USO:1760108400000",
+      "qualifyingAt": 1760108460000,
+      "qualifyingTimeEt": "11:01",
+      "emissionAt": 1760108580000,
+      "emissionTimeEt": "11:03",
+      "gapMinutes": 2,
+      "qualifyingCore": 0.9026419681453842,
+      "emissionCore": 0.4691111566760008,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 46.91111566760008,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 2
+    },
+    {
+      "tradingDate": "2025-10-10",
+      "symbol": "DELL",
+      "episodeId": "a3:DELL:1760108340000",
+      "qualifyingAt": 1760108340000,
+      "qualifyingTimeEt": "10:59",
+      "emissionAt": 1760108760000,
+      "emissionTimeEt": "11:06",
+      "gapMinutes": 7,
+      "qualifyingCore": 0.8398431791647188,
+      "emissionCore": 0.4772387850299432,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 44.966242288749406,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 7
+    },
+    {
+      "tradingDate": "2025-10-10",
+      "symbol": "CRWV",
+      "episodeId": "a3:CRWV:1760108340000",
+      "qualifyingAt": 1760108340000,
+      "qualifyingTimeEt": "10:59",
+      "emissionAt": 1760108760000,
+      "emissionTimeEt": "11:06",
+      "gapMinutes": 7,
+      "qualifyingCore": 0.9182074550077018,
+      "emissionCore": 0.45620367753188806,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 43.922677895786286,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 7
+    },
+    {
+      "tradingDate": "2025-10-10",
+      "symbol": "IWM",
+      "episodeId": "a3:IWM:1760108280000",
+      "qualifyingAt": 1760108280000,
+      "qualifyingTimeEt": "10:58",
+      "emissionAt": 1760109000000,
+      "emissionTimeEt": "11:10",
+      "gapMinutes": 12,
+      "qualifyingCore": 0.9845908491356078,
+      "emissionCore": 0.4609175227908906,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 40.079784590512226,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 12
+    },
+    {
+      "tradingDate": "2025-10-10",
+      "symbol": "SOFI",
+      "episodeId": "a3:SOFI:1760108340000",
+      "qualifyingAt": 1760108340000,
+      "qualifyingTimeEt": "10:59",
+      "emissionAt": 1760109120000,
+      "emissionTimeEt": "11:12",
+      "gapMinutes": 13,
+      "qualifyingCore": 0.9230196042111213,
+      "emissionCore": 0.27075055679698434,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 26.398695587494817,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 13
+    },
+    {
+      "tradingDate": "2025-10-10",
+      "symbol": "TSM",
+      "episodeId": "a3:TSM:1760108340000",
+      "qualifyingAt": 1760108340000,
+      "qualifyingTimeEt": "10:59",
+      "emissionAt": 1760111160000,
+      "emissionTimeEt": "11:46",
+      "gapMinutes": 47,
+      "qualifyingCore": 0.922280230534684,
+      "emissionCore": 0.722966267139443,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 72.2966267139443,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 47
+    },
+    {
+      "tradingDate": "2025-10-10",
+      "symbol": "AMD",
+      "episodeId": "a3:AMD:1760108280000",
+      "qualifyingAt": 1760108460000,
+      "qualifyingTimeEt": "11:01",
+      "emissionAt": 1760111460000,
+      "emissionTimeEt": "11:51",
+      "gapMinutes": 50,
+      "qualifyingCore": 0.800672396798147,
+      "emissionCore": 0.3070114143673458,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 30.68981164268869,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 50
+    },
+    {
+      "tradingDate": "2025-11-04",
+      "symbol": "LLY",
+      "episodeId": "a3:LLY:1762269660000",
+      "qualifyingAt": 1762270080000,
+      "qualifyingTimeEt": "10:28",
+      "emissionAt": 1762270800000,
+      "emissionTimeEt": "10:40",
+      "gapMinutes": 12,
+      "qualifyingCore": 0.9466436776094862,
+      "emissionCore": 0.47297587889181225,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 47.29758788918122,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 12
+    },
+    {
+      "tradingDate": "2025-11-04",
+      "symbol": "BE",
+      "episodeId": "a3:BE:1762282740000",
+      "qualifyingAt": 1762282800000,
+      "qualifyingTimeEt": "14:00",
+      "emissionAt": 1762283640000,
+      "emissionTimeEt": "14:14",
+      "gapMinutes": 14,
+      "qualifyingCore": 0.8248831287843867,
+      "emissionCore": 0.3072158171085468,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 28.781980989021502,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 14
+    },
+    {
+      "tradingDate": "2025-11-04",
+      "symbol": "AMD",
+      "episodeId": "a3:AMD:1762290960000",
+      "qualifyingAt": 1762290960000,
+      "qualifyingTimeEt": "16:16",
+      "emissionAt": 1762291020000,
+      "emissionTimeEt": "16:17",
+      "gapMinutes": 1,
+      "qualifyingCore": 0.7529823017593013,
+      "emissionCore": 0.7702322672134291,
+      "enterThreshold": 0.7179,
+      "qualifyingGateMet": true,
+      "emissionGateMet": true,
+      "emissionAttention": 77.02322672134291,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended",
+        "episode_already_alerted"
+      ],
+      "suppressionCount": 2
+    },
+    {
+      "tradingDate": "2025-11-04",
+      "symbol": "AMD",
+      "episodeId": "a3:AMD:1762292460000",
+      "qualifyingAt": 1762292760000,
+      "qualifyingTimeEt": "16:46",
+      "emissionAt": 1762292760000,
+      "emissionTimeEt": "16:46",
+      "gapMinutes": 0,
+      "qualifyingCore": 0.7330068609805973,
+      "emissionCore": 0.7330068609805973,
+      "enterThreshold": 0.7179,
+      "qualifyingGateMet": true,
+      "emissionGateMet": true,
+      "emissionAttention": 73.30068609805973,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [],
+      "suppressionCount": 0
+    },
+    {
+      "tradingDate": "2025-11-28",
+      "symbol": "PANW",
+      "episodeId": "a3:PANW:1764352680000",
+      "qualifyingAt": 1764352740000,
+      "qualifyingTimeEt": "12:59",
+      "emissionAt": 1764352800000,
+      "emissionTimeEt": "13:00",
+      "gapMinutes": 1,
+      "qualifyingCore": 0.8548792645988896,
+      "emissionCore": 0.7586537461208988,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 75.86537461208988,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 1
+    },
+    {
+      "tradingDate": "2025-11-28",
+      "symbol": "TSM",
+      "episodeId": "a3:TSM:1764352800000",
+      "qualifyingAt": 1764352800000,
+      "qualifyingTimeEt": "13:00",
+      "emissionAt": 1764352860000,
+      "emissionTimeEt": "13:01",
+      "gapMinutes": 1,
+      "qualifyingCore": 0.8030311456466996,
+      "emissionCore": 0.07550236589551242,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 7.072373465115045,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 1
+    },
+    {
+      "tradingDate": "2025-11-28",
+      "symbol": "IWM",
+      "episodeId": "a3:IWM:1764352740000",
+      "qualifyingAt": 1764352800000,
+      "qualifyingTimeEt": "13:00",
+      "emissionAt": 1764353100000,
+      "emissionTimeEt": "13:05",
+      "gapMinutes": 5,
+      "qualifyingCore": 0.8782514379117016,
+      "emissionCore": 0.017220169732948442,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 1.4974060637346474,
+      "emissionFreshness": "Developing",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 5
+    },
+    {
+      "tradingDate": "2025-11-28",
+      "symbol": "SPY",
+      "episodeId": "a3:SPY:1764352680000",
+      "qualifyingAt": 1764352800000,
+      "qualifyingTimeEt": "13:00",
+      "emissionAt": 1764353160000,
+      "emissionTimeEt": "13:06",
+      "gapMinutes": 6,
+      "qualifyingCore": 0.8402039949744461,
+      "emissionCore": 0.1519574544456218,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 13.213691690923637,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 6
+    },
+    {
+      "tradingDate": "2025-11-28",
+      "symbol": "T",
+      "episodeId": "a3:T:1764352800000",
+      "qualifyingAt": 1764352800000,
+      "qualifyingTimeEt": "13:00",
+      "emissionAt": 1764353400000,
+      "emissionTimeEt": "13:10",
+      "gapMinutes": 10,
+      "qualifyingCore": 0.8766277337463118,
+      "emissionCore": 0.054281588653095916,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 5.2977592553207495,
+      "emissionFreshness": "Developing",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 8
+    },
+    {
+      "tradingDate": "2025-11-28",
+      "symbol": "GDX",
+      "episodeId": "a3:GDX:1764352680000",
+      "qualifyingAt": 1764352740000,
+      "qualifyingTimeEt": "12:59",
+      "emissionAt": 1764353580000,
+      "emissionTimeEt": "13:13",
+      "gapMinutes": 14,
+      "qualifyingCore": 0.9841631588093533,
+      "emissionCore": 0.4167547076401077,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 41.67547076401077,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 12
+    },
+    {
+      "tradingDate": "2025-11-28",
+      "symbol": "KLAC",
+      "episodeId": "a3:KLAC:1764352500000",
+      "qualifyingAt": 1764352800000,
+      "qualifyingTimeEt": "13:00",
+      "emissionAt": 1764354420000,
+      "emissionTimeEt": "13:27",
+      "gapMinutes": 27,
+      "qualifyingCore": 0.8003054095720882,
+      "emissionCore": 0.015331575806933282,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 1.2984532973735734,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 1
+    },
+    {
+      "tradingDate": "2025-11-28",
+      "symbol": "QCOM",
+      "episodeId": "a3:QCOM:1764352440000",
+      "qualifyingAt": 1764352800000,
+      "qualifyingTimeEt": "13:00",
+      "emissionAt": 1764356040000,
+      "emissionTimeEt": "13:54",
+      "gapMinutes": 54,
+      "qualifyingCore": 0.8524895988285114,
+      "emissionCore": 0.012167859513417277,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 1.0504017067025717,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 8
+    },
+    {
+      "tradingDate": "2025-11-28",
+      "symbol": "ARM",
+      "episodeId": "a3:ARM:1764352680000",
+      "qualifyingAt": 1764352800000,
+      "qualifyingTimeEt": "13:00",
+      "emissionAt": 1764363480000,
+      "emissionTimeEt": "15:58",
+      "gapMinutes": 178,
+      "qualifyingCore": 0.8659195225763471,
+      "emissionCore": 0.04841640366442264,
+      "enterThreshold": 0.8,
+      "qualifyingGateMet": true,
+      "emissionGateMet": false,
+      "emissionAttention": 4.4718719165514855,
+      "emissionFreshness": "Mature",
+      "delayingReasons": [
+        "extended"
+      ],
+      "suppressionCount": 12
+    }
+  ],
+  "summary": {
+    "alerts": 26,
+    "qualifyingGateFailures": 0,
+    "emissionGateFailures": 22,
+    "zeroGap": 2,
+    "delayed": 24,
+    "gapMinutes": {
+      "min": 0,
+      "median": 7,
+      "max": 178
+    },
+    "delayingReasons": {
+      "extended": 24,
+      "episode_already_alerted": 1
+    }
+  },
+  "artifactHash": "68cd966c9e37e53a349922fadd045893b7fa02a9615bedef81c4c7bbbe91e95e"
+}

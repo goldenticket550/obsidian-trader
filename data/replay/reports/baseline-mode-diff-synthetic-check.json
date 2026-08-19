@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "oldMapVersion": 3,
+  "invalidatedCacheKeys": [
+    "3:SYNTHETIC:09:29:sparse"
+  ],
+  "changes": [
+    {
+      "symbol": "SYNTHETIC",
+      "minuteEt": "09:29",
+      "subWindow": "premarket_final",
+      "oldMode": "sparse",
+      "newMode": "dense",
+      "oldPPresent": 0.59,
+      "newPPresent": 0.61,
+      "changeKind": "mode_flip",
+      "modeChanged": true,
+      "cacheInvalidationRequired": true
+    }
+  ]
+}

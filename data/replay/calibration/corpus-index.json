@@ -1,0 +1,3582 @@
+{
+  "schemaVersion": 2,
+  "splitHash": "492b6bc31e5e03da118254b2deac75555e58a18a27e3d9e988f7daf92607468e",
+  "rawFeaturesSha256": "510293383957ec932a9dc345344634ac27906f8c9ee934eb9a5d2fa88c497285",
+  "rawFeatureRows": {
+    "sip": 1479788,
+    "iex_partial": 816612
+  },
+  "sessionFiles": {
+    "sip": [
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2025-10-01.json.gz",
+        "sha256": "e7653add906b6ec08cafe92a6a082edde46ac55aa76b1c7ceb10cc57c422bd60",
+        "bytes": 982558,
+        "bars": 40645
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2025-10-10.json.gz",
+        "sha256": "5e73811279344bbbde062c8b9a7f3c7bed6b1e90122e6f74ab7e93ee9f58dd73",
+        "bytes": 1058818,
+        "bars": 43543
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2025-10-24.json.gz",
+        "sha256": "1b9e1efda0468ec6315f6fc8bd06e6dbfd4bdb9d53a73cfb8acdc29dc61bd68e",
+        "bytes": 950125,
+        "bars": 39317
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2025-10-28.json.gz",
+        "sha256": "726098ff6eebd3190dbfd1124f51f106c62a7f63028de4932085b92c7a3d8232",
+        "bytes": 986990,
+        "bars": 41274
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2025-11-04.json.gz",
+        "sha256": "4dd73f81549448279df5aa9b56499891a15ac1ae48e39c78b5953f29a7509eef",
+        "bytes": 1072812,
+        "bars": 46100
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2025-11-14.json.gz",
+        "sha256": "8e852cbe1bd20417cbfa164314ab04339924fe263b185e913baf68c561db0a1b",
+        "bytes": 1074905,
+        "bars": 44635
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2025-11-20.json.gz",
+        "sha256": "a2b04ad19801a79c186cf2c1554475637c28aa5b27b38812386bd741432b8e0f",
+        "bytes": 1097584,
+        "bars": 45329
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2025-11-24.json.gz",
+        "sha256": "5630e4a4694b833efc02c62fa836f34826e5a505021ce7f2650f1116089cf868",
+        "bytes": 1038222,
+        "bars": 42918
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2025-11-28.json.gz",
+        "sha256": "2ebf79baafc05911d854cb515387318796abb315f0b4747dcd09431aa0962fe7",
+        "bytes": 788377,
+        "bars": 28271
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2025-12-09.json.gz",
+        "sha256": "b3d8268466d15c24b03068e9678a502138485eea786ac985aef214d907452ca7",
+        "bytes": 955167,
+        "bars": 39330
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2025-12-10.json.gz",
+        "sha256": "222058ec5b773bbec7e8fefdba826b9437c1eb0749e1a47caedfa1d0251bb504",
+        "bytes": 996059,
+        "bars": 41409
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2025-12-17.json.gz",
+        "sha256": "4663d565e81c760e1c9ead1126e745e5053f03fbb8b964dc6168e1d9e48d0fba",
+        "bytes": 1017441,
+        "bars": 42200
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2025-12-30.json.gz",
+        "sha256": "a4bdde2aeb90ff8a4dc9461f827a32e57ae374c7144801bc99f0aca03cd695c2",
+        "bytes": 908417,
+        "bars": 38181
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-01-20.json.gz",
+        "sha256": "e301f343fdd85d4382afb2f53033fb2dc431ad00c5d3b4195aa91dd81026ea46",
+        "bytes": 1076415,
+        "bars": 46300
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-01-21.json.gz",
+        "sha256": "8ced317400bd81ff07bca99c6ae2dc4c8fd5dee4770b4d8ec6008e2dfec48540",
+        "bytes": 1060711,
+        "bars": 43572
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-01-27.json.gz",
+        "sha256": "1f6a19a94142bce7e86b1e8ffa2cf1c27f1576617b66e6afaead5daefc264d18",
+        "bytes": 1022539,
+        "bars": 43635
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-01-29.json.gz",
+        "sha256": "d1697d98c0c1a746d0454d2b2f4d54723e17daf8099cd0917ec282fb37d49c09",
+        "bytes": 1088131,
+        "bars": 45682
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-01-30.json.gz",
+        "sha256": "29a7e02aaadb3b8ce1ea7e3786973d043d6d72ddd844deed0301dee2ba9f4f62",
+        "bytes": 1089101,
+        "bars": 44845
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-02-02.json.gz",
+        "sha256": "120e5b65a9aa91fb94091659f41cb2dfe084c5274299384367ba3386166f0635",
+        "bytes": 1092978,
+        "bars": 45641
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-02-06.json.gz",
+        "sha256": "b9f51fb357c930cd00b841d786daea1438fc76cedeee739afc27ff83ce2f04bc",
+        "bytes": 1124267,
+        "bars": 47359
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-02-12.json.gz",
+        "sha256": "0738035913017968d2ef1210887e4c17d420e50f03f97e49f69a2336f43cc0fc",
+        "bytes": 1065201,
+        "bars": 43752
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-02-13.json.gz",
+        "sha256": "18cca8a2c9faa1f5af739fedb25c7e6c63b2d89c6d187faed2fa23e8f63d1b1e",
+        "bytes": 1045594,
+        "bars": 42601
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-02-25.json.gz",
+        "sha256": "7ce0f86c913bc4df3890d7490a81572aa7c0848023a9d899f120a1ccec6c2c27",
+        "bytes": 1041710,
+        "bars": 44174
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-03-09.json.gz",
+        "sha256": "62b26db1c3638fcf72ed1ceee2d000c41b193ad22d146004e17ce01cc1a8e289",
+        "bytes": 1098079,
+        "bars": 46196
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-03-10.json.gz",
+        "sha256": "5ac5f172d05cd2eb7c2c5cd1f99686badcb1021f84b8aa1ba6537a24f03bde04",
+        "bytes": 1066706,
+        "bars": 44355
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-03-27.json.gz",
+        "sha256": "03754a0aa3818e6f60d73ed311bedd2dc250f2ec4f3358f0889e1b170c61a5a3",
+        "bytes": 1063761,
+        "bars": 45101
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-03-31.json.gz",
+        "sha256": "90bbd2505aa3e7f2f024da97cc851e4552d6975c671a93b20bb5ba9a1617cc95",
+        "bytes": 1093644,
+        "bars": 46035
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-04-02.json.gz",
+        "sha256": "cc06ecfaccd50c5443f68379239bfd85704cf673ac875bc09dbd9271f0a270ec",
+        "bytes": 1063730,
+        "bars": 45585
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-04-20.json.gz",
+        "sha256": "b8cd4cafc981dcea0553c04c13cf900afc08938bb678543522e5f47373e8c698",
+        "bytes": 1072804,
+        "bars": 46396
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-04-21.json.gz",
+        "sha256": "23c4dbe952eeea6df90a7f9303034f8ebf3706f29935256cf9823ed3028f26fb",
+        "bytes": 1088206,
+        "bars": 47192
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-04-22.json.gz",
+        "sha256": "55dc4b6c1a1954696a0c43f3e399402d46dc8498c68d23c0328fc01845b5f52a",
+        "bytes": 1098965,
+        "bars": 47644
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-05-06.json.gz",
+        "sha256": "54abcbdb3869e36218a8e626b1ea7007f6d5fae593ad93d0cf25dfe23785d1cf",
+        "bytes": 1172825,
+        "bars": 51261
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-05-07.json.gz",
+        "sha256": "54f9677bf404f3c568f1d30973fed4bad8221650516fe2ab9f8b6458f7aee05d",
+        "bytes": 1147732,
+        "bars": 48910
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-05-27.json.gz",
+        "sha256": "c50729f02e22ca3cbc0c0242cc63e413184e23d5e8c7aaf92154f434ed515a43",
+        "bytes": 1134577,
+        "bars": 48478
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-06-02.json.gz",
+        "sha256": "20bc53cc4660e9d3dd7d83da86b7819b7430bbd43a24070b1c8eb5d25ce4c9c0",
+        "bytes": 1175013,
+        "bars": 49795
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-06-09.json.gz",
+        "sha256": "cf1786e79f7375d2d8b310de410f9f51f3e5570c41fe978b5f44e67c13a093aa",
+        "bytes": 1146506,
+        "bars": 46895
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-06-26.json.gz",
+        "sha256": "52f84326a33328cd7fae1124bdee6af133049fd6a71b37b4618959554f374a8d",
+        "bytes": 1152339,
+        "bars": 47893
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-07-22.json.gz",
+        "sha256": "89ea4564c916805dd7aa6fab46e7f1b51821a07953a400ed77e7e0436cdbe4ef",
+        "bytes": 1122316,
+        "bars": 47844
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-07-29.json.gz",
+        "sha256": "f81eb01916787b30eabfb1ff3b7a338305076e5cd551395cf004e6d32a5ed88e",
+        "bytes": 1204928,
+        "bars": 49992
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\sip\\2026-08-14.json.gz",
+        "sha256": "a59e7dab446267b0018c66d7765449ee1922a10e84b7569718509864a7de8e91",
+        "bytes": 1078750,
+        "bars": 45296
+      }
+    ],
+    "iex_partial": [
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2025-10-01.json.gz",
+        "sha256": "8ead0da7bb6ca9edc05ce87a2c421ff7f0557e7da2d45a874e2f6242690d2312",
+        "bytes": 608220,
+        "bars": 22640
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2025-10-10.json.gz",
+        "sha256": "bbc183aeaa594f5ba260a0c9334d43d00662dee0b21682508459c56d885f94ee",
+        "bytes": 633635,
+        "bars": 22853
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2025-10-24.json.gz",
+        "sha256": "31bc5046311c942d193c565e971525d27cdc367418f2238ee2eb57107696e4f9",
+        "bytes": 567592,
+        "bars": 21160
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2025-10-28.json.gz",
+        "sha256": "c4941520541494d4a9428456996918e36f7936951d6eecfab5861b849e364aba",
+        "bytes": 583152,
+        "bars": 21553
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2025-11-04.json.gz",
+        "sha256": "ab9254deebd8c29c4cfa61ee03fd75191f4448f36e1976f3a0ef1342ec41a67c",
+        "bytes": 655799,
+        "bars": 23962
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2025-11-14.json.gz",
+        "sha256": "d042a107c9d0cf4a74ee70e4b4a9476734fefb4351ef463dedcc2199708b7398",
+        "bytes": 676352,
+        "bars": 23660
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2025-11-20.json.gz",
+        "sha256": "8ddbda3ed8de0af7e0e33efbe43338d28284035d7f302bac22a684a91cbb70eb",
+        "bytes": 703593,
+        "bars": 24581
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2025-11-24.json.gz",
+        "sha256": "1107c96bb096bbb25212cbf01ab6c65220320f6301ed0ad4f350f8bfda8ec32f",
+        "bytes": 677665,
+        "bars": 23483
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2025-11-28.json.gz",
+        "sha256": "811caecd7b6aa2a7b8995133bd14602cca396c9ce138032c1ec7b2967a05401a",
+        "bytes": 480555,
+        "bars": 12802
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2025-12-09.json.gz",
+        "sha256": "417f753b2481cbbad612643623a7c79b482bcafad43ddc2943e8eeaa9fb9153d",
+        "bytes": 604187,
+        "bars": 22221
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2025-12-10.json.gz",
+        "sha256": "9a7d3df9b4bf3ded831b721a928dd72ff425bd8bbd80af1cfb68b1474b38c158",
+        "bytes": 621810,
+        "bars": 23317
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2025-12-17.json.gz",
+        "sha256": "67b50a300a3692f0ca389ba6f79adcd5ababaaf6b70dd74c4464e911ac004f52",
+        "bytes": 662230,
+        "bars": 23771
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2025-12-30.json.gz",
+        "sha256": "2dc8bbb8fa0f96dbe346c78c7a1a5e0838211d57e6b0d07a60a44fb5d4657bcf",
+        "bytes": 534806,
+        "bars": 20802
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-01-20.json.gz",
+        "sha256": "e70f3cb63768334c0c7301eaf9d0f2963065056af3989c2760730364620f693e",
+        "bytes": 659757,
+        "bars": 23995
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-01-21.json.gz",
+        "sha256": "101abbffd7461da533b53b5c148f32efae50b3dba8249fd038abda6ddc5ec367",
+        "bytes": 691879,
+        "bars": 24384
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-01-27.json.gz",
+        "sha256": "b7c72684753cb2adb2d2b40f9820fe4b772539f42b792289796415472be87a14",
+        "bytes": 634429,
+        "bars": 23579
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-01-29.json.gz",
+        "sha256": "145746ea8346f75f916752c0d8e1f5b17d89e96c61b39cea969d8b9974b57081",
+        "bytes": 692870,
+        "bars": 24607
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-01-30.json.gz",
+        "sha256": "b4fa59157d464e04d38806d19acb7c74d9de0556cbbb1d4c9d5125f747bbc7c7",
+        "bytes": 712936,
+        "bars": 24449
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-02-02.json.gz",
+        "sha256": "c27a17138cecbd0d6ffe4b864d65ecb6980bfa2ba220b60040859b5cd00fdfcb",
+        "bytes": 697413,
+        "bars": 24264
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-02-06.json.gz",
+        "sha256": "a318cef82a85e7fa8d60e94cc2fe6156409cb74bc671236261f34216f02bfef5",
+        "bytes": 721589,
+        "bars": 24720
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-02-12.json.gz",
+        "sha256": "543a9eb2ff6eddcd016ced874ec6a92f1ca1295aa56ae03695b60a9bda41c46c",
+        "bytes": 704748,
+        "bars": 24720
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-02-13.json.gz",
+        "sha256": "e8b7298ed408e2348cd9ff6e93e2c37c11ba12d09b072520d8ca4ed1605407b5",
+        "bytes": 709688,
+        "bars": 24403
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-02-25.json.gz",
+        "sha256": "6c646d6e9d050f49b706f027cf9805c62697a127c7a3e337f65887c0a5ff5ce7",
+        "bytes": 649883,
+        "bars": 23511
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-03-09.json.gz",
+        "sha256": "0e5c7cfb1e147873d3255765b9fb71ac29c64f4c3ceba410770a960f31965d07",
+        "bytes": 699318,
+        "bars": 24609
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-03-10.json.gz",
+        "sha256": "0de622b417fa19cad7e91dc1b8e755b12786cd45d4786a9c494e5d7958e4d13b",
+        "bytes": 696515,
+        "bars": 23964
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-03-27.json.gz",
+        "sha256": "511aa40edb4ba6fa1c3813a0ec3029eeac47a6bec102f3ef3fcae44648af02ed",
+        "bytes": 680284,
+        "bars": 24011
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-03-31.json.gz",
+        "sha256": "ba903c755d5866c9f25e7e4f87e18330ab15db44b4ce0b752d4625321914effe",
+        "bytes": 696770,
+        "bars": 24350
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-04-02.json.gz",
+        "sha256": "2c6396412a218b99b3196c01358d3a7f2875023c5f7a27e91b260bcc13d9aad2",
+        "bytes": 667116,
+        "bars": 23627
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-04-20.json.gz",
+        "sha256": "c4143627640fd768f5155fc8a02c340a8b38434fb22f448593ed2ba0c116c6d8",
+        "bytes": 649640,
+        "bars": 23308
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-04-21.json.gz",
+        "sha256": "629996156124ad4cc651cf21a2b5b1f29135faa799936a814f7c23c973d09f1e",
+        "bytes": 649238,
+        "bars": 23463
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-04-22.json.gz",
+        "sha256": "74a888d876656957f2b357c4cc0dc2b5b2c278bb94185d242fecd7d8b20a128e",
+        "bytes": 659652,
+        "bars": 23761
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-05-06.json.gz",
+        "sha256": "1100312ad656c829d35d6cb16d6c835cd9d8522ec9a1300d2b2767f15231d50f",
+        "bytes": 690379,
+        "bars": 24791
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-05-07.json.gz",
+        "sha256": "0cc16cd49e2c0c616aff0a78a6ce2c32a1adac9fe29b58d07ce54c755928cfcc",
+        "bytes": 708665,
+        "bars": 24777
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-05-27.json.gz",
+        "sha256": "825098f78a6f0fca20d911728ede5d4ad97e7b0581ff8086dc9d2f3b2150f9cd",
+        "bytes": 686534,
+        "bars": 24554
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-06-02.json.gz",
+        "sha256": "7b49b6da8f76eab8e29d8cac204718c3e8cee81db466c2a52c0413609c19bbaa",
+        "bytes": 707738,
+        "bars": 24155
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-06-09.json.gz",
+        "sha256": "f9b6b09293b92b3f998fb9f0803a6b8b8bb47b3a08b27df43ee4db1acb0703bb",
+        "bytes": 742864,
+        "bars": 25292
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-06-26.json.gz",
+        "sha256": "c3d1dc75874654adf910f0fc2b1f91a76d44f2d95672ec8bfb2fcfa21bdb0d00",
+        "bytes": 750928,
+        "bars": 25392
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-07-22.json.gz",
+        "sha256": "45ee65f402d6e0a6478797b992a19be4ab2ba55ae9e29a3b7a3b519eaf156ac9",
+        "bytes": 694781,
+        "bars": 24475
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-07-29.json.gz",
+        "sha256": "f2ebb497ec511a85def77fbd800f3c87310f7e61a149358c14b071ac8056f5d0",
+        "bytes": 759767,
+        "bars": 25639
+      },
+      {
+        "path": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\replay\\calibration\\sessions\\iex_partial\\2026-08-14.json.gz",
+        "sha256": "0757d9a6c018d5a6f0157e6afd7674aea267d6052b9bad05435a167ae2fff85f",
+        "bytes": 671397,
+        "bars": 23702
+      }
+    ]
+  },
+  "coverage": {
+    "sip": {
+      "2025-10-01": {
+        "evaluated": 58560,
+        "scoreable": 32466
+      },
+      "2025-10-10": {
+        "evaluated": 58560,
+        "scoreable": 33682
+      },
+      "2025-10-24": {
+        "evaluated": 58560,
+        "scoreable": 32793
+      },
+      "2025-10-28": {
+        "evaluated": 58560,
+        "scoreable": 33530
+      },
+      "2025-11-04": {
+        "evaluated": 58560,
+        "scoreable": 35682
+      },
+      "2025-11-14": {
+        "evaluated": 58560,
+        "scoreable": 36177
+      },
+      "2025-11-20": {
+        "evaluated": 58560,
+        "scoreable": 37224
+      },
+      "2025-11-24": {
+        "evaluated": 58560,
+        "scoreable": 36499
+      },
+      "2025-11-28": {
+        "evaluated": 58560,
+        "scoreable": 25114
+      },
+      "2025-12-09": {
+        "evaluated": 58560,
+        "scoreable": 33577
+      },
+      "2025-12-10": {
+        "evaluated": 58560,
+        "scoreable": 34739
+      },
+      "2025-12-17": {
+        "evaluated": 58560,
+        "scoreable": 35262
+      },
+      "2025-12-30": {
+        "evaluated": 58560,
+        "scoreable": 32235
+      },
+      "2026-01-20": {
+        "evaluated": 58560,
+        "scoreable": 34928
+      },
+      "2026-01-21": {
+        "evaluated": 58560,
+        "scoreable": 34578
+      },
+      "2026-01-27": {
+        "evaluated": 58560,
+        "scoreable": 35092
+      },
+      "2026-01-29": {
+        "evaluated": 58560,
+        "scoreable": 36280
+      },
+      "2026-01-30": {
+        "evaluated": 58560,
+        "scoreable": 36589
+      },
+      "2026-02-02": {
+        "evaluated": 58560,
+        "scoreable": 37587
+      },
+      "2026-02-06": {
+        "evaluated": 58560,
+        "scoreable": 38764
+      },
+      "2026-02-12": {
+        "evaluated": 58560,
+        "scoreable": 37340
+      },
+      "2026-02-13": {
+        "evaluated": 58560,
+        "scoreable": 36637
+      },
+      "2026-02-25": {
+        "evaluated": 58560,
+        "scoreable": 37193
+      },
+      "2026-03-09": {
+        "evaluated": 58560,
+        "scoreable": 37522
+      },
+      "2026-03-10": {
+        "evaluated": 58560,
+        "scoreable": 36720
+      },
+      "2026-03-27": {
+        "evaluated": 58560,
+        "scoreable": 37547
+      },
+      "2026-03-31": {
+        "evaluated": 58560,
+        "scoreable": 38155
+      },
+      "2026-04-02": {
+        "evaluated": 58560,
+        "scoreable": 37461
+      },
+      "2026-04-20": {
+        "evaluated": 58560,
+        "scoreable": 39158
+      },
+      "2026-04-21": {
+        "evaluated": 58560,
+        "scoreable": 39536
+      },
+      "2026-04-22": {
+        "evaluated": 58560,
+        "scoreable": 39567
+      },
+      "2026-05-06": {
+        "evaluated": 58560,
+        "scoreable": 42217
+      },
+      "2026-05-07": {
+        "evaluated": 58560,
+        "scoreable": 41100
+      },
+      "2026-05-27": {
+        "evaluated": 58560,
+        "scoreable": 41228
+      },
+      "2026-06-02": {
+        "evaluated": 58560,
+        "scoreable": 42124
+      },
+      "2026-06-09": {
+        "evaluated": 58560,
+        "scoreable": 40719
+      },
+      "2026-06-26": {
+        "evaluated": 58560,
+        "scoreable": 40876
+      },
+      "2026-07-22": {
+        "evaluated": 58560,
+        "scoreable": 40852
+      },
+      "2026-07-29": {
+        "evaluated": 58560,
+        "scoreable": 41626
+      },
+      "2026-08-14": {
+        "evaluated": 58560,
+        "scoreable": 39412
+      }
+    },
+    "iex_partial": {
+      "2025-10-01": {
+        "evaluated": 58560,
+        "scoreable": 19043
+      },
+      "2025-10-10": {
+        "evaluated": 58560,
+        "scoreable": 19260
+      },
+      "2025-10-24": {
+        "evaluated": 58560,
+        "scoreable": 18029
+      },
+      "2025-10-28": {
+        "evaluated": 58560,
+        "scoreable": 18392
+      },
+      "2025-11-04": {
+        "evaluated": 58560,
+        "scoreable": 19683
+      },
+      "2025-11-14": {
+        "evaluated": 58560,
+        "scoreable": 20091
+      },
+      "2025-11-20": {
+        "evaluated": 58560,
+        "scoreable": 20996
+      },
+      "2025-11-24": {
+        "evaluated": 58560,
+        "scoreable": 20346
+      },
+      "2025-11-28": {
+        "evaluated": 58560,
+        "scoreable": 11199
+      },
+      "2025-12-09": {
+        "evaluated": 58560,
+        "scoreable": 19249
+      },
+      "2025-12-10": {
+        "evaluated": 58560,
+        "scoreable": 20166
+      },
+      "2025-12-17": {
+        "evaluated": 58560,
+        "scoreable": 20601
+      },
+      "2025-12-30": {
+        "evaluated": 58560,
+        "scoreable": 18139
+      },
+      "2026-01-20": {
+        "evaluated": 58560,
+        "scoreable": 20476
+      },
+      "2026-01-21": {
+        "evaluated": 58560,
+        "scoreable": 20805
+      },
+      "2026-01-27": {
+        "evaluated": 58560,
+        "scoreable": 20328
+      },
+      "2026-01-29": {
+        "evaluated": 58560,
+        "scoreable": 21327
+      },
+      "2026-01-30": {
+        "evaluated": 58560,
+        "scoreable": 21072
+      },
+      "2026-02-02": {
+        "evaluated": 58560,
+        "scoreable": 21003
+      },
+      "2026-02-06": {
+        "evaluated": 58560,
+        "scoreable": 21403
+      },
+      "2026-02-12": {
+        "evaluated": 58560,
+        "scoreable": 21586
+      },
+      "2026-02-13": {
+        "evaluated": 58560,
+        "scoreable": 21262
+      },
+      "2026-02-25": {
+        "evaluated": 58560,
+        "scoreable": 20458
+      },
+      "2026-03-09": {
+        "evaluated": 58560,
+        "scoreable": 21402
+      },
+      "2026-03-10": {
+        "evaluated": 58560,
+        "scoreable": 20875
+      },
+      "2026-03-27": {
+        "evaluated": 58560,
+        "scoreable": 21024
+      },
+      "2026-03-31": {
+        "evaluated": 58560,
+        "scoreable": 21294
+      },
+      "2026-04-02": {
+        "evaluated": 58560,
+        "scoreable": 20688
+      },
+      "2026-04-20": {
+        "evaluated": 58560,
+        "scoreable": 20315
+      },
+      "2026-04-21": {
+        "evaluated": 58560,
+        "scoreable": 20465
+      },
+      "2026-04-22": {
+        "evaluated": 58560,
+        "scoreable": 20634
+      },
+      "2026-05-06": {
+        "evaluated": 58560,
+        "scoreable": 21488
+      },
+      "2026-05-07": {
+        "evaluated": 58560,
+        "scoreable": 21701
+      },
+      "2026-05-27": {
+        "evaluated": 58560,
+        "scoreable": 21300
+      },
+      "2026-06-02": {
+        "evaluated": 58560,
+        "scoreable": 21192
+      },
+      "2026-06-09": {
+        "evaluated": 58560,
+        "scoreable": 22203
+      },
+      "2026-06-26": {
+        "evaluated": 58560,
+        "scoreable": 22015
+      },
+      "2026-07-22": {
+        "evaluated": 58560,
+        "scoreable": 21608
+      },
+      "2026-07-29": {
+        "evaluated": 58560,
+        "scoreable": 22370
+      },
+      "2026-08-14": {
+        "evaluated": 58560,
+        "scoreable": 21124
+      }
+    }
+  },
+  "inputAvailability": {
+    "sip": {
+      "2025-10-01": {
+        "premarket_early": {
+          "scoreable": 1908,
+          "participation_baseline_unavailable": 270,
+          "no_target_bar": 7358,
+          "displacement_baseline_unavailable": 1444
+        },
+        "premarket_core": {
+          "scoreable": 2785,
+          "participation_baseline_unavailable": 359,
+          "displacement_baseline_unavailable": 646,
+          "no_target_bar": 3530
+        },
+        "premarket_final": {
+          "scoreable": 1026,
+          "no_target_bar": 635,
+          "displacement_baseline_unavailable": 120,
+          "participation_baseline_unavailable": 49
+        },
+        "regular": {
+          "scoreable": 22907,
+          "no_target_bar": 880,
+          "participation_baseline_unavailable": 3
+        },
+        "after_hours_core": {
+          "scoreable": 2181,
+          "no_target_bar": 4051,
+          "displacement_baseline_unavailable": 841,
+          "participation_baseline_unavailable": 247
+        },
+        "after_hours_late": {
+          "scoreable": 1659,
+          "no_target_bar": 4574,
+          "participation_baseline_unavailable": 259,
+          "displacement_baseline_unavailable": 828
+        }
+      },
+      "2025-10-10": {
+        "premarket_early": {
+          "scoreable": 2098,
+          "no_target_bar": 7499,
+          "participation_baseline_unavailable": 128,
+          "displacement_baseline_unavailable": 1255
+        },
+        "premarket_core": {
+          "scoreable": 2721,
+          "no_target_bar": 3911,
+          "displacement_baseline_unavailable": 539,
+          "participation_baseline_unavailable": 149
+        },
+        "premarket_final": {
+          "scoreable": 1006,
+          "no_target_bar": 694,
+          "displacement_baseline_unavailable": 109,
+          "participation_baseline_unavailable": 21
+        },
+        "regular": {
+          "scoreable": 22905,
+          "no_target_bar": 881,
+          "participation_baseline_unavailable": 4
+        },
+        "after_hours_core": {
+          "scoreable": 2785,
+          "no_target_bar": 2188,
+          "displacement_baseline_unavailable": 1867,
+          "participation_baseline_unavailable": 480
+        },
+        "after_hours_late": {
+          "scoreable": 2167,
+          "participation_baseline_unavailable": 418,
+          "no_target_bar": 3020,
+          "displacement_baseline_unavailable": 1715
+        }
+      },
+      "2025-10-24": {
+        "premarket_early": {
+          "scoreable": 2189,
+          "no_target_bar": 7673,
+          "participation_baseline_unavailable": 121,
+          "displacement_baseline_unavailable": 997
+        },
+        "premarket_core": {
+          "scoreable": 2974,
+          "no_target_bar": 3603,
+          "participation_baseline_unavailable": 228,
+          "displacement_baseline_unavailable": 515
+        },
+        "premarket_final": {
+          "scoreable": 1102,
+          "no_target_bar": 574,
+          "participation_baseline_unavailable": 55,
+          "displacement_baseline_unavailable": 99
+        },
+        "regular": {
+          "scoreable": 22790,
+          "no_target_bar": 997,
+          "participation_baseline_unavailable": 3
+        },
+        "after_hours_core": {
+          "scoreable": 2220,
+          "no_target_bar": 4312,
+          "participation_baseline_unavailable": 245,
+          "displacement_baseline_unavailable": 543
+        },
+        "after_hours_late": {
+          "no_target_bar": 5106,
+          "participation_baseline_unavailable": 172,
+          "scoreable": 1518,
+          "displacement_baseline_unavailable": 524
+        }
+      },
+      "2025-10-28": {
+        "premarket_early": {
+          "scoreable": 2269,
+          "participation_baseline_unavailable": 94,
+          "no_target_bar": 7524,
+          "displacement_baseline_unavailable": 1093
+        },
+        "premarket_core": {
+          "scoreable": 2929,
+          "no_target_bar": 3577,
+          "participation_baseline_unavailable": 196,
+          "displacement_baseline_unavailable": 618
+        },
+        "premarket_final": {
+          "scoreable": 1099,
+          "no_target_bar": 588,
+          "displacement_baseline_unavailable": 104,
+          "participation_baseline_unavailable": 39
+        },
+        "regular": {
+          "scoreable": 22801,
+          "no_target_bar": 988,
+          "participation_baseline_unavailable": 1
+        },
+        "after_hours_core": {
+          "scoreable": 2561,
+          "no_target_bar": 3486,
+          "displacement_baseline_unavailable": 1000,
+          "participation_baseline_unavailable": 273
+        },
+        "after_hours_late": {
+          "scoreable": 1871,
+          "participation_baseline_unavailable": 268,
+          "no_target_bar": 4243,
+          "displacement_baseline_unavailable": 938
+        }
+      },
+      "2025-11-04": {
+        "premarket_early": {
+          "scoreable": 2659,
+          "participation_baseline_unavailable": 193,
+          "no_target_bar": 5957,
+          "displacement_baseline_unavailable": 2171
+        },
+        "premarket_core": {
+          "scoreable": 3402,
+          "participation_baseline_unavailable": 379,
+          "no_target_bar": 2615,
+          "displacement_baseline_unavailable": 924
+        },
+        "premarket_final": {
+          "scoreable": 1214,
+          "no_target_bar": 398,
+          "displacement_baseline_unavailable": 151,
+          "participation_baseline_unavailable": 67
+        },
+        "regular": {
+          "scoreable": 22996,
+          "no_target_bar": 793,
+          "participation_baseline_unavailable": 1
+        },
+        "after_hours_core": {
+          "scoreable": 3062,
+          "no_target_bar": 2745,
+          "displacement_baseline_unavailable": 1188,
+          "participation_baseline_unavailable": 325
+        },
+        "after_hours_late": {
+          "scoreable": 2349,
+          "participation_baseline_unavailable": 404,
+          "displacement_baseline_unavailable": 1231,
+          "no_target_bar": 3336
+        }
+      },
+      "2025-11-14": {
+        "premarket_early": {
+          "scoreable": 2867,
+          "no_target_bar": 6061,
+          "displacement_baseline_unavailable": 1901,
+          "participation_baseline_unavailable": 151
+        },
+        "premarket_core": {
+          "scoreable": 3978,
+          "no_target_bar": 1864,
+          "displacement_baseline_unavailable": 1258,
+          "participation_baseline_unavailable": 220
+        },
+        "premarket_final": {
+          "scoreable": 1226,
+          "no_target_bar": 388,
+          "displacement_baseline_unavailable": 188,
+          "participation_baseline_unavailable": 28
+        },
+        "regular": {
+          "scoreable": 22991,
+          "no_target_bar": 799
+        },
+        "after_hours_core": {
+          "scoreable": 2932,
+          "no_target_bar": 3753,
+          "displacement_baseline_unavailable": 525,
+          "participation_baseline_unavailable": 110
+        },
+        "after_hours_late": {
+          "no_target_bar": 4401,
+          "scoreable": 2183,
+          "displacement_baseline_unavailable": 556,
+          "participation_baseline_unavailable": 180
+        }
+      },
+      "2025-11-20": {
+        "premarket_early": {
+          "scoreable": 2850,
+          "participation_baseline_unavailable": 92,
+          "displacement_baseline_unavailable": 1522,
+          "no_target_bar": 6516
+        },
+        "premarket_core": {
+          "scoreable": 3622,
+          "no_target_bar": 2867,
+          "participation_baseline_unavailable": 78,
+          "displacement_baseline_unavailable": 753
+        },
+        "premarket_final": {
+          "scoreable": 1243,
+          "displacement_baseline_unavailable": 163,
+          "no_target_bar": 406,
+          "participation_baseline_unavailable": 18
+        },
+        "regular": {
+          "scoreable": 23007,
+          "no_target_bar": 783
+        },
+        "after_hours_core": {
+          "scoreable": 3561,
+          "no_target_bar": 2654,
+          "displacement_baseline_unavailable": 1034,
+          "participation_baseline_unavailable": 71
+        },
+        "after_hours_late": {
+          "scoreable": 2941,
+          "displacement_baseline_unavailable": 1018,
+          "no_target_bar": 3243,
+          "participation_baseline_unavailable": 118
+        }
+      },
+      "2025-11-24": {
+        "premarket_early": {
+          "scoreable": 2784,
+          "no_target_bar": 7072,
+          "displacement_baseline_unavailable": 1077,
+          "participation_baseline_unavailable": 47
+        },
+        "premarket_core": {
+          "scoreable": 3582,
+          "participation_baseline_unavailable": 46,
+          "no_target_bar": 3222,
+          "displacement_baseline_unavailable": 470
+        },
+        "premarket_final": {
+          "scoreable": 1167,
+          "no_target_bar": 568,
+          "displacement_baseline_unavailable": 85,
+          "participation_baseline_unavailable": 10
+        },
+        "regular": {
+          "scoreable": 22982,
+          "no_target_bar": 808
+        },
+        "after_hours_core": {
+          "scoreable": 3218,
+          "no_target_bar": 3331,
+          "displacement_baseline_unavailable": 721,
+          "participation_baseline_unavailable": 50
+        },
+        "after_hours_late": {
+          "scoreable": 2766,
+          "no_target_bar": 3802,
+          "displacement_baseline_unavailable": 683,
+          "participation_baseline_unavailable": 69
+        }
+      },
+      "2025-11-28": {
+        "premarket_early": {
+          "scoreable": 2435,
+          "no_target_bar": 7703,
+          "participation_baseline_unavailable": 45,
+          "displacement_baseline_unavailable": 797
+        },
+        "premarket_core": {
+          "scoreable": 3125,
+          "no_target_bar": 3835,
+          "participation_baseline_unavailable": 34,
+          "displacement_baseline_unavailable": 326
+        },
+        "premarket_final": {
+          "scoreable": 1118,
+          "no_target_bar": 644,
+          "displacement_baseline_unavailable": 57,
+          "participation_baseline_unavailable": 11
+        },
+        "regular": {
+          "scoreable": 17362,
+          "no_target_bar": 6428
+        },
+        "after_hours_core": {
+          "scoreable": 1074,
+          "no_target_bar": 6138,
+          "displacement_baseline_unavailable": 95,
+          "participation_baseline_unavailable": 13
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2025-12-09": {
+        "premarket_early": {
+          "scoreable": 2139,
+          "no_target_bar": 8059,
+          "participation_baseline_unavailable": 70,
+          "displacement_baseline_unavailable": 712
+        },
+        "premarket_core": {
+          "scoreable": 2862,
+          "no_target_bar": 4031,
+          "displacement_baseline_unavailable": 378,
+          "participation_baseline_unavailable": 49
+        },
+        "premarket_final": {
+          "scoreable": 1046,
+          "no_target_bar": 690,
+          "displacement_baseline_unavailable": 84,
+          "participation_baseline_unavailable": 10
+        },
+        "regular": {
+          "scoreable": 22962,
+          "no_target_bar": 828
+        },
+        "after_hours_core": {
+          "scoreable": 2549,
+          "no_target_bar": 4098,
+          "displacement_baseline_unavailable": 598,
+          "participation_baseline_unavailable": 75
+        },
+        "after_hours_late": {
+          "scoreable": 2019,
+          "no_target_bar": 4591,
+          "displacement_baseline_unavailable": 645,
+          "participation_baseline_unavailable": 65
+        }
+      },
+      "2025-12-10": {
+        "premarket_early": {
+          "scoreable": 2190,
+          "no_target_bar": 7970,
+          "participation_baseline_unavailable": 85,
+          "displacement_baseline_unavailable": 735
+        },
+        "premarket_core": {
+          "scoreable": 2951,
+          "no_target_bar": 3938,
+          "participation_baseline_unavailable": 50,
+          "displacement_baseline_unavailable": 381
+        },
+        "premarket_final": {
+          "scoreable": 1054,
+          "displacement_baseline_unavailable": 96,
+          "no_target_bar": 661,
+          "participation_baseline_unavailable": 19
+        },
+        "regular": {
+          "scoreable": 22968,
+          "no_target_bar": 822
+        },
+        "after_hours_core": {
+          "scoreable": 3107,
+          "no_target_bar": 3058,
+          "participation_baseline_unavailable": 96,
+          "displacement_baseline_unavailable": 1059
+        },
+        "after_hours_late": {
+          "scoreable": 2469,
+          "no_target_bar": 3837,
+          "displacement_baseline_unavailable": 920,
+          "participation_baseline_unavailable": 94
+        }
+      },
+      "2025-12-17": {
+        "premarket_early": {
+          "scoreable": 2364,
+          "no_target_bar": 7366,
+          "participation_baseline_unavailable": 154,
+          "displacement_baseline_unavailable": 1096
+        },
+        "premarket_core": {
+          "scoreable": 3192,
+          "no_target_bar": 3541,
+          "participation_baseline_unavailable": 115,
+          "displacement_baseline_unavailable": 472
+        },
+        "premarket_final": {
+          "scoreable": 1081,
+          "no_target_bar": 637,
+          "displacement_baseline_unavailable": 77,
+          "participation_baseline_unavailable": 35
+        },
+        "regular": {
+          "scoreable": 22992,
+          "no_target_bar": 798
+        },
+        "after_hours_core": {
+          "scoreable": 3154,
+          "no_target_bar": 3180,
+          "displacement_baseline_unavailable": 886,
+          "participation_baseline_unavailable": 100
+        },
+        "after_hours_late": {
+          "scoreable": 2479,
+          "no_target_bar": 3972,
+          "displacement_baseline_unavailable": 773,
+          "participation_baseline_unavailable": 96
+        }
+      },
+      "2025-12-30": {
+        "premarket_early": {
+          "scoreable": 1553,
+          "no_target_bar": 8435,
+          "displacement_baseline_unavailable": 818,
+          "participation_baseline_unavailable": 174
+        },
+        "premarket_core": {
+          "scoreable": 2555,
+          "no_target_bar": 4292,
+          "participation_baseline_unavailable": 164,
+          "displacement_baseline_unavailable": 309
+        },
+        "premarket_final": {
+          "scoreable": 952,
+          "no_target_bar": 770,
+          "displacement_baseline_unavailable": 89,
+          "participation_baseline_unavailable": 19
+        },
+        "regular": {
+          "scoreable": 22921,
+          "no_target_bar": 869
+        },
+        "after_hours_core": {
+          "scoreable": 2387,
+          "no_target_bar": 4340,
+          "participation_baseline_unavailable": 53,
+          "displacement_baseline_unavailable": 540
+        },
+        "after_hours_late": {
+          "scoreable": 1867,
+          "no_target_bar": 4702,
+          "displacement_baseline_unavailable": 634,
+          "participation_baseline_unavailable": 117
+        }
+      },
+      "2026-01-20": {
+        "premarket_early": {
+          "scoreable": 2287,
+          "participation_baseline_unavailable": 420,
+          "no_target_bar": 5248,
+          "displacement_baseline_unavailable": 3025
+        },
+        "premarket_core": {
+          "scoreable": 3430,
+          "displacement_baseline_unavailable": 1081,
+          "participation_baseline_unavailable": 392,
+          "no_target_bar": 2417
+        },
+        "premarket_final": {
+          "scoreable": 1178,
+          "no_target_bar": 399,
+          "participation_baseline_unavailable": 62,
+          "displacement_baseline_unavailable": 191
+        },
+        "regular": {
+          "scoreable": 23006,
+          "no_target_bar": 784
+        },
+        "after_hours_core": {
+          "scoreable": 2779,
+          "no_target_bar": 3331,
+          "participation_baseline_unavailable": 216,
+          "displacement_baseline_unavailable": 994
+        },
+        "after_hours_late": {
+          "scoreable": 2248,
+          "participation_baseline_unavailable": 295,
+          "no_target_bar": 3567,
+          "displacement_baseline_unavailable": 1210
+        }
+      },
+      "2026-01-21": {
+        "premarket_early": {
+          "scoreable": 2105,
+          "no_target_bar": 6946,
+          "participation_baseline_unavailable": 222,
+          "displacement_baseline_unavailable": 1707
+        },
+        "premarket_core": {
+          "scoreable": 3246,
+          "no_target_bar": 3135,
+          "displacement_baseline_unavailable": 676,
+          "participation_baseline_unavailable": 263
+        },
+        "premarket_final": {
+          "scoreable": 1161,
+          "no_target_bar": 420,
+          "displacement_baseline_unavailable": 191,
+          "participation_baseline_unavailable": 58
+        },
+        "regular": {
+          "scoreable": 22998,
+          "no_target_bar": 792
+        },
+        "after_hours_core": {
+          "scoreable": 2819,
+          "no_target_bar": 3273,
+          "displacement_baseline_unavailable": 1009,
+          "participation_baseline_unavailable": 219
+        },
+        "after_hours_late": {
+          "scoreable": 2249,
+          "no_target_bar": 3706,
+          "displacement_baseline_unavailable": 1077,
+          "participation_baseline_unavailable": 288
+        }
+      },
+      "2026-01-27": {
+        "premarket_early": {
+          "scoreable": 2310,
+          "no_target_bar": 7022,
+          "participation_baseline_unavailable": 118,
+          "displacement_baseline_unavailable": 1530
+        },
+        "premarket_core": {
+          "scoreable": 3229,
+          "no_target_bar": 3150,
+          "displacement_baseline_unavailable": 779,
+          "participation_baseline_unavailable": 162
+        },
+        "premarket_final": {
+          "scoreable": 1134,
+          "no_target_bar": 522,
+          "displacement_baseline_unavailable": 137,
+          "participation_baseline_unavailable": 37
+        },
+        "regular": {
+          "scoreable": 22993,
+          "no_target_bar": 797
+        },
+        "after_hours_core": {
+          "scoreable": 2972,
+          "no_target_bar": 3084,
+          "displacement_baseline_unavailable": 1170,
+          "participation_baseline_unavailable": 94
+        },
+        "after_hours_late": {
+          "scoreable": 2454,
+          "participation_baseline_unavailable": 135,
+          "displacement_baseline_unavailable": 1169,
+          "no_target_bar": 3562
+        }
+      },
+      "2026-01-29": {
+        "premarket_early": {
+          "scoreable": 2575,
+          "participation_baseline_unavailable": 133,
+          "no_target_bar": 6343,
+          "displacement_baseline_unavailable": 1929
+        },
+        "premarket_core": {
+          "scoreable": 3431,
+          "no_target_bar": 2748,
+          "participation_baseline_unavailable": 154,
+          "displacement_baseline_unavailable": 987
+        },
+        "premarket_final": {
+          "scoreable": 1201,
+          "no_target_bar": 414,
+          "displacement_baseline_unavailable": 190,
+          "participation_baseline_unavailable": 25
+        },
+        "regular": {
+          "scoreable": 23006,
+          "no_target_bar": 784
+        },
+        "after_hours_core": {
+          "scoreable": 3337,
+          "no_target_bar": 2657,
+          "displacement_baseline_unavailable": 1255,
+          "participation_baseline_unavailable": 71
+        },
+        "after_hours_late": {
+          "scoreable": 2730,
+          "participation_baseline_unavailable": 80,
+          "no_target_bar": 3332,
+          "displacement_baseline_unavailable": 1178
+        }
+      },
+      "2026-01-30": {
+        "premarket_early": {
+          "scoreable": 3044,
+          "no_target_bar": 5887,
+          "participation_baseline_unavailable": 145,
+          "displacement_baseline_unavailable": 1904
+        },
+        "premarket_core": {
+          "scoreable": 3602,
+          "no_target_bar": 2772,
+          "displacement_baseline_unavailable": 808,
+          "participation_baseline_unavailable": 138
+        },
+        "premarket_final": {
+          "scoreable": 1174,
+          "no_target_bar": 523,
+          "displacement_baseline_unavailable": 119,
+          "participation_baseline_unavailable": 14
+        },
+        "regular": {
+          "scoreable": 23009,
+          "no_target_bar": 781
+        },
+        "after_hours_core": {
+          "scoreable": 3134,
+          "no_target_bar": 3237,
+          "displacement_baseline_unavailable": 893,
+          "participation_baseline_unavailable": 56
+        },
+        "after_hours_late": {
+          "no_target_bar": 3831,
+          "scoreable": 2626,
+          "displacement_baseline_unavailable": 820,
+          "participation_baseline_unavailable": 43
+        }
+      },
+      "2026-02-02": {
+        "premarket_early": {
+          "scoreable": 3249,
+          "no_target_bar": 5985,
+          "displacement_baseline_unavailable": 1651,
+          "participation_baseline_unavailable": 95
+        },
+        "premarket_core": {
+          "scoreable": 3802,
+          "no_target_bar": 2604,
+          "displacement_baseline_unavailable": 785,
+          "participation_baseline_unavailable": 129
+        },
+        "premarket_final": {
+          "scoreable": 1235,
+          "no_target_bar": 494,
+          "displacement_baseline_unavailable": 93,
+          "participation_baseline_unavailable": 8
+        },
+        "regular": {
+          "scoreable": 23005,
+          "no_target_bar": 785
+        },
+        "after_hours_core": {
+          "scoreable": 3387,
+          "no_target_bar": 3080,
+          "displacement_baseline_unavailable": 826,
+          "participation_baseline_unavailable": 27
+        },
+        "after_hours_late": {
+          "scoreable": 2909,
+          "no_target_bar": 3468,
+          "displacement_baseline_unavailable": 901,
+          "participation_baseline_unavailable": 42
+        }
+      },
+      "2026-02-06": {
+        "premarket_early": {
+          "scoreable": 3888,
+          "no_target_bar": 4686,
+          "displacement_baseline_unavailable": 2333,
+          "participation_baseline_unavailable": 73
+        },
+        "premarket_core": {
+          "scoreable": 4064,
+          "no_target_bar": 2271,
+          "displacement_baseline_unavailable": 900,
+          "participation_baseline_unavailable": 85
+        },
+        "premarket_final": {
+          "scoreable": 1306,
+          "no_target_bar": 371,
+          "displacement_baseline_unavailable": 145,
+          "participation_baseline_unavailable": 8
+        },
+        "regular": {
+          "scoreable": 23007,
+          "no_target_bar": 783
+        },
+        "after_hours_core": {
+          "scoreable": 3623,
+          "no_target_bar": 2889,
+          "displacement_baseline_unavailable": 794,
+          "participation_baseline_unavailable": 14
+        },
+        "after_hours_late": {
+          "scoreable": 2876,
+          "no_target_bar": 3669,
+          "displacement_baseline_unavailable": 758,
+          "participation_baseline_unavailable": 17
+        }
+      },
+      "2026-02-12": {
+        "premarket_early": {
+          "scoreable": 2794,
+          "no_target_bar": 7273,
+          "displacement_baseline_unavailable": 901,
+          "participation_baseline_unavailable": 12
+        },
+        "premarket_core": {
+          "scoreable": 3712,
+          "no_target_bar": 3041,
+          "displacement_baseline_unavailable": 525,
+          "participation_baseline_unavailable": 42
+        },
+        "premarket_final": {
+          "scoreable": 1207,
+          "no_target_bar": 523,
+          "displacement_baseline_unavailable": 95,
+          "participation_baseline_unavailable": 5
+        },
+        "regular": {
+          "scoreable": 22998,
+          "no_target_bar": 792
+        },
+        "after_hours_core": {
+          "scoreable": 3542,
+          "no_target_bar": 3026,
+          "displacement_baseline_unavailable": 737,
+          "participation_baseline_unavailable": 15
+        },
+        "after_hours_late": {
+          "scoreable": 3087,
+          "displacement_baseline_unavailable": 771,
+          "no_target_bar": 3457,
+          "participation_baseline_unavailable": 5
+        }
+      },
+      "2026-02-13": {
+        "premarket_early": {
+          "scoreable": 3176,
+          "no_target_bar": 6822,
+          "displacement_baseline_unavailable": 962,
+          "participation_baseline_unavailable": 20
+        },
+        "premarket_core": {
+          "scoreable": 3712,
+          "no_target_bar": 2951,
+          "displacement_baseline_unavailable": 621,
+          "participation_baseline_unavailable": 36
+        },
+        "premarket_final": {
+          "scoreable": 1253,
+          "no_target_bar": 448,
+          "displacement_baseline_unavailable": 122,
+          "participation_baseline_unavailable": 7
+        },
+        "regular": {
+          "scoreable": 22994,
+          "no_target_bar": 796
+        },
+        "after_hours_core": {
+          "scoreable": 3145,
+          "no_target_bar": 3699,
+          "displacement_baseline_unavailable": 470,
+          "participation_baseline_unavailable": 6
+        },
+        "after_hours_late": {
+          "scoreable": 2357,
+          "no_target_bar": 4589,
+          "displacement_baseline_unavailable": 362,
+          "participation_baseline_unavailable": 12
+        }
+      },
+      "2026-02-25": {
+        "premarket_early": {
+          "scoreable": 2596,
+          "no_target_bar": 7423,
+          "participation_baseline_unavailable": 32,
+          "displacement_baseline_unavailable": 929
+        },
+        "premarket_core": {
+          "scoreable": 3689,
+          "no_target_bar": 2974,
+          "participation_baseline_unavailable": 49,
+          "displacement_baseline_unavailable": 608
+        },
+        "premarket_final": {
+          "scoreable": 1239,
+          "no_target_bar": 471,
+          "displacement_baseline_unavailable": 102,
+          "participation_baseline_unavailable": 18
+        },
+        "regular": {
+          "scoreable": 22967,
+          "no_target_bar": 823
+        },
+        "after_hours_core": {
+          "scoreable": 3733,
+          "no_target_bar": 2622,
+          "displacement_baseline_unavailable": 927,
+          "participation_baseline_unavailable": 38
+        },
+        "after_hours_late": {
+          "scoreable": 2969,
+          "no_target_bar": 3403,
+          "displacement_baseline_unavailable": 907,
+          "participation_baseline_unavailable": 41
+        }
+      },
+      "2026-03-09": {
+        "premarket_early": {
+          "scoreable": 3557,
+          "participation_baseline_unavailable": 36,
+          "no_target_bar": 5546,
+          "displacement_baseline_unavailable": 1841
+        },
+        "premarket_core": {
+          "scoreable": 3815,
+          "no_target_bar": 2678,
+          "displacement_baseline_unavailable": 758,
+          "participation_baseline_unavailable": 69
+        },
+        "premarket_final": {
+          "scoreable": 1305,
+          "no_target_bar": 421,
+          "participation_baseline_unavailable": 9,
+          "displacement_baseline_unavailable": 95
+        },
+        "regular": {
+          "scoreable": 23007,
+          "no_target_bar": 783
+        },
+        "after_hours_core": {
+          "scoreable": 3271,
+          "no_target_bar": 3000,
+          "displacement_baseline_unavailable": 986,
+          "participation_baseline_unavailable": 63
+        },
+        "after_hours_late": {
+          "scoreable": 2567,
+          "no_target_bar": 3647,
+          "displacement_baseline_unavailable": 1036,
+          "participation_baseline_unavailable": 70
+        }
+      },
+      "2026-03-10": {
+        "premarket_early": {
+          "scoreable": 3376,
+          "no_target_bar": 5878,
+          "displacement_baseline_unavailable": 1679,
+          "participation_baseline_unavailable": 47
+        },
+        "premarket_core": {
+          "scoreable": 3723,
+          "participation_baseline_unavailable": 63,
+          "no_target_bar": 2879,
+          "displacement_baseline_unavailable": 655
+        },
+        "premarket_final": {
+          "scoreable": 1217,
+          "no_target_bar": 534,
+          "displacement_baseline_unavailable": 69,
+          "participation_baseline_unavailable": 10
+        },
+        "regular": {
+          "scoreable": 23001,
+          "no_target_bar": 789
+        },
+        "after_hours_core": {
+          "scoreable": 3037,
+          "no_target_bar": 3440,
+          "displacement_baseline_unavailable": 788,
+          "participation_baseline_unavailable": 55
+        },
+        "after_hours_late": {
+          "scoreable": 2366,
+          "no_target_bar": 4087,
+          "displacement_baseline_unavailable": 811,
+          "participation_baseline_unavailable": 56
+        }
+      },
+      "2026-03-27": {
+        "premarket_early": {
+          "scoreable": 3217,
+          "no_target_bar": 6449,
+          "displacement_baseline_unavailable": 1274,
+          "participation_baseline_unavailable": 40
+        },
+        "premarket_core": {
+          "scoreable": 4009,
+          "no_target_bar": 2605,
+          "participation_baseline_unavailable": 72,
+          "displacement_baseline_unavailable": 634
+        },
+        "premarket_final": {
+          "scoreable": 1342,
+          "displacement_baseline_unavailable": 112,
+          "no_target_bar": 370,
+          "participation_baseline_unavailable": 6
+        },
+        "regular": {
+          "scoreable": 22996,
+          "no_target_bar": 794
+        },
+        "after_hours_core": {
+          "scoreable": 3256,
+          "no_target_bar": 3195,
+          "displacement_baseline_unavailable": 810,
+          "participation_baseline_unavailable": 59
+        },
+        "after_hours_late": {
+          "scoreable": 2727,
+          "no_target_bar": 3691,
+          "displacement_baseline_unavailable": 846,
+          "participation_baseline_unavailable": 56
+        }
+      },
+      "2026-03-31": {
+        "premarket_early": {
+          "scoreable": 3319,
+          "participation_baseline_unavailable": 56,
+          "displacement_baseline_unavailable": 1168,
+          "no_target_bar": 6437
+        },
+        "premarket_core": {
+          "scoreable": 4219,
+          "no_target_bar": 2330,
+          "displacement_baseline_unavailable": 691,
+          "participation_baseline_unavailable": 80
+        },
+        "premarket_final": {
+          "scoreable": 1268,
+          "no_target_bar": 481,
+          "displacement_baseline_unavailable": 77,
+          "participation_baseline_unavailable": 4
+        },
+        "regular": {
+          "scoreable": 22985,
+          "no_target_bar": 805
+        },
+        "after_hours_core": {
+          "scoreable": 3349,
+          "no_target_bar": 3140,
+          "displacement_baseline_unavailable": 786,
+          "participation_baseline_unavailable": 45
+        },
+        "after_hours_late": {
+          "scoreable": 3015,
+          "no_target_bar": 3152,
+          "displacement_baseline_unavailable": 1087,
+          "participation_baseline_unavailable": 66
+        }
+      },
+      "2026-04-02": {
+        "premarket_early": {
+          "scoreable": 3227,
+          "no_target_bar": 6031,
+          "displacement_baseline_unavailable": 1653,
+          "participation_baseline_unavailable": 69
+        },
+        "premarket_core": {
+          "scoreable": 4457,
+          "participation_baseline_unavailable": 68,
+          "displacement_baseline_unavailable": 856,
+          "no_target_bar": 1939
+        },
+        "premarket_final": {
+          "scoreable": 1306,
+          "no_target_bar": 412,
+          "displacement_baseline_unavailable": 107,
+          "participation_baseline_unavailable": 5
+        },
+        "regular": {
+          "scoreable": 22992,
+          "no_target_bar": 430,
+          "target_metrics_unavailable": 65,
+          "displacement_baseline_unavailable": 303
+        },
+        "after_hours_core": {
+          "scoreable": 3067,
+          "displacement_baseline_unavailable": 711,
+          "no_target_bar": 3512,
+          "participation_baseline_unavailable": 30
+        },
+        "after_hours_late": {
+          "scoreable": 2412,
+          "no_target_bar": 4251,
+          "displacement_baseline_unavailable": 623,
+          "participation_baseline_unavailable": 34
+        }
+      },
+      "2026-04-20": {
+        "premarket_early": {
+          "scoreable": 3710,
+          "no_target_bar": 5939,
+          "displacement_baseline_unavailable": 1315,
+          "participation_baseline_unavailable": 16
+        },
+        "premarket_core": {
+          "scoreable": 4504,
+          "no_target_bar": 2201,
+          "displacement_baseline_unavailable": 609,
+          "participation_baseline_unavailable": 6
+        },
+        "premarket_final": {
+          "scoreable": 1338,
+          "no_target_bar": 373,
+          "displacement_baseline_unavailable": 118,
+          "participation_baseline_unavailable": 1
+        },
+        "regular": {
+          "scoreable": 23369,
+          "no_target_bar": 421
+        },
+        "after_hours_core": {
+          "scoreable": 3359,
+          "no_target_bar": 3214,
+          "displacement_baseline_unavailable": 716,
+          "participation_baseline_unavailable": 31
+        },
+        "after_hours_late": {
+          "scoreable": 2878,
+          "displacement_baseline_unavailable": 755,
+          "no_target_bar": 3657,
+          "participation_baseline_unavailable": 30
+        }
+      },
+      "2026-04-21": {
+        "premarket_early": {
+          "scoreable": 3636,
+          "no_target_bar": 5988,
+          "displacement_baseline_unavailable": 1343,
+          "participation_baseline_unavailable": 13
+        },
+        "premarket_core": {
+          "scoreable": 4576,
+          "no_target_bar": 2066,
+          "displacement_baseline_unavailable": 675,
+          "participation_baseline_unavailable": 3
+        },
+        "premarket_final": {
+          "scoreable": 1320,
+          "no_target_bar": 414,
+          "displacement_baseline_unavailable": 94,
+          "participation_baseline_unavailable": 2
+        },
+        "regular": {
+          "scoreable": 23374,
+          "no_target_bar": 416
+        },
+        "after_hours_core": {
+          "scoreable": 3645,
+          "no_target_bar": 2613,
+          "displacement_baseline_unavailable": 1015,
+          "participation_baseline_unavailable": 47
+        },
+        "after_hours_late": {
+          "scoreable": 2985,
+          "no_target_bar": 3459,
+          "displacement_baseline_unavailable": 844,
+          "participation_baseline_unavailable": 32
+        }
+      },
+      "2026-04-22": {
+        "premarket_early": {
+          "scoreable": 3676,
+          "no_target_bar": 5840,
+          "displacement_baseline_unavailable": 1447,
+          "participation_baseline_unavailable": 17
+        },
+        "premarket_core": {
+          "scoreable": 4573,
+          "no_target_bar": 1993,
+          "displacement_baseline_unavailable": 749,
+          "participation_baseline_unavailable": 5
+        },
+        "premarket_final": {
+          "scoreable": 1354,
+          "no_target_bar": 382,
+          "displacement_baseline_unavailable": 93,
+          "participation_baseline_unavailable": 1
+        },
+        "regular": {
+          "scoreable": 23348,
+          "no_target_bar": 442
+        },
+        "after_hours_core": {
+          "scoreable": 3628,
+          "no_target_bar": 2359,
+          "displacement_baseline_unavailable": 1289,
+          "participation_baseline_unavailable": 44
+        },
+        "after_hours_late": {
+          "scoreable": 2988,
+          "no_target_bar": 3306,
+          "displacement_baseline_unavailable": 991,
+          "participation_baseline_unavailable": 35
+        }
+      },
+      "2026-05-06": {
+        "premarket_early": {
+          "scoreable": 5017,
+          "displacement_baseline_unavailable": 2361,
+          "no_target_bar": 3588,
+          "participation_baseline_unavailable": 14
+        },
+        "premarket_core": {
+          "scoreable": 5310,
+          "displacement_baseline_unavailable": 819,
+          "no_target_bar": 1176,
+          "participation_baseline_unavailable": 15
+        },
+        "premarket_final": {
+          "scoreable": 1417,
+          "displacement_baseline_unavailable": 98,
+          "no_target_bar": 312,
+          "participation_baseline_unavailable": 3
+        },
+        "regular": {
+          "scoreable": 23397,
+          "no_target_bar": 393
+        },
+        "after_hours_core": {
+          "scoreable": 3957,
+          "no_target_bar": 2251,
+          "displacement_baseline_unavailable": 1078,
+          "participation_baseline_unavailable": 34
+        },
+        "after_hours_late": {
+          "scoreable": 3119,
+          "displacement_baseline_unavailable": 970,
+          "no_target_bar": 3195,
+          "participation_baseline_unavailable": 36
+        }
+      },
+      "2026-05-07": {
+        "premarket_early": {
+          "scoreable": 4161,
+          "displacement_baseline_unavailable": 1454,
+          "no_target_bar": 5358,
+          "participation_baseline_unavailable": 7
+        },
+        "premarket_core": {
+          "scoreable": 4847,
+          "displacement_baseline_unavailable": 664,
+          "no_target_bar": 1794,
+          "participation_baseline_unavailable": 15
+        },
+        "premarket_final": {
+          "scoreable": 1397,
+          "no_target_bar": 337,
+          "displacement_baseline_unavailable": 91,
+          "participation_baseline_unavailable": 5
+        },
+        "regular": {
+          "scoreable": 23398,
+          "no_target_bar": 392
+        },
+        "after_hours_core": {
+          "scoreable": 4009,
+          "no_target_bar": 2240,
+          "displacement_baseline_unavailable": 1044,
+          "participation_baseline_unavailable": 27
+        },
+        "after_hours_late": {
+          "scoreable": 3288,
+          "displacement_baseline_unavailable": 1037,
+          "no_target_bar": 2963,
+          "participation_baseline_unavailable": 32
+        }
+      },
+      "2026-05-27": {
+        "premarket_early": {
+          "scoreable": 4520,
+          "no_target_bar": 5337,
+          "displacement_baseline_unavailable": 1112,
+          "participation_baseline_unavailable": 11
+        },
+        "premarket_core": {
+          "scoreable": 5065,
+          "displacement_baseline_unavailable": 890,
+          "no_target_bar": 1350,
+          "participation_baseline_unavailable": 15
+        },
+        "premarket_final": {
+          "scoreable": 1415,
+          "displacement_baseline_unavailable": 118,
+          "no_target_bar": 292,
+          "participation_baseline_unavailable": 5
+        },
+        "regular": {
+          "scoreable": 23400,
+          "no_target_bar": 390
+        },
+        "after_hours_core": {
+          "scoreable": 3700,
+          "no_target_bar": 2771,
+          "displacement_baseline_unavailable": 818,
+          "participation_baseline_unavailable": 31
+        },
+        "after_hours_late": {
+          "scoreable": 3128,
+          "no_target_bar": 3235,
+          "displacement_baseline_unavailable": 914,
+          "participation_baseline_unavailable": 43
+        }
+      },
+      "2026-06-02": {
+        "premarket_early": {
+          "scoreable": 5059,
+          "no_target_bar": 4381,
+          "displacement_baseline_unavailable": 1529,
+          "participation_baseline_unavailable": 11
+        },
+        "premarket_core": {
+          "scoreable": 4936,
+          "no_target_bar": 1786,
+          "displacement_baseline_unavailable": 586,
+          "participation_baseline_unavailable": 12
+        },
+        "premarket_final": {
+          "scoreable": 1419,
+          "no_target_bar": 316,
+          "displacement_baseline_unavailable": 88,
+          "participation_baseline_unavailable": 7
+        },
+        "regular": {
+          "scoreable": 23397,
+          "no_target_bar": 393
+        },
+        "after_hours_core": {
+          "scoreable": 3837,
+          "no_target_bar": 2538,
+          "displacement_baseline_unavailable": 915,
+          "participation_baseline_unavailable": 30
+        },
+        "after_hours_late": {
+          "scoreable": 3476,
+          "no_target_bar": 2552,
+          "displacement_baseline_unavailable": 1245,
+          "participation_baseline_unavailable": 47
+        }
+      },
+      "2026-06-09": {
+        "premarket_early": {
+          "scoreable": 4311,
+          "no_target_bar": 5785,
+          "displacement_baseline_unavailable": 872,
+          "participation_baseline_unavailable": 12
+        },
+        "premarket_core": {
+          "scoreable": 4634,
+          "no_target_bar": 2312,
+          "displacement_baseline_unavailable": 361,
+          "participation_baseline_unavailable": 13
+        },
+        "premarket_final": {
+          "scoreable": 1372,
+          "no_target_bar": 398,
+          "participation_baseline_unavailable": 5,
+          "displacement_baseline_unavailable": 55
+        },
+        "regular": {
+          "scoreable": 23399,
+          "no_target_bar": 391
+        },
+        "after_hours_core": {
+          "scoreable": 3763,
+          "no_target_bar": 2823,
+          "displacement_baseline_unavailable": 705,
+          "participation_baseline_unavailable": 29
+        },
+        "after_hours_late": {
+          "scoreable": 3240,
+          "displacement_baseline_unavailable": 796,
+          "no_target_bar": 3251,
+          "participation_baseline_unavailable": 33
+        }
+      },
+      "2026-06-26": {
+        "premarket_early": {
+          "scoreable": 4200,
+          "no_target_bar": 5703,
+          "displacement_baseline_unavailable": 1069,
+          "participation_baseline_unavailable": 8
+        },
+        "premarket_core": {
+          "scoreable": 4768,
+          "no_target_bar": 2157,
+          "displacement_baseline_unavailable": 381,
+          "participation_baseline_unavailable": 14
+        },
+        "premarket_final": {
+          "scoreable": 1464,
+          "no_target_bar": 283,
+          "participation_baseline_unavailable": 8,
+          "displacement_baseline_unavailable": 75
+        },
+        "regular": {
+          "scoreable": 23400,
+          "displacement_baseline_unavailable": 390
+        },
+        "after_hours_core": {
+          "scoreable": 4043,
+          "no_target_bar": 2310,
+          "displacement_baseline_unavailable": 951,
+          "participation_baseline_unavailable": 16
+        },
+        "after_hours_late": {
+          "scoreable": 3001,
+          "no_target_bar": 3471,
+          "displacement_baseline_unavailable": 848
+        }
+      },
+      "2026-07-22": {
+        "premarket_early": {
+          "scoreable": 3787,
+          "displacement_baseline_unavailable": 1074,
+          "no_target_bar": 6107,
+          "participation_baseline_unavailable": 12
+        },
+        "premarket_core": {
+          "scoreable": 4740,
+          "displacement_baseline_unavailable": 451,
+          "no_target_bar": 2107,
+          "participation_baseline_unavailable": 22
+        },
+        "premarket_final": {
+          "scoreable": 1419,
+          "no_target_bar": 362,
+          "displacement_baseline_unavailable": 38,
+          "participation_baseline_unavailable": 11
+        },
+        "regular": {
+          "scoreable": 23780,
+          "no_target_bar": 10
+        },
+        "after_hours_core": {
+          "scoreable": 3954,
+          "no_target_bar": 2239,
+          "displacement_baseline_unavailable": 1055,
+          "participation_baseline_unavailable": 72
+        },
+        "after_hours_late": {
+          "scoreable": 3172,
+          "no_target_bar": 3157,
+          "displacement_baseline_unavailable": 924,
+          "participation_baseline_unavailable": 67
+        }
+      },
+      "2026-07-29": {
+        "premarket_early": {
+          "scoreable": 4179,
+          "no_target_bar": 5276,
+          "displacement_baseline_unavailable": 1493,
+          "participation_baseline_unavailable": 32
+        },
+        "premarket_core": {
+          "scoreable": 4494,
+          "no_target_bar": 2393,
+          "displacement_baseline_unavailable": 404,
+          "participation_baseline_unavailable": 29
+        },
+        "premarket_final": {
+          "scoreable": 1285,
+          "no_target_bar": 495,
+          "displacement_baseline_unavailable": 33,
+          "participation_baseline_unavailable": 17
+        },
+        "regular": {
+          "scoreable": 23787,
+          "no_target_bar": 3
+        },
+        "after_hours_core": {
+          "scoreable": 4266,
+          "participation_baseline_unavailable": 117,
+          "no_target_bar": 1539,
+          "displacement_baseline_unavailable": 1398
+        },
+        "after_hours_late": {
+          "scoreable": 3615,
+          "displacement_baseline_unavailable": 1310,
+          "no_target_bar": 2263,
+          "participation_baseline_unavailable": 132
+        }
+      },
+      "2026-08-14": {
+        "premarket_early": {
+          "scoreable": 3799,
+          "no_target_bar": 6142,
+          "displacement_baseline_unavailable": 986,
+          "participation_baseline_unavailable": 53
+        },
+        "premarket_core": {
+          "scoreable": 4446,
+          "no_target_bar": 2465,
+          "displacement_baseline_unavailable": 383,
+          "participation_baseline_unavailable": 26
+        },
+        "premarket_final": {
+          "scoreable": 1372,
+          "no_target_bar": 405,
+          "displacement_baseline_unavailable": 42,
+          "participation_baseline_unavailable": 11
+        },
+        "regular": {
+          "scoreable": 23771,
+          "no_target_bar": 19
+        },
+        "after_hours_core": {
+          "scoreable": 3487,
+          "no_target_bar": 3191,
+          "displacement_baseline_unavailable": 584,
+          "participation_baseline_unavailable": 58
+        },
+        "after_hours_late": {
+          "scoreable": 2537,
+          "no_target_bar": 4092,
+          "displacement_baseline_unavailable": 604,
+          "participation_baseline_unavailable": 87
+        }
+      }
+    },
+    "iex_partial": {
+      "2025-10-01": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7171,
+          "displacement_baseline_unavailable": 107,
+          "benchmark_reference_missing": 28,
+          "reference_baseline_unavailable": 14
+        },
+        "premarket_final": {
+          "no_target_bar": 1723,
+          "reference_baseline_unavailable": 16,
+          "displacement_baseline_unavailable": 59,
+          "benchmark_reference_missing": 21,
+          "scoreable": 11
+        },
+        "regular": {
+          "scoreable": 19020,
+          "participation_baseline_unavailable": 843,
+          "no_target_bar": 3741,
+          "displacement_baseline_unavailable": 186
+        },
+        "after_hours_core": {
+          "scoreable": 12,
+          "no_target_bar": 7261,
+          "displacement_baseline_unavailable": 46,
+          "reference_baseline_unavailable": 1
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2025-10-10": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7212,
+          "displacement_baseline_unavailable": 60,
+          "benchmark_reference_missing": 34,
+          "reference_baseline_unavailable": 11,
+          "scoreable": 3
+        },
+        "premarket_final": {
+          "no_target_bar": 1753,
+          "benchmark_reference_missing": 37,
+          "displacement_baseline_unavailable": 22,
+          "reference_baseline_unavailable": 9,
+          "scoreable": 9
+        },
+        "regular": {
+          "scoreable": 19242,
+          "no_target_bar": 3664,
+          "participation_baseline_unavailable": 667,
+          "displacement_baseline_unavailable": 217
+        },
+        "after_hours_core": {
+          "no_target_bar": 7253,
+          "scoreable": 6,
+          "displacement_baseline_unavailable": 56,
+          "benchmark_reference_missing": 5
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2025-10-24": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7185,
+          "displacement_baseline_unavailable": 100,
+          "benchmark_reference_missing": 13,
+          "reference_baseline_unavailable": 21,
+          "scoreable": 1
+        },
+        "premarket_final": {
+          "no_target_bar": 1757,
+          "reference_baseline_unavailable": 11,
+          "displacement_baseline_unavailable": 46,
+          "benchmark_reference_missing": 7,
+          "scoreable": 9
+        },
+        "regular": {
+          "scoreable": 18009,
+          "no_target_bar": 5068,
+          "participation_baseline_unavailable": 578,
+          "displacement_baseline_unavailable": 135
+        },
+        "after_hours_core": {
+          "scoreable": 10,
+          "no_target_bar": 7272,
+          "displacement_baseline_unavailable": 32,
+          "benchmark_reference_missing": 6
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2025-10-28": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7232,
+          "displacement_baseline_unavailable": 76,
+          "reference_baseline_unavailable": 6,
+          "benchmark_reference_missing": 6
+        },
+        "premarket_final": {
+          "no_target_bar": 1730,
+          "displacement_baseline_unavailable": 72,
+          "reference_baseline_unavailable": 14,
+          "benchmark_reference_missing": 13,
+          "scoreable": 1
+        },
+        "regular": {
+          "scoreable": 18382,
+          "no_target_bar": 4691,
+          "participation_baseline_unavailable": 583,
+          "displacement_baseline_unavailable": 134
+        },
+        "after_hours_core": {
+          "scoreable": 9,
+          "no_target_bar": 7229,
+          "displacement_baseline_unavailable": 78,
+          "benchmark_reference_missing": 4
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2025-11-04": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7228,
+          "displacement_baseline_unavailable": 90,
+          "benchmark_reference_missing": 2
+        },
+        "premarket_final": {
+          "no_target_bar": 1773,
+          "displacement_baseline_unavailable": 42,
+          "benchmark_reference_missing": 8,
+          "scoreable": 3,
+          "reference_baseline_unavailable": 4
+        },
+        "regular": {
+          "scoreable": 19676,
+          "no_target_bar": 2629,
+          "participation_baseline_unavailable": 1155,
+          "displacement_baseline_unavailable": 330
+        },
+        "after_hours_core": {
+          "no_target_bar": 7172,
+          "scoreable": 4,
+          "displacement_baseline_unavailable": 140,
+          "benchmark_reference_missing": 4
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2025-11-14": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7090,
+          "displacement_baseline_unavailable": 226,
+          "reference_baseline_unavailable": 4
+        },
+        "premarket_final": {
+          "no_target_bar": 1730,
+          "displacement_baseline_unavailable": 91,
+          "reference_baseline_unavailable": 6,
+          "scoreable": 2,
+          "participation_baseline_unavailable": 1
+        },
+        "regular": {
+          "scoreable": 20080,
+          "no_target_bar": 3076,
+          "participation_baseline_unavailable": 441,
+          "displacement_baseline_unavailable": 193
+        },
+        "after_hours_core": {
+          "no_target_bar": 7231,
+          "scoreable": 9,
+          "displacement_baseline_unavailable": 67,
+          "benchmark_reference_missing": 13
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2025-11-20": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7167,
+          "displacement_baseline_unavailable": 148,
+          "reference_baseline_unavailable": 3,
+          "benchmark_reference_missing": 2
+        },
+        "premarket_final": {
+          "displacement_baseline_unavailable": 83,
+          "no_target_bar": 1739,
+          "reference_baseline_unavailable": 4,
+          "benchmark_reference_missing": 3,
+          "scoreable": 1
+        },
+        "regular": {
+          "scoreable": 20991,
+          "no_target_bar": 2225,
+          "participation_baseline_unavailable": 369,
+          "displacement_baseline_unavailable": 205
+        },
+        "after_hours_core": {
+          "displacement_baseline_unavailable": 95,
+          "scoreable": 4,
+          "no_target_bar": 7218,
+          "reference_baseline_unavailable": 2,
+          "benchmark_reference_missing": 1
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2025-11-24": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7163,
+          "displacement_baseline_unavailable": 148,
+          "reference_baseline_unavailable": 9
+        },
+        "premarket_final": {
+          "no_target_bar": 1748,
+          "displacement_baseline_unavailable": 75,
+          "reference_baseline_unavailable": 6,
+          "participation_baseline_unavailable": 1
+        },
+        "regular": {
+          "scoreable": 20340,
+          "no_target_bar": 3099,
+          "participation_baseline_unavailable": 214,
+          "displacement_baseline_unavailable": 137
+        },
+        "after_hours_core": {
+          "no_target_bar": 7262,
+          "scoreable": 6,
+          "displacement_baseline_unavailable": 49,
+          "benchmark_reference_missing": 3
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2025-11-28": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7269,
+          "displacement_baseline_unavailable": 33,
+          "benchmark_reference_missing": 16,
+          "reference_baseline_unavailable": 1,
+          "scoreable": 1
+        },
+        "premarket_final": {
+          "no_target_bar": 1779,
+          "displacement_baseline_unavailable": 41,
+          "benchmark_reference_missing": 7,
+          "scoreable": 2,
+          "reference_baseline_unavailable": 1
+        },
+        "regular": {
+          "scoreable": 11196,
+          "no_target_bar": 12450,
+          "participation_baseline_unavailable": 78,
+          "displacement_baseline_unavailable": 44,
+          "benchmark_reference_missing": 22
+        },
+        "after_hours_core": {
+          "no_target_bar": 7320
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2025-12-09": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7232,
+          "displacement_baseline_unavailable": 62,
+          "benchmark_reference_missing": 7,
+          "reference_baseline_unavailable": 4,
+          "scoreable": 15
+        },
+        "premarket_final": {
+          "no_target_bar": 1779,
+          "displacement_baseline_unavailable": 50,
+          "benchmark_reference_missing": 1
+        },
+        "regular": {
+          "scoreable": 19228,
+          "participation_baseline_unavailable": 195,
+          "no_target_bar": 4192,
+          "displacement_baseline_unavailable": 175
+        },
+        "after_hours_core": {
+          "displacement_baseline_unavailable": 69,
+          "scoreable": 6,
+          "no_target_bar": 7244,
+          "reference_baseline_unavailable": 1
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2025-12-10": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7249,
+          "benchmark_reference_missing": 15,
+          "displacement_baseline_unavailable": 43,
+          "scoreable": 10,
+          "reference_baseline_unavailable": 3
+        },
+        "premarket_final": {
+          "no_target_bar": 1803,
+          "displacement_baseline_unavailable": 19,
+          "scoreable": 4,
+          "benchmark_reference_missing": 4
+        },
+        "regular": {
+          "scoreable": 20144,
+          "participation_baseline_unavailable": 182,
+          "no_target_bar": 3278,
+          "displacement_baseline_unavailable": 186
+        },
+        "after_hours_core": {
+          "no_target_bar": 7171,
+          "scoreable": 8,
+          "displacement_baseline_unavailable": 139,
+          "reference_baseline_unavailable": 2
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2025-12-17": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7190,
+          "displacement_baseline_unavailable": 101,
+          "benchmark_reference_missing": 13,
+          "reference_baseline_unavailable": 5,
+          "scoreable": 11
+        },
+        "premarket_final": {
+          "displacement_baseline_unavailable": 35,
+          "no_target_bar": 1783,
+          "scoreable": 9,
+          "benchmark_reference_missing": 3
+        },
+        "regular": {
+          "scoreable": 20574,
+          "participation_baseline_unavailable": 209,
+          "no_target_bar": 2877,
+          "displacement_baseline_unavailable": 129,
+          "target_metrics_unavailable": 1
+        },
+        "after_hours_core": {
+          "no_target_bar": 7211,
+          "displacement_baseline_unavailable": 102,
+          "scoreable": 7
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2025-12-30": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7263,
+          "displacement_baseline_unavailable": 38,
+          "benchmark_reference_missing": 13,
+          "scoreable": 4,
+          "reference_baseline_unavailable": 2
+        },
+        "premarket_final": {
+          "no_target_bar": 1793,
+          "displacement_baseline_unavailable": 20,
+          "benchmark_reference_missing": 14,
+          "scoreable": 3
+        },
+        "regular": {
+          "scoreable": 18123,
+          "no_target_bar": 5393,
+          "participation_baseline_unavailable": 181,
+          "displacement_baseline_unavailable": 93
+        },
+        "after_hours_core": {
+          "scoreable": 9,
+          "no_target_bar": 7280,
+          "displacement_baseline_unavailable": 31
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-01-20": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7174,
+          "displacement_baseline_unavailable": 138,
+          "benchmark_reference_missing": 5,
+          "scoreable": 3
+        },
+        "premarket_final": {
+          "displacement_baseline_unavailable": 53,
+          "no_target_bar": 1765,
+          "benchmark_reference_missing": 3,
+          "scoreable": 9
+        },
+        "regular": {
+          "scoreable": 20461,
+          "no_target_bar": 2773,
+          "participation_baseline_unavailable": 335,
+          "displacement_baseline_unavailable": 221
+        },
+        "after_hours_core": {
+          "no_target_bar": 7173,
+          "scoreable": 3,
+          "displacement_baseline_unavailable": 140,
+          "benchmark_reference_missing": 4
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-01-21": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7207,
+          "displacement_baseline_unavailable": 109,
+          "benchmark_reference_missing": 3,
+          "scoreable": 1
+        },
+        "premarket_final": {
+          "displacement_baseline_unavailable": 110,
+          "no_target_bar": 1700,
+          "scoreable": 18,
+          "reference_baseline_unavailable": 1,
+          "benchmark_reference_missing": 1
+        },
+        "regular": {
+          "scoreable": 20781,
+          "no_target_bar": 2399,
+          "participation_baseline_unavailable": 403,
+          "displacement_baseline_unavailable": 207
+        },
+        "after_hours_core": {
+          "no_target_bar": 7218,
+          "displacement_baseline_unavailable": 93,
+          "scoreable": 5,
+          "benchmark_reference_missing": 4
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-01-27": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7171,
+          "displacement_baseline_unavailable": 148,
+          "scoreable": 1
+        },
+        "premarket_final": {
+          "no_target_bar": 1752,
+          "displacement_baseline_unavailable": 66,
+          "scoreable": 7,
+          "benchmark_reference_missing": 5
+        },
+        "regular": {
+          "scoreable": 20310,
+          "no_target_bar": 3125,
+          "participation_baseline_unavailable": 206,
+          "displacement_baseline_unavailable": 149
+        },
+        "after_hours_core": {
+          "scoreable": 10,
+          "no_target_bar": 7203,
+          "displacement_baseline_unavailable": 105,
+          "benchmark_reference_missing": 2
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-01-29": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7207,
+          "displacement_baseline_unavailable": 110,
+          "benchmark_reference_missing": 2,
+          "reference_baseline_unavailable": 1
+        },
+        "premarket_final": {
+          "no_target_bar": 1758,
+          "displacement_baseline_unavailable": 63,
+          "scoreable": 9
+        },
+        "regular": {
+          "scoreable": 21309,
+          "no_target_bar": 2177,
+          "participation_baseline_unavailable": 157,
+          "displacement_baseline_unavailable": 147
+        },
+        "after_hours_core": {
+          "no_target_bar": 7186,
+          "scoreable": 9,
+          "displacement_baseline_unavailable": 125
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-01-30": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7144,
+          "displacement_baseline_unavailable": 172,
+          "benchmark_reference_missing": 3,
+          "scoreable": 1
+        },
+        "premarket_final": {
+          "no_target_bar": 1759,
+          "displacement_baseline_unavailable": 61,
+          "scoreable": 7,
+          "benchmark_reference_missing": 3
+        },
+        "regular": {
+          "scoreable": 21053,
+          "no_target_bar": 2409,
+          "participation_baseline_unavailable": 133,
+          "displacement_baseline_unavailable": 195
+        },
+        "after_hours_core": {
+          "no_target_bar": 7203,
+          "scoreable": 11,
+          "displacement_baseline_unavailable": 103,
+          "benchmark_reference_missing": 3
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-02-02": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7111,
+          "displacement_baseline_unavailable": 203,
+          "reference_baseline_unavailable": 4,
+          "benchmark_reference_missing": 1,
+          "scoreable": 1
+        },
+        "premarket_final": {
+          "no_target_bar": 1749,
+          "displacement_baseline_unavailable": 63,
+          "scoreable": 3,
+          "reference_baseline_unavailable": 1,
+          "benchmark_reference_missing": 14
+        },
+        "regular": {
+          "scoreable": 20986,
+          "no_target_bar": 2599,
+          "participation_baseline_unavailable": 76,
+          "displacement_baseline_unavailable": 129
+        },
+        "after_hours_core": {
+          "displacement_baseline_unavailable": 114,
+          "scoreable": 13,
+          "no_target_bar": 7192,
+          "benchmark_reference_missing": 1
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-02-06": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7085,
+          "displacement_baseline_unavailable": 214,
+          "benchmark_reference_missing": 16,
+          "reference_baseline_unavailable": 4,
+          "scoreable": 1
+        },
+        "premarket_final": {
+          "no_target_bar": 1724,
+          "displacement_baseline_unavailable": 86,
+          "scoreable": 12,
+          "reference_baseline_unavailable": 4,
+          "benchmark_reference_missing": 4
+        },
+        "regular": {
+          "scoreable": 21377,
+          "no_target_bar": 2237,
+          "participation_baseline_unavailable": 62,
+          "displacement_baseline_unavailable": 114
+        },
+        "after_hours_core": {
+          "no_target_bar": 7193,
+          "scoreable": 13,
+          "displacement_baseline_unavailable": 112,
+          "benchmark_reference_missing": 2
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-02-12": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7207,
+          "displacement_baseline_unavailable": 91,
+          "benchmark_reference_missing": 6,
+          "scoreable": 15,
+          "reference_baseline_unavailable": 1
+        },
+        "premarket_final": {
+          "no_target_bar": 1765,
+          "displacement_baseline_unavailable": 45,
+          "scoreable": 17,
+          "benchmark_reference_missing": 3
+        },
+        "regular": {
+          "scoreable": 21548,
+          "no_target_bar": 2032,
+          "participation_baseline_unavailable": 77,
+          "displacement_baseline_unavailable": 133
+        },
+        "after_hours_core": {
+          "no_target_bar": 7230,
+          "scoreable": 6,
+          "displacement_baseline_unavailable": 78,
+          "reference_baseline_unavailable": 1,
+          "benchmark_reference_missing": 5
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-02-13": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7149,
+          "displacement_baseline_unavailable": 141,
+          "benchmark_reference_missing": 10,
+          "reference_baseline_unavailable": 4,
+          "scoreable": 16
+        },
+        "premarket_final": {
+          "no_target_bar": 1758,
+          "displacement_baseline_unavailable": 61,
+          "scoreable": 8,
+          "benchmark_reference_missing": 3
+        },
+        "regular": {
+          "scoreable": 21231,
+          "no_target_bar": 2324,
+          "participation_baseline_unavailable": 42,
+          "displacement_baseline_unavailable": 193
+        },
+        "after_hours_core": {
+          "no_target_bar": 7258,
+          "scoreable": 7,
+          "displacement_baseline_unavailable": 52,
+          "benchmark_reference_missing": 3
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-02-25": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7215,
+          "displacement_baseline_unavailable": 68,
+          "benchmark_reference_missing": 17,
+          "reference_baseline_unavailable": 8,
+          "scoreable": 12
+        },
+        "premarket_final": {
+          "no_target_bar": 1764,
+          "benchmark_reference_missing": 5,
+          "displacement_baseline_unavailable": 48,
+          "scoreable": 9,
+          "reference_baseline_unavailable": 4
+        },
+        "regular": {
+          "scoreable": 20432,
+          "no_target_bar": 3228,
+          "participation_baseline_unavailable": 44,
+          "displacement_baseline_unavailable": 86
+        },
+        "after_hours_core": {
+          "displacement_baseline_unavailable": 131,
+          "scoreable": 5,
+          "no_target_bar": 7181,
+          "benchmark_reference_missing": 3
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-03-09": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7199,
+          "displacement_baseline_unavailable": 101,
+          "benchmark_reference_missing": 14,
+          "reference_baseline_unavailable": 5,
+          "scoreable": 1
+        },
+        "premarket_final": {
+          "no_target_bar": 1768,
+          "displacement_baseline_unavailable": 47,
+          "scoreable": 4,
+          "benchmark_reference_missing": 11
+        },
+        "regular": {
+          "scoreable": 21391,
+          "no_target_bar": 2103,
+          "participation_baseline_unavailable": 103,
+          "displacement_baseline_unavailable": 191,
+          "target_metrics_unavailable": 2
+        },
+        "after_hours_core": {
+          "no_target_bar": 7255,
+          "scoreable": 6,
+          "displacement_baseline_unavailable": 57,
+          "reference_baseline_unavailable": 1,
+          "benchmark_reference_missing": 1
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-03-10": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7189,
+          "displacement_baseline_unavailable": 115,
+          "benchmark_reference_missing": 9,
+          "reference_baseline_unavailable": 2,
+          "scoreable": 5
+        },
+        "premarket_final": {
+          "no_target_bar": 1772,
+          "scoreable": 10,
+          "displacement_baseline_unavailable": 37,
+          "benchmark_reference_missing": 7,
+          "reference_baseline_unavailable": 4
+        },
+        "regular": {
+          "scoreable": 20856,
+          "no_target_bar": 2768,
+          "participation_baseline_unavailable": 67,
+          "displacement_baseline_unavailable": 99
+        },
+        "after_hours_core": {
+          "no_target_bar": 7203,
+          "displacement_baseline_unavailable": 113,
+          "scoreable": 4
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-03-27": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7204,
+          "displacement_baseline_unavailable": 89,
+          "benchmark_reference_missing": 19,
+          "scoreable": 4,
+          "reference_baseline_unavailable": 4
+        },
+        "premarket_final": {
+          "displacement_baseline_unavailable": 62,
+          "no_target_bar": 1749,
+          "benchmark_reference_missing": 17,
+          "scoreable": 2
+        },
+        "regular": {
+          "scoreable": 21014,
+          "no_target_bar": 2658,
+          "participation_baseline_unavailable": 49,
+          "displacement_baseline_unavailable": 69
+        },
+        "after_hours_core": {
+          "no_target_bar": 7293,
+          "scoreable": 4,
+          "displacement_baseline_unavailable": 23
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-03-31": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7157,
+          "displacement_baseline_unavailable": 139,
+          "benchmark_reference_missing": 9,
+          "reference_baseline_unavailable": 12,
+          "scoreable": 3
+        },
+        "premarket_final": {
+          "no_target_bar": 1773,
+          "displacement_baseline_unavailable": 48,
+          "benchmark_reference_missing": 6,
+          "reference_baseline_unavailable": 3
+        },
+        "regular": {
+          "scoreable": 21287,
+          "no_target_bar": 2357,
+          "participation_baseline_unavailable": 54,
+          "target_metrics_unavailable": 1,
+          "displacement_baseline_unavailable": 91
+        },
+        "after_hours_core": {
+          "no_target_bar": 7251,
+          "scoreable": 4,
+          "displacement_baseline_unavailable": 65
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-04-02": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7210,
+          "displacement_baseline_unavailable": 93,
+          "benchmark_reference_missing": 14,
+          "reference_baseline_unavailable": 2,
+          "scoreable": 1
+        },
+        "premarket_final": {
+          "no_target_bar": 1758,
+          "displacement_baseline_unavailable": 63,
+          "benchmark_reference_missing": 8,
+          "scoreable": 1
+        },
+        "regular": {
+          "scoreable": 20683,
+          "no_target_bar": 2901,
+          "participation_baseline_unavailable": 41,
+          "target_metrics_unavailable": 22,
+          "displacement_baseline_unavailable": 143
+        },
+        "after_hours_core": {
+          "no_target_bar": 7285,
+          "scoreable": 3,
+          "displacement_baseline_unavailable": 31,
+          "benchmark_reference_missing": 1
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-04-20": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7237,
+          "displacement_baseline_unavailable": 82,
+          "benchmark_reference_missing": 1
+        },
+        "premarket_final": {
+          "no_target_bar": 1754,
+          "displacement_baseline_unavailable": 71,
+          "reference_baseline_unavailable": 1,
+          "benchmark_reference_missing": 3,
+          "participation_baseline_unavailable": 1
+        },
+        "regular": {
+          "scoreable": 20308,
+          "displacement_baseline_unavailable": 387,
+          "participation_baseline_unavailable": 53,
+          "no_target_bar": 3042
+        },
+        "after_hours_core": {
+          "displacement_baseline_unavailable": 58,
+          "scoreable": 7,
+          "no_target_bar": 7253,
+          "reference_baseline_unavailable": 1,
+          "benchmark_reference_missing": 1
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-04-21": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7229,
+          "displacement_baseline_unavailable": 89,
+          "benchmark_reference_missing": 1,
+          "reference_baseline_unavailable": 1
+        },
+        "premarket_final": {
+          "no_target_bar": 1779,
+          "displacement_baseline_unavailable": 49,
+          "benchmark_reference_missing": 1,
+          "scoreable": 1
+        },
+        "regular": {
+          "scoreable": 20458,
+          "displacement_baseline_unavailable": 406,
+          "participation_baseline_unavailable": 73,
+          "no_target_bar": 2853
+        },
+        "after_hours_core": {
+          "no_target_bar": 7225,
+          "scoreable": 6,
+          "displacement_baseline_unavailable": 86,
+          "benchmark_reference_missing": 1,
+          "reference_baseline_unavailable": 2
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-04-22": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7234,
+          "displacement_baseline_unavailable": 85,
+          "reference_baseline_unavailable": 1
+        },
+        "premarket_final": {
+          "no_target_bar": 1777,
+          "displacement_baseline_unavailable": 48,
+          "scoreable": 2,
+          "reference_baseline_unavailable": 2,
+          "participation_baseline_unavailable": 1
+        },
+        "regular": {
+          "scoreable": 20630,
+          "displacement_baseline_unavailable": 384,
+          "participation_baseline_unavailable": 79,
+          "no_target_bar": 2697
+        },
+        "after_hours_core": {
+          "no_target_bar": 7160,
+          "scoreable": 2,
+          "displacement_baseline_unavailable": 157,
+          "benchmark_reference_missing": 1
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-05-06": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7034,
+          "displacement_baseline_unavailable": 286
+        },
+        "premarket_final": {
+          "displacement_baseline_unavailable": 134,
+          "no_target_bar": 1691,
+          "benchmark_reference_missing": 2,
+          "scoreable": 2,
+          "participation_baseline_unavailable": 1
+        },
+        "regular": {
+          "scoreable": 21481,
+          "no_target_bar": 2127,
+          "participation_baseline_unavailable": 40,
+          "displacement_baseline_unavailable": 142
+        },
+        "after_hours_core": {
+          "scoreable": 5,
+          "displacement_baseline_unavailable": 115,
+          "no_target_bar": 7198,
+          "benchmark_reference_missing": 2
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-05-07": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7202,
+          "displacement_baseline_unavailable": 117,
+          "reference_baseline_unavailable": 1
+        },
+        "premarket_final": {
+          "no_target_bar": 1766,
+          "displacement_baseline_unavailable": 60,
+          "reference_baseline_unavailable": 1,
+          "benchmark_reference_missing": 1,
+          "scoreable": 1,
+          "participation_baseline_unavailable": 1
+        },
+        "regular": {
+          "scoreable": 21699,
+          "no_target_bar": 1907,
+          "participation_baseline_unavailable": 45,
+          "displacement_baseline_unavailable": 139
+        },
+        "after_hours_core": {
+          "no_target_bar": 7238,
+          "scoreable": 1,
+          "displacement_baseline_unavailable": 80,
+          "benchmark_reference_missing": 1
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-05-27": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7116,
+          "displacement_baseline_unavailable": 203,
+          "benchmark_reference_missing": 1
+        },
+        "premarket_final": {
+          "no_target_bar": 1725,
+          "displacement_baseline_unavailable": 94,
+          "benchmark_reference_missing": 9,
+          "reference_baseline_unavailable": 1,
+          "scoreable": 1
+        },
+        "regular": {
+          "scoreable": 21295,
+          "no_target_bar": 2333,
+          "participation_baseline_unavailable": 29,
+          "displacement_baseline_unavailable": 133
+        },
+        "after_hours_core": {
+          "scoreable": 4,
+          "displacement_baseline_unavailable": 160,
+          "no_target_bar": 7156
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-06-02": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7192,
+          "displacement_baseline_unavailable": 125,
+          "benchmark_reference_missing": 3
+        },
+        "premarket_final": {
+          "no_target_bar": 1762,
+          "displacement_baseline_unavailable": 57,
+          "benchmark_reference_missing": 11
+        },
+        "regular": {
+          "scoreable": 21186,
+          "no_target_bar": 2524,
+          "participation_baseline_unavailable": 17,
+          "displacement_baseline_unavailable": 63
+        },
+        "after_hours_core": {
+          "scoreable": 6,
+          "no_target_bar": 7225,
+          "displacement_baseline_unavailable": 89
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-06-09": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7217,
+          "displacement_baseline_unavailable": 103
+        },
+        "premarket_final": {
+          "no_target_bar": 1790,
+          "displacement_baseline_unavailable": 36,
+          "benchmark_reference_missing": 3,
+          "scoreable": 1
+        },
+        "regular": {
+          "scoreable": 22200,
+          "no_target_bar": 1442,
+          "participation_baseline_unavailable": 42,
+          "displacement_baseline_unavailable": 106
+        },
+        "after_hours_core": {
+          "no_target_bar": 7230,
+          "displacement_baseline_unavailable": 87,
+          "scoreable": 2,
+          "benchmark_reference_missing": 1
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-06-26": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7213,
+          "displacement_baseline_unavailable": 103,
+          "benchmark_reference_missing": 4
+        },
+        "premarket_final": {
+          "no_target_bar": 1730,
+          "displacement_baseline_unavailable": 86,
+          "benchmark_reference_missing": 13,
+          "reference_baseline_unavailable": 1
+        },
+        "regular": {
+          "scoreable": 22014,
+          "no_target_bar": 1279,
+          "displacement_baseline_unavailable": 477,
+          "participation_baseline_unavailable": 20
+        },
+        "after_hours_core": {
+          "displacement_baseline_unavailable": 58,
+          "participation_baseline_unavailable": 1,
+          "no_target_bar": 7258,
+          "scoreable": 1,
+          "reference_baseline_unavailable": 1,
+          "benchmark_reference_missing": 1
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-07-22": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7226,
+          "displacement_baseline_unavailable": 94
+        },
+        "premarket_final": {
+          "no_target_bar": 1780,
+          "displacement_baseline_unavailable": 49,
+          "benchmark_reference_missing": 1
+        },
+        "regular": {
+          "scoreable": 21608,
+          "no_target_bar": 2072,
+          "participation_baseline_unavailable": 23,
+          "displacement_baseline_unavailable": 87
+        },
+        "after_hours_core": {
+          "no_target_bar": 7163,
+          "displacement_baseline_unavailable": 157
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-07-29": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7113,
+          "displacement_baseline_unavailable": 207
+        },
+        "premarket_final": {
+          "displacement_baseline_unavailable": 87,
+          "no_target_bar": 1742,
+          "benchmark_reference_missing": 1
+        },
+        "regular": {
+          "scoreable": 22368,
+          "no_target_bar": 1295,
+          "participation_baseline_unavailable": 42,
+          "displacement_baseline_unavailable": 85
+        },
+        "after_hours_core": {
+          "no_target_bar": 7111,
+          "scoreable": 2,
+          "displacement_baseline_unavailable": 207
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      },
+      "2026-08-14": {
+        "premarket_early": {
+          "no_target_bar": 10980
+        },
+        "premarket_core": {
+          "no_target_bar": 7258,
+          "displacement_baseline_unavailable": 62
+        },
+        "premarket_final": {
+          "no_target_bar": 1787,
+          "displacement_baseline_unavailable": 42,
+          "reference_baseline_unavailable": 1
+        },
+        "regular": {
+          "scoreable": 21124,
+          "no_target_bar": 2594,
+          "participation_baseline_unavailable": 21,
+          "displacement_baseline_unavailable": 51
+        },
+        "after_hours_core": {
+          "displacement_baseline_unavailable": 50,
+          "no_target_bar": 7270
+        },
+        "after_hours_late": {
+          "no_target_bar": 7320
+        }
+      }
+    }
+  },
+  "haltCandidates": [
+    {
+      "tradingDate": "2025-10-01",
+      "symbol": "KLAC",
+      "gapMinutes": 5,
+      "beforeMinute": 689,
+      "afterMinute": 695,
+      "evidence": "inferred_regular_hours_bar_gap"
+    },
+    {
+      "tradingDate": "2025-10-24",
+      "symbol": "KLAC",
+      "gapMinutes": 6,
+      "beforeMinute": 842,
+      "afterMinute": 849,
+      "evidence": "inferred_regular_hours_bar_gap"
+    },
+    {
+      "tradingDate": "2025-10-28",
+      "symbol": "KLAC",
+      "gapMinutes": 10,
+      "beforeMinute": 842,
+      "afterMinute": 853,
+      "evidence": "inferred_regular_hours_bar_gap"
+    }
+  ]
+}

@@ -1,0 +1,1783 @@
+{
+  "schemaVersion": 1,
+  "scope": "candidate_replay_only_not_published",
+  "groundTruthValidation": "REFUSED",
+  "disclosure": "Timing statistics derived from historical pulls assume instantaneous bar availability. Real arrival latency is not represented. Human-relative latency and move-capture figures are therefore OPTIMISTICALLY BIASED and must not be used to justify lowering thresholds.",
+  "selectedDates": [
+    "2025-10-01",
+    "2025-10-10",
+    "2025-11-04",
+    "2025-11-28",
+    "2026-02-13"
+  ],
+  "results": [
+    {
+      "candidate": "published",
+      "episodes": 155,
+      "peakAttention": {
+        "count": 155,
+        "p50": 100,
+        "p75": 100,
+        "p90": 100,
+        "p95": 100,
+        "p99": 100,
+        "min": 88.1503,
+        "max": 100
+      },
+      "exactHundred": 130,
+      "fractionExactHundred": 0.8387096774193549,
+      "rankOne": 89,
+      "fractionRankOne": 0.5741935483870968,
+      "uniquePeaksAtOneDecimal": 21,
+      "acceptancePeakHundredAtMostTenPercent": false
+    },
+    {
+      "candidate": "log_participation",
+      "episodes": 79,
+      "peakAttention": {
+        "count": 79,
+        "p50": 100,
+        "p75": 100,
+        "p90": 100,
+        "p95": 100,
+        "p99": 100,
+        "min": 83.6056,
+        "max": 100
+      },
+      "exactHundred": 54,
+      "fractionExactHundred": 0.6835443037974683,
+      "rankOne": 43,
+      "fractionRankOne": 0.5443037974683544,
+      "uniquePeaksAtOneDecimal": 23,
+      "acceptancePeakHundredAtMostTenPercent": false
+    },
+    {
+      "candidate": "log_participation_and_range",
+      "episodes": 74,
+      "peakAttention": {
+        "count": 74,
+        "p50": 100,
+        "p75": 100,
+        "p90": 100,
+        "p95": 100,
+        "p99": 100,
+        "min": 80.697,
+        "max": 100
+      },
+      "exactHundred": 45,
+      "fractionExactHundred": 0.6081081081081081,
+      "rankOne": 38,
+      "fractionRankOne": 0.5135135135135135,
+      "uniquePeaksAtOneDecimal": 26,
+      "acceptancePeakHundredAtMostTenPercent": false
+    },
+    {
+      "candidate": "empirical_curves",
+      "episodes": 109,
+      "peakAttention": {
+        "count": 109,
+        "p50": 100,
+        "p75": 100,
+        "p90": 100,
+        "p95": 100,
+        "p99": 100,
+        "min": 53.2615,
+        "max": 100
+      },
+      "exactHundred": 76,
+      "fractionExactHundred": 0.6972477064220184,
+      "rankOne": 61,
+      "fractionRankOne": 0.5596330275229358,
+      "uniquePeaksAtOneDecimal": 28,
+      "acceptancePeakHundredAtMostTenPercent": false
+    },
+    {
+      "candidate": "log_participation_empirical_curves",
+      "episodes": 107,
+      "peakAttention": {
+        "count": 107,
+        "p50": 100,
+        "p75": 100,
+        "p90": 100,
+        "p95": 100,
+        "p99": 100,
+        "min": 65.8735,
+        "max": 100
+      },
+      "exactHundred": 70,
+      "fractionExactHundred": 0.6542056074766355,
+      "rankOne": 59,
+      "fractionRankOne": 0.5514018691588785,
+      "uniquePeaksAtOneDecimal": 32,
+      "acceptancePeakHundredAtMostTenPercent": false
+    },
+    {
+      "candidate": "log_participation_range_empirical_curves",
+      "episodes": 102,
+      "peakAttention": {
+        "count": 102,
+        "p50": 100,
+        "p75": 100,
+        "p90": 100,
+        "p95": 100,
+        "p99": 100,
+        "min": 68.948,
+        "max": 100
+      },
+      "exactHundred": 63,
+      "fractionExactHundred": 0.6176470588235294,
+      "rankOne": 62,
+      "fractionRankOne": 0.6078431372549019,
+      "uniquePeaksAtOneDecimal": 33,
+      "acceptancePeakHundredAtMostTenPercent": false
+    },
+    {
+      "candidate": "theoretical_max_rescale",
+      "episodes": 155,
+      "peakAttention": {
+        "count": 155,
+        "p50": 97.2225,
+        "p75": 98.395,
+        "p90": 98.8835,
+        "p95": 99.066,
+        "p99": 99.1985,
+        "min": 76.6524,
+        "max": 99.2345
+      },
+      "exactHundred": 0,
+      "fractionExactHundred": 0,
+      "rankOne": 101,
+      "fractionRankOne": 0.6516129032258065,
+      "uniquePeaksAtOneDecimal": 68,
+      "acceptancePeakHundredAtMostTenPercent": true
+    },
+    {
+      "candidate": "log_participation_theoretical_max_rescale",
+      "episodes": 79,
+      "peakAttention": {
+        "count": 79,
+        "p50": 91.892,
+        "p75": 95.3311,
+        "p90": 96.8803,
+        "p95": 97.1818,
+        "p99": 98.5311,
+        "min": 72.7005,
+        "max": 98.668
+      },
+      "exactHundred": 0,
+      "fractionExactHundred": 0,
+      "rankOne": 49,
+      "fractionRankOne": 0.620253164556962,
+      "uniquePeaksAtOneDecimal": 62,
+      "acceptancePeakHundredAtMostTenPercent": true
+    },
+    {
+      "candidate": "log_participation_range_theoretical_max_rescale",
+      "episodes": 74,
+      "peakAttention": {
+        "count": 74,
+        "p50": 89.2588,
+        "p75": 93.2992,
+        "p90": 96.1714,
+        "p95": 96.8747,
+        "p99": 98.1646,
+        "min": 70.1713,
+        "max": 98.4163
+      },
+      "exactHundred": 0,
+      "fractionExactHundred": 0,
+      "rankOne": 42,
+      "fractionRankOne": 0.5675675675675675,
+      "uniquePeaksAtOneDecimal": 62,
+      "acceptancePeakHundredAtMostTenPercent": true
+    }
+  ],
+  "fitRows": [
+    {
+      "candidate": "log_participation",
+      "subWindow": "premarket_early",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.277
+        },
+        "idiosyncrasy": {
+          "z50": 2.784,
+          "k": 0.744
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3796,
+        "watchingExitCore": 0.3646,
+        "emergingEnterCore": 0.4336,
+        "emergingExitCore": 0.4186,
+        "inPlayEnterCore": 0.723,
+        "inPlayExitCore": 0.708,
+        "newInPlayVelocityPerMinute": 7.346
+      },
+      "trainingRows": 86218,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation",
+      "subWindow": "premarket_core",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.256
+        },
+        "idiosyncrasy": {
+          "z50": 2.923,
+          "k": 0.708
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3772,
+        "watchingExitCore": 0.3622,
+        "emergingEnterCore": 0.4447,
+        "emergingExitCore": 0.4297,
+        "inPlayEnterCore": 0.7219,
+        "inPlayExitCore": 0.7069,
+        "newInPlayVelocityPerMinute": 7.605
+      },
+      "trainingRows": 105125,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation",
+      "subWindow": "premarket_final",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.272
+        },
+        "idiosyncrasy": {
+          "z50": 2.693,
+          "k": 0.77
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.2708,
+        "watchingExitCore": 0.2558,
+        "emergingEnterCore": 0.3239,
+        "emergingExitCore": 0.3089,
+        "inPlayEnterCore": 0.7227,
+        "inPlayExitCore": 0.7077,
+        "newInPlayVelocityPerMinute": 7.412
+      },
+      "trainingRows": 34236,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation",
+      "subWindow": "regular",
+      "curves": {
+        "participationDense": {
+          "z50": 2.3,
+          "k": 0.765
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.247
+        },
+        "idiosyncrasy": {
+          "z50": 2.578,
+          "k": 0.828
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.6069,
+        "watchingExitCore": 0.5919,
+        "emergingEnterCore": 0.6996,
+        "emergingExitCore": 0.6846,
+        "inPlayEnterCore": 0.8129,
+        "inPlayExitCore": 0.7979,
+        "newInPlayVelocityPerMinute": 9.098
+      },
+      "trainingRows": 635452,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation",
+      "subWindow": "after_hours_core",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.176
+        },
+        "idiosyncrasy": {
+          "z50": 3.25,
+          "k": 0.65
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3841,
+        "watchingExitCore": 0.3691,
+        "emergingEnterCore": 0.4525,
+        "emergingExitCore": 0.4375,
+        "inPlayEnterCore": 0.7179,
+        "inPlayExitCore": 0.7029,
+        "newInPlayVelocityPerMinute": 7.682
+      },
+      "trainingRows": 88103,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation",
+      "subWindow": "after_hours_late",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.297
+        },
+        "idiosyncrasy": {
+          "z50": 3.25,
+          "k": 0.65
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3783,
+        "watchingExitCore": 0.3633,
+        "emergingEnterCore": 0.4387,
+        "emergingExitCore": 0.4237,
+        "inPlayEnterCore": 0.724,
+        "inPlayExitCore": 0.709,
+        "newInPlayVelocityPerMinute": 7.024
+      },
+      "trainingRows": 69914,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_and_range",
+      "subWindow": "premarket_early",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.277
+        },
+        "idiosyncrasy": {
+          "z50": 2.784,
+          "k": 0.744
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3464,
+        "watchingExitCore": 0.3314,
+        "emergingEnterCore": 0.4052,
+        "emergingExitCore": 0.3902,
+        "inPlayEnterCore": 0.723,
+        "inPlayExitCore": 0.708,
+        "newInPlayVelocityPerMinute": 6.932
+      },
+      "trainingRows": 86218,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_and_range",
+      "subWindow": "premarket_core",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.256
+        },
+        "idiosyncrasy": {
+          "z50": 2.923,
+          "k": 0.708
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3503,
+        "watchingExitCore": 0.3353,
+        "emergingEnterCore": 0.4162,
+        "emergingExitCore": 0.4012,
+        "inPlayEnterCore": 0.7219,
+        "inPlayExitCore": 0.7069,
+        "newInPlayVelocityPerMinute": 7.166
+      },
+      "trainingRows": 105125,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_and_range",
+      "subWindow": "premarket_final",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.272
+        },
+        "idiosyncrasy": {
+          "z50": 2.693,
+          "k": 0.77
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.2581,
+        "watchingExitCore": 0.2431,
+        "emergingEnterCore": 0.3047,
+        "emergingExitCore": 0.2897,
+        "inPlayEnterCore": 0.7227,
+        "inPlayExitCore": 0.7077,
+        "newInPlayVelocityPerMinute": 7.061
+      },
+      "trainingRows": 34236,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_and_range",
+      "subWindow": "regular",
+      "curves": {
+        "participationDense": {
+          "z50": 2.3,
+          "k": 0.765
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.247
+        },
+        "idiosyncrasy": {
+          "z50": 2.578,
+          "k": 0.828
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.5759,
+        "watchingExitCore": 0.5609,
+        "emergingEnterCore": 0.6654,
+        "emergingExitCore": 0.6504,
+        "inPlayEnterCore": 0.7808,
+        "inPlayExitCore": 0.7658,
+        "newInPlayVelocityPerMinute": 8.759
+      },
+      "trainingRows": 635452,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_and_range",
+      "subWindow": "after_hours_core",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.176
+        },
+        "idiosyncrasy": {
+          "z50": 3.25,
+          "k": 0.65
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3571,
+        "watchingExitCore": 0.3421,
+        "emergingEnterCore": 0.4243,
+        "emergingExitCore": 0.4093,
+        "inPlayEnterCore": 0.7179,
+        "inPlayExitCore": 0.7029,
+        "newInPlayVelocityPerMinute": 7.277
+      },
+      "trainingRows": 88103,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_and_range",
+      "subWindow": "after_hours_late",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.297
+        },
+        "idiosyncrasy": {
+          "z50": 3.25,
+          "k": 0.65
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3479,
+        "watchingExitCore": 0.3329,
+        "emergingEnterCore": 0.4069,
+        "emergingExitCore": 0.3919,
+        "inPlayEnterCore": 0.724,
+        "inPlayExitCore": 0.709,
+        "newInPlayVelocityPerMinute": 6.658
+      },
+      "trainingRows": 69914,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "empirical_curves",
+      "subWindow": "premarket_early",
+      "curves": {
+        "participationDense": {
+          "z50": 22.7429,
+          "k": 0.156
+        },
+        "participationPresence": {
+          "z50": 2.0345,
+          "k": 3.2186
+        },
+        "displacement": {
+          "z50": 2.6724,
+          "k": 1.3177
+        },
+        "idiosyncrasy": {
+          "z50": 7.4753,
+          "k": 0.4815
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.1454,
+        "watchingExitCore": 0.1304,
+        "emergingEnterCore": 0.24,
+        "emergingExitCore": 0.225,
+        "inPlayEnterCore": 0.45,
+        "inPlayExitCore": 0.435,
+        "newInPlayVelocityPerMinute": 2.924
+      },
+      "trainingRows": 86218,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "empirical_curves",
+      "subWindow": "premarket_core",
+      "curves": {
+        "participationDense": {
+          "z50": 25.1284,
+          "k": 0.1403
+        },
+        "participationPresence": {
+          "z50": 1.8718,
+          "k": 4.4076
+        },
+        "displacement": {
+          "z50": 3.0306,
+          "k": 1.1755
+        },
+        "idiosyncrasy": {
+          "z50": 8.0761,
+          "k": 0.4538
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.1447,
+        "watchingExitCore": 0.1297,
+        "emergingEnterCore": 0.24,
+        "emergingExitCore": 0.225,
+        "inPlayEnterCore": 0.45,
+        "inPlayExitCore": 0.435,
+        "newInPlayVelocityPerMinute": 2.941
+      },
+      "trainingRows": 105125,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "empirical_curves",
+      "subWindow": "premarket_final",
+      "curves": {
+        "participationDense": {
+          "z50": 25.0858,
+          "k": 0.1399
+        },
+        "participationPresence": {
+          "z50": 1.7026,
+          "k": 4.868
+        },
+        "displacement": {
+          "z50": 2.6878,
+          "k": 1.3218
+        },
+        "idiosyncrasy": {
+          "z50": 6.6637,
+          "k": 0.561
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.12,
+        "watchingExitCore": 0.105,
+        "emergingEnterCore": 0.24,
+        "emergingExitCore": 0.225,
+        "inPlayEnterCore": 0.45,
+        "inPlayExitCore": 0.435,
+        "newInPlayVelocityPerMinute": 2.957
+      },
+      "trainingRows": 34236,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "empirical_curves",
+      "subWindow": "regular",
+      "curves": {
+        "participationDense": {
+          "z50": 8.4311,
+          "k": 0.4169
+        },
+        "participationPresence": {
+          "z50": 1.437,
+          "k": 334.0866
+        },
+        "displacement": {
+          "z50": 2.3156,
+          "k": 1.5226
+        },
+        "idiosyncrasy": {
+          "z50": 5.6856,
+          "k": 0.6789
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3245,
+        "watchingExitCore": 0.3095,
+        "emergingEnterCore": 0.4878,
+        "emergingExitCore": 0.4728,
+        "inPlayEnterCore": 0.7663,
+        "inPlayExitCore": 0.7513,
+        "newInPlayVelocityPerMinute": 3.988
+      },
+      "trainingRows": 635452,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "empirical_curves",
+      "subWindow": "after_hours_core",
+      "curves": {
+        "participationDense": {
+          "z50": 115.3968,
+          "k": 0.0303
+        },
+        "participationPresence": {
+          "z50": 1.9448,
+          "k": 3.9781
+        },
+        "displacement": {
+          "z50": 3.7627,
+          "k": 0.9597
+        },
+        "idiosyncrasy": {
+          "z50": 16.3866,
+          "k": 0.2197
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.12,
+        "watchingExitCore": 0.105,
+        "emergingEnterCore": 0.24,
+        "emergingExitCore": 0.225,
+        "inPlayEnterCore": 0.45,
+        "inPlayExitCore": 0.435,
+        "newInPlayVelocityPerMinute": 2.216
+      },
+      "trainingRows": 88103,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "empirical_curves",
+      "subWindow": "after_hours_late",
+      "curves": {
+        "participationDense": {
+          "z50": 35.1062,
+          "k": 0.101
+        },
+        "participationPresence": {
+          "z50": 2.1346,
+          "k": 2.974
+        },
+        "displacement": {
+          "z50": 2.4677,
+          "k": 1.4275
+        },
+        "idiosyncrasy": {
+          "z50": 9.8576,
+          "k": 0.3645
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.1491,
+        "watchingExitCore": 0.1341,
+        "emergingEnterCore": 0.24,
+        "emergingExitCore": 0.225,
+        "inPlayEnterCore": 0.45,
+        "inPlayExitCore": 0.435,
+        "newInPlayVelocityPerMinute": 2.984
+      },
+      "trainingRows": 69914,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_empirical_curves",
+      "subWindow": "premarket_early",
+      "curves": {
+        "participationDense": {
+          "z50": 2.0262,
+          "k": 2.0012
+        },
+        "participationPresence": {
+          "z50": 2.0345,
+          "k": 3.2186
+        },
+        "displacement": {
+          "z50": 2.6724,
+          "k": 1.3177
+        },
+        "idiosyncrasy": {
+          "z50": 7.4753,
+          "k": 0.4815
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.1676,
+        "watchingExitCore": 0.1526,
+        "emergingEnterCore": 0.2561,
+        "emergingExitCore": 0.2411,
+        "inPlayEnterCore": 0.6573,
+        "inPlayExitCore": 0.6423,
+        "newInPlayVelocityPerMinute": 4.136
+      },
+      "trainingRows": 86218,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_empirical_curves",
+      "subWindow": "premarket_core",
+      "curves": {
+        "participationDense": {
+          "z50": 2.2343,
+          "k": 1.7415
+        },
+        "participationPresence": {
+          "z50": 1.8718,
+          "k": 4.4076
+        },
+        "displacement": {
+          "z50": 3.0306,
+          "k": 1.1755
+        },
+        "idiosyncrasy": {
+          "z50": 8.0761,
+          "k": 0.4538
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.181,
+        "watchingExitCore": 0.166,
+        "emergingEnterCore": 0.2802,
+        "emergingExitCore": 0.2652,
+        "inPlayEnterCore": 0.5899,
+        "inPlayExitCore": 0.5749,
+        "newInPlayVelocityPerMinute": 4.399
+      },
+      "trainingRows": 105125,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_empirical_curves",
+      "subWindow": "premarket_final",
+      "curves": {
+        "participationDense": {
+          "z50": 2.2966,
+          "k": 1.6383
+        },
+        "participationPresence": {
+          "z50": 1.7026,
+          "k": 4.868
+        },
+        "displacement": {
+          "z50": 2.6878,
+          "k": 1.3218
+        },
+        "idiosyncrasy": {
+          "z50": 6.6637,
+          "k": 0.561
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.12,
+        "watchingExitCore": 0.105,
+        "emergingEnterCore": 0.24,
+        "emergingExitCore": 0.225,
+        "inPlayEnterCore": 0.5822,
+        "inPlayExitCore": 0.5672,
+        "newInPlayVelocityPerMinute": 4.691
+      },
+      "trainingRows": 34236,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_empirical_curves",
+      "subWindow": "regular",
+      "curves": {
+        "participationDense": {
+          "z50": 2.6771,
+          "k": 1.3409
+        },
+        "participationPresence": {
+          "z50": 1.437,
+          "k": 334.0866
+        },
+        "displacement": {
+          "z50": 2.3156,
+          "k": 1.5226
+        },
+        "idiosyncrasy": {
+          "z50": 5.6856,
+          "k": 0.6789
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.4418,
+        "watchingExitCore": 0.4268,
+        "emergingEnterCore": 0.5961,
+        "emergingExitCore": 0.5811,
+        "inPlayEnterCore": 0.8004,
+        "inPlayExitCore": 0.7854,
+        "newInPlayVelocityPerMinute": 5.372
+      },
+      "trainingRows": 635452,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_empirical_curves",
+      "subWindow": "after_hours_core",
+      "curves": {
+        "participationDense": {
+          "z50": 2.9238,
+          "k": 1.3488
+        },
+        "participationPresence": {
+          "z50": 1.9448,
+          "k": 3.9781
+        },
+        "displacement": {
+          "z50": 3.7627,
+          "k": 0.9597
+        },
+        "idiosyncrasy": {
+          "z50": 16.3866,
+          "k": 0.2197
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.1307,
+        "watchingExitCore": 0.1157,
+        "emergingEnterCore": 0.24,
+        "emergingExitCore": 0.225,
+        "inPlayEnterCore": 0.45,
+        "inPlayExitCore": 0.435,
+        "newInPlayVelocityPerMinute": 3.496
+      },
+      "trainingRows": 88103,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_empirical_curves",
+      "subWindow": "after_hours_late",
+      "curves": {
+        "participationDense": {
+          "z50": 2.2248,
+          "k": 1.8667
+        },
+        "participationPresence": {
+          "z50": 2.1346,
+          "k": 2.974
+        },
+        "displacement": {
+          "z50": 2.4677,
+          "k": 1.4275
+        },
+        "idiosyncrasy": {
+          "z50": 9.8576,
+          "k": 0.3645
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.1884,
+        "watchingExitCore": 0.1734,
+        "emergingEnterCore": 0.2716,
+        "emergingExitCore": 0.2566,
+        "inPlayEnterCore": 0.5923,
+        "inPlayExitCore": 0.5773,
+        "newInPlayVelocityPerMinute": 4.217
+      },
+      "trainingRows": 69914,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_range_empirical_curves",
+      "subWindow": "premarket_early",
+      "curves": {
+        "participationDense": {
+          "z50": 2.0262,
+          "k": 2.0012
+        },
+        "participationPresence": {
+          "z50": 2.0345,
+          "k": 3.2186
+        },
+        "displacement": {
+          "z50": 2.0059,
+          "k": 1.7406
+        },
+        "idiosyncrasy": {
+          "z50": 7.4753,
+          "k": 0.4815
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.1747,
+        "watchingExitCore": 0.1597,
+        "emergingEnterCore": 0.2736,
+        "emergingExitCore": 0.2586,
+        "inPlayEnterCore": 0.6739,
+        "inPlayExitCore": 0.6589,
+        "newInPlayVelocityPerMinute": 4.736
+      },
+      "trainingRows": 86218,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_range_empirical_curves",
+      "subWindow": "premarket_core",
+      "curves": {
+        "participationDense": {
+          "z50": 2.2343,
+          "k": 1.7415
+        },
+        "participationPresence": {
+          "z50": 1.8718,
+          "k": 4.4076
+        },
+        "displacement": {
+          "z50": 2.1738,
+          "k": 1.6356
+        },
+        "idiosyncrasy": {
+          "z50": 8.0761,
+          "k": 0.4538
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.1995,
+        "watchingExitCore": 0.1845,
+        "emergingEnterCore": 0.2938,
+        "emergingExitCore": 0.2788,
+        "inPlayEnterCore": 0.6241,
+        "inPlayExitCore": 0.6091,
+        "newInPlayVelocityPerMinute": 5.194
+      },
+      "trainingRows": 105125,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_range_empirical_curves",
+      "subWindow": "premarket_final",
+      "curves": {
+        "participationDense": {
+          "z50": 2.2966,
+          "k": 1.6383
+        },
+        "participationPresence": {
+          "z50": 1.7026,
+          "k": 4.868
+        },
+        "displacement": {
+          "z50": 2.0532,
+          "k": 1.7239
+        },
+        "idiosyncrasy": {
+          "z50": 6.6637,
+          "k": 0.561
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.12,
+        "watchingExitCore": 0.105,
+        "emergingEnterCore": 0.24,
+        "emergingExitCore": 0.225,
+        "inPlayEnterCore": 0.6584,
+        "inPlayExitCore": 0.6434,
+        "newInPlayVelocityPerMinute": 5.301
+      },
+      "trainingRows": 34236,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_range_empirical_curves",
+      "subWindow": "regular",
+      "curves": {
+        "participationDense": {
+          "z50": 2.6771,
+          "k": 1.3409
+        },
+        "participationPresence": {
+          "z50": 1.437,
+          "k": 334.0866
+        },
+        "displacement": {
+          "z50": 1.9574,
+          "k": 1.7919
+        },
+        "idiosyncrasy": {
+          "z50": 5.6856,
+          "k": 0.6789
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.44,
+        "watchingExitCore": 0.425,
+        "emergingEnterCore": 0.5895,
+        "emergingExitCore": 0.5745,
+        "inPlayEnterCore": 0.7864,
+        "inPlayExitCore": 0.7714,
+        "newInPlayVelocityPerMinute": 5.806
+      },
+      "trainingRows": 635452,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_range_empirical_curves",
+      "subWindow": "after_hours_core",
+      "curves": {
+        "participationDense": {
+          "z50": 2.9238,
+          "k": 1.3488
+        },
+        "participationPresence": {
+          "z50": 1.9448,
+          "k": 3.9781
+        },
+        "displacement": {
+          "z50": 2.5088,
+          "k": 1.4519
+        },
+        "idiosyncrasy": {
+          "z50": 16.3866,
+          "k": 0.2197
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.1501,
+        "watchingExitCore": 0.1351,
+        "emergingEnterCore": 0.24,
+        "emergingExitCore": 0.225,
+        "inPlayEnterCore": 0.5366,
+        "inPlayExitCore": 0.5216,
+        "newInPlayVelocityPerMinute": 4.252
+      },
+      "trainingRows": 88103,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_range_empirical_curves",
+      "subWindow": "after_hours_late",
+      "curves": {
+        "participationDense": {
+          "z50": 2.2248,
+          "k": 1.8667
+        },
+        "participationPresence": {
+          "z50": 2.1346,
+          "k": 2.974
+        },
+        "displacement": {
+          "z50": 1.8824,
+          "k": 1.8494
+        },
+        "idiosyncrasy": {
+          "z50": 9.8576,
+          "k": 0.3645
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.1985,
+        "watchingExitCore": 0.1835,
+        "emergingEnterCore": 0.293,
+        "emergingExitCore": 0.278,
+        "inPlayEnterCore": 0.7127,
+        "inPlayExitCore": 0.6977,
+        "newInPlayVelocityPerMinute": 4.808
+      },
+      "trainingRows": 69914,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "theoretical_max_rescale",
+      "subWindow": "premarket_early",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.277
+        },
+        "idiosyncrasy": {
+          "z50": 2.784,
+          "k": 0.744
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.4622,
+        "watchingExitCore": 0.4472,
+        "emergingEnterCore": 0.6204,
+        "emergingExitCore": 0.6054,
+        "inPlayEnterCore": 0.7844,
+        "inPlayExitCore": 0.7694,
+        "newInPlayVelocityPerMinute": 8.954
+      },
+      "trainingRows": 86218,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "theoretical_max_rescale",
+      "subWindow": "premarket_core",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.256
+        },
+        "idiosyncrasy": {
+          "z50": 2.923,
+          "k": 0.708
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.5207,
+        "watchingExitCore": 0.5057,
+        "emergingEnterCore": 0.6876,
+        "emergingExitCore": 0.6726,
+        "inPlayEnterCore": 0.8509,
+        "inPlayExitCore": 0.8359,
+        "newInPlayVelocityPerMinute": 10.067
+      },
+      "trainingRows": 105125,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "theoretical_max_rescale",
+      "subWindow": "premarket_final",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.272
+        },
+        "idiosyncrasy": {
+          "z50": 2.693,
+          "k": 0.77
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3353,
+        "watchingExitCore": 0.3203,
+        "emergingEnterCore": 0.4368,
+        "emergingExitCore": 0.4218,
+        "inPlayEnterCore": 0.7227,
+        "inPlayExitCore": 0.7077,
+        "newInPlayVelocityPerMinute": 9.781
+      },
+      "trainingRows": 34236,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "theoretical_max_rescale",
+      "subWindow": "regular",
+      "curves": {
+        "participationDense": {
+          "z50": 2.3,
+          "k": 0.765
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.247
+        },
+        "idiosyncrasy": {
+          "z50": 2.578,
+          "k": 0.828
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.7828,
+        "watchingExitCore": 0.7678,
+        "emergingEnterCore": 0.9002,
+        "emergingExitCore": 0.8852,
+        "inPlayEnterCore": 0.9672,
+        "inPlayExitCore": 0.9522,
+        "newInPlayVelocityPerMinute": 9.559
+      },
+      "trainingRows": 635452,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "theoretical_max_rescale",
+      "subWindow": "after_hours_core",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.176
+        },
+        "idiosyncrasy": {
+          "z50": 3.25,
+          "k": 0.65
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.5522,
+        "watchingExitCore": 0.5372,
+        "emergingEnterCore": 0.7336,
+        "emergingExitCore": 0.7186,
+        "inPlayEnterCore": 0.9261,
+        "inPlayExitCore": 0.9111,
+        "newInPlayVelocityPerMinute": 11.197
+      },
+      "trainingRows": 88103,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "theoretical_max_rescale",
+      "subWindow": "after_hours_late",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.297
+        },
+        "idiosyncrasy": {
+          "z50": 3.25,
+          "k": 0.65
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.55,
+        "watchingExitCore": 0.535,
+        "emergingEnterCore": 0.6877,
+        "emergingExitCore": 0.6727,
+        "inPlayEnterCore": 0.8374,
+        "inPlayExitCore": 0.8224,
+        "newInPlayVelocityPerMinute": 9.659
+      },
+      "trainingRows": 69914,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_theoretical_max_rescale",
+      "subWindow": "premarket_early",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.277
+        },
+        "idiosyncrasy": {
+          "z50": 2.784,
+          "k": 0.744
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3796,
+        "watchingExitCore": 0.3646,
+        "emergingEnterCore": 0.4336,
+        "emergingExitCore": 0.4186,
+        "inPlayEnterCore": 0.723,
+        "inPlayExitCore": 0.708,
+        "newInPlayVelocityPerMinute": 6.388
+      },
+      "trainingRows": 86218,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_theoretical_max_rescale",
+      "subWindow": "premarket_core",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.256
+        },
+        "idiosyncrasy": {
+          "z50": 2.923,
+          "k": 0.708
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3772,
+        "watchingExitCore": 0.3622,
+        "emergingEnterCore": 0.4447,
+        "emergingExitCore": 0.4297,
+        "inPlayEnterCore": 0.7219,
+        "inPlayExitCore": 0.7069,
+        "newInPlayVelocityPerMinute": 6.615
+      },
+      "trainingRows": 105125,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_theoretical_max_rescale",
+      "subWindow": "premarket_final",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.272
+        },
+        "idiosyncrasy": {
+          "z50": 2.693,
+          "k": 0.77
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.2708,
+        "watchingExitCore": 0.2558,
+        "emergingEnterCore": 0.3239,
+        "emergingExitCore": 0.3089,
+        "inPlayEnterCore": 0.7227,
+        "inPlayExitCore": 0.7077,
+        "newInPlayVelocityPerMinute": 6.445
+      },
+      "trainingRows": 34236,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_theoretical_max_rescale",
+      "subWindow": "regular",
+      "curves": {
+        "participationDense": {
+          "z50": 2.3,
+          "k": 0.765
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.247
+        },
+        "idiosyncrasy": {
+          "z50": 2.578,
+          "k": 0.828
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.6069,
+        "watchingExitCore": 0.5919,
+        "emergingEnterCore": 0.6996,
+        "emergingExitCore": 0.6846,
+        "inPlayEnterCore": 0.8129,
+        "inPlayExitCore": 0.7979,
+        "newInPlayVelocityPerMinute": 7.914
+      },
+      "trainingRows": 635452,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_theoretical_max_rescale",
+      "subWindow": "after_hours_core",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.176
+        },
+        "idiosyncrasy": {
+          "z50": 3.25,
+          "k": 0.65
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3841,
+        "watchingExitCore": 0.3691,
+        "emergingEnterCore": 0.4525,
+        "emergingExitCore": 0.4375,
+        "inPlayEnterCore": 0.7179,
+        "inPlayExitCore": 0.7029,
+        "newInPlayVelocityPerMinute": 6.684
+      },
+      "trainingRows": 88103,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_theoretical_max_rescale",
+      "subWindow": "after_hours_late",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.297
+        },
+        "idiosyncrasy": {
+          "z50": 3.25,
+          "k": 0.65
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3783,
+        "watchingExitCore": 0.3633,
+        "emergingEnterCore": 0.4387,
+        "emergingExitCore": 0.4237,
+        "inPlayEnterCore": 0.724,
+        "inPlayExitCore": 0.709,
+        "newInPlayVelocityPerMinute": 6.108
+      },
+      "trainingRows": 69914,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_range_theoretical_max_rescale",
+      "subWindow": "premarket_early",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.277
+        },
+        "idiosyncrasy": {
+          "z50": 2.784,
+          "k": 0.744
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3464,
+        "watchingExitCore": 0.3314,
+        "emergingEnterCore": 0.4052,
+        "emergingExitCore": 0.3902,
+        "inPlayEnterCore": 0.723,
+        "inPlayExitCore": 0.708,
+        "newInPlayVelocityPerMinute": 6.028
+      },
+      "trainingRows": 86218,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_range_theoretical_max_rescale",
+      "subWindow": "premarket_core",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.256
+        },
+        "idiosyncrasy": {
+          "z50": 2.923,
+          "k": 0.708
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3503,
+        "watchingExitCore": 0.3353,
+        "emergingEnterCore": 0.4162,
+        "emergingExitCore": 0.4012,
+        "inPlayEnterCore": 0.7219,
+        "inPlayExitCore": 0.7069,
+        "newInPlayVelocityPerMinute": 6.232
+      },
+      "trainingRows": 105125,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_range_theoretical_max_rescale",
+      "subWindow": "premarket_final",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.272
+        },
+        "idiosyncrasy": {
+          "z50": 2.693,
+          "k": 0.77
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.2581,
+        "watchingExitCore": 0.2431,
+        "emergingEnterCore": 0.3047,
+        "emergingExitCore": 0.2897,
+        "inPlayEnterCore": 0.7227,
+        "inPlayExitCore": 0.7077,
+        "newInPlayVelocityPerMinute": 6.14
+      },
+      "trainingRows": 34236,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_range_theoretical_max_rescale",
+      "subWindow": "regular",
+      "curves": {
+        "participationDense": {
+          "z50": 2.3,
+          "k": 0.765
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.247
+        },
+        "idiosyncrasy": {
+          "z50": 2.578,
+          "k": 0.828
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.5759,
+        "watchingExitCore": 0.5609,
+        "emergingEnterCore": 0.6654,
+        "emergingExitCore": 0.6504,
+        "inPlayEnterCore": 0.7808,
+        "inPlayExitCore": 0.7658,
+        "newInPlayVelocityPerMinute": 7.62
+      },
+      "trainingRows": 635452,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_range_theoretical_max_rescale",
+      "subWindow": "after_hours_core",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.176
+        },
+        "idiosyncrasy": {
+          "z50": 3.25,
+          "k": 0.65
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3571,
+        "watchingExitCore": 0.3421,
+        "emergingEnterCore": 0.4243,
+        "emergingExitCore": 0.4093,
+        "inPlayEnterCore": 0.7179,
+        "inPlayExitCore": 0.7029,
+        "newInPlayVelocityPerMinute": 6.328
+      },
+      "trainingRows": 88103,
+      "status": "experimental_not_published"
+    },
+    {
+      "candidate": "log_participation_range_theoretical_max_rescale",
+      "subWindow": "after_hours_late",
+      "curves": {
+        "participationDense": {
+          "z50": 3.25,
+          "k": 0.65
+        },
+        "participationPresence": {
+          "z50": 1.75,
+          "k": 1.75
+        },
+        "displacement": {
+          "z50": 1.55,
+          "k": 1.297
+        },
+        "idiosyncrasy": {
+          "z50": 3.25,
+          "k": 0.65
+        }
+      },
+      "values": {
+        "watchingEnterCore": 0.3479,
+        "watchingExitCore": 0.3329,
+        "emergingEnterCore": 0.4069,
+        "emergingExitCore": 0.3919,
+        "inPlayEnterCore": 0.724,
+        "inPlayExitCore": 0.709,
+        "newInPlayVelocityPerMinute": 5.79
+      },
+      "trainingRows": 69914,
+      "status": "experimental_not_published"
+    }
+  ],
+  "proposedForAdjudication": "log_participation_range_theoretical_max_rescale",
+  "artifactHash": "c6f93980190703627cce83f0fe7ffa503c84ab19b9b178a73b309d58a62ae0c7"
+}

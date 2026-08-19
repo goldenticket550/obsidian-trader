@@ -1,0 +1,3145 @@
+{
+  "schemaVersion": 1,
+  "status": "STRUCTURAL_CORRECTIONS_REJECTED_ON_HOLDOUT",
+  "groundTruthValidation": "REFUSED",
+  "disclosure": "Timing statistics derived from historical pulls assume instantaneous bar availability. Real arrival latency is not represented. Human-relative latency and move-capture figures are therefore OPTIMISTICALLY BIASED and must not be used to justify lowering thresholds.",
+  "splitHash": "82f216fdd69dbb70ae1a5e025e7862486dadf172828c86a7fc11ddf152571a7d",
+  "stateSmoothing": {
+    "testedMinutes": [
+      0,
+      3,
+      5
+    ],
+    "mechanismImplemented": true,
+    "stateUsesSmoothedCoreOnly": true,
+    "velocityAndDisplayedScoreRemainRaw": true,
+    "fixedPolicy": [
+      {
+        "scenario": {
+          "stateSmoothingMinutes": 0,
+          "exitCore": 0.7,
+          "exitPersistence": 30
+        },
+        "splits": [
+          {
+            "split": "train",
+            "evaluatedMinutes": 10740,
+            "minutesWithInPlay": 2257,
+            "coverage": 0.21014897579143388,
+            "displayedSymbolMinutes": 5507,
+            "settledShare": 0.1321953876883966,
+            "pendingExitShare": 0.8678046123116034,
+            "scoreDecayAtDisplay": {
+              "count": 5507,
+              "min": 0,
+              "p25": 38.09976714931679,
+              "median": 58.19044150251625,
+              "p75": 71.11165039637916,
+              "max": 93.8830593423142,
+              "iqr": 33.01188324706237
+            },
+            "displayedOccupancy": {
+              "count": 468,
+              "min": 1,
+              "p25": 1,
+              "median": 3,
+              "p75": 18.25,
+              "max": 129,
+              "iqr": 17.25
+            },
+            "peakToRemovalMinutes": {
+              "count": 111,
+              "min": 1,
+              "p25": 3,
+              "median": 30,
+              "p75": 35,
+              "max": 129,
+              "iqr": 32
+            },
+            "transitionCount": 2353,
+            "quietSessions": [
+              "2025-11-14",
+              "2026-01-20",
+              "2026-02-13",
+              "2026-04-20",
+              "2026-05-06"
+            ],
+            "perSession": [
+              {
+                "tradingDate": "2025-10-10",
+                "minutesWithInPlay": 126,
+                "displayedSymbolMinutes": 949
+              },
+              {
+                "tradingDate": "2025-10-24",
+                "minutesWithInPlay": 104,
+                "displayedSymbolMinutes": 104
+              },
+              {
+                "tradingDate": "2025-10-28",
+                "minutesWithInPlay": 223,
+                "displayedSymbolMinutes": 440
+              },
+              {
+                "tradingDate": "2025-11-04",
+                "minutesWithInPlay": 109,
+                "displayedSymbolMinutes": 109
+              },
+              {
+                "tradingDate": "2025-11-14",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2025-11-20",
+                "minutesWithInPlay": 136,
+                "displayedSymbolMinutes": 287
+              },
+              {
+                "tradingDate": "2025-11-24",
+                "minutesWithInPlay": 97,
+                "displayedSymbolMinutes": 113
+              },
+              {
+                "tradingDate": "2025-11-28",
+                "minutesWithInPlay": 9,
+                "displayedSymbolMinutes": 13
+              },
+              {
+                "tradingDate": "2025-12-09",
+                "minutesWithInPlay": 30,
+                "displayedSymbolMinutes": 30
+              },
+              {
+                "tradingDate": "2025-12-10",
+                "minutesWithInPlay": 133,
+                "displayedSymbolMinutes": 217
+              },
+              {
+                "tradingDate": "2025-12-17",
+                "minutesWithInPlay": 33,
+                "displayedSymbolMinutes": 33
+              },
+              {
+                "tradingDate": "2025-12-30",
+                "minutesWithInPlay": 35,
+                "displayedSymbolMinutes": 35
+              },
+              {
+                "tradingDate": "2026-01-20",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-01-21",
+                "minutesWithInPlay": 136,
+                "displayedSymbolMinutes": 511
+              },
+              {
+                "tradingDate": "2026-01-29",
+                "minutesWithInPlay": 132,
+                "displayedSymbolMinutes": 192
+              },
+              {
+                "tradingDate": "2026-02-06",
+                "minutesWithInPlay": 55,
+                "displayedSymbolMinutes": 55
+              },
+              {
+                "tradingDate": "2026-02-13",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-03-09",
+                "minutesWithInPlay": 70,
+                "displayedSymbolMinutes": 433
+              },
+              {
+                "tradingDate": "2026-03-10",
+                "minutesWithInPlay": 73,
+                "displayedSymbolMinutes": 238
+              },
+              {
+                "tradingDate": "2026-03-27",
+                "minutesWithInPlay": 122,
+                "displayedSymbolMinutes": 122
+              },
+              {
+                "tradingDate": "2026-03-31",
+                "minutesWithInPlay": 152,
+                "displayedSymbolMinutes": 796
+              },
+              {
+                "tradingDate": "2026-04-20",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-05-06",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-05-27",
+                "minutesWithInPlay": 51,
+                "displayedSymbolMinutes": 51
+              },
+              {
+                "tradingDate": "2026-06-02",
+                "minutesWithInPlay": 31,
+                "displayedSymbolMinutes": 31
+              },
+              {
+                "tradingDate": "2026-06-26",
+                "minutesWithInPlay": 43,
+                "displayedSymbolMinutes": 57
+              },
+              {
+                "tradingDate": "2026-07-22",
+                "minutesWithInPlay": 220,
+                "displayedSymbolMinutes": 220
+              },
+              {
+                "tradingDate": "2026-07-29",
+                "minutesWithInPlay": 137,
+                "displayedSymbolMinutes": 471
+              }
+            ]
+          },
+          {
+            "split": "holdout",
+            "evaluatedMinutes": 4680,
+            "minutesWithInPlay": 1079,
+            "coverage": 0.23055555555555557,
+            "displayedSymbolMinutes": 1793,
+            "settledShare": 0.07529280535415504,
+            "pendingExitShare": 0.9247071946458449,
+            "scoreDecayAtDisplay": {
+              "count": 1793,
+              "min": 0,
+              "p25": 47.52348486966343,
+              "median": 64.11966336518402,
+              "p75": 73.98002658852751,
+              "max": 93.47108401721552,
+              "iqr": 26.45654171886408
+            },
+            "displayedOccupancy": {
+              "count": 54,
+              "min": 15,
+              "p25": 30,
+              "median": 31,
+              "p75": 33,
+              "max": 62,
+              "iqr": 3
+            },
+            "peakToRemovalMinutes": {
+              "count": 34,
+              "min": 30,
+              "p25": 30,
+              "median": 31,
+              "p75": 32.75,
+              "max": 62,
+              "iqr": 2.75
+            },
+            "transitionCount": 1242,
+            "quietSessions": [],
+            "perSession": [
+              {
+                "tradingDate": "2025-10-01",
+                "minutesWithInPlay": 147,
+                "displayedSymbolMinutes": 272
+              },
+              {
+                "tradingDate": "2026-01-27",
+                "minutesWithInPlay": 30,
+                "displayedSymbolMinutes": 30
+              },
+              {
+                "tradingDate": "2026-01-30",
+                "minutesWithInPlay": 133,
+                "displayedSymbolMinutes": 155
+              },
+              {
+                "tradingDate": "2026-02-02",
+                "minutesWithInPlay": 117,
+                "displayedSymbolMinutes": 117
+              },
+              {
+                "tradingDate": "2026-02-12",
+                "minutesWithInPlay": 117,
+                "displayedSymbolMinutes": 117
+              },
+              {
+                "tradingDate": "2026-02-25",
+                "minutesWithInPlay": 33,
+                "displayedSymbolMinutes": 33
+              },
+              {
+                "tradingDate": "2026-04-02",
+                "minutesWithInPlay": 105,
+                "displayedSymbolMinutes": 383
+              },
+              {
+                "tradingDate": "2026-04-21",
+                "minutesWithInPlay": 124,
+                "displayedSymbolMinutes": 165
+              },
+              {
+                "tradingDate": "2026-04-22",
+                "minutesWithInPlay": 30,
+                "displayedSymbolMinutes": 30
+              },
+              {
+                "tradingDate": "2026-05-07",
+                "minutesWithInPlay": 67,
+                "displayedSymbolMinutes": 67
+              },
+              {
+                "tradingDate": "2026-06-09",
+                "minutesWithInPlay": 70,
+                "displayedSymbolMinutes": 285
+              },
+              {
+                "tradingDate": "2026-08-14",
+                "minutesWithInPlay": 106,
+                "displayedSymbolMinutes": 139
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "scenario": {
+          "stateSmoothingMinutes": 3,
+          "exitCore": 0.7,
+          "exitPersistence": 30
+        },
+        "splits": [
+          {
+            "split": "train",
+            "evaluatedMinutes": 10740,
+            "minutesWithInPlay": 1953,
+            "coverage": 0.1818435754189944,
+            "displayedSymbolMinutes": 4851,
+            "settledShare": 0.13069470212327355,
+            "pendingExitShare": 0.8693052978767265,
+            "scoreDecayAtDisplay": {
+              "count": 4851,
+              "min": 0,
+              "p25": 33.151898031238666,
+              "median": 53.976520950930684,
+              "p75": 69.0379300790691,
+              "max": 93.8830593423142,
+              "iqr": 35.88603204783043
+            },
+            "displayedOccupancy": {
+              "count": 416,
+              "min": 1,
+              "p25": 1,
+              "median": 3,
+              "p75": 30,
+              "max": 82,
+              "iqr": 29
+            },
+            "peakToRemovalMinutes": {
+              "count": 90,
+              "min": 1,
+              "p25": 7,
+              "median": 31,
+              "p75": 32,
+              "max": 68,
+              "iqr": 25
+            },
+            "transitionCount": 2452,
+            "quietSessions": [
+              "2025-11-14",
+              "2026-01-20",
+              "2026-02-13",
+              "2026-04-20",
+              "2026-05-06"
+            ],
+            "perSession": [
+              {
+                "tradingDate": "2025-10-10",
+                "minutesWithInPlay": 108,
+                "displayedSymbolMinutes": 862
+              },
+              {
+                "tradingDate": "2025-10-24",
+                "minutesWithInPlay": 35,
+                "displayedSymbolMinutes": 35
+              },
+              {
+                "tradingDate": "2025-10-28",
+                "minutesWithInPlay": 204,
+                "displayedSymbolMinutes": 383
+              },
+              {
+                "tradingDate": "2025-11-04",
+                "minutesWithInPlay": 108,
+                "displayedSymbolMinutes": 108
+              },
+              {
+                "tradingDate": "2025-11-14",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2025-11-20",
+                "minutesWithInPlay": 103,
+                "displayedSymbolMinutes": 254
+              },
+              {
+                "tradingDate": "2025-11-24",
+                "minutesWithInPlay": 96,
+                "displayedSymbolMinutes": 110
+              },
+              {
+                "tradingDate": "2025-11-28",
+                "minutesWithInPlay": 8,
+                "displayedSymbolMinutes": 9
+              },
+              {
+                "tradingDate": "2025-12-09",
+                "minutesWithInPlay": 30,
+                "displayedSymbolMinutes": 30
+              },
+              {
+                "tradingDate": "2025-12-10",
+                "minutesWithInPlay": 132,
+                "displayedSymbolMinutes": 205
+              },
+              {
+                "tradingDate": "2025-12-17",
+                "minutesWithInPlay": 32,
+                "displayedSymbolMinutes": 32
+              },
+              {
+                "tradingDate": "2025-12-30",
+                "minutesWithInPlay": 30,
+                "displayedSymbolMinutes": 30
+              },
+              {
+                "tradingDate": "2026-01-20",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-01-21",
+                "minutesWithInPlay": 94,
+                "displayedSymbolMinutes": 434
+              },
+              {
+                "tradingDate": "2026-01-29",
+                "minutesWithInPlay": 131,
+                "displayedSymbolMinutes": 190
+              },
+              {
+                "tradingDate": "2026-02-06",
+                "minutesWithInPlay": 54,
+                "displayedSymbolMinutes": 54
+              },
+              {
+                "tradingDate": "2026-02-13",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-03-09",
+                "minutesWithInPlay": 69,
+                "displayedSymbolMinutes": 416
+              },
+              {
+                "tradingDate": "2026-03-10",
+                "minutesWithInPlay": 67,
+                "displayedSymbolMinutes": 220
+              },
+              {
+                "tradingDate": "2026-03-27",
+                "minutesWithInPlay": 122,
+                "displayedSymbolMinutes": 122
+              },
+              {
+                "tradingDate": "2026-03-31",
+                "minutesWithInPlay": 136,
+                "displayedSymbolMinutes": 617
+              },
+              {
+                "tradingDate": "2026-04-20",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-05-06",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-05-27",
+                "minutesWithInPlay": 52,
+                "displayedSymbolMinutes": 52
+              },
+              {
+                "tradingDate": "2026-06-02",
+                "minutesWithInPlay": 31,
+                "displayedSymbolMinutes": 31
+              },
+              {
+                "tradingDate": "2026-06-26",
+                "minutesWithInPlay": 42,
+                "displayedSymbolMinutes": 56
+              },
+              {
+                "tradingDate": "2026-07-22",
+                "minutesWithInPlay": 145,
+                "displayedSymbolMinutes": 145
+              },
+              {
+                "tradingDate": "2026-07-29",
+                "minutesWithInPlay": 124,
+                "displayedSymbolMinutes": 456
+              }
+            ]
+          },
+          {
+            "split": "holdout",
+            "evaluatedMinutes": 4680,
+            "minutesWithInPlay": 989,
+            "coverage": 0.21132478632478632,
+            "displayedSymbolMinutes": 1696,
+            "settledShare": 0.07606132075471699,
+            "pendingExitShare": 0.9239386792452831,
+            "scoreDecayAtDisplay": {
+              "count": 1696,
+              "min": 0,
+              "p25": 41.03833188348276,
+              "median": 57.467827844097826,
+              "p75": 69.56340101296409,
+              "max": 93.47108401721552,
+              "iqr": 28.52506912948133
+            },
+            "displayedOccupancy": {
+              "count": 54,
+              "min": 14,
+              "p25": 30,
+              "median": 31,
+              "p75": 32,
+              "max": 51,
+              "iqr": 2
+            },
+            "peakToRemovalMinutes": {
+              "count": 24,
+              "min": 11,
+              "p25": 29.75,
+              "median": 31,
+              "p75": 32.25,
+              "max": 37,
+              "iqr": 2.5
+            },
+            "transitionCount": 1287,
+            "quietSessions": [],
+            "perSession": [
+              {
+                "tradingDate": "2025-10-01",
+                "minutesWithInPlay": 129,
+                "displayedSymbolMinutes": 253
+              },
+              {
+                "tradingDate": "2026-01-27",
+                "minutesWithInPlay": 30,
+                "displayedSymbolMinutes": 30
+              },
+              {
+                "tradingDate": "2026-01-30",
+                "minutesWithInPlay": 122,
+                "displayedSymbolMinutes": 143
+              },
+              {
+                "tradingDate": "2026-02-02",
+                "minutesWithInPlay": 91,
+                "displayedSymbolMinutes": 91
+              },
+              {
+                "tradingDate": "2026-02-12",
+                "minutesWithInPlay": 106,
+                "displayedSymbolMinutes": 106
+              },
+              {
+                "tradingDate": "2026-02-25",
+                "minutesWithInPlay": 33,
+                "displayedSymbolMinutes": 33
+              },
+              {
+                "tradingDate": "2026-04-02",
+                "minutesWithInPlay": 96,
+                "displayedSymbolMinutes": 371
+              },
+              {
+                "tradingDate": "2026-04-21",
+                "minutesWithInPlay": 115,
+                "displayedSymbolMinutes": 154
+              },
+              {
+                "tradingDate": "2026-04-22",
+                "minutesWithInPlay": 30,
+                "displayedSymbolMinutes": 30
+              },
+              {
+                "tradingDate": "2026-05-07",
+                "minutesWithInPlay": 68,
+                "displayedSymbolMinutes": 68
+              },
+              {
+                "tradingDate": "2026-06-09",
+                "minutesWithInPlay": 65,
+                "displayedSymbolMinutes": 280
+              },
+              {
+                "tradingDate": "2026-08-14",
+                "minutesWithInPlay": 104,
+                "displayedSymbolMinutes": 137
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "scenario": {
+          "stateSmoothingMinutes": 5,
+          "exitCore": 0.7,
+          "exitPersistence": 30
+        },
+        "splits": [
+          {
+            "split": "train",
+            "evaluatedMinutes": 10740,
+            "minutesWithInPlay": 1092,
+            "coverage": 0.10167597765363129,
+            "displayedSymbolMinutes": 2965,
+            "settledShare": 0.1554806070826307,
+            "pendingExitShare": 0.8445193929173693,
+            "scoreDecayAtDisplay": {
+              "count": 2965,
+              "min": 0,
+              "p25": 34.21772738328721,
+              "median": 53.7028425978194,
+              "p75": 67.40295297919566,
+              "max": 93.70692090148833,
+              "iqr": 33.18522559590845
+            },
+            "displayedOccupancy": {
+              "count": 238,
+              "min": 1,
+              "p25": 2,
+              "median": 4,
+              "p75": 29.75,
+              "max": 65,
+              "iqr": 27.75
+            },
+            "peakToRemovalMinutes": {
+              "count": 45,
+              "min": 1,
+              "p25": 4,
+              "median": 32,
+              "p75": 33,
+              "max": 63,
+              "iqr": 29
+            },
+            "transitionCount": 1525,
+            "quietSessions": [
+              "2025-10-24",
+              "2025-11-14",
+              "2025-11-28",
+              "2025-12-09",
+              "2025-12-17",
+              "2025-12-30",
+              "2026-01-20",
+              "2026-02-06",
+              "2026-02-13",
+              "2026-03-27",
+              "2026-04-20",
+              "2026-05-06",
+              "2026-06-02"
+            ],
+            "perSession": [
+              {
+                "tradingDate": "2025-10-10",
+                "minutesWithInPlay": 78,
+                "displayedSymbolMinutes": 666
+              },
+              {
+                "tradingDate": "2025-10-24",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2025-10-28",
+                "minutesWithInPlay": 151,
+                "displayedSymbolMinutes": 230
+              },
+              {
+                "tradingDate": "2025-11-04",
+                "minutesWithInPlay": 48,
+                "displayedSymbolMinutes": 48
+              },
+              {
+                "tradingDate": "2025-11-14",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2025-11-20",
+                "minutesWithInPlay": 99,
+                "displayedSymbolMinutes": 130
+              },
+              {
+                "tradingDate": "2025-11-24",
+                "minutesWithInPlay": 46,
+                "displayedSymbolMinutes": 46
+              },
+              {
+                "tradingDate": "2025-11-28",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2025-12-09",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2025-12-10",
+                "minutesWithInPlay": 67,
+                "displayedSymbolMinutes": 67
+              },
+              {
+                "tradingDate": "2025-12-17",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2025-12-30",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-01-20",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-01-21",
+                "minutesWithInPlay": 83,
+                "displayedSymbolMinutes": 237
+              },
+              {
+                "tradingDate": "2026-01-29",
+                "minutesWithInPlay": 62,
+                "displayedSymbolMinutes": 85
+              },
+              {
+                "tradingDate": "2026-02-06",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-02-13",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-03-09",
+                "minutesWithInPlay": 38,
+                "displayedSymbolMinutes": 323
+              },
+              {
+                "tradingDate": "2026-03-10",
+                "minutesWithInPlay": 36,
+                "displayedSymbolMinutes": 129
+              },
+              {
+                "tradingDate": "2026-03-27",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-03-31",
+                "minutesWithInPlay": 130,
+                "displayedSymbolMinutes": 517
+              },
+              {
+                "tradingDate": "2026-04-20",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-05-06",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-05-27",
+                "minutesWithInPlay": 52,
+                "displayedSymbolMinutes": 52
+              },
+              {
+                "tradingDate": "2026-06-02",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-06-26",
+                "minutesWithInPlay": 8,
+                "displayedSymbolMinutes": 20
+              },
+              {
+                "tradingDate": "2026-07-22",
+                "minutesWithInPlay": 95,
+                "displayedSymbolMinutes": 95
+              },
+              {
+                "tradingDate": "2026-07-29",
+                "minutesWithInPlay": 99,
+                "displayedSymbolMinutes": 320
+              }
+            ]
+          },
+          {
+            "split": "holdout",
+            "evaluatedMinutes": 4680,
+            "minutesWithInPlay": 353,
+            "coverage": 0.07542735042735042,
+            "displayedSymbolMinutes": 446,
+            "settledShare": 0.12780269058295965,
+            "pendingExitShare": 0.8721973094170403,
+            "scoreDecayAtDisplay": {
+              "count": 446,
+              "min": 0,
+              "p25": 40.54676961563094,
+              "median": 56.704355012426774,
+              "p75": 67.53454549281705,
+              "max": 92.56221490849866,
+              "iqr": 26.987775877186102
+            },
+            "displayedOccupancy": {
+              "count": 14,
+              "min": 13,
+              "p25": 31.25,
+              "median": 32.5,
+              "p75": 33,
+              "max": 42,
+              "iqr": 1.75
+            },
+            "peakToRemovalMinutes": {
+              "count": 7,
+              "min": 31,
+              "p25": 32,
+              "median": 32,
+              "p75": 33,
+              "max": 36,
+              "iqr": 1
+            },
+            "transitionCount": 737,
+            "quietSessions": [
+              "2026-01-27",
+              "2026-01-30",
+              "2026-02-02",
+              "2026-02-12",
+              "2026-04-22"
+            ],
+            "perSession": [
+              {
+                "tradingDate": "2025-10-01",
+                "minutesWithInPlay": 68,
+                "displayedSymbolMinutes": 98
+              },
+              {
+                "tradingDate": "2026-01-27",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-01-30",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-02-02",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-02-12",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-02-25",
+                "minutesWithInPlay": 33,
+                "displayedSymbolMinutes": 33
+              },
+              {
+                "tradingDate": "2026-04-02",
+                "minutesWithInPlay": 35,
+                "displayedSymbolMinutes": 35
+              },
+              {
+                "tradingDate": "2026-04-21",
+                "minutesWithInPlay": 72,
+                "displayedSymbolMinutes": 72
+              },
+              {
+                "tradingDate": "2026-04-22",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-05-07",
+                "minutesWithInPlay": 36,
+                "displayedSymbolMinutes": 36
+              },
+              {
+                "tradingDate": "2026-06-09",
+                "minutesWithInPlay": 65,
+                "displayedSymbolMinutes": 128
+              },
+              {
+                "tradingDate": "2026-08-14",
+                "minutesWithInPlay": 44,
+                "displayedSymbolMinutes": 44
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "shortestUsableCoveragePolicy": [
+      {
+        "scenario": {
+          "stateSmoothingMinutes": 0,
+          "exitCore": 0.7,
+          "exitPersistence": 20
+        },
+        "splits": [
+          {
+            "split": "train",
+            "evaluatedMinutes": 10740,
+            "minutesWithInPlay": 1627,
+            "coverage": 0.1514897579143389,
+            "displayedSymbolMinutes": 3939,
+            "settledShare": 0.17542523483117542,
+            "pendingExitShare": 0.8245747651688246,
+            "scoreDecayAtDisplay": {
+              "count": 3939,
+              "min": 0,
+              "p25": 31.092042833084815,
+              "median": 52.145012234395715,
+              "p75": 66.838546028348,
+              "max": 93.70692090148833,
+              "iqr": 35.74650319526319
+            },
+            "displayedOccupancy": {
+              "count": 382,
+              "min": 1,
+              "p25": 1,
+              "median": 3,
+              "p75": 20,
+              "max": 69,
+              "iqr": 19
+            },
+            "peakToRemovalMinutes": {
+              "count": 118,
+              "min": 1,
+              "p25": 3.25,
+              "median": 21,
+              "p75": 25,
+              "max": 59,
+              "iqr": 21.75
+            },
+            "transitionCount": 2532,
+            "quietSessions": [
+              "2025-11-14",
+              "2026-01-20",
+              "2026-02-13",
+              "2026-04-20",
+              "2026-05-06"
+            ],
+            "perSession": [
+              {
+                "tradingDate": "2025-10-10",
+                "minutesWithInPlay": 88,
+                "displayedSymbolMinutes": 764
+              },
+              {
+                "tradingDate": "2025-10-24",
+                "minutesWithInPlay": 69,
+                "displayedSymbolMinutes": 69
+              },
+              {
+                "tradingDate": "2025-10-28",
+                "minutesWithInPlay": 185,
+                "displayedSymbolMinutes": 288
+              },
+              {
+                "tradingDate": "2025-11-04",
+                "minutesWithInPlay": 79,
+                "displayedSymbolMinutes": 79
+              },
+              {
+                "tradingDate": "2025-11-14",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2025-11-20",
+                "minutesWithInPlay": 80,
+                "displayedSymbolMinutes": 181
+              },
+              {
+                "tradingDate": "2025-11-24",
+                "minutesWithInPlay": 84,
+                "displayedSymbolMinutes": 93
+              },
+              {
+                "tradingDate": "2025-11-28",
+                "minutesWithInPlay": 9,
+                "displayedSymbolMinutes": 13
+              },
+              {
+                "tradingDate": "2025-12-09",
+                "minutesWithInPlay": 20,
+                "displayedSymbolMinutes": 20
+              },
+              {
+                "tradingDate": "2025-12-10",
+                "minutesWithInPlay": 103,
+                "displayedSymbolMinutes": 157
+              },
+              {
+                "tradingDate": "2025-12-17",
+                "minutesWithInPlay": 23,
+                "displayedSymbolMinutes": 23
+              },
+              {
+                "tradingDate": "2025-12-30",
+                "minutesWithInPlay": 25,
+                "displayedSymbolMinutes": 25
+              },
+              {
+                "tradingDate": "2026-01-20",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-01-21",
+                "minutesWithInPlay": 93,
+                "displayedSymbolMinutes": 367
+              },
+              {
+                "tradingDate": "2026-01-29",
+                "minutesWithInPlay": 108,
+                "displayedSymbolMinutes": 149
+              },
+              {
+                "tradingDate": "2026-02-06",
+                "minutesWithInPlay": 45,
+                "displayedSymbolMinutes": 45
+              },
+              {
+                "tradingDate": "2026-02-13",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-03-09",
+                "minutesWithInPlay": 60,
+                "displayedSymbolMinutes": 324
+              },
+              {
+                "tradingDate": "2026-03-10",
+                "minutesWithInPlay": 53,
+                "displayedSymbolMinutes": 168
+              },
+              {
+                "tradingDate": "2026-03-27",
+                "minutesWithInPlay": 82,
+                "displayedSymbolMinutes": 82
+              },
+              {
+                "tradingDate": "2026-03-31",
+                "minutesWithInPlay": 129,
+                "displayedSymbolMinutes": 562
+              },
+              {
+                "tradingDate": "2026-04-20",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-05-06",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-05-27",
+                "minutesWithInPlay": 41,
+                "displayedSymbolMinutes": 41
+              },
+              {
+                "tradingDate": "2026-06-02",
+                "minutesWithInPlay": 21,
+                "displayedSymbolMinutes": 21
+              },
+              {
+                "tradingDate": "2026-06-26",
+                "minutesWithInPlay": 33,
+                "displayedSymbolMinutes": 47
+              },
+              {
+                "tradingDate": "2026-07-22",
+                "minutesWithInPlay": 90,
+                "displayedSymbolMinutes": 90
+              },
+              {
+                "tradingDate": "2026-07-29",
+                "minutesWithInPlay": 107,
+                "displayedSymbolMinutes": 331
+              }
+            ]
+          },
+          {
+            "split": "holdout",
+            "evaluatedMinutes": 4680,
+            "minutesWithInPlay": 776,
+            "coverage": 0.1658119658119658,
+            "displayedSymbolMinutes": 1250,
+            "settledShare": 0.1072,
+            "pendingExitShare": 0.8928,
+            "scoreDecayAtDisplay": {
+              "count": 1250,
+              "min": 0,
+              "p25": 41.22230005598997,
+              "median": 60.04162923610604,
+              "p75": 71.75365303035781,
+              "max": 92.56221490849866,
+              "iqr": 30.53135297436784
+            },
+            "displayedOccupancy": {
+              "count": 54,
+              "min": 15,
+              "p25": 20,
+              "median": 21,
+              "p75": 23,
+              "max": 52,
+              "iqr": 3
+            },
+            "peakToRemovalMinutes": {
+              "count": 34,
+              "min": 20,
+              "p25": 20,
+              "median": 21,
+              "p75": 22.75,
+              "max": 52,
+              "iqr": 2.75
+            },
+            "transitionCount": 1343,
+            "quietSessions": [],
+            "perSession": [
+              {
+                "tradingDate": "2025-10-01",
+                "minutesWithInPlay": 107,
+                "displayedSymbolMinutes": 192
+              },
+              {
+                "tradingDate": "2026-01-27",
+                "minutesWithInPlay": 20,
+                "displayedSymbolMinutes": 20
+              },
+              {
+                "tradingDate": "2026-01-30",
+                "minutesWithInPlay": 103,
+                "displayedSymbolMinutes": 115
+              },
+              {
+                "tradingDate": "2026-02-02",
+                "minutesWithInPlay": 64,
+                "displayedSymbolMinutes": 64
+              },
+              {
+                "tradingDate": "2026-02-12",
+                "minutesWithInPlay": 87,
+                "displayedSymbolMinutes": 87
+              },
+              {
+                "tradingDate": "2026-02-25",
+                "minutesWithInPlay": 23,
+                "displayedSymbolMinutes": 23
+              },
+              {
+                "tradingDate": "2026-04-02",
+                "minutesWithInPlay": 75,
+                "displayedSymbolMinutes": 263
+              },
+              {
+                "tradingDate": "2026-04-21",
+                "minutesWithInPlay": 98,
+                "displayedSymbolMinutes": 125
+              },
+              {
+                "tradingDate": "2026-04-22",
+                "minutesWithInPlay": 20,
+                "displayedSymbolMinutes": 20
+              },
+              {
+                "tradingDate": "2026-05-07",
+                "minutesWithInPlay": 47,
+                "displayedSymbolMinutes": 47
+              },
+              {
+                "tradingDate": "2026-06-09",
+                "minutesWithInPlay": 50,
+                "displayedSymbolMinutes": 195
+              },
+              {
+                "tradingDate": "2026-08-14",
+                "minutesWithInPlay": 82,
+                "displayedSymbolMinutes": 99
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "scenario": {
+          "stateSmoothingMinutes": 3,
+          "exitCore": 0.79,
+          "exitPersistence": 30
+        },
+        "splits": [
+          {
+            "split": "train",
+            "evaluatedMinutes": 10740,
+            "minutesWithInPlay": 1808,
+            "coverage": 0.16834264432029794,
+            "displayedSymbolMinutes": 4391,
+            "settledShare": 0.09405602368480984,
+            "pendingExitShare": 0.9059439763151902,
+            "scoreDecayAtDisplay": {
+              "count": 4391,
+              "min": 0,
+              "p25": 31.42811909838134,
+              "median": 52.11924308031945,
+              "p75": 67.51238693141819,
+              "max": 93.70692090148833,
+              "iqr": 36.08426783303685
+            },
+            "displayedOccupancy": {
+              "count": 378,
+              "min": 1,
+              "p25": 1,
+              "median": 3,
+              "p75": 30,
+              "max": 54,
+              "iqr": 29
+            },
+            "peakToRemovalMinutes": {
+              "count": 88,
+              "min": 1,
+              "p25": 6.75,
+              "median": 30,
+              "p75": 31,
+              "max": 52,
+              "iqr": 24.25
+            },
+            "transitionCount": 2455,
+            "quietSessions": [
+              "2025-11-14",
+              "2026-01-20",
+              "2026-02-13",
+              "2026-04-20",
+              "2026-05-06"
+            ],
+            "perSession": [
+              {
+                "tradingDate": "2025-10-10",
+                "minutesWithInPlay": 108,
+                "displayedSymbolMinutes": 718
+              },
+              {
+                "tradingDate": "2025-10-24",
+                "minutesWithInPlay": 35,
+                "displayedSymbolMinutes": 35
+              },
+              {
+                "tradingDate": "2025-10-28",
+                "minutesWithInPlay": 194,
+                "displayedSymbolMinutes": 341
+              },
+              {
+                "tradingDate": "2025-11-04",
+                "minutesWithInPlay": 93,
+                "displayedSymbolMinutes": 93
+              },
+              {
+                "tradingDate": "2025-11-14",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2025-11-20",
+                "minutesWithInPlay": 98,
+                "displayedSymbolMinutes": 248
+              },
+              {
+                "tradingDate": "2025-11-24",
+                "minutesWithInPlay": 76,
+                "displayedSymbolMinutes": 84
+              },
+              {
+                "tradingDate": "2025-11-28",
+                "minutesWithInPlay": 8,
+                "displayedSymbolMinutes": 9
+              },
+              {
+                "tradingDate": "2025-12-09",
+                "minutesWithInPlay": 30,
+                "displayedSymbolMinutes": 30
+              },
+              {
+                "tradingDate": "2025-12-10",
+                "minutesWithInPlay": 118,
+                "displayedSymbolMinutes": 182
+              },
+              {
+                "tradingDate": "2025-12-17",
+                "minutesWithInPlay": 30,
+                "displayedSymbolMinutes": 30
+              },
+              {
+                "tradingDate": "2025-12-30",
+                "minutesWithInPlay": 30,
+                "displayedSymbolMinutes": 30
+              },
+              {
+                "tradingDate": "2026-01-20",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-01-21",
+                "minutesWithInPlay": 82,
+                "displayedSymbolMinutes": 399
+              },
+              {
+                "tradingDate": "2026-01-29",
+                "minutesWithInPlay": 131,
+                "displayedSymbolMinutes": 188
+              },
+              {
+                "tradingDate": "2026-02-06",
+                "minutesWithInPlay": 54,
+                "displayedSymbolMinutes": 54
+              },
+              {
+                "tradingDate": "2026-02-13",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-03-09",
+                "minutesWithInPlay": 69,
+                "displayedSymbolMinutes": 404
+              },
+              {
+                "tradingDate": "2026-03-10",
+                "minutesWithInPlay": 66,
+                "displayedSymbolMinutes": 217
+              },
+              {
+                "tradingDate": "2026-03-27",
+                "minutesWithInPlay": 120,
+                "displayedSymbolMinutes": 120
+              },
+              {
+                "tradingDate": "2026-03-31",
+                "minutesWithInPlay": 107,
+                "displayedSymbolMinutes": 516
+              },
+              {
+                "tradingDate": "2026-04-20",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-05-06",
+                "minutesWithInPlay": 0,
+                "displayedSymbolMinutes": 0
+              },
+              {
+                "tradingDate": "2026-05-27",
+                "minutesWithInPlay": 52,
+                "displayedSymbolMinutes": 52
+              },
+              {
+                "tradingDate": "2026-06-02",
+                "minutesWithInPlay": 30,
+                "displayedSymbolMinutes": 30
+              },
+              {
+                "tradingDate": "2026-06-26",
+                "minutesWithInPlay": 42,
+                "displayedSymbolMinutes": 56
+              },
+              {
+                "tradingDate": "2026-07-22",
+                "minutesWithInPlay": 113,
+                "displayedSymbolMinutes": 113
+              },
+              {
+                "tradingDate": "2026-07-29",
+                "minutesWithInPlay": 122,
+                "displayedSymbolMinutes": 442
+              }
+            ]
+          },
+          {
+            "split": "holdout",
+            "evaluatedMinutes": 4680,
+            "minutesWithInPlay": 943,
+            "coverage": 0.2014957264957265,
+            "displayedSymbolMinutes": 1630,
+            "settledShare": 0.05276073619631902,
+            "pendingExitShare": 0.947239263803681,
+            "scoreDecayAtDisplay": {
+              "count": 1630,
+              "min": 0,
+              "p25": 40.62338392427591,
+              "median": 57.24097896890319,
+              "p75": 69.02191312277816,
+              "max": 93.47108401721552,
+              "iqr": 28.398529198502246
+            },
+            "displayedOccupancy": {
+              "count": 54,
+              "min": 14,
+              "p25": 30,
+              "median": 30,
+              "p75": 30.75,
+              "max": 42,
+              "iqr": 0.75
+            },
+            "peakToRemovalMinutes": {
+              "count": 24,
+              "min": 11,
+              "p25": 29.75,
+              "median": 30,
+              "p75": 31.25,
+              "max": 32,
+              "iqr": 1.5
+            },
+            "transitionCount": 1287,
+            "quietSessions": [],
+            "perSession": [
+              {
+                "tradingDate": "2025-10-01",
+                "minutesWithInPlay": 125,
+                "displayedSymbolMinutes": 244
+              },
+              {
+                "tradingDate": "2026-01-27",
+                "minutesWithInPlay": 30,
+                "displayedSymbolMinutes": 30
+              },
+              {
+                "tradingDate": "2026-01-30",
+                "minutesWithInPlay": 101,
+                "displayedSymbolMinutes": 120
+              },
+              {
+                "tradingDate": "2026-02-02",
+                "minutesWithInPlay": 90,
+                "displayedSymbolMinutes": 90
+              },
+              {
+                "tradingDate": "2026-02-12",
+                "minutesWithInPlay": 102,
+                "displayedSymbolMinutes": 102
+              },
+              {
+                "tradingDate": "2026-02-25",
+                "minutesWithInPlay": 32,
+                "displayedSymbolMinutes": 32
+              },
+              {
+                "tradingDate": "2026-04-02",
+                "minutesWithInPlay": 91,
+                "displayedSymbolMinutes": 361
+              },
+              {
+                "tradingDate": "2026-04-21",
+                "minutesWithInPlay": 113,
+                "displayedSymbolMinutes": 147
+              },
+              {
+                "tradingDate": "2026-04-22",
+                "minutesWithInPlay": 30,
+                "displayedSymbolMinutes": 30
+              },
+              {
+                "tradingDate": "2026-05-07",
+                "minutesWithInPlay": 62,
+                "displayedSymbolMinutes": 62
+              },
+              {
+                "tradingDate": "2026-06-09",
+                "minutesWithInPlay": 64,
+                "displayedSymbolMinutes": 277
+              },
+              {
+                "tradingDate": "2026-08-14",
+                "minutesWithInPlay": 103,
+                "displayedSymbolMinutes": 135
+              }
+            ]
+          }
+        ]
+      },
+      null
+    ],
+    "publishedStateSmoothingMinutes": 0,
+    "finding": "Three-minute smoothing increased transition churn and still required 30-minute exit persistence; five-minute smoothing produced no train/holdout point in the 15-30% coverage band. Neither setting achieved the correction's purpose."
+  },
+  "wakingUp": {
+    "decoupledFromStateEpisodeAndFreshness": true,
+    "reference": "direction inferred from current price versus oldest price in the rolling 15-minute window; extension is distance from the rolling low for rising paths or rolling high for falling paths, in ATR",
+    "currentDecoupled": [
+      {
+        "split": "train",
+        "evaluatedMinutes": 10740,
+        "minutesWithWakingUp": 1063,
+        "fractionMinutesWithWakingUp": 0.098975791433892,
+        "wakingDwellMinutes": {
+          "count": 1053,
+          "min": 1,
+          "p25": 1,
+          "median": 1,
+          "p75": 1,
+          "max": 3,
+          "iqr": 0
+        },
+        "namesPerSession": {
+          "count": 28,
+          "min": 6,
+          "p25": 14.75,
+          "median": 22,
+          "p75": 28.25,
+          "max": 38,
+          "iqr": 13.5
+        },
+        "leadTimeToInPlayMinutes": {
+          "count": 94,
+          "min": -254,
+          "p25": -47,
+          "median": 3,
+          "p75": 127.5,
+          "max": 318,
+          "iqr": 174.5
+        },
+        "leadCounts": {
+          "positive": 48,
+          "zero": 2,
+          "negative": 44
+        },
+        "quietSessions": [],
+        "perSession": [
+          {
+            "tradingDate": "2025-10-10",
+            "minutesWithWakingUp": 44,
+            "names": [
+              "AAOI",
+              "AAPL",
+              "AMAT",
+              "AMD",
+              "AMZN",
+              "AVGO",
+              "BE",
+              "COIN",
+              "COST",
+              "CRWD",
+              "CRWV",
+              "GDX",
+              "IBM",
+              "INTC",
+              "IWM",
+              "LLY",
+              "META",
+              "MRVL",
+              "MSFT",
+              "MU",
+              "NBIS",
+              "NKE",
+              "NVDA",
+              "ORCL",
+              "PYPL",
+              "QCOM",
+              "QQQ",
+              "SMH",
+              "SOFI",
+              "SPY",
+              "T",
+              "TSM",
+              "UBER",
+              "UNH",
+              "USO",
+              "WMT",
+              "XOM"
+            ]
+          },
+          {
+            "tradingDate": "2025-10-24",
+            "minutesWithWakingUp": 13,
+            "names": [
+              "AMZN",
+              "AVGO",
+              "CCL",
+              "COIN",
+              "IBM",
+              "INTC",
+              "NFLX",
+              "PLTR",
+              "SNDK",
+              "TSLA",
+              "USO"
+            ]
+          },
+          {
+            "tradingDate": "2025-10-28",
+            "minutesWithWakingUp": 53,
+            "names": [
+              "AAL",
+              "AAPL",
+              "AMAT",
+              "AMZN",
+              "CCL",
+              "GOOGL",
+              "INTC",
+              "MSFT",
+              "MU",
+              "NFLX",
+              "NVDA",
+              "PYPL",
+              "QCOM",
+              "SMCI",
+              "SOFI",
+              "T",
+              "TSLA",
+              "UNH"
+            ]
+          },
+          {
+            "tradingDate": "2025-11-04",
+            "minutesWithWakingUp": 22,
+            "names": [
+              "CCL",
+              "COIN",
+              "COST",
+              "CRM",
+              "HOOD",
+              "IBIT",
+              "INTC",
+              "META",
+              "MSTR",
+              "NKE",
+              "PANW",
+              "PLTR",
+              "SMCI",
+              "SPY",
+              "UBER",
+              "WMT"
+            ]
+          },
+          {
+            "tradingDate": "2025-11-14",
+            "minutesWithWakingUp": 31,
+            "names": [
+              "AMAT",
+              "BE",
+              "COIN",
+              "GOOGL",
+              "INTC",
+              "MSTR",
+              "MU",
+              "NBIS",
+              "NFLX",
+              "NKE",
+              "NVDA",
+              "ORCL",
+              "PYPL",
+              "QQQ",
+              "SMH",
+              "SNAP",
+              "TSLA",
+              "UNH",
+              "WMT"
+            ]
+          },
+          {
+            "tradingDate": "2025-11-20",
+            "minutesWithWakingUp": 48,
+            "names": [
+              "AAPL",
+              "AMAT",
+              "AMD",
+              "AVGO",
+              "CRWD",
+              "CRWV",
+              "GDX",
+              "GLD",
+              "GOOGL",
+              "IBM",
+              "INTC",
+              "LLY",
+              "MRVL",
+              "MSTR",
+              "MU",
+              "NBIS",
+              "NVDA",
+              "ORCL",
+              "PANW",
+              "PLTR",
+              "SMH",
+              "SNDK",
+              "SOFI",
+              "SPY",
+              "T",
+              "TSM",
+              "UBER",
+              "UNH",
+              "WDC",
+              "WMT",
+              "XOM"
+            ]
+          },
+          {
+            "tradingDate": "2025-11-24",
+            "minutesWithWakingUp": 20,
+            "names": [
+              "AAPL",
+              "ADBE",
+              "AVGO",
+              "CRM",
+              "GOOGL",
+              "META",
+              "PANW",
+              "UBER",
+              "XOM"
+            ]
+          },
+          {
+            "tradingDate": "2025-11-28",
+            "minutesWithWakingUp": 21,
+            "names": [
+              "AAL",
+              "AVGO",
+              "CCL",
+              "COIN",
+              "CRM",
+              "GDX",
+              "INTC",
+              "LLY",
+              "MRVL",
+              "MSTR",
+              "SLV",
+              "SPY",
+              "XOM"
+            ]
+          },
+          {
+            "tradingDate": "2025-12-09",
+            "minutesWithWakingUp": 11,
+            "names": [
+              "AAOI",
+              "ADBE",
+              "CRM",
+              "MRVL",
+              "TSLA",
+              "XOM"
+            ]
+          },
+          {
+            "tradingDate": "2025-12-10",
+            "minutesWithWakingUp": 34,
+            "names": [
+              "AAOI",
+              "ADBE",
+              "AMAT",
+              "GDX",
+              "GLD",
+              "LLY",
+              "MRVL",
+              "MSFT",
+              "NFLX",
+              "NKE",
+              "NOW",
+              "NVDA",
+              "ORCL",
+              "QCOM",
+              "QQQ",
+              "SLV",
+              "T",
+              "TSM",
+              "UBER",
+              "USO"
+            ]
+          },
+          {
+            "tradingDate": "2025-12-17",
+            "minutesWithWakingUp": 40,
+            "names": [
+              "ADBE",
+              "ARM",
+              "AVGO",
+              "CCL",
+              "COIN",
+              "CRWV",
+              "DELL",
+              "GDX",
+              "GLD",
+              "GOOGL",
+              "HOOD",
+              "IBIT",
+              "LLY",
+              "MSFT",
+              "MU",
+              "NBIS",
+              "NFLX",
+              "NOW",
+              "NVDA",
+              "ORCL",
+              "PANW",
+              "PLTR",
+              "SLV",
+              "SMH",
+              "TSLA",
+              "UBER",
+              "USO",
+              "WDC"
+            ]
+          },
+          {
+            "tradingDate": "2025-12-30",
+            "minutesWithWakingUp": 13,
+            "names": [
+              "HOOD",
+              "IBM",
+              "MSTR",
+              "PYPL",
+              "SLV",
+              "SMCI",
+              "SNAP",
+              "UNH"
+            ]
+          },
+          {
+            "tradingDate": "2026-01-20",
+            "minutesWithWakingUp": 43,
+            "names": [
+              "AAPL",
+              "ADBE",
+              "AMZN",
+              "CCL",
+              "CRM",
+              "DELL",
+              "GDX",
+              "GOOGL",
+              "HOOD",
+              "IBIT",
+              "INTC",
+              "MRVL",
+              "MU",
+              "NBIS",
+              "NFLX",
+              "NOW",
+              "NVDA",
+              "SMCI",
+              "SNDK",
+              "TSM",
+              "UNH",
+              "USO",
+              "WMT"
+            ]
+          },
+          {
+            "tradingDate": "2026-01-21",
+            "minutesWithWakingUp": 63,
+            "names": [
+              "AAOI",
+              "ADBE",
+              "AMAT",
+              "AMD",
+              "AVGO",
+              "CRWD",
+              "CRWV",
+              "GDX",
+              "GLD",
+              "HOOD",
+              "IBIT",
+              "IBM",
+              "INTC",
+              "IWM",
+              "KLAC",
+              "META",
+              "MSFT",
+              "MU",
+              "NBIS",
+              "NFLX",
+              "NOW",
+              "NVDA",
+              "ORCL",
+              "PANW",
+              "SLV",
+              "SMCI",
+              "SNDK",
+              "SOFI",
+              "SPY",
+              "TSLA",
+              "UNH",
+              "WDC"
+            ]
+          },
+          {
+            "tradingDate": "2026-01-29",
+            "minutesWithWakingUp": 82,
+            "names": [
+              "AAL",
+              "ADBE",
+              "AMAT",
+              "ARM",
+              "CCL",
+              "CRM",
+              "CRWD",
+              "CRWV",
+              "GDX",
+              "GLD",
+              "GOOGL",
+              "HOOD",
+              "IBIT",
+              "IBM",
+              "KLAC",
+              "META",
+              "MRVL",
+              "MSFT",
+              "MU",
+              "NBIS",
+              "NOW",
+              "NVDA",
+              "ORCL",
+              "PLTR",
+              "PYPL",
+              "SLV",
+              "SNAP",
+              "SNDK",
+              "SOFI",
+              "SPY",
+              "T",
+              "TSLA",
+              "TSM",
+              "UBER",
+              "UNH",
+              "USO",
+              "WDC",
+              "XOM"
+            ]
+          },
+          {
+            "tradingDate": "2026-02-06",
+            "minutesWithWakingUp": 63,
+            "names": [
+              "AAPL",
+              "AMAT",
+              "AMD",
+              "AMZN",
+              "ARM",
+              "AVGO",
+              "COIN",
+              "CRM",
+              "CRWD",
+              "GOOGL",
+              "HOOD",
+              "IBIT",
+              "META",
+              "MRVL",
+              "MSFT",
+              "MSTR",
+              "NBIS",
+              "NKE",
+              "NOW",
+              "PANW",
+              "PLTR",
+              "PYPL",
+              "QCOM",
+              "SMCI",
+              "SMH",
+              "SNAP",
+              "UBER",
+              "USO",
+              "XOM"
+            ]
+          },
+          {
+            "tradingDate": "2026-02-13",
+            "minutesWithWakingUp": 31,
+            "names": [
+              "AMAT",
+              "AMZN",
+              "COIN",
+              "COST",
+              "CRWD",
+              "DELL",
+              "MSFT",
+              "MSTR",
+              "NBIS",
+              "NFLX",
+              "NKE",
+              "NOW",
+              "SNDK",
+              "XOM"
+            ]
+          },
+          {
+            "tradingDate": "2026-03-09",
+            "minutesWithWakingUp": 45,
+            "names": [
+              "AAL",
+              "ADBE",
+              "AMAT",
+              "AMD",
+              "AVGO",
+              "BE",
+              "CCL",
+              "CRM",
+              "GDX",
+              "HOOD",
+              "IBIT",
+              "KLAC",
+              "LLY",
+              "META",
+              "MRVL",
+              "MSFT",
+              "MU",
+              "ORCL",
+              "QCOM",
+              "QQQ",
+              "SMH",
+              "SOFI",
+              "TSLA",
+              "TSM",
+              "UNH",
+              "USO"
+            ]
+          },
+          {
+            "tradingDate": "2026-03-10",
+            "minutesWithWakingUp": 23,
+            "names": [
+              "AAL",
+              "AAOI",
+              "AVGO",
+              "BE",
+              "CRM",
+              "INTC",
+              "KLAC",
+              "MRVL",
+              "ORCL",
+              "PLTR",
+              "QCOM",
+              "SNDK",
+              "UNH",
+              "USO",
+              "XOM"
+            ]
+          },
+          {
+            "tradingDate": "2026-03-27",
+            "minutesWithWakingUp": 40,
+            "names": [
+              "AAPL",
+              "AMZN",
+              "ARM",
+              "CRWD",
+              "GLD",
+              "HOOD",
+              "IBIT",
+              "IWM",
+              "META",
+              "MRVL",
+              "NBIS",
+              "NVDA",
+              "PANW",
+              "QQQ",
+              "SMCI",
+              "SMH",
+              "SNDK",
+              "SPY",
+              "TSLA",
+              "TSM",
+              "UNH",
+              "USO",
+              "XOM"
+            ]
+          },
+          {
+            "tradingDate": "2026-03-31",
+            "minutesWithWakingUp": 44,
+            "names": [
+              "AMD",
+              "AMZN",
+              "ARM",
+              "BE",
+              "CCL",
+              "CRWV",
+              "DELL",
+              "GDX",
+              "GOOGL",
+              "HOOD",
+              "INTC",
+              "KLAC",
+              "META",
+              "MRVL",
+              "MSFT",
+              "MSTR",
+              "MU",
+              "NBIS",
+              "NOW",
+              "NVDA",
+              "PLTR",
+              "SMH",
+              "SNAP",
+              "SNDK",
+              "SPY",
+              "T",
+              "TSLA",
+              "TSM",
+              "WDC",
+              "XOM"
+            ]
+          },
+          {
+            "tradingDate": "2026-04-20",
+            "minutesWithWakingUp": 22,
+            "names": [
+              "AAL",
+              "AAOI",
+              "AAPL",
+              "AMD",
+              "ARM",
+              "COST",
+              "CRWV",
+              "HOOD",
+              "IBM",
+              "LLY",
+              "MRVL",
+              "MSFT",
+              "NFLX",
+              "NOW",
+              "SOFI",
+              "T",
+              "UNH",
+              "WMT"
+            ]
+          },
+          {
+            "tradingDate": "2026-05-06",
+            "minutesWithWakingUp": 59,
+            "names": [
+              "AAOI",
+              "AAPL",
+              "AMD",
+              "ARM",
+              "DELL",
+              "DRAM",
+              "GDX",
+              "KLAC",
+              "META",
+              "MRVL",
+              "MSTR",
+              "MU",
+              "NVDA",
+              "PLTR",
+              "PYPL",
+              "QCOM",
+              "SMCI",
+              "SMH",
+              "SNAP",
+              "SNDK",
+              "T",
+              "TSLA",
+              "UBER",
+              "WMT",
+              "XOM"
+            ]
+          },
+          {
+            "tradingDate": "2026-05-27",
+            "minutesWithWakingUp": 30,
+            "names": [
+              "AAPL",
+              "ADBE",
+              "AMZN",
+              "ARM",
+              "CCL",
+              "CRM",
+              "CRWD",
+              "GDX",
+              "GLD",
+              "HOOD",
+              "IBIT",
+              "META",
+              "MRVL",
+              "MU",
+              "NVDA",
+              "PYPL",
+              "QQQ",
+              "SMH",
+              "TSLA",
+              "UBER",
+              "USO",
+              "WMT"
+            ]
+          },
+          {
+            "tradingDate": "2026-06-02",
+            "minutesWithWakingUp": 43,
+            "names": [
+              "AAOI",
+              "AAPL",
+              "AMAT",
+              "AMD",
+              "AMZN",
+              "AVGO",
+              "BE",
+              "COST",
+              "CRM",
+              "CRWD",
+              "DELL",
+              "DRAM",
+              "GDX",
+              "GOOGL",
+              "IBIT",
+              "IBM",
+              "META",
+              "MRVL",
+              "MSFT",
+              "MSTR",
+              "NFLX",
+              "NKE",
+              "NVDA",
+              "PANW",
+              "PLTR",
+              "SMCI",
+              "SMH",
+              "T"
+            ]
+          },
+          {
+            "tradingDate": "2026-06-26",
+            "minutesWithWakingUp": 38,
+            "names": [
+              "AAPL",
+              "AMAT",
+              "AMD",
+              "AMZN",
+              "BE",
+              "COST",
+              "CRWV",
+              "DELL",
+              "DRAM",
+              "GOOGL",
+              "MSFT",
+              "NFLX",
+              "NKE",
+              "PYPL",
+              "SNAP",
+              "SNDK",
+              "TSM",
+              "UBER",
+              "UNH",
+              "USO",
+              "WDC",
+              "WMT"
+            ]
+          },
+          {
+            "tradingDate": "2026-07-22",
+            "minutesWithWakingUp": 37,
+            "names": [
+              "CRM",
+              "GLD",
+              "GOOGL",
+              "IBM",
+              "NOW",
+              "NVDA",
+              "SMCI",
+              "SPCX",
+              "T",
+              "XOM"
+            ]
+          },
+          {
+            "tradingDate": "2026-07-29",
+            "minutesWithWakingUp": 50,
+            "names": [
+              "AAPL",
+              "ADBE",
+              "AMD",
+              "ARM",
+              "AVGO",
+              "BE",
+              "COST",
+              "CRM",
+              "CRWD",
+              "DELL",
+              "DRAM",
+              "GDX",
+              "GLD",
+              "GOOGL",
+              "INTC",
+              "IWM",
+              "META",
+              "MRVL",
+              "MSFT",
+              "MU",
+              "NFLX",
+              "NOW",
+              "PANW",
+              "QCOM",
+              "QQQ",
+              "SLV",
+              "SMH",
+              "SNAP",
+              "SNDK",
+              "SOFI",
+              "SPCX",
+              "SPY",
+              "TSM",
+              "WMT",
+              "XOM"
+            ]
+          }
+        ]
+      },
+      {
+        "split": "holdout",
+        "evaluatedMinutes": 4680,
+        "minutesWithWakingUp": 535,
+        "fractionMinutesWithWakingUp": 0.11431623931623931,
+        "wakingDwellMinutes": {
+          "count": 553,
+          "min": 1,
+          "p25": 1,
+          "median": 1,
+          "p75": 1,
+          "max": 3,
+          "iqr": 0
+        },
+        "namesPerSession": {
+          "count": 12,
+          "min": 14,
+          "p25": 19,
+          "median": 27,
+          "p75": 28,
+          "max": 37,
+          "iqr": 9
+        },
+        "leadTimeToInPlayMinutes": {
+          "count": 34,
+          "min": -235,
+          "p25": 4.25,
+          "median": 60.5,
+          "p75": 126,
+          "max": 284,
+          "iqr": 121.75
+        },
+        "leadCounts": {
+          "positive": 26,
+          "zero": 1,
+          "negative": 7
+        },
+        "quietSessions": [],
+        "perSession": [
+          {
+            "tradingDate": "2025-10-01",
+            "minutesWithWakingUp": 48,
+            "names": [
+              "AAL",
+              "ADBE",
+              "AMAT",
+              "AMD",
+              "AMZN",
+              "CRM",
+              "DELL",
+              "GDX",
+              "GLD",
+              "IBIT",
+              "LLY",
+              "META",
+              "MRVL",
+              "MSTR",
+              "MU",
+              "NKE",
+              "PANW",
+              "QCOM",
+              "SLV",
+              "SMCI",
+              "SMH",
+              "SNAP",
+              "TSLA",
+              "TSM",
+              "UBER",
+              "WDC",
+              "WMT",
+              "XOM"
+            ]
+          },
+          {
+            "tradingDate": "2026-01-27",
+            "minutesWithWakingUp": 43,
+            "names": [
+              "AAL",
+              "AMZN",
+              "ARM",
+              "AVGO",
+              "BE",
+              "CRM",
+              "GLD",
+              "GOOGL",
+              "HOOD",
+              "IBM",
+              "KLAC",
+              "META",
+              "MU",
+              "NVDA",
+              "PYPL",
+              "SLV",
+              "T",
+              "UBER",
+              "UNH"
+            ]
+          },
+          {
+            "tradingDate": "2026-01-30",
+            "minutesWithWakingUp": 78,
+            "names": [
+              "AAOI",
+              "AAPL",
+              "ADBE",
+              "AMAT",
+              "AVGO",
+              "COIN",
+              "GDX",
+              "GLD",
+              "GOOGL",
+              "HOOD",
+              "KLAC",
+              "LLY",
+              "MRVL",
+              "MSFT",
+              "MU",
+              "NOW",
+              "ORCL",
+              "PLTR",
+              "PYPL",
+              "QQQ",
+              "SLV",
+              "SMH",
+              "SNDK",
+              "SOFI",
+              "SPY",
+              "T",
+              "TSLA",
+              "UBER",
+              "UNH",
+              "USO",
+              "WDC",
+              "XOM"
+            ]
+          },
+          {
+            "tradingDate": "2026-02-02",
+            "minutesWithWakingUp": 55,
+            "names": [
+              "AAOI",
+              "AAPL",
+              "AMD",
+              "AMZN",
+              "CCL",
+              "GLD",
+              "HOOD",
+              "IBIT",
+              "IBM",
+              "KLAC",
+              "META",
+              "MSFT",
+              "MU",
+              "NBIS",
+              "NOW",
+              "ORCL",
+              "PLTR",
+              "PYPL",
+              "SLV",
+              "SMCI",
+              "SNDK",
+              "SOFI",
+              "T",
+              "TSM",
+              "USO",
+              "WDC",
+              "XOM"
+            ]
+          },
+          {
+            "tradingDate": "2026-02-12",
+            "minutesWithWakingUp": 39,
+            "names": [
+              "AAL",
+              "AAOI",
+              "AAPL",
+              "ADBE",
+              "AMZN",
+              "ARM",
+              "BE",
+              "CCL",
+              "COIN",
+              "COST",
+              "CRM",
+              "GDX",
+              "LLY",
+              "META",
+              "MU",
+              "NBIS",
+              "NFLX",
+              "NKE",
+              "NVDA",
+              "ORCL",
+              "PLTR",
+              "PYPL",
+              "QCOM",
+              "SNAP",
+              "T",
+              "TSLA",
+              "USO",
+              "XOM"
+            ]
+          },
+          {
+            "tradingDate": "2026-02-25",
+            "minutesWithWakingUp": 28,
+            "names": [
+              "AMD",
+              "CCL",
+              "COIN",
+              "CRM",
+              "CRWD",
+              "DELL",
+              "HOOD",
+              "MSFT",
+              "NFLX",
+              "NVDA",
+              "ORCL",
+              "PYPL",
+              "SMCI",
+              "USO"
+            ]
+          },
+          {
+            "tradingDate": "2026-04-02",
+            "minutesWithWakingUp": 29,
+            "names": [
+              "AAOI",
+              "AMD",
+              "ARM",
+              "COIN",
+              "CRWV",
+              "GLD",
+              "INTC",
+              "LLY",
+              "MRVL",
+              "NFLX",
+              "NKE",
+              "SNDK",
+              "T",
+              "TSLA",
+              "UBER",
+              "WDC"
+            ]
+          },
+          {
+            "tradingDate": "2026-04-21",
+            "minutesWithWakingUp": 40,
+            "names": [
+              "AAL",
+              "AAPL",
+              "AMD",
+              "AMZN",
+              "BE",
+              "CCL",
+              "COIN",
+              "CRWD",
+              "CRWV",
+              "DRAM",
+              "GOOGL",
+              "HOOD",
+              "INTC",
+              "MRVL",
+              "MSTR",
+              "NFLX",
+              "NOW",
+              "NVDA",
+              "ORCL",
+              "PLTR",
+              "QCOM",
+              "QQQ",
+              "SMCI",
+              "SOFI",
+              "T",
+              "UNH",
+              "WMT"
+            ]
+          },
+          {
+            "tradingDate": "2026-04-22",
+            "minutesWithWakingUp": 45,
+            "names": [
+              "AAOI",
+              "ADBE",
+              "AMAT",
+              "AMD",
+              "ARM",
+              "BE",
+              "COIN",
+              "CRWD",
+              "CRWV",
+              "DRAM",
+              "HOOD",
+              "IBIT",
+              "IBM",
+              "INTC",
+              "MRVL",
+              "MSTR",
+              "MU",
+              "NOW",
+              "ORCL",
+              "QCOM",
+              "SOFI",
+              "T",
+              "TSM",
+              "UBER",
+              "WDC"
+            ]
+          },
+          {
+            "tradingDate": "2026-05-07",
+            "minutesWithWakingUp": 49,
+            "names": [
+              "AAL",
+              "AAOI",
+              "AMD",
+              "ARM",
+              "AVGO",
+              "BE",
+              "CCL",
+              "CRWD",
+              "DRAM",
+              "GDX",
+              "IBIT",
+              "IBM",
+              "IWM",
+              "KLAC",
+              "MU",
+              "PYPL",
+              "QCOM",
+              "QQQ",
+              "SLV",
+              "SMCI",
+              "SMH",
+              "SNDK",
+              "TSLA",
+              "TSM",
+              "UBER",
+              "USO",
+              "XOM"
+            ]
+          },
+          {
+            "tradingDate": "2026-06-09",
+            "minutesWithWakingUp": 46,
+            "names": [
+              "AAL",
+              "AAOI",
+              "AAPL",
+              "ADBE",
+              "AMAT",
+              "AMD",
+              "AMZN",
+              "AVGO",
+              "BE",
+              "CRM",
+              "CRWD",
+              "DELL",
+              "DRAM",
+              "GLD",
+              "GOOGL",
+              "INTC",
+              "KLAC",
+              "META",
+              "MRVL",
+              "MSTR",
+              "NBIS",
+              "NFLX",
+              "NKE",
+              "NVDA",
+              "ORCL",
+              "PLTR",
+              "QCOM",
+              "QQQ",
+              "SLV",
+              "SMCI",
+              "SMH",
+              "SNDK",
+              "SPY",
+              "T",
+              "TSLA",
+              "TSM",
+              "WDC"
+            ]
+          },
+          {
+            "tradingDate": "2026-08-14",
+            "minutesWithWakingUp": 35,
+            "names": [
+              "AAOI",
+              "AMAT",
+              "AMD",
+              "AVGO",
+              "CRWV",
+              "DRAM",
+              "GDX",
+              "HOOD",
+              "META",
+              "MRVL",
+              "MSTR",
+              "NBIS",
+              "NKE",
+              "PYPL",
+              "SNDK",
+              "SPCX",
+              "TSLA",
+              "WDC",
+              "XOM"
+            ]
+          }
+        ]
+      }
+    ],
+    "rejectedBestCandidate": {
+      "velocityThreshold": 10,
+      "extensionCap": 0.75,
+      "minimumScore": 50,
+      "minimumPersistence": 2
+    },
+    "rejectedCandidateResult": [
+      {
+        "split": "train",
+        "evaluatedMinutes": 10740,
+        "minutesWithWakingUp": 25,
+        "fractionMinutesWithWakingUp": 0.0023277467411545625,
+        "wakingDwellMinutes": {
+          "count": 22,
+          "min": 1,
+          "p25": 1,
+          "median": 1,
+          "p75": 1,
+          "max": 2,
+          "iqr": 0
+        },
+        "namesPerSession": {
+          "count": 28,
+          "min": 0,
+          "p25": 0,
+          "median": 0,
+          "p75": 1,
+          "max": 5,
+          "iqr": 1
+        },
+        "leadTimeToInPlayMinutes": {
+          "count": 9,
+          "min": -149,
+          "p25": -36,
+          "median": 83,
+          "p75": 175,
+          "max": 318,
+          "iqr": 211
+        },
+        "leadCounts": {
+          "positive": 5,
+          "zero": 0,
+          "negative": 4
+        },
+        "quietSessions": [
+          "2025-10-24",
+          "2025-11-04",
+          "2025-11-14",
+          "2025-11-28",
+          "2025-12-09",
+          "2025-12-17",
+          "2025-12-30",
+          "2026-01-21",
+          "2026-02-06",
+          "2026-02-13",
+          "2026-03-09",
+          "2026-03-10",
+          "2026-04-20",
+          "2026-05-06",
+          "2026-05-27",
+          "2026-06-26"
+        ],
+        "perSession": [
+          {
+            "tradingDate": "2025-10-10",
+            "minutesWithWakingUp": 2,
+            "names": [
+              "IBM",
+              "UNH"
+            ]
+          },
+          {
+            "tradingDate": "2025-10-24",
+            "minutesWithWakingUp": 0,
+            "names": []
+          },
+          {
+            "tradingDate": "2025-10-28",
+            "minutesWithWakingUp": 2,
+            "names": [
+              "NVDA",
+              "QCOM"
+            ]
+          },
+          {
+            "tradingDate": "2025-11-04",
+            "minutesWithWakingUp": 0,
+            "names": []
+          },
+          {
+            "tradingDate": "2025-11-14",
+            "minutesWithWakingUp": 0,
+            "names": []
+          },
+          {
+            "tradingDate": "2025-11-20",
+            "minutesWithWakingUp": 1,
+            "names": [
+              "PANW"
+            ]
+          },
+          {
+            "tradingDate": "2025-11-24",
+            "minutesWithWakingUp": 1,
+            "names": [
+              "GOOGL"
+            ]
+          },
+          {
+            "tradingDate": "2025-11-28",
+            "minutesWithWakingUp": 0,
+            "names": []
+          },
+          {
+            "tradingDate": "2025-12-09",
+            "minutesWithWakingUp": 0,
+            "names": []
+          },
+          {
+            "tradingDate": "2025-12-10",
+            "minutesWithWakingUp": 2,
+            "names": [
+              "ADBE",
+              "QQQ"
+            ]
+          },
+          {
+            "tradingDate": "2025-12-17",
+            "minutesWithWakingUp": 0,
+            "names": []
+          },
+          {
+            "tradingDate": "2025-12-30",
+            "minutesWithWakingUp": 0,
+            "names": []
+          },
+          {
+            "tradingDate": "2026-01-20",
+            "minutesWithWakingUp": 1,
+            "names": [
+              "NFLX"
+            ]
+          },
+          {
+            "tradingDate": "2026-01-21",
+            "minutesWithWakingUp": 0,
+            "names": []
+          },
+          {
+            "tradingDate": "2026-01-29",
+            "minutesWithWakingUp": 8,
+            "names": [
+              "CRWD",
+              "GDX",
+              "GLD",
+              "MSFT",
+              "PLTR"
+            ]
+          },
+          {
+            "tradingDate": "2026-02-06",
+            "minutesWithWakingUp": 0,
+            "names": []
+          },
+          {
+            "tradingDate": "2026-02-13",
+            "minutesWithWakingUp": 0,
+            "names": []
+          },
+          {
+            "tradingDate": "2026-03-09",
+            "minutesWithWakingUp": 0,
+            "names": []
+          },
+          {
+            "tradingDate": "2026-03-10",
+            "minutesWithWakingUp": 0,
+            "names": []
+          },
+          {
+            "tradingDate": "2026-03-27",
+            "minutesWithWakingUp": 2,
+            "names": [
+              "META",
+              "XOM"
+            ]
+          },
+          {
+            "tradingDate": "2026-03-31",
+            "minutesWithWakingUp": 1,
+            "names": [
+              "META"
+            ]
+          },
+          {
+            "tradingDate": "2026-04-20",
+            "minutesWithWakingUp": 0,
+            "names": []
+          },
+          {
+            "tradingDate": "2026-05-06",
+            "minutesWithWakingUp": 0,
+            "names": []
+          },
+          {
+            "tradingDate": "2026-05-27",
+            "minutesWithWakingUp": 0,
+            "names": []
+          },
+          {
+            "tradingDate": "2026-06-02",
+            "minutesWithWakingUp": 1,
+            "names": [
+              "NKE"
+            ]
+          },
+          {
+            "tradingDate": "2026-06-26",
+            "minutesWithWakingUp": 0,
+            "names": []
+          },
+          {
+            "tradingDate": "2026-07-22",
+            "minutesWithWakingUp": 2,
+            "names": [
+              "SMCI"
+            ]
+          },
+          {
+            "tradingDate": "2026-07-29",
+            "minutesWithWakingUp": 2,
+            "names": [
+              "SPCX"
+            ]
+          }
+        ]
+      },
+      {
+        "split": "holdout",
+        "evaluatedMinutes": 4680,
+        "minutesWithWakingUp": 13,
+        "fractionMinutesWithWakingUp": 0.002777777777777778,
+        "wakingDwellMinutes": {
+          "count": 12,
+          "min": 1,
+          "p25": 1,
+          "median": 1,
+          "p75": 1,
+          "max": 2,
+          "iqr": 0
+        },
+        "namesPerSession": {
+          "count": 12,
+          "min": 0,
+          "p25": 0,
+          "median": 1,
+          "p75": 1.25,
+          "max": 3,
+          "iqr": 1.25
+        },
+        "leadTimeToInPlayMinutes": {
+          "count": 1,
+          "min": -202,
+          "p25": -202,
+          "median": -202,
+          "p75": -202,
+          "max": -202,
+          "iqr": 0
+        },
+        "leadCounts": {
+          "positive": 0,
+          "zero": 0,
+          "negative": 1
+        },
+        "quietSessions": [
+          "2025-10-01",
+          "2026-02-02",
+          "2026-02-12",
+          "2026-04-21"
+        ],
+        "perSession": [
+          {
+            "tradingDate": "2025-10-01",
+            "minutesWithWakingUp": 0,
+            "names": []
+          },
+          {
+            "tradingDate": "2026-01-27",
+            "minutesWithWakingUp": 1,
+            "names": [
+              "UBER"
+            ]
+          },
+          {
+            "tradingDate": "2026-01-30",
+            "minutesWithWakingUp": 3,
+            "names": [
+              "GLD",
+              "GOOGL",
+              "QQQ"
+            ]
+          },
+          {
+            "tradingDate": "2026-02-02",
+            "minutesWithWakingUp": 0,
+            "names": []
+          },
+          {
+            "tradingDate": "2026-02-12",
+            "minutesWithWakingUp": 0,
+            "names": []
+          },
+          {
+            "tradingDate": "2026-02-25",
+            "minutesWithWakingUp": 1,
+            "names": [
+              "COIN"
+            ]
+          },
+          {
+            "tradingDate": "2026-04-02",
+            "minutesWithWakingUp": 1,
+            "names": [
+              "NKE"
+            ]
+          },
+          {
+            "tradingDate": "2026-04-21",
+            "minutesWithWakingUp": 0,
+            "names": []
+          },
+          {
+            "tradingDate": "2026-04-22",
+            "minutesWithWakingUp": 1,
+            "names": [
+              "MRVL"
+            ]
+          },
+          {
+            "tradingDate": "2026-05-07",
+            "minutesWithWakingUp": 1,
+            "names": [
+              "PYPL"
+            ]
+          },
+          {
+            "tradingDate": "2026-06-09",
+            "minutesWithWakingUp": 2,
+            "names": [
+              "AMAT",
+              "AVGO"
+            ]
+          },
+          {
+            "tradingDate": "2026-08-14",
+            "minutesWithWakingUp": 3,
+            "names": [
+              "NKE",
+              "TSLA"
+            ]
+          }
+        ]
+      }
+    ],
+    "oneLeverMaximumTrainMedianDwell": {
+      "velocity_threshold": 1,
+      "extension_cap": 1,
+      "minimum_score": 1,
+      "persistence": 1
+    },
+    "postFixFunnel": {
+      "totalSymbolMinutes": 914393,
+      "independent": {
+        "extension": 300449,
+        "minimumScore": 22393,
+        "dataQuality": 914393,
+        "velocity": 23752,
+        "persistence": 39
+      },
+      "cumulative": {
+        "extension": 300449,
+        "minimumScore": 1027,
+        "dataQuality": 1027,
+        "velocity": 664,
+        "persistence": 39
+      },
+      "actual": 39
+    },
+    "publishedWakingConfig": null,
+    "finding": "Decoupling restored reachability, but no tested configuration jointly met coverage, five-minute dwell, lead-time, and quiet-session constraints."
+  },
+  "exitRefit": {
+    "performedAfterCorrections": false,
+    "reason": "The authorized stopping condition applies because WAKING UP remains unusable after decoupling; no substrate/configuration was published."
+  },
+  "fiveSessionDigest": {
+    "rerun": false,
+    "reason": "No accepted configuration exists to compare; publishing a digest as though a fit succeeded would be misleading."
+  },
+  "artifactHash": "28d7ef3536d9ffa35cf7a4d9a81c82da04671e6e33e62f4475053eeaeae3d28a"
+}

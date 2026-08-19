@@ -1,0 +1,91 @@
+{
+  "generatedAt": "2026-08-17T04:33:08.763Z",
+  "archive": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\archive\\sip-split",
+  "feed": "sip",
+  "adjustment": "split",
+  "fullHistoryStart": "2000-01-01T00:00:00.000Z",
+  "pagesFetched": 1,
+  "discardedPreListingBars": {
+    "SPCX": 0,
+    "NBIS": 0,
+    "CRWV": 0
+  },
+  "resolutions": [
+    {
+      "symbol": "CRWV",
+      "authoredListedSince": "2025-03-28",
+      "derivedCandidateDate": "2025-03-28",
+      "effectiveListedSince": "2025-03-28",
+      "firstAvailableDate": "2025-03-28",
+      "previousBarDate": null,
+      "largestGapDays": null,
+      "derivation": "first_bar",
+      "resolutionRule": "first_bar",
+      "listingGapDays": 45,
+      "listingDateToleranceDays": 5,
+      "authoredDifferenceDays": 0,
+      "whenIssued": {
+        "possibleWhenIssued": false,
+        "probeSessions": 10,
+        "comparisonSessions": 30,
+        "probeMedianVolume": 16212216,
+        "comparisonMedianVolume": 9288139.5,
+        "observedVolumeRatio": 1.7454750760364872,
+        "thresholdVolumeRatio": 0.2,
+        "excludedLeadingSessions": 0
+      },
+      "barsInspected": 347
+    },
+    {
+      "symbol": "NBIS",
+      "authoredListedSince": "2024-10-21",
+      "derivedCandidateDate": "2024-10-21",
+      "effectiveListedSince": "2024-10-21",
+      "firstAvailableDate": "2016-01-04",
+      "previousBarDate": "2024-08-19",
+      "largestGapDays": 63,
+      "derivation": "largest_gap",
+      "resolutionRule": "gap_rule",
+      "listingGapDays": 45,
+      "listingDateToleranceDays": 5,
+      "authoredDifferenceDays": 0,
+      "whenIssued": {
+        "possibleWhenIssued": false,
+        "probeSessions": 10,
+        "comparisonSessions": 30,
+        "probeMedianVolume": null,
+        "comparisonMedianVolume": null,
+        "observedVolumeRatio": null,
+        "thresholdVolumeRatio": 0.2,
+        "excludedLeadingSessions": 0
+      },
+      "barsInspected": 2626
+    },
+    {
+      "symbol": "SPCX",
+      "authoredListedSince": "2026-06-12",
+      "derivedCandidateDate": "2026-06-12",
+      "effectiveListedSince": "2026-06-12",
+      "firstAvailableDate": "2026-06-12",
+      "previousBarDate": null,
+      "largestGapDays": null,
+      "derivation": "first_bar",
+      "resolutionRule": "first_bar",
+      "listingGapDays": 45,
+      "listingDateToleranceDays": 5,
+      "authoredDifferenceDays": 0,
+      "whenIssued": {
+        "possibleWhenIssued": false,
+        "probeSessions": 10,
+        "comparisonSessions": 30,
+        "probeMedianVolume": 185709244.5,
+        "comparisonMedianVolume": 73460520.5,
+        "observedVolumeRatio": 2.5280142753684953,
+        "thresholdVolumeRatio": 0.2,
+        "excludedLeadingSessions": 0
+      },
+      "barsInspected": 44
+    }
+  ],
+  "metadataSha256": "a446cf73e7716bf35093f18c2718a7fb598b7da09191c7a0a05990b511320a16"
+}

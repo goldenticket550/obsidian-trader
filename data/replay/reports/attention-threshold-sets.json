@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "modeMapVersion": 3,
+  "sets": {
+    "premarket_early": {
+      "subWindow": "premarket_early",
+      "calibrationId": "mode-map-v3:premarket_early",
+      "calibrationStatus": "pending_calibration",
+      "values": {
+        "watchingCore": null,
+        "emergingCore": null,
+        "inPlayCore": null,
+        "newInPlayVelocityPerMinute": null
+      }
+    },
+    "premarket_core": {
+      "subWindow": "premarket_core",
+      "calibrationId": "mode-map-v3:premarket_core",
+      "calibrationStatus": "pending_calibration",
+      "values": {
+        "watchingCore": null,
+        "emergingCore": null,
+        "inPlayCore": null,
+        "newInPlayVelocityPerMinute": null
+      }
+    },
+    "premarket_final": {
+      "subWindow": "premarket_final",
+      "calibrationId": "mode-map-v3:premarket_final",
+      "calibrationStatus": "pending_calibration",
+      "values": {
+        "watchingCore": null,
+        "emergingCore": null,
+        "inPlayCore": null,
+        "newInPlayVelocityPerMinute": null
+      }
+    },
+    "regular": {
+      "subWindow": "regular",
+      "calibrationId": "mode-map-v3:regular",
+      "calibrationStatus": "pending_calibration",
+      "values": {
+        "watchingCore": null,
+        "emergingCore": null,
+        "inPlayCore": null,
+        "newInPlayVelocityPerMinute": null
+      }
+    },
+    "after_hours_core": {
+      "subWindow": "after_hours_core",
+      "calibrationId": "mode-map-v3:after_hours_core",
+      "calibrationStatus": "pending_calibration",
+      "values": {
+        "watchingCore": null,
+        "emergingCore": null,
+        "inPlayCore": null,
+        "newInPlayVelocityPerMinute": null
+      }
+    },
+    "after_hours_late": {
+      "subWindow": "after_hours_late",
+      "calibrationId": "mode-map-v3:after_hours_late",
+      "calibrationStatus": "pending_calibration",
+      "values": {
+        "watchingCore": null,
+        "emergingCore": null,
+        "inPlayCore": null,
+        "newInPlayVelocityPerMinute": null
+      }
+    }
+  }
+}

@@ -1,0 +1,1249 @@
+{
+  "schemaVersion": 1,
+  "purpose": "population_calibration_only",
+  "disclosure": "Timing statistics derived from historical pulls assume instantaneous bar availability. Real arrival latency is not represented. Human-relative latency and move-capture figures are therefore OPTIMISTICALLY BIASED and must not be used to justify lowering thresholds.",
+  "groundTruthValidation": "not_in_scope",
+  "feedSources": {
+    "sip": {
+      "root": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\archive\\sip-split",
+      "metadataSha256": "795ea9dfb41b90821a11248e1c395ee736aef50144115baded46560ba76af952"
+    },
+    "iex_partial": {
+      "root": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\archive\\iex-partial-calibration",
+      "metadataSha256": "8d3235b8880bd17a0a401d4aee0145a8f782bfd9f5a77ed44b5d918d3498356f"
+    }
+  },
+  "universeHash": "da45bb8793968392c2f872da51bc33caa9331a17251426badde96c5e12b077f7",
+  "universe": [
+    {
+      "symbol": "SPY",
+      "benchmark": "IWM",
+      "sectorEtf": "SPY",
+      "cluster": "index",
+      "optionsTier": 1,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "QQQ",
+      "benchmark": "SPY",
+      "sectorEtf": "QQQ",
+      "cluster": "index",
+      "optionsTier": 1,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "IWM",
+      "benchmark": "SPY",
+      "sectorEtf": "IWM",
+      "cluster": "index",
+      "optionsTier": 1,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "AAPL",
+      "benchmark": "QQQ",
+      "sectorEtf": "XLK",
+      "cluster": "megacap_tech",
+      "optionsTier": 1,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "MSFT",
+      "benchmark": "QQQ",
+      "sectorEtf": "XLK",
+      "cluster": "megacap_tech",
+      "optionsTier": 1,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "GOOGL",
+      "benchmark": "QQQ",
+      "sectorEtf": "XLC",
+      "cluster": "megacap_tech",
+      "optionsTier": 1,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "AMZN",
+      "benchmark": "QQQ",
+      "sectorEtf": "XLY",
+      "cluster": "megacap_tech",
+      "optionsTier": 1,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "META",
+      "benchmark": "QQQ",
+      "sectorEtf": "XLC",
+      "cluster": "megacap_tech",
+      "optionsTier": 1,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "TSLA",
+      "benchmark": "QQQ",
+      "sectorEtf": "XLY",
+      "cluster": "megacap_tech",
+      "optionsTier": 1,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "NVDA",
+      "benchmark": "QQQ",
+      "sectorEtf": "SMH",
+      "cluster": "semis",
+      "optionsTier": 1,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "AMD",
+      "benchmark": "QQQ",
+      "sectorEtf": "SMH",
+      "cluster": "semis",
+      "optionsTier": 1,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "AVGO",
+      "benchmark": "QQQ",
+      "sectorEtf": "SMH",
+      "cluster": "semis",
+      "optionsTier": 1,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "INTC",
+      "benchmark": "QQQ",
+      "sectorEtf": "SMH",
+      "cluster": "semis",
+      "optionsTier": 1,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "QCOM",
+      "benchmark": "QQQ",
+      "sectorEtf": "SMH",
+      "cluster": "semis",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "MRVL",
+      "benchmark": "QQQ",
+      "sectorEtf": "SMH",
+      "cluster": "semis",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "AMAT",
+      "benchmark": "QQQ",
+      "sectorEtf": "SMH",
+      "cluster": "semis",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "KLAC",
+      "benchmark": "QQQ",
+      "sectorEtf": "SMH",
+      "cluster": "semis",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "ARM",
+      "benchmark": "QQQ",
+      "sectorEtf": "SMH",
+      "cluster": "semis",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "TSM",
+      "benchmark": "QQQ",
+      "sectorEtf": "SMH",
+      "cluster": "semis",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "SMH",
+      "benchmark": "QQQ",
+      "sectorEtf": "SMH",
+      "cluster": "semis",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "MU",
+      "benchmark": "QQQ",
+      "sectorEtf": "DRAM",
+      "cluster": "memory",
+      "optionsTier": 1,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "SNDK",
+      "benchmark": "QQQ",
+      "sectorEtf": "DRAM",
+      "cluster": "memory",
+      "optionsTier": 1,
+      "enabled": true,
+      "listedSince": "2025-02-24",
+      "referenceOnly": false
+    },
+    {
+      "symbol": "WDC",
+      "benchmark": "QQQ",
+      "sectorEtf": "DRAM",
+      "cluster": "memory",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "DRAM",
+      "benchmark": "QQQ",
+      "sectorEtf": "DRAM",
+      "cluster": "memory",
+      "optionsTier": 1,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "SMCI",
+      "benchmark": "QQQ",
+      "sectorEtf": "SMH",
+      "cluster": "ai_infra",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "DELL",
+      "benchmark": "QQQ",
+      "sectorEtf": "XLK",
+      "cluster": "ai_infra",
+      "optionsTier": 1,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "NBIS",
+      "benchmark": "QQQ",
+      "sectorEtf": "XLK",
+      "cluster": "ai_infra",
+      "optionsTier": 1,
+      "enabled": true,
+      "listedSince": "2024-10-21",
+      "referenceOnly": false
+    },
+    {
+      "symbol": "CRWV",
+      "benchmark": "QQQ",
+      "sectorEtf": "XLK",
+      "cluster": "ai_infra",
+      "optionsTier": 3,
+      "enabled": true,
+      "listedSince": "2025-03-28",
+      "referenceOnly": false
+    },
+    {
+      "symbol": "AAOI",
+      "benchmark": "QQQ",
+      "sectorEtf": "SMH",
+      "cluster": "ai_infra",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "PLTR",
+      "benchmark": "QQQ",
+      "sectorEtf": "XLK",
+      "cluster": "software",
+      "optionsTier": 1,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "PANW",
+      "benchmark": "QQQ",
+      "sectorEtf": "XLK",
+      "cluster": "software",
+      "optionsTier": 1,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "ORCL",
+      "benchmark": "QQQ",
+      "sectorEtf": "XLK",
+      "cluster": "software",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "CRWD",
+      "benchmark": "QQQ",
+      "sectorEtf": "XLK",
+      "cluster": "software",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "CRM",
+      "benchmark": "QQQ",
+      "sectorEtf": "XLK",
+      "cluster": "software",
+      "optionsTier": 3,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "ADBE",
+      "benchmark": "QQQ",
+      "sectorEtf": "XLK",
+      "cluster": "software",
+      "optionsTier": 3,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "NOW",
+      "benchmark": "QQQ",
+      "sectorEtf": "XLK",
+      "cluster": "software",
+      "optionsTier": 3,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "NFLX",
+      "benchmark": "QQQ",
+      "sectorEtf": "XLC",
+      "cluster": "internet",
+      "optionsTier": 1,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "UBER",
+      "benchmark": "QQQ",
+      "sectorEtf": "XLY",
+      "cluster": "internet",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "SNAP",
+      "benchmark": "QQQ",
+      "sectorEtf": "XLC",
+      "cluster": "internet",
+      "optionsTier": 3,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "MSTR",
+      "benchmark": "QQQ",
+      "sectorEtf": "IBIT",
+      "cluster": "crypto",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "HOOD",
+      "benchmark": "QQQ",
+      "sectorEtf": "IBIT",
+      "cluster": "crypto",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "IBIT",
+      "benchmark": "QQQ",
+      "sectorEtf": "IBIT",
+      "cluster": "crypto",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "COIN",
+      "benchmark": "QQQ",
+      "sectorEtf": "IBIT",
+      "cluster": "crypto",
+      "optionsTier": 3,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "SOFI",
+      "benchmark": "SPY",
+      "sectorEtf": "XLF",
+      "cluster": "fintech",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "PYPL",
+      "benchmark": "QQQ",
+      "sectorEtf": "XLF",
+      "cluster": "fintech",
+      "optionsTier": 3,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "GLD",
+      "benchmark": "SPY",
+      "sectorEtf": "GLD",
+      "cluster": "metals",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "SLV",
+      "benchmark": "SPY",
+      "sectorEtf": "SLV",
+      "cluster": "metals",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "GDX",
+      "benchmark": "SPY",
+      "sectorEtf": "GLD",
+      "cluster": "metals",
+      "optionsTier": 3,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "XOM",
+      "benchmark": "SPY",
+      "sectorEtf": "XLE",
+      "cluster": "energy",
+      "optionsTier": 3,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "USO",
+      "benchmark": "SPY",
+      "sectorEtf": "XLE",
+      "cluster": "energy",
+      "optionsTier": 3,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "BE",
+      "benchmark": "SPY",
+      "sectorEtf": "XLE",
+      "cluster": "energy",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "LLY",
+      "benchmark": "SPY",
+      "sectorEtf": "XLV",
+      "cluster": "healthcare",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "UNH",
+      "benchmark": "SPY",
+      "sectorEtf": "XLV",
+      "cluster": "healthcare",
+      "optionsTier": 3,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "COST",
+      "benchmark": "SPY",
+      "sectorEtf": "XLP",
+      "cluster": "consumer",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "WMT",
+      "benchmark": "SPY",
+      "sectorEtf": "XLP",
+      "cluster": "consumer",
+      "optionsTier": 3,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "NKE",
+      "benchmark": "SPY",
+      "sectorEtf": "XLY",
+      "cluster": "consumer",
+      "optionsTier": 3,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "CCL",
+      "benchmark": "SPY",
+      "sectorEtf": "XLY",
+      "cluster": "travel",
+      "optionsTier": 3,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "AAL",
+      "benchmark": "SPY",
+      "sectorEtf": "XLY",
+      "cluster": "travel",
+      "optionsTier": 3,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "IBM",
+      "benchmark": "SPY",
+      "sectorEtf": "XLK",
+      "cluster": "legacy_tech",
+      "optionsTier": 2,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "T",
+      "benchmark": "SPY",
+      "sectorEtf": "XLC",
+      "cluster": "legacy_tech",
+      "optionsTier": 3,
+      "enabled": true,
+      "referenceOnly": false
+    },
+    {
+      "symbol": "SPCX",
+      "benchmark": "QQQ",
+      "sectorEtf": "SPCX",
+      "cluster": "space",
+      "optionsTier": 1,
+      "enabled": true,
+      "listedSince": "2026-06-12",
+      "referenceOnly": false
+    },
+    {
+      "symbol": "XLK",
+      "benchmark": "SPY",
+      "sectorEtf": null,
+      "cluster": "sector_ref",
+      "optionsTier": 3,
+      "enabled": false,
+      "referenceOnly": true
+    },
+    {
+      "symbol": "XLC",
+      "benchmark": "SPY",
+      "sectorEtf": null,
+      "cluster": "sector_ref",
+      "optionsTier": 3,
+      "enabled": false,
+      "referenceOnly": true
+    },
+    {
+      "symbol": "XLY",
+      "benchmark": "SPY",
+      "sectorEtf": null,
+      "cluster": "sector_ref",
+      "optionsTier": 3,
+      "enabled": false,
+      "referenceOnly": true
+    },
+    {
+      "symbol": "XLP",
+      "benchmark": "SPY",
+      "sectorEtf": null,
+      "cluster": "sector_ref",
+      "optionsTier": 3,
+      "enabled": false,
+      "referenceOnly": true
+    },
+    {
+      "symbol": "XLE",
+      "benchmark": "SPY",
+      "sectorEtf": null,
+      "cluster": "sector_ref",
+      "optionsTier": 3,
+      "enabled": false,
+      "referenceOnly": true
+    },
+    {
+      "symbol": "XLF",
+      "benchmark": "SPY",
+      "sectorEtf": null,
+      "cluster": "sector_ref",
+      "optionsTier": 3,
+      "enabled": false,
+      "referenceOnly": true
+    },
+    {
+      "symbol": "XLV",
+      "benchmark": "SPY",
+      "sectorEtf": null,
+      "cluster": "sector_ref",
+      "optionsTier": 3,
+      "enabled": false,
+      "referenceOnly": true
+    }
+  ],
+  "warmup": {
+    "source": "prior_session_regular",
+    "completedFiveMinuteBars": 13,
+    "overnightGapTreatment": "first_current_bar_true_range_vs_previous_regular_close"
+  },
+  "fetchedSymbols": 68,
+  "rankedSymbols": 61,
+  "referenceOnlySymbols": 7,
+  "sessions": [
+    {
+      "tradingDate": "2025-10-01",
+      "sessionReturn": 0.007961759428201098,
+      "rangePct": 0.009514905680293227,
+      "bodyEfficiency": 0.8367670364500851,
+      "primaryRegime": "trending_up",
+      "tags": [
+        "trending_up"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "holdout",
+      "haltCandidate": {
+        "tradingDate": "2025-10-01",
+        "symbol": "KLAC",
+        "gapMinutes": 5,
+        "beforeMinute": 689,
+        "afterMinute": 695,
+        "evidence": "inferred_regular_hours_bar_gap"
+      }
+    },
+    {
+      "tradingDate": "2025-10-10",
+      "sessionReturn": -0.028431999761950877,
+      "rangePct": 0.031407614598366405,
+      "bodyEfficiency": 0.9052581714827097,
+      "primaryRegime": "high_volatility",
+      "tags": [
+        "trending_down",
+        "high_volatility"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2025-10-24",
+      "sessionReturn": 0.0011678443662594962,
+      "rangePct": 0.004168760902344632,
+      "bodyEfficiency": 0.28014184397161335,
+      "primaryRegime": "quiet",
+      "tags": [
+        "quiet"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "train",
+      "haltCandidate": {
+        "tradingDate": "2025-10-24",
+        "symbol": "KLAC",
+        "gapMinutes": 6,
+        "beforeMinute": 842,
+        "afterMinute": 849,
+        "evidence": "inferred_regular_hours_bar_gap"
+      }
+    },
+    {
+      "tradingDate": "2025-10-28",
+      "sessionReturn": 0.000014554981442316262,
+      "rangePct": 0.005931154937777355,
+      "bodyEfficiency": 0.002453987730059159,
+      "primaryRegime": "quiet",
+      "tags": [
+        "chopping",
+        "quiet"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "train",
+      "haltCandidate": {
+        "tradingDate": "2025-10-28",
+        "symbol": "KLAC",
+        "gapMinutes": 10,
+        "beforeMinute": 842,
+        "afterMinute": 853,
+        "evidence": "inferred_regular_hours_bar_gap"
+      }
+    },
+    {
+      "tradingDate": "2025-11-04",
+      "sessionReturn": -0.0012867728624040842,
+      "rangePct": 0.007957285057165248,
+      "bodyEfficiency": 0.16171003717472218,
+      "primaryRegime": "chopping",
+      "tags": [
+        "chopping"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2025-11-14",
+      "sessionReturn": 0.009843998917911545,
+      "rangePct": 0.01862845291412423,
+      "bodyEfficiency": 0.528438886647839,
+      "primaryRegime": "high_volatility",
+      "tags": [
+        "trending_up",
+        "high_volatility"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2025-11-20",
+      "sessionReturn": -0.030286368162161348,
+      "rangePct": 0.03517558068686743,
+      "bodyEfficiency": 0.8610054921842007,
+      "primaryRegime": "high_volatility",
+      "tags": [
+        "trending_down",
+        "high_volatility"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2025-11-24",
+      "sessionReturn": 0.009114367200349971,
+      "rangePct": 0.012781240097179545,
+      "bodyEfficiency": 0.7131050767414434,
+      "primaryRegime": "trending_up",
+      "tags": [
+        "trending_up"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": true,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2025-11-28",
+      "sessionReturn": 0.003715888728960337,
+      "rangePct": 0.00464853273800776,
+      "bodyEfficiency": 0.7993680884676151,
+      "primaryRegime": "quiet",
+      "tags": [
+        "quiet"
+      ],
+      "earlyClose": true,
+      "holidayAdjacent": true,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2025-12-09",
+      "sessionReturn": -0.00016101880992458462,
+      "rangePct": 0.004091341579448085,
+      "bodyEfficiency": 0.03935599284437039,
+      "primaryRegime": "quiet",
+      "tags": [
+        "chopping",
+        "quiet"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2025-12-10",
+      "sessionReturn": 0.007340014064697753,
+      "rangePct": 0.01122245663384916,
+      "bodyEfficiency": 0.6540469973890406,
+      "primaryRegime": "trending_up",
+      "tags": [
+        "trending_up"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2025-12-17",
+      "sessionReturn": -0.012487314124343674,
+      "rangePct": 0.013590433746635332,
+      "bodyEfficiency": 0.9188311688311802,
+      "primaryRegime": "trending_down",
+      "tags": [
+        "trending_down"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2025-12-30",
+      "sessionReturn": -0.0006327778949589691,
+      "rangePct": 0.0028729571092958837,
+      "bodyEfficiency": 0.2202531645570021,
+      "primaryRegime": "quiet",
+      "tags": [
+        "chopping",
+        "quiet"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": true,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-01-20",
+      "sessionReturn": -0.005737428282146406,
+      "rangePct": 0.01203245828992345,
+      "bodyEfficiency": 0.476829268292683,
+      "primaryRegime": "trending_down",
+      "tags": [
+        "trending_down"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": true,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-01-21",
+      "sessionReturn": 0.008460236886632888,
+      "rangePct": 0.015603619510041961,
+      "bodyEfficiency": 0.5421970768505413,
+      "primaryRegime": "high_volatility",
+      "tags": [
+        "trending_up",
+        "high_volatility"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": true,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-01-27",
+      "sessionReturn": 0.0018871186147686458,
+      "rangePct": 0.004264023740240173,
+      "bodyEfficiency": 0.4425675675675991,
+      "primaryRegime": "quiet",
+      "tags": [
+        "quiet"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "holdout",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-01-29",
+      "sessionReturn": -0.0033745458722842514,
+      "rangePct": 0.01756199830554704,
+      "bodyEfficiency": 0.19215044971382184,
+      "primaryRegime": "high_volatility",
+      "tags": [
+        "chopping",
+        "high_volatility"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-01-30",
+      "sessionReturn": 0.00026019456771564364,
+      "rangePct": 0.010248774917243719,
+      "bodyEfficiency": 0.025387870239783197,
+      "primaryRegime": "chopping",
+      "tags": [
+        "chopping"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "holdout",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-02-02",
+      "sessionReturn": 0.008454421531946865,
+      "rangePct": 0.9105905043649757,
+      "bodyEfficiency": 0.009284548313890875,
+      "primaryRegime": "high_volatility",
+      "tags": [
+        "chopping",
+        "high_volatility"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "holdout",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-02-06",
+      "sessionReturn": 0.013441728054471191,
+      "rangePct": 0.016816834443694306,
+      "bodyEfficiency": 0.7993019197207705,
+      "primaryRegime": "high_volatility",
+      "tags": [
+        "trending_up",
+        "high_volatility"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-02-12",
+      "sessionReturn": -0.0186823000691404,
+      "rangePct": 0.021577552431435842,
+      "bodyEfficiency": 0.8658210947930581,
+      "primaryRegime": "high_volatility",
+      "tags": [
+        "trending_down",
+        "high_volatility"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "holdout",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-02-13",
+      "sessionReturn": 0.0000880165471108807,
+      "rangePct": 0.012850415878185084,
+      "bodyEfficiency": 0.006849315068486929,
+      "primaryRegime": "chopping",
+      "tags": [
+        "chopping"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": true,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-02-25",
+      "sessionReturn": 0.004303225245588127,
+      "rangePct": 0.005187052652931014,
+      "bodyEfficiency": 0.8296089385475105,
+      "primaryRegime": "quiet",
+      "tags": [
+        "trending_up",
+        "quiet"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "holdout",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-03-09",
+      "sessionReturn": 0.017827398370323655,
+      "rangePct": 0.026305916955536506,
+      "bodyEfficiency": 0.677695379349687,
+      "primaryRegime": "high_volatility",
+      "tags": [
+        "trending_up",
+        "high_volatility"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-03-10",
+      "sessionReturn": -0.0007967892344922234,
+      "rangePct": 0.012689606327096769,
+      "bodyEfficiency": 0.06279069767442742,
+      "primaryRegime": "chopping",
+      "tags": [
+        "chopping"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-03-27",
+      "sessionReturn": -0.013089494163424087,
+      "rangePct": 0.014871595330739222,
+      "bodyEfficiency": 0.8801674515960243,
+      "primaryRegime": "trending_down",
+      "tags": [
+        "trending_down"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-03-31",
+      "sessionReturn": 0.0178420508967978,
+      "rangePct": 0.021222650014085742,
+      "bodyEfficiency": 0.8407079646017717,
+      "primaryRegime": "high_volatility",
+      "tags": [
+        "trending_up",
+        "high_volatility"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": true,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-04-02",
+      "sessionReturn": 0.014557099099656634,
+      "rangePct": 0.020249992265090857,
+      "bodyEfficiency": 0.718869365928194,
+      "primaryRegime": "high_volatility",
+      "tags": [
+        "trending_up",
+        "high_volatility"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": true,
+      "split": "holdout",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-04-20",
+      "sessionReturn": -0.00008465250148137482,
+      "rangePct": 0.005318998843082455,
+      "bodyEfficiency": 0.015915119363380827,
+      "primaryRegime": "quiet",
+      "tags": [
+        "chopping",
+        "quiet"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-04-21",
+      "sessionReturn": -0.008728951962606146,
+      "rangePct": 0.012157177451146015,
+      "bodyEfficiency": 0.7180081065431313,
+      "primaryRegime": "trending_down",
+      "tags": [
+        "trending_down"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "holdout",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-04-22",
+      "sessionReturn": 0.0029048861312839236,
+      "rangePct": 0.004554748642741336,
+      "bodyEfficiency": 0.637770897832832,
+      "primaryRegime": "quiet",
+      "tags": [
+        "quiet"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "holdout",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-05-06",
+      "sessionReturn": 0.007786750164799017,
+      "rangePct": 0.009297407163260798,
+      "bodyEfficiency": 0.8375184638109435,
+      "primaryRegime": "trending_up",
+      "tags": [
+        "trending_up"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-05-07",
+      "sessionReturn": -0.00472076729474169,
+      "rangePct": 0.008679681654309225,
+      "bodyEfficiency": 0.54388714733541,
+      "primaryRegime": "trending_down",
+      "tags": [
+        "trending_down"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "holdout",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-05-27",
+      "sessionReturn": -0.0005593437033879489,
+      "rangePct": 0.004208395482633668,
+      "bodyEfficiency": 0.13291139240505168,
+      "primaryRegime": "quiet",
+      "tags": [
+        "chopping",
+        "quiet"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": true,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-06-02",
+      "sessionReturn": 0.0033552170983977003,
+      "rangePct": 0.004821473389429716,
+      "bodyEfficiency": 0.6958904109589297,
+      "primaryRegime": "quiet",
+      "tags": [
+        "quiet"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-06-09",
+      "sessionReturn": -0.00884848647849068,
+      "rangePct": 0.03269098879819258,
+      "bodyEfficiency": 0.2706705059646259,
+      "primaryRegime": "high_volatility",
+      "tags": [
+        "chopping",
+        "high_volatility"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "holdout",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-06-26",
+      "sessionReturn": 0.00006173305256229611,
+      "rangePct": 0.02736831996927056,
+      "bodyEfficiency": 0.002255639097742317,
+      "primaryRegime": "high_volatility",
+      "tags": [
+        "chopping",
+        "high_volatility"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-07-22",
+      "sessionReturn": 0.0010581018456510272,
+      "rangePct": 0.004888698400792876,
+      "bodyEfficiency": 0.21643835616437496,
+      "primaryRegime": "quiet",
+      "tags": [
+        "chopping",
+        "quiet"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-07-29",
+      "sessionReturn": -0.014203278511290995,
+      "rangePct": 0.018352095355217004,
+      "bodyEfficiency": 0.7739322533137001,
+      "primaryRegime": "high_volatility",
+      "tags": [
+        "trending_down",
+        "high_volatility"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "train",
+      "haltCandidate": null
+    },
+    {
+      "tradingDate": "2026-08-14",
+      "sessionReturn": -0.002825802142471745,
+      "rangePct": 0.004328486654507047,
+      "bodyEfficiency": 0.6528383631561728,
+      "primaryRegime": "quiet",
+      "tags": [
+        "trending_down",
+        "quiet"
+      ],
+      "earlyClose": false,
+      "holidayAdjacent": false,
+      "split": "holdout",
+      "haltCandidate": null
+    }
+  ],
+  "splitHash": "492b6bc31e5e03da118254b2deac75555e58a18a27e3d9e988f7daf92607468e"
+}
