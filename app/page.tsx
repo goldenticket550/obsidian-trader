@@ -174,6 +174,7 @@ export default function DashboardPage() {
   /** Single `now` and single windowed collection shared by BOTH the headline
    * counts and the action queue, so the selected window can never apply to
    * one but not the other. Recomputed only when the data or window changes. */
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- the dependencies intentionally define when the shared timestamp advances
   const windowNow = useMemo(() => Date.now(), [allAlerts, signalWindow]);
   const windowedAlerts = useMemo(
     () => filterEventsByWindow(allAlerts, signalWindow, windowNow),

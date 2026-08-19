@@ -11,6 +11,7 @@ const NAV_ITEMS: { label: string; href: string | null }[] = [
   { label: "Scanner", href: null },
   { label: "Alerts", href: "/alerts" },
   { label: "Journal", href: "/journal" },
+  { label: "Labels", href: "/labels" },
   { label: "Performance", href: null },
   { label: "Settings", href: "/settings" },
 ];

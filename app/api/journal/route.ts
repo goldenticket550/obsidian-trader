@@ -35,6 +35,9 @@ export async function POST(request: Request) {
     if (!body.tradeDate) {
       return NextResponse.json({ error: "Trade date is required" }, { status: 400 });
     }
+    if (!body.entryTime || !Number.isFinite(Date.parse(body.entryTime))) {
+      return NextResponse.json({ error: "Actual entry time is required" }, { status: 400 });
+    }
     if (typeof body.entryPrice !== "number" || typeof body.positionSize !== "number") {
       return NextResponse.json(
         { error: "Entry price and position size are required numbers" },
