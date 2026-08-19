@@ -5,6 +5,7 @@ function toJournalEntry(row: Record<string, unknown>): JournalEntry {
   return {
     id: row.id as string,
     tradeDate: row.trade_date as string,
+    entryTime: (row.entry_time as string | null) ?? null,
     symbol: row.symbol as string,
     direction: row.direction as JournalEntry["direction"],
     entryPrice: Number(row.entry_price),
@@ -30,6 +31,7 @@ function toDbRow(entry: NewJournalEntry, userId: string) {
   return {
     user_id: userId,
     trade_date: entry.tradeDate,
+    entry_time: entry.entryTime ?? null,
     symbol: entry.symbol.toUpperCase(),
     direction: entry.direction,
     entry_price: entry.entryPrice,

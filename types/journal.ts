@@ -3,6 +3,8 @@ export type TradeDirection = "long" | "short";
 export interface JournalEntry {
   id: string;
   tradeDate: string; // YYYY-MM-DD
+  /** Actual fill/entry timestamp. Null on legacy rows until explicitly backfilled. */
+  entryTime?: string | null;
   symbol: string;
   direction: TradeDirection;
   entryPrice: number;

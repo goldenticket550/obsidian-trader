@@ -46,6 +46,22 @@ function marketDataSuffix(result: SetupResult): string {
  * would flood the feed with alerts for conditions that may have been
  * true for hours before the app ever ran a first scan.
  */
+function decisionPayload(result: SetupResult, triggeringConditionId: string): Pick<
+  AlertEvent, "entryStatus" | "invalidationNote" | "requiredPassing" | "triggeringConditionId" | "score" | "maxScore" | "conditions" | "evidence"
+> {
+  const required = result.conditions.filter((condition) => condition.required);
+  return {
+    entryStatus: result.entryStatus,
+    invalidationNote: result.invalidationNote,
+    requiredPassing: { passed: required.filter((condition) => condition.state === "pass").length, total: required.length },
+    triggeringConditionId,
+    score: result.score,
+    maxScore: result.maxScore,
+    conditions: result.conditions,
+    evidence: result.evidence,
+  };
+}
+
 export function evaluateAlerts(
   previous: SetupResult | null,
   current: SetupResult,
@@ -71,6 +87,7 @@ export function evaluateAlerts(
           symbol: current.symbol,
           timeframe: current.timeframe,
           message: `${current.symbol} (${current.timeframe}) reached a score of ${current.score.toFixed(1)}/${current.maxScore.toFixed(1)}${marketDataSuffix(current)}`,
+          ...decisionPayload(current, rule.type),
           firedAt: now,
         });
       }
@@ -91,6 +108,7 @@ export function evaluateAlerts(
           symbol: current.symbol,
           timeframe: current.timeframe,
           message: `${current.symbol} (${current.timeframe}) setup invalidated: ${newlyInvalidated[0].label}${marketDataSuffix(current)}`,
+          ...decisionPayload(current, newlyInvalidated[0].id),
           firedAt: now,
         });
       }
@@ -124,6 +142,7 @@ export function evaluateAlerts(
           symbol: current.symbol,
           timeframe: current.timeframe,
           message: `${current.symbol} (${current.timeframe}) ${rule.label.toLowerCase()} — ${passed}/${required.length} required conditions passing, score ${current.score.toFixed(1)}/${current.maxScore.toFixed(1)}${marketDataSuffix(current)}`,
+          ...decisionPayload(current, rule.type),
           firedAt: now,
         });
       }
@@ -146,6 +165,7 @@ export function evaluateAlerts(
         message: `${current.symbol} (${current.timeframe}) ${rule.label.toLowerCase()}${
           detail ? ` — ${detail}` : ""
         }${marketDataSuffix(current)}`,
+        ...decisionPayload(current, conditionId),
         firedAt: now,
       });
     }

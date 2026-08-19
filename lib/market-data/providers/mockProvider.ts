@@ -1,5 +1,6 @@
 import type { CandleSeries } from "@/types/candle";
 import type { GetCandlesParams, MarketDataProvider, SessionInfo } from "../types";
+import type { CandlesMultiResult, GetCandlesMultiParams } from "../types";
 import { computeSessionInfo } from "../session";
 import { mockScanInputs } from "@/lib/mock/scanInputs";
 
@@ -35,6 +36,23 @@ export class MockProvider implements MarketDataProvider {
       timeframe: params.timeframe,
       quality: "simulated",
       candles: params.limit ? candles.slice(-params.limit) : candles,
+    };
+  }
+
+  async getCandlesMulti(params: GetCandlesMultiParams): Promise<CandlesMultiResult> {
+    const entries = await Promise.all(
+      params.symbols.map(async (symbol) => [
+        symbol,
+        (await this.getCandles({ symbol, timeframe: params.timeframe })).candles,
+      ] as const)
+    );
+    return {
+      candlesBySymbol: Object.fromEntries(entries),
+      pagination: {
+        complete: true, pagesFetched: 1, nextPageTokenRemaining: false, truncationReason: null,
+      },
+      requestedFeed: "mock",
+      responseFeed: "mock",
     };
   }
 

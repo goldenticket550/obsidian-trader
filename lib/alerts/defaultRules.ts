@@ -6,10 +6,10 @@ const FIVE_MIN = 5 * 60_000;
  * Cooldown for the early-tier `entered_developing` rule only. Longer than
  * the FIVE_MIN every confirmed-tier rule uses, because the watch <->
  * developing boundary is genuinely easy to oscillate across:
- * determineConvictionLevel promotes on `requiredRatio >= 0.5 ||
- * requiredPassed >= 2`, so a single required condition flickering
- * pass/fail flips conviction back and forth and would re-fire this alert
- * every scan at a 5-minute cooldown.
+ * determineConvictionLevel promotes only when `requiredRatio >= 0.5`,
+ * so a required condition flickering near that boundary can flip
+ * conviction back and forth and would re-fire this alert every scan at
+ * a 5-minute cooldown.
  *
  * 15 minutes is 3 candles on the 5m timeframe and 1 on the 15m, so a
  * genuine re-entry after a real move still gets through, while flapping

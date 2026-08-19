@@ -189,6 +189,31 @@ function unavailableFacts(result: Pick<TrendResult, "facts">): string[] {
 
 const NO_ATTEMPT: OriginAttempt = { origin: null, rejections: [], stabilisation: [] };
 
+const NO_ATR_ATTEMPT: OriginAttempt = {
+  origin: null,
+  rejections: ["no_atr"],
+  stabilisation: [],
+};
+
+/**
+ * THE OPENING WINDOW.
+ *
+ * Defined by capability, not by a clock: it lasts exactly as long as the
+ * REGULAR-session ATR is not yet measurable. A 14-period ATR on 5m bars
+ * needs ~15 completed regular bars, so in practice this is roughly the
+ * first 70 minutes — but nothing here is fitted to that number, and if
+ * the ATR period ever changes the window follows it automatically.
+ *
+ * The point is precise: during this window the ordinary origin paths are
+ * INCAPABLE, because both open with a hard `no_atr` refusal. Real MU
+ * 2026-07-31 had a lower-high base at 928.60 lockable at 09:35, five
+ * minutes after the bell, and the detector could not touch it until
+ * 10:40 — by which time price was 8.1% lower and it anchored 854.49.
+ */
+function isOpeningWindow(regularAtr: number | null): boolean {
+  return regularAtr === null || !(regularAtr > 0);
+}
+
 /**
  * PATH A, fed a window that INCLUDES premarket.
  *
@@ -196,16 +221,20 @@ const NO_ATTEMPT: OriginAttempt = { origin: null, rejections: [], stabilisation:
  * duplicated or relaxed, it is simply handed the bars where the base
  * actually formed. Two guards keep it honest:
  *
- *  - the base must have locked BEFORE the opening bell, otherwise it is a
- *    regular-session base and belongs to the unchanged path below;
- *  - it must have HELD into the open — no completed regular bar may have
- *    traded through it — because a premarket base that price has already
- *    broken is not an origin, it is history.
+ *  - the base must have locked BEFORE the opening bell, OR inside the
+ *    opening window while the regular path is ATR-incapable. Once the
+ *    regular ATR exists the relaxation switches off and this reverts to
+ *    premarket-only, so the regular path owns its own bases;
+ *  - it must have HELD — no completed regular bar may have traded
+ *    through it — because a base price has already broken is not an
+ *    origin, it is history.
  *
- * Causal: every premarket bar closed before the first regular bar, so all
- * of this is knowable at the open. ATR comes from the combined series
- * because a 14-period 5m ATR is not measurable from the one regular bar
- * that exists at 9:30, and premarket range is real data, not a stand-in.
+ * Causal: every premarket bar closed before the first regular bar, and
+ * the regular bars passed in are only those completed at this
+ * evaluation, so a lock at 09:35 uses nothing after 09:35. ATR comes
+ * from the combined series because a 14-period 5m ATR is not measurable
+ * from the bars that exist at the open, and premarket range is real
+ * measured data, not a stand-in.
  */
 function detectPremarketAnchoredBase(args: {
   premarketOneMinute: readonly Candle[];
@@ -215,6 +244,8 @@ function detectPremarketAnchoredBase(args: {
   direction: TrendDirection;
   levels: readonly KeyLevel[];
   config: TrendScannerConfig;
+  /** True while the regular-session ATR is not yet measurable. */
+  openingWindow: boolean;
 }): OriginAttempt {
   const { premarketOneMinute, premarketFiveMinute, oneMinute, fiveMinute } = args;
   if (premarketOneMinute.length === 0 || fiveMinute.length === 0) return NO_ATTEMPT;
@@ -222,7 +253,9 @@ function detectPremarketAnchoredBase(args: {
   const combinedOne = [...premarketOneMinute, ...oneMinute];
   const combinedFive = [...premarketFiveMinute, ...fiveMinute];
   const atr5m = latestValid(calculateAtr(combinedFive as Candle[], 14));
-  if (atr5m === null || !(atr5m > 0)) return NO_ATTEMPT;
+  // No premarket data either: refuse with a NAMED reason rather than
+  // silently, and never substitute a default scale.
+  if (atr5m === null || !(atr5m > 0)) return NO_ATR_ATTEMPT;
 
   const attempt = detectHeldBaseOrigin({
     oneMinute: combinedOne,
@@ -235,12 +268,18 @@ function detectPremarketAnchoredBase(args: {
   const origin = attempt.origin;
   if (origin === null) return attempt;
 
-  // Must have formed premarket.
-  if (origin.establishedAt >= iso(fiveMinute[0].time)) return NO_ATTEMPT;
+  // Formed premarket, or inside the opening window.
+  const lockedBeforeTheBell = origin.establishedAt < iso(fiveMinute[0].time);
+  if (!lockedBeforeTheBell && !args.openingWindow) return NO_ATTEMPT;
 
   // Must still be holding: no completed regular bar through the base.
+  // Only bars at or after the lock can break it — a bar that printed
+  // before the base existed cannot have broken it.
   const ops = opsFor(args.direction);
-  const breached = fiveMinute.some((c) => ops.adverse(ops.adverseExtreme(c), origin.price));
+  const lockedAtSec = Date.parse(origin.establishedAt) / 1000;
+  const breached = fiveMinute.some(
+    (c) => c.time >= lockedAtSec && ops.adverse(ops.adverseExtreme(c), origin.price)
+  );
   if (breached) return NO_ATTEMPT;
 
   return attempt;
@@ -276,6 +315,31 @@ export function evaluateTrend(input: EvaluateInput): EvaluateOutput {
   // Only look for a NEW origin when there is no live one.
   const needsOrigin = previous.origin === null;
 
+  // ---- opening-window volatility scale ----
+  //
+  // Both origin paths open with a hard `no_atr` refusal, and the
+  // regular-session ATR needs ~15 completed regular bars, so for the
+  // first ~70 minutes NO origin could lock at all. During that window
+  // only, scale by the premarket-INCLUSIVE ATR: the same real bars the
+  // premarket path already loads, never a fabricated default.
+  //
+  // This feeds ORIGIN DETECTION ONLY. `facts.atr5m` is untouched, so the
+  // confirmation threshold, the extension measure and the milestone
+  // ladder all keep scaling by regular-session volatility exactly as
+  // before.
+  const regularAtr = factsWithPrevOrigin.atr5m;
+  const openingWindow = isOpeningWindow(regularAtr);
+  const openingWindowAtr = openingWindow
+    ? latestValid(
+        calculateAtr(
+          [...(input.premarketFiveMinute ?? []), ...input.fiveMinute] as Candle[],
+          14
+        )
+      )
+    : null;
+  // Null when neither source can measure it — the paths then refuse.
+  const originAtr = regularAtr ?? openingWindowAtr;
+
   // A premarket-formed base that held into the open wins, because it is
   // where the move actually started. When none qualifies — the name
   // drifted down premarket, or there is no premarket data at all — this
@@ -289,6 +353,7 @@ export function evaluateTrend(input: EvaluateInput): EvaluateOutput {
         direction: input.direction,
         levels: input.levels,
         config: input.config,
+        openingWindow,
       })
     : NO_ATTEMPT;
 
@@ -298,7 +363,7 @@ export function evaluateTrend(input: EvaluateInput): EvaluateOutput {
           oneMinute: input.oneMinute,
           fiveMinute: input.fiveMinute,
           direction: input.direction,
-          atr5m: factsWithPrevOrigin.atr5m,
+          atr5m: originAtr,
           levels: input.levels,
           config: input.config,
         })
@@ -310,7 +375,7 @@ export function evaluateTrend(input: EvaluateInput): EvaluateOutput {
           oneMinute: input.oneMinute,
           fiveMinute: input.fiveMinute,
           direction: input.direction,
-          atr5m: factsWithPrevOrigin.atr5m,
+          atr5m: originAtr,
           levels: input.levels,
           relativeVolume: input.relativeVolume.multiple,
           config: input.config,

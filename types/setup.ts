@@ -15,6 +15,7 @@ import type { LiquiditySweepResult } from "@/lib/indicators/liquiditySweep";
 export interface SetupEvidence {
   structureShift: StructureShiftResult;
   liquiditySweep: LiquiditySweepResult;
+  conditions: SetupCondition[];
 }
 
 export type SetupStatus = "red" | "yellow" | "green";
@@ -31,7 +32,7 @@ export type SetupStage =
   | "gap_proximity"
   | "confirmed";
 
-export type ConditionState = "pass" | "fail" | "waiting" | "invalidated";
+export type ConditionState = "pass" | "fail" | "waiting" | "invalidated" | "unavailable";
 
 /**
  * Weight tier, directly reflecting the spec's "not all signals are equal"
@@ -41,6 +42,7 @@ export type ConditionState = "pass" | "fail" | "waiting" | "invalidated";
  * score instead of one flat point per condition.
  */
 export type ConditionCategory = "core" | "secondary" | "supporting" | "informational";
+export type ConditionDistanceUnit = "ratio" | "percent" | "dollars" | "count" | "boolean";
 
 export const CATEGORY_WEIGHT: Record<ConditionCategory, number> = {
   core: 3,
@@ -62,6 +64,17 @@ export interface SetupCondition {
   required: boolean;
   /** Weight tier used for the weighted score — defaults to "supporting" if omitted. */
   category?: ConditionCategory;
+  /** Explanation when state is unavailable; not a failed condition. */
+  unavailableReason?: string;
+  /** Machine-readable measurement; absent only when state is unavailable. */
+  observedValue?: number;
+  /** Machine-readable decision boundary; absent only when state is unavailable. */
+  thresholdValue?: number;
+  /** Signed observed-minus-threshold distance in the stated unit. */
+  distanceToThreshold?: number;
+  /** Explicit normalization used by distanceToThreshold. */
+  distanceUnit?: ConditionDistanceUnit;
+
   /**
    * True when the detector could not evaluate this condition at all for
    * want of data — as opposed to evaluating it and finding it not yet
@@ -108,6 +121,19 @@ export type EntryStatus =
   | "invalidated"
   | "insufficient_data";
 
+export type InvalidationReason =
+  | "fair_value_gap_lost"
+  | "ema_reclaim_lost"
+  | "session_low_lost"
+  | "structure_failed";
+
+export interface InvalidationNote {
+  level: number;
+  reason: InvalidationReason;
+}
+
+export type ScoreCapReason = "warming_up_required_unavailable";
+
 export interface SetupResult {
   symbol: string;
   timeframe: Timeframe;
@@ -131,14 +157,16 @@ export interface SetupResult {
    */
   latestCandleTime?: string | null;
   /** Optional so existing object literals across the codebase don't all need updating. Always populated by scoreSetup(). */
-  convictionLevel?: ConvictionLevel;
-  entryStatus?: EntryStatus;
+  convictionLevel: ConvictionLevel;
+  entryStatus: EntryStatus;
   /**
    * A short, deterministic description of what would invalidate this
    * setup at its current stage — e.g. "losing the recovered session low"
    * — computed from already-known structural levels, never a prediction.
    */
-  invalidationNote?: string | null;
+  invalidationNote: InvalidationNote | null;
+  scoreCapReason?: ScoreCapReason | null;
+  scoreCap?: number | null;
   /**
    * Detector results this scan already produced, republished for readers.
    * Optional and purely additive: absent when no detectors ran at all (an

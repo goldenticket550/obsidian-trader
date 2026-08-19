@@ -1,7 +1,9 @@
 import type { Candle, DataQuality, Timeframe } from "@/types/candle";
 import type {
   ConvictionLevel,
+  ConditionDistanceUnit,
   EntryStatus,
+  InvalidationNote,
   SetupCondition,
   SetupResult,
   SetupStage,
@@ -171,7 +173,7 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
     config.pressure.minRelativeVolume
   );
 
-  const conditions: SetupCondition[] = [
+  const rawConditions: SetupCondition[] = [
     {
       id: "intraday_decline",
       label: "Significant intraday decline",
@@ -198,7 +200,8 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       required: true,
       category: "supporting",
       insufficientData: consecutive.insufficientData,
-      state: consecutive.passed ? "pass" : "fail",
+      state: consecutive.insufficientData ? "unavailable" : consecutive.passed ? "pass" : "fail",
+      unavailableReason: consecutive.insufficientData ? "Insufficient candles" : undefined,
       // Three distinct outcomes, three distinct sentences. Previously a
       // broken streak and a total absence of data both rendered
       // "0-candle window, $0.00 total move".
@@ -218,7 +221,8 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       required: true,
       category: "core",
       insufficientData: sweep.insufficientData,
-      state: sweep.passed ? "pass" : "fail",
+      state: sweep.insufficientData ? "unavailable" : sweep.passed ? "pass" : "fail",
+      unavailableReason: sweep.insufficientData ? "Insufficient candles" : undefined,
       // Four distinct outcomes. "No qualifying sweep detected" previously
       // covered both an empty series and a fully-scanned one, and said
       // nothing about how close price actually got.
@@ -238,7 +242,10 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       required: true,
       category: "core",
       state:
-        structure.state === "confirmed" ? "pass" : structure.state === "invalidated" ? "invalidated" : "waiting",
+        structure.state === "confirmed" ? "pass"
+        : structure.state === "invalidated" ? "invalidated"
+        : structure.triggerSwingHigh === null ? "unavailable" : "waiting",
+      unavailableReason: structure.triggerSwingHigh === null ? "Insufficient structure history" : undefined,
       detail:
         structure.state === "confirmed"
           ? `Closed above swing high $${structure.triggerSwingHigh?.toFixed(2)}`
@@ -251,7 +258,8 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       label: "9 EMA reclaim",
       required: true,
       category: "secondary",
-      state: emaReclaim.passed ? "pass" : "fail",
+      state: emaReclaim.emaValue === null ? "unavailable" : emaReclaim.passed ? "pass" : "fail",
+      unavailableReason: emaReclaim.emaValue === null ? "Insufficient EMA history" : undefined,
       detail:
         emaReclaim.emaValue !== null && emaReclaim.price !== null
           ? `Price $${emaReclaim.price.toFixed(2)} vs EMA $${emaReclaim.emaValue.toFixed(2)} (${(
@@ -296,7 +304,8 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       required: false,
       category: "secondary",
       insufficientData: continuation.insufficientData,
-      state: continuation.insufficientData ? "waiting" : continuation.passed ? "pass" : "waiting",
+      state: continuation.insufficientData ? "unavailable" : continuation.passed ? "pass" : "waiting",
+      unavailableReason: continuation.insufficientData ? "Insufficient premarket history" : undefined,
       detail: continuation.detail,
     },
     {
@@ -306,7 +315,8 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       required: false,
       category: "supporting",
       insufficientData: ladder.insufficientData,
-      state: ladder.insufficientData ? "waiting" : ladder.passed ? "pass" : "waiting",
+      state: ladder.insufficientData ? "unavailable" : ladder.passed ? "pass" : "waiting",
+      unavailableReason: ladder.insufficientData ? "Insufficient ladder history" : undefined,
       detail: ladder.detail,
     },
     {
@@ -316,7 +326,8 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       required: false,
       category: "secondary",
       insufficientData: benchmark.insufficientData,
-      state: benchmark.insufficientData ? "waiting" : benchmark.passed ? "pass" : "waiting",
+      state: benchmark.insufficientData ? "unavailable" : benchmark.passed ? "pass" : "waiting",
+      unavailableReason: benchmark.insufficientData ? "Benchmark data unavailable" : undefined,
       detail: benchmark.detail,
     },
     {
@@ -334,7 +345,8 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
       label: "Above daily 20 SMA",
       required: false,
       category: "secondary",
-      state: dailySma.passed ? "pass" : "waiting",
+      state: dailySma.smaValue === null ? "unavailable" : dailySma.passed ? "pass" : "waiting",
+      unavailableReason: dailySma.smaValue === null ? "Insufficient daily SMA history" : undefined,
       detail:
         dailySma.smaValue !== null
           ? `Price $${currentPrice.toFixed(2)} vs daily SMA $${dailySma.smaValue.toFixed(2)} (${(
@@ -345,7 +357,7 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
   ];
 
   if (strat) {
-    conditions.push({
+    rawConditions.push({
       id: "strat_confirmation",
       label: "Strat candle-type confirmation",
       required: false,
@@ -356,12 +368,13 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
   }
 
   if (vwap) {
-    conditions.push({
+    rawConditions.push({
       id: "vwap_reclaim",
       label: "VWAP reclaim",
       required: false,
       category: "secondary",
-      state: vwap.passed ? "pass" : "waiting",
+      state: vwap.vwapValue === null ? "unavailable" : vwap.passed ? "pass" : "waiting",
+      unavailableReason: vwap.vwapValue === null ? "Insufficient VWAP history" : undefined,
       detail:
         vwap.vwapValue !== null && vwap.price !== null
           ? `Price $${vwap.price.toFixed(2)} vs VWAP $${vwap.vwapValue.toFixed(2)} (${(
@@ -370,6 +383,66 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
           : "Not enough candles for VWAP",
     });
   }
+
+  const measured = (
+    condition: SetupCondition, observedValue: number, thresholdValue: number,
+    distanceUnit: ConditionDistanceUnit, distanceToThreshold = observedValue - thresholdValue
+  ): SetupCondition => condition.state === "unavailable" ? condition : {
+    ...condition, observedValue, thresholdValue, distanceToThreshold, distanceUnit,
+  };
+  const binary = (condition: SetupCondition): SetupCondition =>
+    measured(condition, condition.state === "pass" ? 1 : 0, 1, "boolean");
+  const conditions = rawConditions.map((condition): SetupCondition => {
+    switch (condition.id) {
+      case "intraday_decline": {
+        const observed = Math.max(
+          decline.declineFromOpenPct / config.intradayDecline.minDeclineFromOpenPct,
+          decline.declineFromPrevClosePct / config.intradayDecline.minDeclineFromPrevClosePct
+        );
+        return measured(condition, observed, 1, "ratio");
+      }
+      case "recovery_from_low": {
+        const observed = config.recoveryFromLow.useEither
+          ? Math.max(recovery.dollarRecovery / config.recoveryFromLow.minDollarRecovery, recovery.pctRecovery / config.recoveryFromLow.minPctRecovery)
+          : Math.min(recovery.dollarRecovery / config.recoveryFromLow.minDollarRecovery, recovery.pctRecovery / config.recoveryFromLow.minPctRecovery);
+        return measured(condition, observed, 1, "ratio");
+      }
+      case "consecutive_bullish":
+        return measured(condition, consecutive.totalMoveDollars, config.consecutiveBullish.minTotalMoveDollars, "dollars");
+      case "liquidity_sweep": return binary(condition);
+      case "structure_shift": {
+        const threshold = structure.triggerSwingHigh ?? currentPrice;
+        return measured(condition, currentPrice, threshold, "percent", threshold === 0 ? 0 : (currentPrice - threshold) / threshold);
+      }
+      case "ema_reclaim":
+        return measured(condition, emaReclaim.distancePct ?? 0, config.emaReclaim.minPctAboveEma, "percent");
+      case "fair_value_gap": {
+        const gapSize = activeGap ? activeGap.upper - activeGap.lower : 0;
+        return measured(condition, gapSize, config.fairValueGap.minGapSizeDollars, "dollars");
+      }
+      case "gap_proximity": return binary(condition);
+      case "prior_day_continuation": {
+        const observed = continuation.reclaim.currentPremarketPrice ?? 0;
+        const threshold = continuation.reclaim.reclaimLevel ?? 0;
+        return measured(condition, observed, threshold, "percent", threshold === 0 ? 0 : (observed - threshold) / threshold);
+      }
+      case "momentum_ladder":
+        return measured(condition, ladder.currentMovePct ?? 0, Math.min(...config.momentumLadder.tiers), "percent");
+      case "benchmark_alignment": {
+        const price = benchmark.benchmarkPrice ?? 0;
+        const reference = Math.max(benchmark.benchmarkVwap ?? 0, benchmark.benchmarkEma ?? 0);
+        return measured(condition, reference === 0 ? 0 : price / reference, 1, "ratio");
+      }
+      case "volume_confirmation":
+        return measured(condition, volume.relativeVolumePct, config.volumeConfirmation.minRelativeVolumePct, "ratio");
+      case "daily_sma_confirmation":
+        return measured(condition, dailySma.distancePct ?? 0, 0, "percent");
+      case "strat_confirmation": return binary(condition);
+      case "vwap_reclaim":
+        return measured(condition, vwap?.distancePct ?? 0, 0, "percent");
+      default: throw new Error(`No numeric decision payload for condition ${condition.id}`);
+    }
+  });
 
   const requiredConditions = conditions.filter((c) => c.required);
   const requiredPassed = requiredConditions.filter((c) => c.state === "pass").length;
@@ -424,10 +497,16 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
   const invalidationNote = determineInvalidationNote({
     structureTriggerLevel: structure.triggerSwingHigh,
     sessionLow: recovery.sessionLow,
-    hasGap: !!activeGap,
+    gapLowerBoundary: activeGap?.lower ?? null,
     emaValue: emaReclaim.emaValue,
     status,
   });
+
+  const unavailableRequired = requiredConditions.filter((condition) => condition.state === "unavailable");
+  const scoreCapReason = unavailableRequired.length > 0 ? "warming_up_required_unavailable" as const : null;
+  const scoreCap = unavailableRequired.some((condition) => condition.category === "core")
+    ? MISSING_CORE_SCORE_CAP
+    : unavailableRequired.length > 0 ? MISSING_REQUIRED_SCORE_CAP : null;
 
   const lastCandle = sessionCandles[sessionCandles.length - 1];
   const latestCandleTime = lastCandle ? new Date(lastCandle.time * 1000).toISOString() : null;
@@ -446,10 +525,12 @@ export function scoreSetup(input: ScoreSetupInput): SetupResult {
     convictionLevel,
     entryStatus,
     invalidationNote,
+    scoreCapReason,
+    scoreCap,
     // Read-only republication of what the detectors above already
     // returned. Same objects, no recomputation, no re-ordering — adding
     // this cannot change any value already in this result.
-    evidence: { structureShift: structure, liquiditySweep: sweep },
+    evidence: { structureShift: structure, liquiditySweep: sweep, conditions },
   };
 }
 
@@ -489,6 +570,10 @@ export function computePressureAverageVolume(sessionCandles: Candle[], lookback:
  * and deterministically with hand-built condition sets, independent of
  * any candle fixture or detector logic.
  */
+export const CONFIRMED_SCORE_FLOOR = 7;
+export const MISSING_REQUIRED_SCORE_CAP = 6.9;
+export const MISSING_CORE_SCORE_CAP = 6.5;
+
 export function computeWeightedScore(conditions: SetupCondition[]): { score: number; maxScore: number } {
   const weightOf = (c: SetupCondition): number => CATEGORY_WEIGHT[c.category ?? "supporting"];
 
@@ -506,21 +591,37 @@ export function computeWeightedScore(conditions: SetupCondition[]): { score: num
   // Deliberately keyed off the explicit insufficientData flag, NOT off
   // the state: a condition genuinely evaluated and sitting at
   // "waiting"/"fail" still counts fully against the score, unchanged.
-  const evaluated = conditions.filter((c) => !c.insufficientData);
+  const evaluated = conditions.filter((c) => !c.insufficientData && c.state !== "unavailable");
 
   const rawScore = evaluated
     .filter((c) => c.state === "pass")
     .reduce((sum, c) => sum + weightOf(c), 0);
   const rawMaxScore = evaluated.reduce((sum, c) => sum + weightOf(c), 0);
-  const score = rawMaxScore === 0 ? 0 : (rawScore / rawMaxScore) * 10;
+  const baseScore = rawMaxScore === 0 ? 0 : (rawScore / rawMaxScore) * 10;
+  const required = conditions.filter((condition) => condition.required);
+  const allRequiredPass = required.length > 0 && required.every((condition) => condition.state === "pass");
+  // Deliberate two-part unavailable policy: unavailable rows leave the arithmetic
+  // denominator, but a REQUIRED unavailable row still prevents confirmation and
+  // caps the result. Warm-up must never manufacture an alertable score.
+  const missingRequired = required.some((condition) => condition.state !== "pass");
+  const missingCore = required.some(
+    (condition) => condition.category === "core" && condition.state !== "pass"
+  );
+  const score = allRequiredPass
+    ? Math.max(baseScore, CONFIRMED_SCORE_FLOOR)
+    : missingCore
+    ? Math.min(baseScore, MISSING_CORE_SCORE_CAP)
+    : missingRequired
+    ? Math.min(baseScore, MISSING_REQUIRED_SCORE_CAP)
+    : baseScore;
   return { score, maxScore: 10 };
 }
 
 /**
  * WATCH / DEVELOPING / CONFIRMED - extracted as its own exported function
  * for the same reason as computeWeightedScore: direct, deterministic
- * testing without needing to reverse-engineer a candle fixture that
- * happens to produce a particular required-conditions ratio.
+ * testing without needing to reverse-engineer a candle fixture. A setup
+ * is DEVELOPING only when at least 50% of required conditions pass.
  */
 export function determineConvictionLevel(
   status: SetupStatus,
@@ -529,7 +630,7 @@ export function determineConvictionLevel(
 ): ConvictionLevel {
   if (status === "green") return "confirmed";
   const requiredRatio = requiredTotal === 0 ? 0 : requiredPassed / requiredTotal;
-  if (requiredRatio >= 0.5 || requiredPassed >= 2) return "developing";
+  if (requiredRatio >= 0.5) return "developing";
   return "watch";
 }
 
@@ -584,25 +685,25 @@ export function determineEntryStatus(params: {
 export function determineInvalidationNote(params: {
   structureTriggerLevel: number | null;
   sessionLow: number;
-  hasGap: boolean;
+  gapLowerBoundary: number | null;
   emaValue: number | null;
   status: SetupStatus;
-}): string | null {
-  const { structureTriggerLevel, sessionLow, hasGap, emaValue, status } = params;
+}): InvalidationNote | null {
+  const { structureTriggerLevel, sessionLow, gapLowerBoundary, emaValue, status } = params;
 
   if (status === "red") return null;
 
   if (status === "green") {
-    if (hasGap) return "Would weaken on a close back below the fair value gap's lower boundary.";
-    if (emaValue !== null) return `Would weaken on a close back below the 9 EMA ($${emaValue.toFixed(2)}).`;
-    return `Would weaken on a close back below the recovered session low ($${sessionLow.toFixed(2)}).`;
+    if (gapLowerBoundary !== null) return { level: gapLowerBoundary, reason: "fair_value_gap_lost" };
+    if (emaValue !== null) return { level: emaValue, reason: "ema_reclaim_lost" };
+    return { level: sessionLow, reason: "session_low_lost" };
   }
 
   if (structureTriggerLevel !== null) {
-    return `Currently needs a close above $${structureTriggerLevel.toFixed(2)} to progress - failing to hold recent higher lows would weaken it instead.`;
+    return { level: structureTriggerLevel, reason: "structure_failed" };
   }
 
-  return `Currently needs to hold above the session low ($${sessionLow.toFixed(2)}) to stay valid.`;
+  return { level: sessionLow, reason: "session_low_lost" };
 }
 
 /**
@@ -668,6 +769,13 @@ function emptyResult(
     stage: "none",
     status: "red",
     score: 0,
+    scoreCapReason: null,
+    scoreCap: null,
+    evidence: {
+      structureShift: { state: "waiting", triggerSwingHigh: null, shiftCandleTime: null, shiftPrice: null, triggerSwingHighConfirmedTime: null },
+      liquiditySweep: { passed: false, sweptLevel: null, sweptLevelSource: null, sweepCandleTime: null, reclaimCandleTime: null, experimental: true, insufficientData: true, watchedLevel: null, breachedWithoutReclaim: false },
+      conditions: [],
+    },
     maxScore: 0,
     conditions: [],
     lastUpdated: now,
