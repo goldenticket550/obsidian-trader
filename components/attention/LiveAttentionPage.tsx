@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import type { AttentionEvent } from "@/lib/attention/attentionEvents";
 import type { LiveAttentionSnapshot, RuntimeDetectionCounters } from "@/lib/attention-runtime/contracts";
 import { dashboardWorkerLiveness, formatSnapshotAge } from "@/lib/attention-runtime/dashboardLiveness";
+import { exchangeCalendarDay } from "@/lib/attention/exchangeCalendar";
+import { getEasternTimeParts } from "@/lib/market-data/easternTime";
 
 interface DetectionResponse {
   status: "ran" | "suppressed" | "unknown";
@@ -63,6 +65,8 @@ export default function LiveAttentionPage() {
   const [status, setStatus] = useState("Connecting to the runtime handoff…");
   const [signedOut, setSignedOut] = useState(false);
   const [connectionUnavailable, setConnectionUnavailable] = useState(false);
+  const [activeView, setActiveView] = useState<"scanner" | "alerts" | "explain">("scanner");
+  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
   const [newEventUntil, setNewEventUntil] = useState<Record<string, number>>({});
   const knownEventIds = useRef<Set<string> | null>(null);
 
@@ -139,14 +143,20 @@ export default function LiveAttentionPage() {
     : "bg-slate-800 text-slate-300";
   const rankingsVisible = Boolean(snapshot && !connectionUnavailable && !liveness.workerDown && !snapshot.darkWindowReason && !signedOut);
   const latestMinuteQuiet = detection.status === "ran" && (snapshot?.eventsDetected ?? 0) === 0;
-  const marketClosed = detection.status === "suppressed" && detection.reason === "non_regular";
+  const easternNow = getEasternTimeParts(new Date(clock));
+  const today = exchangeCalendarDay(easternNow.date);
+  const marketOpen = today.isTradingDay && easternNow.minutesSinceMidnight >= today.regularOpenMinutes! && easternNow.minutesSinceMidnight < today.regularCloseMinutes!;
+  const marketClosed = !marketOpen;
   const displayedStatus = marketClosed
     ? "Market closed — regular-session scanning resumes at 09:30 ET."
     : status;
 
-  return <main className="mx-auto max-w-6xl space-y-5 p-6 text-slate-100">
+  const selectedRow = snapshot?.rankedRows.find((row) => row.symbol === selectedSymbol) ?? snapshot?.rankedRows[0] ?? null;
+  const selectedEvent = events.find((event) => event.symbol === selectedRow?.symbol) ?? null;
+
+  return <main className="mx-auto max-w-[1500px] space-y-5 p-4 text-slate-100 md:p-6">
     <header className="space-y-2">
-      <h1 className="text-2xl font-semibold">Live Attention</h1>
+      <h1 className="text-2xl font-semibold">Obsidian Attention</h1>
       <p className="text-sm text-slate-400">{displayedStatus}</p>
       <div className="flex flex-wrap items-center gap-2 text-xs">
         {snapshot && <span className="rounded bg-amber-950 px-2 py-1 text-amber-300">{snapshot.feedBadge}</span>}
@@ -156,6 +166,10 @@ export default function LiveAttentionPage() {
         <span className="text-slate-400">Last updated {lastUpdatedAt === null ? "—" : `${etTimeWithSeconds.format(lastUpdatedAt)} ET`}</span>
       </div>
     </header>
+
+    <nav aria-label="Attention views" className="flex gap-1 rounded-lg border border-slate-800 bg-slate-950 p-2">
+      {([['scanner', 'Live Scanner'], ['alerts', 'Alert Center'], ['explain', 'Explainability']] as const).map(([view, label]) => <button key={view} type="button" onClick={() => setActiveView(view)} aria-pressed={activeView === view} className={`rounded px-3 py-2 text-xs transition-colors ${activeView === view ? 'bg-slate-700 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}>{label}</button>)}
+    </nav>
 
     {signedOut && <section role="alert" className="rounded border-2 border-red-500 bg-red-950 p-5 text-red-100">
       <h2 className="text-xl font-bold">SIGNED OUT — SIGN IN AGAIN</h2>
@@ -178,7 +192,7 @@ export default function LiveAttentionPage() {
       <p className="mt-1 text-sm text-orange-200">Cycle {Math.round(snapshot.cycleTimings.totalCycleMs)} ms · watermark lag {Math.round(snapshot.watermarkLagMs / 1000)} s.</p>
     </section>}
 
-    <section aria-labelledby="live-alerts-heading" className="space-y-3 rounded border border-slate-700 bg-slate-950 p-4">
+    <section hidden={activeView !== "alerts"} aria-labelledby="live-alerts-heading" className="space-y-3 rounded border border-slate-700 bg-slate-950 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div><h2 id="live-alerts-heading" className="text-lg font-semibold">Live Alerts</h2><p className="text-xs text-slate-400">Recorded detections for today, newest first. NOT AN ENTRY — open the chart.</p></div>
         {detection.status === "ran" && <span className={`rounded px-2 py-1 text-xs ${latestMinuteQuiet ? "bg-slate-800 text-slate-300" : "bg-emerald-950 text-emerald-300"}`}>{latestMinuteQuiet ? "QUIET — DETECTION RAN" : `${snapshot?.eventsDetected ?? 0} DETECTED THIS MINUTE`}</span>}
@@ -203,11 +217,17 @@ export default function LiveAttentionPage() {
     </section>
 
     {snapshot?.cycleBudgetExceeded && !snapshot.lagWarning && <p role="status" className="rounded border border-amber-500 bg-amber-950 p-3 text-amber-200">Cycle budget exceeded 20 seconds. Stage timings are recorded in runtime health.</p>}
-    {snapshot?.darkWindowReason && <section className="rounded border border-slate-700 bg-slate-900 p-5"><h2 className="font-medium">Closed for the day</h2><p className="mt-1 text-sm text-slate-400">Free IEX shadow scanning runs during the regular session, 09:30–16:00 ET. Today&apos;s recorded alerts remain available above.</p></section>}
+    {snapshot?.darkWindowReason && marketClosed && <section className="rounded border border-slate-700 bg-slate-900 p-5"><h2 className="font-medium">Closed for the day</h2><p className="mt-1 text-sm text-slate-400">Free IEX shadow scanning runs during the regular session, 09:30–16:00 ET. Today&apos;s recorded alerts remain available above.</p></section>}
 
-    {rankingsVisible && snapshot && <section className="overflow-hidden rounded border border-slate-800"><table className="w-full text-sm">
+    {activeView === "scanner" && rankingsVisible && snapshot && <div className="grid gap-4 lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,.65fr)]"><section className="overflow-hidden rounded-xl border border-slate-800 bg-slate-950"><table className="w-full text-sm">
       <thead className="bg-slate-900 text-left text-slate-400"><tr><th className="p-3">Rank</th><th>Symbol</th><th>Attention</th><th>State</th><th>Freshness</th><th>Transition / explanation</th><th>Quality</th></tr></thead>
-      <tbody>{snapshot.rankedRows.map((row) => <tr key={row.symbol} className="border-t border-slate-800"><td className="p-3">{row.rank ?? "—"}</td><td className="font-medium">{row.symbol}</td><td>{row.attentionScore?.toFixed(1) ?? "—"}</td><td>{row.state ?? "—"}</td><td><span className={`rounded border px-2 py-0.5 text-xs ${freshnessClass(row.freshness)}`}>{row.freshness ?? "—"}</span></td><td>{row.pendingTransition === "none" ? row.dataQualityReason : `${row.pendingTransition} ${row.pendingTransitionMinutes}m`}</td><td>{row.dataQualityState}</td></tr>)}</tbody>
-    </table></section>}
+      <tbody>{snapshot.rankedRows.map((row) => <tr key={row.symbol} onClick={() => setSelectedSymbol(row.symbol)} aria-selected={selectedRow?.symbol === row.symbol} className={`cursor-pointer border-t border-slate-800 transition-colors hover:bg-slate-900 ${selectedRow?.symbol === row.symbol ? "bg-slate-800/80" : ""}`}><td className="p-3">{row.rank ?? "—"}</td><td className="font-medium">{row.symbol}</td><td>{row.attentionScore?.toFixed(1) ?? "—"}</td><td>{row.state ?? "—"}</td><td><span className={`rounded border px-2 py-0.5 text-xs ${freshnessClass(row.freshness)}`}>{row.freshness ?? "—"}</span></td><td>{row.pendingTransition === "none" ? row.dataQualityReason : `${row.pendingTransition} ${row.pendingTransitionMinutes}m`}</td><td>{row.dataQualityState}</td></tr>)}</tbody>
+    </table></section><aside className="rounded-xl border border-slate-800 bg-slate-950 p-4">{selectedRow && <><div className="flex items-start justify-between gap-3"><div><h2 className="text-2xl font-semibold">{selectedRow.symbol}</h2><p className="text-xs text-slate-500">Live score context</p></div><span className={`rounded border px-2 py-1 text-xs ${freshnessClass(selectedRow.freshness)}`}>{selectedRow.freshness ?? "n/a"}</span></div><div className="mt-5 grid grid-cols-2 gap-3"><div className="rounded bg-slate-900 p-3"><p className="text-xs text-slate-500">Attention</p><p className="mt-1 text-2xl font-semibold tabular">{selectedRow.attentionScore?.toFixed(1) ?? "—"}</p></div><div className="rounded bg-slate-900 p-3"><p className="text-xs text-slate-500">Core</p><p className="mt-1 text-2xl font-semibold tabular">{selectedRow.core?.toFixed(3) ?? "—"}</p></div></div><dl className="mt-5 space-y-3 text-xs"><div className="flex justify-between gap-3"><dt className="text-slate-500">State</dt><dd>{selectedRow.state ?? "—"}</dd></div><div className="flex justify-between gap-3"><dt className="text-slate-500">Transition</dt><dd>{selectedRow.pendingTransition === "none" ? "settled" : `${selectedRow.pendingTransition} ${selectedRow.pendingTransitionMinutes}m`}</dd></div><div className="flex justify-between gap-3"><dt className="text-slate-500">Quality</dt><dd>{selectedRow.dataQualityState}</dd></div><div className="flex justify-between gap-3"><dt className="text-slate-500">Feed</dt><dd className="text-amber-300">{selectedRow.feedBadge}</dd></div></dl>{selectedEvent?.payload.extensionWarning && <p className="mt-5 rounded border border-red-800 bg-red-950 p-3 text-sm font-semibold text-red-200">{selectedEvent.payload.extensionWarning}</p>}</>}</aside></div>}
+
+    {activeView === "explain" && <section className="rounded-xl border border-slate-800 bg-slate-950 p-4">{selectedEvent ? <>
+      <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="text-xl font-semibold">{selectedEvent.symbol} score breakdown</h2><p className="text-xs text-slate-500">Frozen at qualifying minute {etTime.format(selectedEvent.qualifiedAt)} ET</p></div><span className="rounded bg-emerald-950 px-2 py-1 text-xs text-emerald-300">PAYLOAD VERIFIED</span></div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-3"><div className="rounded bg-slate-900 p-4"><p className="text-xs text-slate-500">Raw core</p><p className="mt-1 text-2xl font-semibold tabular">{selectedEvent.payload.rawCore.toFixed(3)}</p></div><div className="rounded bg-slate-900 p-4"><p className="text-xs text-slate-500">State core</p><p className="mt-1 text-2xl font-semibold tabular">{selectedEvent.payload.core.toFixed(3)}</p></div><div className="rounded bg-slate-900 p-4"><p className="text-xs text-slate-500">Attention</p><p className="mt-1 text-2xl font-semibold tabular">{selectedEvent.payload.attentionScore.toFixed(1)}</p></div></div>
+      <div className="mt-4 overflow-x-auto"><table className="w-full text-sm"><thead className="text-left text-xs uppercase tracking-wider text-slate-500"><tr><th className="p-3">Axis</th><th>Input</th><th>Kind</th><th>Normalized</th><th>Scoring role</th></tr></thead><tbody>{Object.entries(selectedEvent.payload.axes).map(([axis, value]) => <tr key={axis} className="border-t border-slate-800"><td className="p-3 font-semibold capitalize">{axis}</td><td>{value.input?.toFixed(2) ?? 'n/a'}</td><td>{value.inputKind.replace('_', ' ')}</td><td>{value.normalized?.toFixed(3) ?? 'n/a'}</td><td>{value.scoringRole.replace('_', ' ')}</td></tr>)}</tbody></table></div>
+    </> : <><h2 className="font-semibold">Explainability</h2><p className="mt-2 text-sm text-slate-400">A recorded alert is required to inspect its immutable qualifying payload.</p></>}</section>}
   </main>;
 }

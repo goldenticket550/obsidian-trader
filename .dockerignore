@@ -1,0 +1,8 @@
+node_modules
+.next
+.git
+data/archive
+data/replay/calibration/sessions
+data/replay/calibration/saturation-features
+data/runtime-shadow
+*.log

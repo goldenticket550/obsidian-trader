@@ -8,7 +8,7 @@ import type { JsonFileRuntimeStore } from "./jsonFileStore";
 
 export const SUPABASE_LEASE_CONFLICT = "Runtime lease is held (Supabase: attention runtime lease already held).";
 
-/** Service-role worker adapter. Full processor checkpoints remain in the local mirror. */
+/** Service-role worker adapter. Checkpoints are durable in Supabase; a local mirror is optional diagnostics only. */
 export class SupabaseRuntimeStore implements RuntimeStore {
   constructor(
     private readonly client: SupabaseClient,
@@ -85,6 +85,11 @@ export class SupabaseRuntimeStore implements RuntimeStore {
   }
 
   async loadCheckpoint(): Promise<RuntimeCheckpoint | null> {
+    const { data, error } = await this.client.from("attention_engine_checkpoints")
+      .select("state").eq("engine_instance_id", this.identity.engineInstanceId)
+      .order("sequence", { ascending: false }).limit(1).maybeSingle();
+    if (error) throw new Error(`Attention checkpoint read failed: ${error.message}`);
+    if (data?.state) return data.state as RuntimeCheckpoint;
     return this.localMirror?.loadCheckpoint() ?? null;
   }
 
@@ -93,6 +98,7 @@ export class SupabaseRuntimeStore implements RuntimeStore {
       p_engine_instance_id: input.lease.engineInstanceId,
       p_run_id: input.lease.ownerRunId,
       p_fencing_token: input.lease.fencingToken,
+      p_checkpoint: input.checkpoint,
       p_snapshot: input.snapshot,
       p_events: input.events,
       p_envelopes: input.envelopes,

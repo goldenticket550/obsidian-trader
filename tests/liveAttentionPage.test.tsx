@@ -59,6 +59,7 @@ describe("LR8 on-page live alert feed", () => {
   });
 
   it("renders a closed-for-the-day state rather than implying a broken or quiet scanner", async () => {
+    vi.setSystemTime(new Date("2026-08-22T16:14:00Z"));
     const closed = snapshot();
     closed.health = "dark_window";
     closed.ready = false;
@@ -79,6 +80,19 @@ describe("LR8 on-page live alert feed", () => {
     expect(screen.queryByText("QUIET — DETECTION RAN")).toBeNull();
   });
 
+  it("does not call an open market closed because the last snapshot is from a dark window", async () => {
+    vi.setSystemTime(new Date("2026-08-19T16:14:00Z"));
+    const stale = snapshot();
+    stale.asOf = Date.parse("2026-08-19T09:25:00Z");
+    stale.health = "dark_window"; stale.ready = false; stale.darkWindowReason = "unavailable_on_partial_feed";
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => String(input).includes("/events")
+      ? json({ events: [], detection: { status: "suppressed", reason: "non_regular", counters: stale.detectionCounters } })
+      : json({ snapshot: stale })));
+    render(<LiveAttentionPage />);
+    await screen.findByText(/WORKER DOWN/);
+    expect(screen.queryByText(/MARKET CLOSED/)).toBeNull();
+    expect(screen.queryByText(/Market closed/)).toBeNull();
+  });
   it("renders a signed-out state for redirected or non-JSON API responses", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => new Response("<html>login</html>", { headers: { "content-type": "text/html" } })));
     render(<LiveAttentionPage />);

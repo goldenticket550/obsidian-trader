@@ -11,7 +11,7 @@ import { SupabaseRuntimeStore } from "../lib/attention-runtime/supabaseStore";
 import { createAdminClient } from "../lib/supabase/admin";
 import type { RuntimeStore } from "../lib/attention-runtime/contracts";
 import { StaticBaselineIexAttentionProcessor } from "../lib/attention-runtime/iexStaticProcessor";
-import type { IexBaselineTable } from "../lib/attention-runtime/iexBaselineTable";
+import { assertIexBaselineTable, type IexBaselineTable } from "../lib/attention-runtime/iexBaselineTable";
 import { ExplicitReferenceQualityProcessor } from "../lib/attention-runtime/referenceQuality";
 import { AttentionLiveWorker, runtimeIdentityHash } from "../lib/attention-runtime/worker";
 import { PRE_STREAM_REPLAY_DISCLOSURE } from "../lib/replay/archive";
@@ -23,7 +23,7 @@ import {
   type WorkerLivenessState,
 } from "../lib/attention-runtime/processLiveness";
 
-const runtimeDirectory = resolve("data/runtime-shadow");
+const runtimeDirectory = resolve(process.env.ATTENTION_RUNTIME_DIAGNOSTICS_DIR ?? "data/runtime-shadow");
 const livenessPath = resolve(runtimeDirectory, "worker-liveness.json");
 const livenessLogPath = resolve(runtimeDirectory, "worker-liveness.log");
 let liveness: WorkerLivenessState | null = null;
@@ -74,13 +74,19 @@ function requiredAttentionUserId(): string {
   return value;
 }
 function loadBaselineTable(): IexBaselineTable {
-  return JSON.parse(readFileSync(resolve("data/replay/calibration/iex-live-baseline-table.json"), "utf8")) as IexBaselineTable;
+  const artifactPath = process.env.ATTENTION_BASELINE_TABLE_PATH ?? resolve("data/replay/calibration/iex-live-baseline-table.json");
+  const table = JSON.parse(readFileSync(artifactPath, "utf8")) as IexBaselineTable;
+  assertIexBaselineTable(table);
+  const expected = process.env.ATTENTION_BASELINE_TABLE_ID ?? "0bdc723e1df978fce3842255a31997e0f1b40d4f3f6c4ed85f6024b2eb817775";
+  if (table.tableId !== expected) throw new Error(`ATTENTION_BASELINE_ID_MISMATCH: expected ${expected}, received ${table.tableId}.`);
+  return table;
 }
 
 async function main() {
   const credentials = alpacaCredentials();
   const symbols = ATTENTION_UNIVERSE.map((entry) => entry.symbol);
-  const thresholds = JSON.parse(readFileSync(resolve("data/replay/reports/attention-thresholds.json"), "utf8")) as FeedAwareAttentionThresholdStore;
+  const thresholdsPath = process.env.ATTENTION_THRESHOLDS_PATH ?? resolve("data/replay/reports/attention-thresholds.json");
+  const thresholds = JSON.parse(readFileSync(thresholdsPath, "utf8")) as FeedAwareAttentionThresholdStore;
   const calibrationId = thresholds.sets.iex_partial.regular.calibrationId;
   const baselineTable = loadBaselineTable();
   let capability;
@@ -88,8 +94,13 @@ async function main() {
   catch (error) { capability = { mode: "iex_rest_polling" as const, requestedSymbols: symbols.length, acknowledgedSymbols: 0, complete: false, reason: error instanceof Error ? error.message : String(error), probedAt: Date.now() }; }
   // Free-tier shadow deliberately polls the complete universe. A permissive stream ack is audited,
   // but is not treated as a durable entitlement contract.
+  const configuredFeed = process.env.ALPACA_FEED ?? "iex";
+  const configuredPaidPlan = process.env.ALPACA_PAID_PLAN ?? "false";
+  if (configuredFeed !== "iex" || configuredPaidPlan !== "false") throw new Error("HOST1_SHADOW_REQUIRES_FREE_IEX: ALPACA_FEED=iex and ALPACA_PAID_PLAN=false.");
   const provider = new AlpacaProvider({ ...credentials, feed: "iex", isPaidPlan: false }, undefined, 10_000, 12, 350);
-  const source = new RestIexPollingSource(provider, symbols, 120);
+  const pollLookbackMinutes = Number(process.env.ATTENTION_POLL_LOOKBACK_MINUTES ?? 420);
+  if (!Number.isFinite(pollLookbackMinutes) || pollLookbackMinutes < 390) throw new Error("ATTENTION_POLL_LOOKBACK_MINUTES must be at least 390.");
+  const source = new RestIexPollingSource(provider, symbols, pollLookbackMinutes);
   const runtimeStoreKind = process.env.ATTENTION_RUNTIME_STORE ?? "json";
   if (runtimeStoreKind !== "json" && runtimeStoreKind !== "supabase") throw new Error(`ATTENTION_RUNTIME_STORE_INVALID: ${runtimeStoreKind}`);
   const now = Date.now();
@@ -103,10 +114,12 @@ async function main() {
     feedMode: "iex_partial" as const,
     baselineTableId: baselineTable.tableId,
   };
-  const fileStore = new JsonFileRuntimeStore(process.env.ATTENTION_RUNTIME_STATE_PATH ?? resolve("data/runtime-shadow/runtime-state-static-v1.json"));
+  const fileStore = runtimeStoreKind === "json"
+    ? new JsonFileRuntimeStore(process.env.ATTENTION_RUNTIME_STATE_PATH ?? resolve("data/runtime-shadow/runtime-state-static-v1.json"))
+    : null;
   const runtimeStore: RuntimeStore = runtimeStoreKind === "supabase"
-    ? new SupabaseRuntimeStore(createAdminClient(), identity, fileStore)
-    : fileStore;
+    ? new SupabaseRuntimeStore(createAdminClient(), identity)
+    : fileStore!;
   await runtimeStore.setControls({ version: 1, attentionLiveAlertingEnabled: false, legacyAlertingEnabled: true, activeAlertEngine: "legacy", updatedAt: now, reason: "authorized_shadow_alerting_disabled" });
   liveness = { schemaVersion: 1, runId: identity.runId, pid: process.pid, status: "starting", startedAt: now, lastHeartbeatAt: null, lastCompletedMinuteAt: null, lastSequence: null, exit: null };
   writeWorkerLiveness(livenessPath, liveness);
@@ -153,7 +166,7 @@ async function main() {
         cycleFailed = true;
         console.error("[attention-worker] cycle failed; state remains at the prior durable watermark:", error);
         logLiveness({ type: "worker_cycle_failed", reason: describeExitError(error), lastSequence });
-        if (!continuous) throw error;
+        throw error;
       }
       if (continuous && !stopSignal) {
         const retryAt = cycleFailed

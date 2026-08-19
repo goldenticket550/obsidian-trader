@@ -186,9 +186,23 @@ export class AttentionLiveWorker {
   }
 
   async runOnce(now = Date.now()): Promise<LiveAttentionSnapshot> {
+    try {
+      return await this.runProductiveCycle(now);
+    } catch (error) {
+      // A process that cannot complete a minute must not keep ownership merely
+      // because it is alive. Relinquish immediately; TTL remains the crash-only fallback.
+      try {
+        await this.stop();
+      } catch (releaseError) {
+        throw new AggregateError([error, releaseError], "Attention cycle failed and lease release also failed.");
+      }
+      throw error;
+    }
+  }
+
+  private async runProductiveCycle(now: number): Promise<LiveAttentionSnapshot> {
     const cycleStartedAt = performance.now();
     if (!this.lease) throw new Error("Attention worker is not started.");
-    this.lease = await this.store.renewLease(this.lease, now, this.config.leaseTtlMs ?? 90_000);
     const controls = await this.store.readControls(this.config.identity.engineInstanceId);
     const failClosed = !controls || controls.updatedAt > now || now - controls.updatedAt > 5 * 60_000;
     const effective: RuntimeControls = failClosed ? {
@@ -224,23 +238,33 @@ export class AttentionLiveWorker {
       this.delivery.regularCountersStarted = false;
     }
     if (priorSnapshot && regular && batch.at - priorSnapshot.asOf > 60_000) {
-      const missingMinutes = Math.floor((batch.at - priorSnapshot.asOf) / 60_000) - 1;
+      // A dark-window snapshot is not a promise that IEX can provide overnight bars.
+      // When the durable watermark precedes today's regular open, recovery starts at
+      // 09:30 ET rather than demanding impossible continuity through the unsupported
+      // partial-feed windows. Catch-up alerts remain disabled below.
+      const regularOpenAt = batch.at - (batch.minuteOfDay - calendar.regularOpenMinutes!) * 60_000;
+      const recoveryStartAt = priorSnapshot.tradingDate === batch.tradingDate &&
+        priorSnapshot.darkWindowReason === null && priorSnapshot.asOf >= regularOpenAt
+        ? priorSnapshot.asOf + 60_000
+        : regularOpenAt;
+      const missingMinutes = Math.max(0, Math.floor((batch.at - recoveryStartAt) / 60_000));
       const oldestAvailable = Math.min(...Object.values(batch.barsBySymbol).flat().map((bar) => bar.time * 1000));
-      if (!Number.isFinite(oldestAvailable) || oldestAvailable > priorSnapshot.asOf + 60_000) {
+      if (!Number.isFinite(oldestAvailable) || oldestAvailable > recoveryStartAt) {
         throw new Error("Gap reconciliation cannot prove a contiguous minute after the durable watermark.");
       }
       const recoveryControls = { ...effective, attentionLiveAlertingEnabled: false, activeAlertEngine: "legacy" as const, reason: "gap_reconciliation_no_catch_up_alerts" };
-      for (let at = priorSnapshot.asOf + 60_000; at < batch.at; at += 60_000) {
-        const ttl = this.config.leaseTtlMs ?? 90_000;
-        if (this.lease && Date.now() >= this.lease.expiresAt - Math.floor(ttl / 2)) {
-          this.lease = await this.store.renewLease(this.lease, Date.now(), ttl);
-        }
+      for (let at = recoveryStartAt; at < batch.at; at += 60_000) {
         const barsBySymbol = Object.fromEntries(Object.entries(batch.barsBySymbol).map(([symbol, bars]) => [symbol, bars.filter((bar) => bar.time * 1000 <= at)]));
         const latestBarBySymbol = Object.fromEntries(Object.entries(barsBySymbol).map(([symbol, bars]) => [symbol, bars.at(-1) ?? null]));
-        const recoveryResult = await this.processor.process({ ...batch, at, minuteOfDay: batch.minuteOfDay - Math.round((batch.at - at) / 60_000), barsBySymbol, latestBarBySymbol, guard: { active: true, reason: "gap_reconciliation", activeSince: priorSnapshot.asOf + 60_000, contiguousMinutes: Math.round((at - priorSnapshot.asOf) / 60_000), requiredContiguousMinutes: 5 } }, recoveryControls);
+        const recoveryResult = await this.processor.process({ ...batch, at, minuteOfDay: batch.minuteOfDay - Math.round((batch.at - at) / 60_000), barsBySymbol, latestBarBySymbol, guard: { active: true, reason: "gap_reconciliation", activeSince: recoveryStartAt, contiguousMinutes: Math.round((at - recoveryStartAt) / 60_000) + 1, requiredContiguousMinutes: 5 } }, recoveryControls);
         accumulateProcessorTimings(recoveryResult);
         this.processorState = structuredClone(recoveryResult.processorState);
         recordDetectionMinute(this.delivery.detectionCounters, "gap_reconciliation", 0);
+        // Recovery earns renewal only after a minute processes successfully.
+        const ttl = this.config.leaseTtlMs ?? 90_000;
+        if (this.lease && now + (performance.now() - cycleStartedAt) >= this.lease.expiresAt - Math.floor(ttl / 2)) {
+          this.lease = await this.store.renewLease(this.lease, now + (performance.now() - cycleStartedAt), ttl);
+        }
       }
       batch.audit.push(`gap_reconciled_minutes=${missingMinutes}`, "catch_up_alerts=disabled");
     }
@@ -335,10 +359,6 @@ export class AttentionLiveWorker {
       deliveryState: structuredClone(this.delivery),
     };
     const checkpoint: RuntimeCheckpoint = { ...unsigned, checksum: checkpointChecksum(unsigned) };
-    const commitTtl = this.config.leaseTtlMs ?? 90_000;
-    if (Date.now() >= this.lease.expiresAt - Math.floor(commitTtl / 2)) {
-      this.lease = await this.store.renewLease(this.lease, Date.now(), commitTtl);
-    }
     const commitStartedAt = performance.now();
     try {
       await this.store.commitMinute({ lease: this.lease, checkpoint, snapshot, events, envelopes });
@@ -349,6 +369,8 @@ export class AttentionLiveWorker {
       this.processor.restore(rollback.processorState);
       throw error;
     }
+    // A durable minute earns the next lease interval. Failed work never does.
+    this.lease = await this.store.renewLease(this.lease, now + (performance.now() - cycleStartedAt), this.config.leaseTtlMs ?? 90_000);
     snapshot.cycleTimings.checkpointWriteMs = performance.now() - commitStartedAt;
     snapshot.cycleTimings.totalCycleMs = performance.now() - cycleStartedAt;
     snapshot.cycleBudgetExceeded = snapshot.cycleTimings.totalCycleMs > 20_000;
