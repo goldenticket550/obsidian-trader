@@ -262,8 +262,14 @@ async function main(): Promise<void> {
       const t = Math.floor(Date.parse(s.marketDataAt) / 1000);
       // The origin is not exposed on ReplayStep; derive it EXACTLY from the
       // detector's own fromOriginPct reading. null stays null.
+      // Direction-aware: for a short the move is measured origin -> down,
+      // so the bullish formula reports a nonsense anchor below price.
       const originPx =
-        s.fromOriginPct === null ? null : s.price / (1 + s.fromOriginPct / 100);
+        s.fromOriginPct === null
+          ? null
+          : BULL
+          ? s.price / (1 + s.fromOriginPct / 100)
+          : s.price / (1 - s.fromOriginPct / 100);
       const ev = s.transitions.map((x) => `${x.stage}(${x.reason})`).join(" ");
       const blocker = s.blockers.length ? `blocked: ${s.blockers[0].requirement}` : "";
       const milestone = s.milestones.length ? ` MILESTONE ${s.milestones.join(",")}%` : "";
