@@ -42,12 +42,15 @@ Leave both windows running. The supervisor restarts the worker if its child exit
 
 Run viewer administration only on the trusted owner machine; it uses the server-only service-role credential from `.env.local` and never prints it.
 
-- Grant: `npm run attention:viewer -- grant person@example.com`
+- Grant with an optional invitation attempt: `npm run attention:viewer -- grant person@example.com`
+- Grant without sending email: `npm run attention:viewer -- grant person@example.com --no-invite`
 - List: `npm run attention:viewer -- list`
 - Revoke: `npm run attention:viewer -- revoke person@example.com`
 - Verify production: `npx tsx scripts/verify-attention-viewer-access.ts person@example.com https://obsidian-trader-blue.vercel.app`
 
-Grant creates and emails an invitation when no auth user exists, then records a `viewer` membership with `ATTENTION_USER_ID` as grantor. Existing users receive only the membership and can request a normal link at `/login?redirectTo=/attention`. Revoke removes the membership but leaves the auth account; it can no longer read scanner rows.
+Grant first finds or creates the auth identity without sending email, then independently upserts the durable `viewer` membership with `ATTENTION_USER_ID` as grantor. A normal grant attempts an invitation only after membership succeeds. Mail failure is reported as `invitationSent: false` with `invitationReason`, but the membership remains active. Repeating a grant updates the same membership and is safe.
+
+An invitation is not required. A viewer who has membership can open `/login?redirectTo=/attention`, enter their email, and request their own magic link. Use `--no-invite` as the normal path when adding several people at once or whenever Supabase's administrative mail quota is constrained; it sends nothing and reports the resulting `userId` and `role`.
 
 The viewer sees only `/attention` in navigation. RLS, not navigation, denies every private table and every write. The canonical owner cannot be revoked by the script. See `docs/attention-viewer-access.md` for the full matrix and verifier behavior.
 

@@ -1,5 +1,6 @@
 import { createAdminClient } from "../lib/supabase/admin";
 import { loadEnvLocal } from "../lib/replay/env";
+import { grantAttentionViewer } from "../lib/attention-runtime/viewerGrant";
 
 type Operation = "grant" | "revoke" | "list";
 
@@ -9,14 +10,20 @@ interface Options {
   engineInstanceId: string;
   ownerId: string;
   redirectTo: string;
+  noInvite: boolean;
 }
 
 function optionsFromArgs(): Options {
   loadEnvLocal();
-  const [command, rawEmail] = process.argv.slice(2);
+  const [command, ...rawArgs] = process.argv.slice(2);
   if (command !== "grant" && command !== "revoke" && command !== "list") {
-    throw new Error("Usage: npm run attention:viewer -- <grant|revoke|list> [email]");
+    throw new Error("Usage: npm run attention:viewer -- <grant|revoke|list> [email] [--no-invite]");
   }
+  const noInvite = rawArgs.includes("--no-invite");
+  if (noInvite && command !== "grant") throw new Error("--no-invite is valid only with grant.");
+  const positionalArgs = rawArgs.filter((argument) => argument !== "--no-invite");
+  if (positionalArgs.length > 1) throw new Error(`Unexpected arguments: ${positionalArgs.slice(1).join(" ")}`);
+  const [rawEmail] = positionalArgs;
   const email = rawEmail?.trim().toLowerCase() ?? null;
   if (command !== "list" && !email) throw new Error(`${command} requires an email address.`);
   const engineInstanceId = process.env.ATTENTION_ENGINE_INSTANCE_ID;
@@ -29,6 +36,7 @@ function optionsFromArgs(): Options {
     engineInstanceId,
     ownerId,
     redirectTo: `${siteUrl.replace(/\/$/, "")}/auth/callback?redirectTo=%2Fattention`,
+    noInvite,
   };
 }
 
@@ -78,12 +86,41 @@ async function main(): Promise<void> {
 
   const email = options.email!;
   let user = await findUserByEmail(email);
-  let invitationSent = false;
-  if (options.operation === "grant" && !user) {
-    const { data, error } = await admin.auth.admin.inviteUserByEmail(email, { redirectTo: options.redirectTo });
-    if (error) throw error;
-    user = data.user;
-    invitationSent = true;
+
+  if (options.operation === "grant") {
+    const result = await grantAttentionViewer({
+      email,
+      engineInstanceId: options.engineInstanceId,
+      ownerId: options.ownerId,
+      redirectTo: options.redirectTo,
+      noInvite: options.noInvite,
+    }, {
+      findUserByEmail: async () => user,
+      createUserWithoutEmail: async (newEmail) => {
+        const { data, error } = await admin.auth.admin.createUser({
+          email: newEmail,
+          email_confirm: true,
+        });
+        if (error) throw error;
+        user = data.user;
+        return data.user;
+      },
+      upsertMembership: async (membership) => {
+        const { error } = await admin.from("attention_engine_memberships").upsert({
+          engine_instance_id: membership.engineInstanceId,
+          user_id: membership.userId,
+          role: membership.role,
+          granted_by: membership.grantedBy,
+        }, { onConflict: "engine_instance_id,user_id" });
+        if (error) throw error;
+      },
+      sendInvitation: async (invitationEmail, redirectTo) => {
+        const { error } = await admin.auth.admin.inviteUserByEmail(invitationEmail, { redirectTo });
+        if (error) throw error;
+      },
+    });
+    console.log(JSON.stringify(result));
+    return;
   }
 
   if (!user) {
@@ -92,17 +129,6 @@ async function main(): Promise<void> {
   }
   if (user.id === options.ownerId) throw new Error("The canonical owner cannot be granted or revoked as a viewer.");
 
-  if (options.operation === "grant") {
-    const { error } = await admin.from("attention_engine_memberships").upsert({
-      engine_instance_id: options.engineInstanceId,
-      user_id: user.id,
-      role: "viewer",
-      granted_by: options.ownerId,
-    }, { onConflict: "engine_instance_id,user_id" });
-    if (error) throw error;
-    console.log(JSON.stringify({ operation: "grant", email, userId: user.id, engineInstanceId: options.engineInstanceId, role: "viewer", invitationSent, redirectTo: "/attention" }));
-    return;
-  }
 
   const { error, count } = await admin
     .from("attention_engine_memberships")
