@@ -120,12 +120,35 @@ export class RestIexPollingSource implements LiveIngestionSource {
     const fetchStartedAt = performance.now();
     const completedAt = Math.floor(now / 60_000) * 60_000 - 60_000;
     const et = getEasternTimeParts(new Date(completedAt));
-    const currentStartAt = exchangeCalendarDay(et.date).isTradingDay && et.minutesSinceMidnight < 635
+    const calendar = exchangeCalendarDay(et.date);
+    const regular = calendar.isTradingDay && et.minutesSinceMidnight >= 570 && et.minutesSinceMidnight < calendar.regularCloseMinutes!;
+    if (!regular) {
+      return {
+        at: completedAt,
+        tradingDate: et.date,
+        minuteOfDay: et.minutesSinceMidnight,
+        mode: this.mode,
+        requestedSymbols: [...this.symbols],
+        barsBySymbol: Object.fromEntries(this.symbols.map((symbol) => [symbol, []])),
+        latestBarBySymbol: Object.fromEntries(this.symbols.map((symbol) => [symbol, null])),
+        responseFeed: "iex",
+        complete: true,
+        staleSymbols: [],
+        missingSymbols: [],
+        guard: defaultGuard(),
+        audit: ["dark_window_noop=non_regular", "provider_requests=0"],
+        stageTimings: { providerFetchMs: performance.now() - fetchStartedAt, barReconciliationMs: 0 },
+      };
+    }
+    const currentStartAt = et.minutesSinceMidnight < 635
       ? exchangePremarketOpenAt(et.date).getTime()
       : completedAt - this.lookbackMinutes * 60_000;
     const priorSessionRegularBarsBySymbol = await this.loadPriorSession(et.date, Date.now());
     const start = new Date(currentStartAt).toISOString();
     const end = new Date(completedAt + 59_999).toISOString();
+    if (currentStartAt > completedAt + 59_999) {
+      throw new Error(`Regular IEX poll window is invalid: start=${start}, end=${end}.`);
+    }
     const result = await this.provider.getCandlesMulti!({ symbols: [...this.symbols], timeframe: "1m", start, end, adjustment: "split", deadlineAt: Date.now() + 25_000 });
     const fetchedAt = performance.now();
     if (result.requestedFeed !== "iex" || result.responseFeed !== "iex") throw new Error(`Live IEX poll feed provenance mismatch: requested=${result.requestedFeed}, response=${result.responseFeed}.`);

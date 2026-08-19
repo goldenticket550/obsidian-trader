@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { AttentionEvent } from "@/lib/attention/attentionEvents";
-import type { LiveIngestionSource } from "@/lib/attention-runtime/ingestion";
+import { RestIexPollingSource, type LiveIngestionSource } from "@/lib/attention-runtime/ingestion";
 import { assertIexBaselineTable, type IexBaselineTable } from "@/lib/attention-runtime/iexBaselineTable";
 import { InMemoryRuntimeStore, assertCheckpointCompatible } from "@/lib/attention-runtime/inMemoryStore";
 import { eventsForEasternDay } from "@/lib/attention-runtime/localRuntimeHandoff";
@@ -13,6 +13,7 @@ import type {
 } from "@/lib/attention-runtime/contracts";
 import { AttentionLiveWorker, type AttentionRuntimeProcessor } from "@/lib/attention-runtime/worker";
 import { getEasternTimeParts } from "@/lib/market-data/easternTime";
+import type { MarketDataProvider } from "@/lib/market-data/types";
 import {
   assertFeedAwareAttentionThresholdStore,
   type FeedAwareAttentionThresholdStore,
@@ -118,6 +119,70 @@ class RegularMinuteDetector implements AttentionRuntimeProcessor {
 }
 
 describe("overnight live-runtime rollover", () => {
+  it("runs across midnight through the pre-open dark window without issuing a malformed poll", async () => {
+    const getCandlesMulti = vi.fn(async () => {
+      throw new Error("non-regular cycles must not reach the provider");
+    });
+    const provider = {
+      name: "overnight-noop-fixture",
+      getCandles: vi.fn(),
+      getCandlesMulti,
+      getSessionInfo: vi.fn(),
+    } as unknown as MarketDataProvider;
+    const source = new RestIexPollingSource(provider, ["AAOI"], 120);
+    const midnightNow = Date.parse("2026-08-19T04:01:30Z"); // completed minute is 00:00 ET
+    const midnightBatch = await source.readCompletedMinute(midnightNow);
+    expect(midnightBatch.audit).toEqual(["dark_window_noop=non_regular", "provider_requests=0"]);
+
+    const store = new InMemoryRuntimeStore();
+    const worker = new AttentionLiveWorker(store, source, new RegularMinuteDetector(), {
+      identity,
+      shadow: true,
+      leaseTtlMs: 48 * 60 * 60_000,
+    });
+    const cycleTimes = [
+      Date.parse("2026-08-19T03:59:30Z"), // 23:58 ET, prior trading date
+      Date.parse("2026-08-19T04:00:30Z"), // 23:59 ET, prior trading date
+      midnightNow,
+      Date.parse("2026-08-19T08:01:30Z"), // completed minute is 04:00 ET
+      Date.parse("2026-08-19T13:30:30Z"), // completed minute is 09:29 ET
+    ];
+    const snapshots = [];
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(cycleTimes[0]);
+      await worker.start(cycleTimes[0]);
+      for (const now of cycleTimes) {
+        vi.setSystemTime(now);
+        store.setControls({
+          version: 1,
+          attentionLiveAlertingEnabled: false,
+          legacyAlertingEnabled: true,
+          activeAlertEngine: "legacy",
+          updatedAt: now,
+          reason: "test",
+        });
+        snapshots.push(await worker.runOnce(now));
+      }
+      await worker.stop();
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(getCandlesMulti).not.toHaveBeenCalled();
+    expect(snapshots.map((snapshot) => snapshot.tradingDate)).toEqual([
+      "2026-08-18",
+      "2026-08-18",
+      "2026-08-19",
+      "2026-08-19",
+      "2026-08-19",
+    ]);
+    expect(snapshots.every((snapshot) => snapshot.health === "dark_window")).toBe(true);
+    expect(snapshots.every((snapshot) => snapshot.detectionSuppressionReason === "non_regular")).toBe(true);
+    expect(snapshots.every((snapshot) => snapshot.darkWindowReason === "unavailable_on_partial_feed")).toBe(true);
+    expect(store.events).toEqual([]);
+    expect(store.outbox).toEqual([]);
+  });
   it("clears prior-date event state and restarts session counters at the first regular minute", async () => {
     const store = new InMemoryRuntimeStore();
     const source = new MutableMinuteSource();
