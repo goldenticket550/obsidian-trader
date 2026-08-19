@@ -21,3 +21,8 @@ supabase/.temp/
 data/archive/
 data/replay/sessions/
 data/replay/probe/
+# Continuously rewritten local worker telemetry; durable reports remain tracked.
+data/runtime-shadow/runtime-state-static-v1.json
+data/runtime-shadow/supervisor-state.json
+data/runtime-shadow/worker-liveness.json
+data/runtime-shadow/last-run.json
