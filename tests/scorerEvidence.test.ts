@@ -105,11 +105,19 @@ describe("SetupResult.evidence", () => {
     expect(result.evidence!.structureShift.shiftPrice).toBeNull();
   });
 
-  it("omits evidence entirely when no detector ran", () => {
-    // An empty candle series short-circuits before any detector is called,
-    // so there is nothing to republish — absent, not fabricated.
+  it("publishes explicit unavailable evidence when no detector ran", () => {
+    // Empty input must remain distinguishable from evaluated-and-failed.
     const result = score([]);
-    expect(result.evidence).toBeUndefined();
+    expect(result.evidence).toBeDefined();
+    expect(result.evidence!.conditions).toEqual([]);
+    expect(result.evidence!.structureShift).toMatchObject({
+      state: "waiting",
+      shiftPrice: null,
+    });
+    expect(result.evidence!.liquiditySweep).toMatchObject({
+      passed: false,
+      insufficientData: true,
+    });
   });
 
   it("carries no bearish sweep, because no bearish detector exists", () => {

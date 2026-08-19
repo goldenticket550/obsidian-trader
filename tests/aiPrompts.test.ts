@@ -25,6 +25,9 @@ const sampleResult: SetupResult = {
     { id: "structure_shift", label: "Market-structure shift", state: "waiting", required: true },
   ],
   lastUpdated: "2026-07-13T14:00:00Z",
+  convictionLevel: "developing",
+  entryStatus: "wait_for_pullback",
+  invalidationNote: null,
 };
 
 describe("buildExplainSetupPrompt", () => {
@@ -45,9 +48,9 @@ describe("buildExplainSetupPrompt", () => {
   });
 
   it("includes the invalidation note when present, and says so plainly when absent", () => {
-    const withNote: SetupResult = { ...sampleResult, invalidationNote: "Would weaken on a close below $190." };
+    const withNote: SetupResult = { ...sampleResult, invalidationNote: { level: 190, reason: "ema_reclaim_lost" } };
     const { user: userWithNote } = buildExplainSetupPrompt(withNote);
-    expect(userWithNote).toContain("Would weaken on a close below $190.");
+    expect(userWithNote).toContain("ema reclaim lost at $190.00");
 
     const withoutNote: SetupResult = { ...sampleResult, invalidationNote: null };
     const { user: userWithoutNote } = buildExplainSetupPrompt(withoutNote);

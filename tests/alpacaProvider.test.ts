@@ -870,11 +870,11 @@ describe("getCandles — 1m window sizing and pagination completeness", () => {
       symbol: "AAPL",
       timeframe: "5m",
       limit: 100,
-      adjustment: "split",
+      adjustment: "raw",
     });
     expect(mockFetch).toHaveBeenCalledTimes(2);
     // The default is still raw — existing callers are unaffected.
-    expect(String(mockFetch.mock.calls[0][0])).toContain("adjustment=raw");
-    expect(String(mockFetch.mock.calls[1][0])).toContain("adjustment=split");
+    expect(String(mockFetch.mock.calls[0][0])).toContain("adjustment=split");
+    expect(String(mockFetch.mock.calls[1][0])).toContain("adjustment=raw");
   });
 });

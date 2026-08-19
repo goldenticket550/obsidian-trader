@@ -14,6 +14,8 @@ import {
   openingRangeLevels,
   selectTap2Level,
 } from "@/lib/trend/facts";
+import { calculateAtr } from "@/lib/indicators/atr";
+import { latestValid } from "@/lib/indicators/movingAverages";
 import { opsFor } from "@/lib/trend/direction";
 import { detectHeldBaseOrigin, detectMomentumOrigin, PRICE_EPSILON } from "@/lib/trend/origin";
 import { advanceLifecycle, crossedMilestones, emptyLifecycle } from "@/lib/trend/stages";
@@ -2017,5 +2019,132 @@ describe("extended is a state, not an alert", () => {
     expect(out.lifecycle.transitions.some((t) => t.stage === "extended")).toBe(true);
     expect(out.newTransitions.some((t) => t.stage === "extended")).toBe(false);
     expect(out.newTransitions.some((t) => t.reason.includes("premarket high"))).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// THE OPENING WINDOW
+//
+// A 14-period ATR on 5m bars needs ~15 completed REGULAR bars, and both
+// origin paths open with a hard `no_atr` refusal, so for the first ~70
+// minutes no origin could lock at all. Real MU 2026-07-31 had a lower-high
+// base at 928.60 lockable at 09:35 and the detector could not touch it
+// until 10:40, by which point price was 8.1% lower.
+//
+// During that window only, the paths scale by the premarket-INCLUSIVE
+// ATR -- real bars, never a fabricated default.
+// ---------------------------------------------------------------------------
+
+/** 90 premarket minutes that DECLINE, so no bullish base qualifies. */
+function decliningPremarket(): Candle[] {
+  const bars: Candle[] = [];
+  for (let i = 0; i < 90; i++) {
+    const p = 110 - i * 0.11;
+    bars.push(preBar(90 - i, p, p + 0.25, p - 0.3, p - 0.05));
+  }
+  return bars;
+}
+
+/**
+ * 50 REGULAR minutes -- only 10 completed 5m bars, so the regular ATR is
+ * still unmeasurable -- containing a higher-low base that forms AFTER the
+ * bell: a 99.60 low, a rally to ~103, a 100.50 higher low, then a hold.
+ */
+function regularBaseAfterTheBell(): Candle[] {
+  const bars: Candle[] = [];
+  let i = 0;
+  bars.push(bar(i++, 100.0, 100.2, 99.6, 99.9)); // session extreme
+  for (let k = 0; k < 8; k++) {
+    const up = 100.1 + k * 0.36;
+    bars.push(bar(i++, up, up + 0.3, up - 0.15, up + 0.25)); // rally to ~103
+  }
+  bars.push(bar(i++, 102.8, 102.9, 100.5, 100.7)); // the higher low
+  for (let k = 0; k < 6; k++) {
+    const hold = 100.8 + k * 0.2;
+    bars.push(bar(i++, hold, hold + 0.25, hold - 0.15, hold + 0.18)); // holds
+  }
+  while (i < 50) {
+    const up = 102.2 + (i - 15) * 0.03;
+    bars.push(bar(i++, up, up + 0.2, up - 0.1, up + 0.12));
+  }
+  return bars;
+}
+
+/**
+ * Supplies premarket FIVE-minute bars but no premarket one-minute bars.
+ *
+ * That combination disables Fix #1's premarket base path outright (it
+ * needs the 1m series) while still leaving a real premarket-inclusive
+ * ATR measurable -- which isolates THIS fix: the regular-session path
+ * getting a volatility scale it otherwise would not have.
+ */
+function evaluateInOpeningWindow(premarket: Candle[] | undefined) {
+  // The base lookback is 30 completed 1m bars, so evaluate while the base
+  // is still inside it rather than after it has scrolled out.
+  const regularOne = regularBaseAfterTheBell().slice(0, 20);
+  const regularFive = agg5(regularOne);
+  return evaluateTrend({
+    symbol: "TEST",
+    direction: "bullish",
+    tradingDate: DATE,
+    oneMinute: regularOne,
+    fiveMinute: regularFive,
+    daily: [],
+    levels: [{ name: "Premarket high", price: 110.5, availableFrom: null }],
+    premarketLevel: { name: "Premarket high", price: 110.5, availableFrom: null },
+    // Deliberately NO premarket 1m: the premarket base path cannot run,
+    // so anything that locks here locks through the regular path.
+    premarketOneMinute: undefined,
+    premarketFiveMinute: premarket === undefined ? undefined : agg5(premarket),
+    relativeVolume: okVolume,
+    relativeToBenchmark: null,
+    relativeToSector: null,
+    previous: emptyLifecycle(),
+    config: CONFIG,
+    evaluatedAt: new Date((regularFive[regularFive.length - 1].time + 300) * 1000),
+    pivotLength: 3,
+    feedLabel: "test",
+  });
+}
+
+describe("opening-window volatility scale", () => {
+  it("has no measurable REGULAR ATR in this window — the precondition", () => {
+    const regularFive = agg5(regularBaseAfterTheBell().slice(0, 20));
+    // Fewer than the ~15 completed 5m bars a 14-period ATR needs.
+    expect(regularFive.length).toBeLessThan(15);
+    expect(latestValid(calculateAtr(regularFive, 14))).toBeNull();
+  });
+
+  it("lets the REGULAR path lock on premarket-inclusive ATR while the regular ATR is null", () => {
+    const out = evaluateInOpeningWindow(decliningPremarket());
+    const origin = out.result.lifecycle.origin;
+    // The claim under test is that an origin can lock AT ALL in a window
+    // where the regular ATR is null and both paths therefore used to
+    // refuse. Which candidate in the base wins is fixture trivia, and
+    // pinning it would test the fixture rather than the rule.
+    expect(origin).not.toBeNull();
+    expect(Number.isFinite(origin!.price)).toBe(true);
+    expect(origin!.invalidationPrice).toBeLessThan(origin!.price);
+  });
+
+  it("stays NULL when no ATR is measurable from any source", () => {
+    // PRECONDITION: with premarket bars the identical fixture DOES lock,
+    // so the null below is the missing volatility scale and nothing else.
+    expect(evaluateInOpeningWindow(decliningPremarket()).result.lifecycle.origin).not.toBeNull();
+
+    const out = evaluateInOpeningWindow(undefined);
+    expect(out.result.lifecycle.origin).toBeNull();
+    // Reported honestly rather than silently: the 5m ATR is named as
+    // unavailable, never substituted with a default.
+    expect(out.result.unavailable).toContain("5-minute ATR");
+  });
+
+  it("leaves facts.atr5m itself unmeasured — the scale is for ORIGIN only", () => {
+    const out = evaluateInOpeningWindow(decliningPremarket());
+    // The confirmation threshold, the extension measure and the milestone
+    // ladder must keep scaling by REGULAR volatility, which is still null
+    // here. Borrowing premarket range for those would silently move every
+    // downstream threshold.
+    expect(out.result.facts.atr5m).toBeNull();
   });
 });

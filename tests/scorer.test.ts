@@ -283,12 +283,12 @@ describe("scoreSetup", () => {
       // condition passing counts for more than a supporting one, "core
       // passes" must score strictly higher than "supporting passes."
       const corePassing: SetupCondition[] = [
-        { id: "core1", label: "core1", state: "pass", required: true, category: "core" },
-        { id: "supporting1", label: "supporting1", state: "fail", required: true, category: "supporting" },
+        { id: "core1", label: "core1", state: "pass", required: false, category: "core" },
+        { id: "supporting1", label: "supporting1", state: "fail", required: false, category: "supporting" },
       ];
       const supportingPassing: SetupCondition[] = [
-        { id: "core1", label: "core1", state: "fail", required: true, category: "core" },
-        { id: "supporting1", label: "supporting1", state: "pass", required: true, category: "supporting" },
+        { id: "core1", label: "core1", state: "fail", required: false, category: "core" },
+        { id: "supporting1", label: "supporting1", state: "pass", required: false, category: "supporting" },
       ];
 
       const coreResult = computeWeightedScore(corePassing);
@@ -331,8 +331,8 @@ describe("scoreSetup", () => {
       expect(determineConvictionLevel("yellow", 4, 7)).toBe("developing");
     });
 
-    it("returns 'developing' once at least 2 required conditions pass, even below half", () => {
-      expect(determineConvictionLevel("yellow", 2, 10)).toBe("developing");
+    it("stays watch below the explicit 50% required-condition threshold", () => {
+      expect(determineConvictionLevel("yellow", 2, 10)).toBe("watch");
     });
 
     it("returns 'watch' when few required conditions pass", () => {
@@ -461,7 +461,7 @@ describe("scoreSetup", () => {
       const note = determineInvalidationNote({
         structureTriggerLevel: null,
         sessionLow: 100,
-        hasGap: false,
+        gapLowerBoundary: null,
         emaValue: null,
         status: "red",
       });
@@ -472,24 +472,24 @@ describe("scoreSetup", () => {
       const note = determineInvalidationNote({
         structureTriggerLevel: 110,
         sessionLow: 100,
-        hasGap: true,
+        gapLowerBoundary: 102,
         emaValue: 105,
         status: "green",
       });
       expect(note).not.toBeNull();
-      expect(note).toMatch(/fair value gap/i);
+      expect(note).toEqual({ level: 102, reason: "fair_value_gap_lost" });
     });
 
     it("returns a real note referencing the swing high when still developing", () => {
       const note = determineInvalidationNote({
         structureTriggerLevel: 110,
         sessionLow: 100,
-        hasGap: false,
+        gapLowerBoundary: null,
         emaValue: null,
         status: "yellow",
       });
       expect(note).not.toBeNull();
-      expect(note).toContain("$110.00");
+      expect(note).toEqual({ level: 110, reason: "structure_failed" });
     });
   });
 });
@@ -642,10 +642,10 @@ describe("scoreSetup — non-green stage values are byte-identical to before the
   const CASES: { name: string; candles: Candle[]; prevClose: number; status: string; stage: string; score: number }[] = [
     { name: "empty", candles: [], prevClose: 100, status: "red", stage: "none", score: 0 },
     { name: "flat", candles: flatSeries(30, 100), prevClose: 100, status: "red", stage: "none", score: 0 },
-    { name: "falling", candles: fallingSeries(20, 110, 1), prevClose: 115, status: "yellow", stage: "intraday_decline", score: 0.227 },
-    { name: "rising", candles: risingSeries(20, 100, 1), prevClose: 100, status: "yellow", stage: "fair_value_gap", score: 4.091 },
-    { name: "textbook", candles: textbookBullishReclaimSeries(), prevClose: 100, status: "yellow", stage: "fair_value_gap", score: 7.045 },
-    { name: "flat below prev close", candles: flatSeries(30, 100), prevClose: 120, status: "yellow", stage: "intraday_decline", score: 0.227 },
+    { name: "falling", candles: fallingSeries(20, 110, 1), prevClose: 115, status: "yellow", stage: "intraday_decline", score: 0.263 },
+    { name: "rising", candles: risingSeries(20, 100, 1), prevClose: 100, status: "yellow", stage: "fair_value_gap", score: 4.737 },
+    { name: "textbook", candles: textbookBullishReclaimSeries(), prevClose: 100, status: "yellow", stage: "fair_value_gap", score: 6.5 },
+    { name: "flat below prev close", candles: flatSeries(30, 100), prevClose: 120, status: "yellow", stage: "intraday_decline", score: 0.263 },
   ];
 
   for (const c of CASES) {
@@ -790,7 +790,7 @@ describe("scoreSetup — the pre-existing detectors' insufficientData is now exc
     // Audited before/after, both measured against the real scorer:
     //   1 candle  1.9231 -> 2.9412   (consecutive_bullish + liquidity_sweep excluded)
     //   2 candles 1.9231 -> 2.3810   (consecutive_bullish excluded)
-    expect(scoreFor(risingSeries(1, 100, 1)).score).toBeCloseTo(2.9412, 3);
-    expect(scoreFor(risingSeries(2, 100, 1)).score).toBeCloseTo(2.381, 3);
+    expect(scoreFor(risingSeries(1, 100, 1)).score).toBeCloseTo(5, 3);
+    expect(scoreFor(risingSeries(2, 100, 1)).score).toBeCloseTo(3.125, 3);
   });
 });

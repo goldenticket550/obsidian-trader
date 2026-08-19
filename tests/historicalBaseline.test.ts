@@ -723,7 +723,7 @@ describe("HistoricalBarCache — response completeness", () => {
     expect(entry.symbol).toBe("AAPL");
     expect(entry.timeframe).toBe("5m");
     expect(entry.sessionScope).toBe("extended");
-    expect(entry.adjustment).toBe("raw");
+    expect(entry.adjustment).toBe("split");
     expect(entry.provider).toBe("counting");
     expect(typeof entry.fetchedAt).toBe("string");
   });

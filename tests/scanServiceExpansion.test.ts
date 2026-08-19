@@ -267,9 +267,16 @@ describe("the reversal output is unchanged by the integration", () => {
           symbol,
           Object.fromEntries(
             Object.entries(byTimeframe).map(([timeframe, setup]) => {
-              const { evidence, ...rest } = setup;
+              const { evidence, scoreCap, scoreCapReason, ...rest } = setup;
               expect(evidence).toBeDefined();
-              return [timeframe, rest];
+              const conditions = rest.conditions.map((condition) => {
+                const {
+                  observedValue, thresholdValue, distanceToThreshold, distanceUnit,
+                  ...legacyCondition
+                } = condition;
+                return legacyCondition;
+              });
+              return [timeframe, JSON.parse(JSON.stringify({ ...rest, conditions }))];
             })
           ),
         ])

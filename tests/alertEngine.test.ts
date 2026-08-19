@@ -13,6 +13,9 @@ function makeResult(overrides: Partial<SetupResult> & { conditions: SetupConditi
     score: 0,
     maxScore: 10,
     lastUpdated: "2026-01-01T00:00:00Z",
+    convictionLevel: "watch",
+    entryStatus: "wait_for_pullback",
+    invalidationNote: null,
     ...overrides,
   };
 }
