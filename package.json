@@ -42,7 +42,8 @@
     "runtime:shadow": "tsx scripts/run-attention-live-shadow.ts",
     "runtime:worker": "tsx scripts/run-attention-live-supervisor.ts",
     "runtime:worker:child": "tsx scripts/run-attention-live-shadow.ts --continuous",
-    "runtime:notifier": "tsx scripts/run-attention-desktop-notifier.ts"
+    "runtime:notifier": "tsx scripts/run-attention-desktop-notifier.ts",
+    "attention:viewer": "tsx scripts/manage-attention-viewer.ts"
   },
   "dependencies": {
     "@supabase/ssr": "0.5.1",

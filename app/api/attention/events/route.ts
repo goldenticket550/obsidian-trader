@@ -29,7 +29,9 @@ export async function GET(request: Request) {
   const [eventsResult, snapshotResult, instanceResult] = await Promise.all([
     supabase.from("attention_events").select("payload").eq("engine_instance_id", engineInstanceId).gte("qualified_at", new Date(range.startAt).toISOString()).lt("qualified_at", new Date(range.endAt).toISOString()).order("qualified_at", { ascending: false }).limit(requestedLimit),
     supabase.from("attention_live_snapshots").select("snapshot,updated_at").eq("engine_instance_id", engineInstanceId).maybeSingle(),
-    supabase.from("attention_engine_instances").select("engine_instance_id,user_id").eq("engine_instance_id", engineInstanceId).eq("user_id", user.id).maybeSingle(),
+    // RLS admits the owner or a membership holder. Do not add an owner-only
+    // user_id filter here or a valid viewer would be silently hidden.
+    supabase.from("attention_engine_instances").select("engine_instance_id,user_id").eq("engine_instance_id", engineInstanceId).maybeSingle(),
   ]);
   if (eventsResult.error || snapshotResult.error || instanceResult.error) return NextResponse.json({ events: [], status: "runtime_handoff_unavailable", detail: eventsResult.error?.message ?? snapshotResult.error?.message ?? instanceResult.error?.message }, { status: 503 });
   if (!instanceResult.data || !snapshotResult.data?.snapshot) return NextResponse.json({ events: [], status: "worker_not_registered" }, { status: 404 });

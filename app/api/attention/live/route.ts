@@ -26,7 +26,9 @@ export async function GET() {
   if (!engineInstanceId) return NextResponse.json({ snapshot: null, status: "runtime_handoff_not_configured", detail: "ATTENTION_ENGINE_INSTANCE_ID_REQUIRED" }, { status: 503 });
   const [snapshotResult, instanceResult] = await Promise.all([
     supabase.from("attention_live_snapshots").select("snapshot,updated_at").eq("engine_instance_id", engineInstanceId).maybeSingle(),
-    supabase.from("attention_engine_instances").select("engine_instance_id,user_id,heartbeat_at,health,ready,shadow,updated_at,ingestion_mode,last_completed_minute").eq("engine_instance_id", engineInstanceId).eq("user_id", user.id).maybeSingle(),
+    // RLS admits the owner or a membership holder. Do not add an owner-only
+    // user_id filter here or a valid viewer would be silently hidden.
+    supabase.from("attention_engine_instances").select("engine_instance_id,user_id,heartbeat_at,health,ready,shadow,updated_at,ingestion_mode,last_completed_minute").eq("engine_instance_id", engineInstanceId).maybeSingle(),
   ]);
   if (snapshotResult.error || instanceResult.error) return NextResponse.json({ snapshot: null, status: "runtime_handoff_unavailable", detail: snapshotResult.error?.message ?? instanceResult.error?.message }, { status: 503 });
   if (!snapshotResult.data?.snapshot || !instanceResult.data) return NextResponse.json({ snapshot: null, status: "worker_not_registered" }, { status: 404 });

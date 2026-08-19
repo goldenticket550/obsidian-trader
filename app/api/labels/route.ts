@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { gunzipSync } from "node:zlib";
 import { NextResponse } from "next/server";
+import { configuredAttentionEngineInstanceId, resolveAttentionAccess } from "@/lib/attention-runtime/access";
 import { createClient } from "@/lib/supabase/server";
 import { listJournalEntries } from "@/lib/journal/queries";
 import { generateLabelCandidates, labelsFromExecutedTrades } from "@/lib/replay/labelAssistant";
@@ -13,12 +14,28 @@ async function authenticated() {
   const { data: { user } } = await supabase.auth.getUser();
   return { supabase, user };
 }
+async function requireAttentionOwner(supabase: Awaited<ReturnType<typeof createClient>>, userId: string): Promise<NextResponse | null> {
+  const engineInstanceId = configuredAttentionEngineInstanceId();
+  if (!engineInstanceId) return NextResponse.json({ error: "Attention access is not configured" }, { status: 503 });
+  try {
+    const access = await resolveAttentionAccess(supabase, userId, engineInstanceId);
+    if (access?.role !== "owner") {
+      return NextResponse.json({ error: "Owner access required" }, { status: 403 });
+    }
+    return null;
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 503 });
+  }
+}
+
 
 export async function GET(request: Request) {
   const { supabase, user } = await authenticated();
   if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   const date = new URL(request.url).searchParams.get("date");
   if (!date) return NextResponse.json({ error: "date is required" }, { status: 400 });
+  const refused = await requireAttentionOwner(supabase, user.id);
+  if (refused) return refused;
   try {
     const review = await getLabelReview(supabase, user.id, date);
     const labels = reviewToSessionLabels(review);
@@ -34,6 +51,8 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const { supabase, user } = await authenticated();
   if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const refused = await requireAttentionOwner(supabase, user.id);
+  if (refused) return refused;
   try {
     const body = await request.json() as Record<string, unknown>;
     const action = body.action;
@@ -68,6 +87,8 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   const { supabase, user } = await authenticated();
   if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const refused = await requireAttentionOwner(supabase, user.id);
+  if (refused) return refused;
   try {
     const body = await request.json() as Record<string, unknown>;
     if (body.action === "candidate") {
