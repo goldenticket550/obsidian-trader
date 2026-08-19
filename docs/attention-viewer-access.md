@@ -27,7 +27,7 @@ LIVE-2 adds a read-only `viewer` membership on one attention engine instance. It
 | `watchlist_symbols` | Own via watchlist | Own insert/delete via watchlist | No | No | No / No |
 | `watchlists` | Own | Own insert/update/delete | No | No | No / No |
 
-The three replay-label tables described by migration `0008_label_assistant.sql` are not present in the linked production database as of LIVE-2. The `/api/labels` route now requires the canonical engine `owner` role before any read or write. If the label migration is applied later, rerun migration 0010 so its restrictive viewer policies are added to those new tables too.
+The three replay-label tables described by migration `0009_label_assistant.sql` were later verified present in the linked production database during HOST-1 correction work. The `/api/labels` route requires the canonical engine `owner` role before any read or write, and migration 0011 covers the restrictive viewer policies on those tables.
 
 ## Database enforcement
 

@@ -1,6 +1,6 @@
 # Live Runtime — reviewed plan and local shadow build
 
-Status: **BUILD ITEMS 1–7 IMPLEMENTED LOCALLY IN SHADOW MODE — NOT DEPLOYED.** Phase C is complete. Phase E is not started. No paid feed was purchased and migration `0009_attention_live_runtime.sql` is review-only and unapplied.
+Status: **BUILD ITEMS 1–7 IMPLEMENTED LOCALLY IN SHADOW MODE — NOT DEPLOYED.** Phase C is complete. Phase E is not started. No paid feed was purchased and migration `0010_attention_live_runtime.sql` is review-only and unapplied.
 
 ## 1. Fixed runtime decisions
 

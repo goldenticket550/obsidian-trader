@@ -55,6 +55,6 @@ Operational files under `data/runtime-shadow` changed because the authorized loc
 - `attentionLiveAlertingEnabled` remains false.
 - Active control engine remains legacy; no desktop notifier or other out-of-band consumer was enabled.
 - Free IEX REST polling remains in use; no paid subscription was purchased or enabled.
-- `supabase/migrations/0009_attention_live_runtime.sql` remains unapplied with its `REVIEW ONLY` header.
+- `supabase/migrations/0010_attention_live_runtime.sql` remains unapplied with its `REVIEW ONLY` header.
 - Nothing was deployed.
 - No threshold, universe entry, calibration id, scoring value, state transition, persistence, cooldown, or hysteresis rule changed. The existing event state machine now executes in shadow; its behavior was not retuned.

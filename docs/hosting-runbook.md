@@ -4,23 +4,67 @@
 
 One Railway service runs the Attention supervisor and its child worker continuously. It polls all 68 configured symbols through Alpaca multi-symbol REST on the free IEX feed. It operates only during the regular session. It remains in shadow mode: Attention alert delivery is disabled and the legacy engine remains active.
 
-Do not create more than one Railway replica. Do not start Railway until the Surface task is disabled.
+Do not create more than one Railway replica.
 
-## One-time prerequisite: durable checkpoint migration
+The required cutover order is strict:
 
-This repository contains `supabase/migrations/0010_attention_durable_checkpoints.sql`. It is designed but has not been applied by Codex.
+1. Reconcile and apply the migrations.
+2. Verify the seven-argument commit function exists.
+3. Stop and disable the Surface task `ObsidianAttentionShadowWorker`.
+4. Wait one lease TTL.
+5. Start Railway.
 
-Before the Railway service starts:
+Do not reverse or skip these steps.
 
-1. Open the existing Supabase project.
-2. Open **SQL Editor**.
-3. Click **New query**.
-4. Paste the complete contents of `supabase/migrations/0010_attention_durable_checkpoints.sql`.
-5. Review it, then click **Run** once.
-6. Confirm the query finishes successfully.
+## One-time prerequisite: reconcile and apply migrations
 
-This makes the full engine checkpoint durable in Supabase. Without it, the hosted worker intentionally fails rather than restarting without state.
+Production has all objects represented by migrations 0001 through 0011, but its Supabase migration ledger is empty because those changes were applied manually. The durable-checkpoint migration 0012 is not applied: production still exposes the six-argument commit function and the checkpoint table contains zero rows.
 
+Do not paste 0012 directly into SQL Editor. That would leave the ledger broken.
+
+From a terminal in the checked-out repository:
+
+1. Sign in/link the Supabase CLI to the existing project if needed.
+2. Mark the already-present migrations as applied, one at a time:
+
+```text
+npx supabase migration repair --linked --status applied 0001
+npx supabase migration repair --linked --status applied 0002
+npx supabase migration repair --linked --status applied 0003
+npx supabase migration repair --linked --status applied 0004
+npx supabase migration repair --linked --status applied 0005
+npx supabase migration repair --linked --status applied 0006
+npx supabase migration repair --linked --status applied 0007
+npx supabase migration repair --linked --status applied 0008
+npx supabase migration repair --linked --status applied 0009
+npx supabase migration repair --linked --status applied 0010
+npx supabase migration repair --linked --status applied 0011
+```
+
+3. Run `npx supabase migration list --linked`.
+4. Confirm 0001 through 0011 appear both locally and remotely, while 0012 is local-only.
+5. Run `npx supabase db push --linked`.
+6. Run `npx supabase migration list --linked` again and confirm 0012 now appears locally and remotely.
+
+Migration 0012 atomically stores the worker checkpoint and retains only the newest three boundaries per engine.
+
+### Verify the function before stopping the Surface
+
+In Supabase **SQL Editor**, run this read-only query:
+
+```sql
+select pg_get_function_identity_arguments(p.oid) as arguments
+from pg_proc p
+join pg_namespace n on n.oid = p.pronamespace
+where n.nspname = 'public'
+  and p.proname = 'commit_attention_runtime_minute';
+```
+
+There must be exactly one row and it must include all seven arguments, including `p_checkpoint jsonb`:
+
+`p_engine_instance_id, p_run_id, p_fencing_token, p_checkpoint, p_snapshot, p_events, p_envelopes`
+
+Do not stop the Surface or start Railway if the signature is absent, duplicated, or still has six arguments. The hosted worker calls the seven-argument signature; applying 0012 is mandatory.
 ## Permanently stop the Surface writer
 
 The exact worker task on this Surface is **ObsidianAttentionShadowWorker**.
@@ -92,7 +136,7 @@ Open the service, click **Variables**, then **New Variable**. Enter the followin
 
 ## Deploy and verify
 
-1. Re-check that **ObsidianAttentionShadowWorker** is Disabled and at least 90 seconds have elapsed.
+1. Re-check that migrations 0001-0012 are recorded remotely, the seven-argument function is verified, **ObsidianAttentionShadowWorker** is Disabled, and at least 90 seconds have elapsed.
 2. In Railway open the service and click **Deploy** (or enable autodeploy and choose **Deploy Latest Commit**).
 3. Open **Deployments**, select the active deployment, and click **View Logs**.
 4. Confirm the build passes typecheck.

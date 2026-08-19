@@ -38,10 +38,23 @@ begin
     p_checkpoint->>'ingestionMode',p_checkpoint->>'checksum',p_checkpoint
   ) on conflict(engine_instance_id,sequence) do nothing;
 
+  -- The worker restores only the newest durable boundary. Retain three: the
+  -- current boundary plus two immediately preceding forensic/fallback points.
+  -- Single-writer fencing makes sequence-based pruning deterministic.
+  delete from attention_engine_checkpoints
+   where engine_instance_id = p_engine_instance_id
+     and sequence not in (
+       select sequence from attention_engine_checkpoints
+        where engine_instance_id = p_engine_instance_id
+        order by sequence desc limit 3
+     );
+
   insert into attention_live_snapshots(engine_instance_id,sequence,as_of,fencing_token,snapshot)
   values(p_engine_instance_id,(p_snapshot->>'sequence')::bigint,to_timestamp((p_snapshot->>'asOf')::double precision/1000),p_fencing_token,p_snapshot)
   on conflict(engine_instance_id) do update set sequence=excluded.sequence,as_of=excluded.as_of,fencing_token=excluded.fencing_token,snapshot=excluded.snapshot,updated_at=now();
 
+  -- Store the complete AttentionEvent. The API returns payload as the event row,
+  -- and the UI then reads event.payload for score/freshness/context.
   for e in select value from jsonb_array_elements(p_events) loop
     insert into attention_events(event_id,engine_instance_id,event_type,symbol,qualified_at,emitted_at,payload)
     values(e->>'eventId',p_engine_instance_id,e->>'type',e->>'symbol',to_timestamp((e->>'qualifiedAt')::double precision/1000),to_timestamp((e->>'emittedAt')::double precision/1000),e)

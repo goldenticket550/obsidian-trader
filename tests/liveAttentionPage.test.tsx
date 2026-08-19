@@ -53,6 +53,8 @@ describe("LR8 on-page live alert feed", () => {
     await screen.findByText("AAOI", { selector: "article span" });
     expect(screen.getByText("Extended").className).toContain("text-red-200");
     expect(screen.getByText("2.0 ATR from VWAP")).toBeTruthy();
+    expect(screen.getByText("82.0")).toBeTruthy();
+    expect(screen.getByText("NOW IN PLAY")).toBeTruthy();
     expect(screen.getByText("SHADOW — ON-PAGE ONLY · NO OUT-OF-BAND DELIVERY")).toBeTruthy();
     await waitFor(() => expect(fetch).toHaveBeenCalledWith("/api/attention/live", { cache: "no-store" }));
     expect(fetch).toHaveBeenCalledWith("/api/attention/events?limit=200", { cache: "no-store" });

@@ -12,6 +12,8 @@ class FakeSupabase {
   snapshot: LiveAttentionSnapshot | null = null;
   commits = 0;
   checkpoint: RuntimeCheckpoint | null = null;
+  checkpointHistory: RuntimeCheckpoint[] = [];
+  receivedEventIds: string[] = [];
   leaseConflict = false;
   from(table: string) {
     const self = this;
@@ -38,6 +40,12 @@ class FakeSupabase {
     if (name === "commit_attention_runtime_minute") {
       expect(args).toHaveProperty("p_checkpoint");
       this.checkpoint = args.p_checkpoint as RuntimeCheckpoint;
+      this.checkpointHistory.push(this.checkpoint);
+      this.checkpointHistory = this.checkpointHistory.slice(-3);
+      for (const event of args.p_events as Array<{ eventId: string }>) {
+        if (this.receivedEventIds.includes(event.eventId)) throw new Error("duplicate event replay");
+        this.receivedEventIds.push(event.eventId);
+      }
       this.snapshot = args.p_snapshot as LiveAttentionSnapshot;
       this.commits += 1;
       return { data: null, error: null };
@@ -79,6 +87,49 @@ describe("Supabase runtime publication with durable crash recovery", () => {
     expect(cloud.commits).toBe(2);
   });
 
+  it("resumes exactly after a mid-session kill with only three retained checkpoints and no event replay", async () => {
+    class EventProcessor extends Processor {
+      async process(): Promise<RuntimeProcessorResult> {
+        this.count += 1;
+        const event = {
+          eventId: `event-${this.count}`, type: "NOW_IN_PLAY", symbol: "AAOI",
+          at: baseAt + (this.count - 1) * 60_000, qualifiedAt: baseAt + (this.count - 1) * 60_000,
+          emittedAt: baseAt + (this.count - 1) * 60_000, episodeId: "episode",
+          payload: { attentionScore: 80, freshness: "Fresh", contextBadges: [] },
+        } as any;
+        return { rows: [], events: [event], processorState: { count: this.count }, statusMessage: `count=${this.count}` };
+      }
+    }
+    const cloud = new FakeSupabase();
+    const firstStore = new SupabaseRuntimeStore(cloud as any, identity("retained-1"));
+    const source = new Source(baseAt);
+    await firstStore.setControls(controls(baseAt));
+    const first = new AttentionLiveWorker(firstStore, source, new EventProcessor(), { identity: identity("retained-1"), shadow: true, leaseTtlMs: 3_600_000 });
+    await first.start(baseAt);
+    for (let minute = 0; minute < 5; minute += 1) {
+      source.at = baseAt + minute * 60_000;
+      await firstStore.setControls(controls(source.at));
+      await first.runOnce(source.at);
+    }
+    await first.stop();
+    expect(cloud.checkpointHistory.map((row) => row.sequence)).toEqual([3, 4, 5]);
+
+    const restartedAt = baseAt + 5 * 60_000;
+    const secondStore = new SupabaseRuntimeStore(cloud as any, identity("retained-2"));
+    await secondStore.setControls(controls(restartedAt));
+    const restored = new EventProcessor();
+    const second = new AttentionLiveWorker(secondStore, new Source(restartedAt), restored, { identity: identity("retained-2"), shadow: true, leaseTtlMs: 3_600_000 });
+    await second.start(restartedAt);
+    expect(restored.count).toBe(5);
+    const resumed = await second.runOnce(restartedAt);
+    await second.stop();
+
+    expect(resumed.sequence).toBe(6);
+    expect(resumed.asOf).toBe(restartedAt);
+    expect(cloud.checkpointHistory.map((row) => row.sequence)).toEqual([4, 5, 6]);
+    expect(cloud.receivedEventIds).toEqual(["event-1", "event-2", "event-3", "event-4", "event-5", "event-6"]);
+    expect(new Set(cloud.receivedEventIds).size).toBe(6);
+  });
   it("normalizes the Supabase lease conflict for 90-second supervisor backoff", async () => {
     const cloud = new FakeSupabase(); cloud.leaseConflict = true;
     const store = new SupabaseRuntimeStore(cloud as any, identity("run"));
