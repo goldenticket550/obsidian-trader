@@ -1,0 +1,461 @@
+{
+  "schemaVersion": 1,
+  "fencingToken": 0,
+  "lease": null,
+  "controls": {
+    "version": 1,
+    "attentionLiveAlertingEnabled": false,
+    "legacyAlertingEnabled": true,
+    "activeAlertEngine": "legacy",
+    "updatedAt": 1759330020000,
+    "reason": "LIVE-1 faithful recorded-session publication verification"
+  },
+  "checkpoint": {
+    "schemaVersion": 1,
+    "identity": {
+      "engineInstanceId": "attention-live1-replay-verification",
+      "runId": "084650f3-8873-4810-8eb3-11a70b33f90f",
+      "userId": "e0f59fc7-c0f8-48c4-ad5d-cc256cf26e68",
+      "universeHash": "live1-replay-universe",
+      "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v4:sip:regular:population-82f216fdd69d:alert-verified-42b9fb71b210:exit-0.66-15",
+      "configHash": "live1-faithful-replay-v1",
+      "baselineTableId": "phase-c-recorded-session",
+      "feedMode": "iex_partial"
+    },
+    "sequence": 1,
+    "watermarkAt": 1759330020000,
+    "createdAt": 1759330020000,
+    "ingestionMode": "mock",
+    "guard": {
+      "active": false,
+      "reason": "none",
+      "activeSince": null,
+      "contiguousMinutes": 5,
+      "requiredContiguousMinutes": 5
+    },
+    "processorState": {
+      "sourceArtifact": "phase-c-alert-digest.json",
+      "eventId": "c:NOW_IN_PLAY|a3:GLD:1759330020000:1759330020000:1759330020000"
+    },
+    "deliveryState": {
+      "sessionEvents": [
+        {
+          "eventId": "c:NOW_IN_PLAY|a3:GLD:1759330020000:1759330020000:1759330020000",
+          "type": "NOW_IN_PLAY",
+          "symbol": "GLD",
+          "at": 1759330020000,
+          "qualifiedAt": 1759330020000,
+          "emittedAt": 1759330020000,
+          "episodeId": "a3:GLD:1759330020000",
+          "payload": {
+            "episodeId": "a3:GLD:1759330020000",
+            "symbol": "GLD",
+            "at": 1759330020000,
+            "attentionScore": 80.87150311232011,
+            "core": 0.8087150311232012,
+            "rawCore": 0.8087150311232012,
+            "inPlayEnterThreshold": 0.8,
+            "feedMode": "sip",
+            "subWindow": "regular",
+            "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v4:sip:regular:population-82f216fdd69d:alert-verified-42b9fb71b210:exit-0.66-15",
+            "axes": {
+              "participation": {
+                "input": 3.614799872160343,
+                "inputKind": "z",
+                "normalized": 0.7322016931302985,
+                "scoringRole": "core"
+              },
+              "displacement": {
+                "input": 3.2533700380772146,
+                "inputKind": "z",
+                "normalized": 0.8932238312213443,
+                "scoringRole": "core"
+              },
+              "idiosyncrasy": {
+                "input": 7.240926175880486,
+                "inputKind": "z",
+                "normalized": 0.9793849397556399,
+                "scoringRole": "modifier"
+              }
+            },
+            "freshness": "Extended",
+            "freshnessDetail": {
+              "minutesSinceEpisodeStart": 1,
+              "atrTravelledSinceEpisodeStart": 1.159574625430778,
+              "distanceFromVwapAtr": 1.7820720343997374,
+              "distanceFromEma9Atr": 1.744552920705888,
+              "consecutiveExpansionBars": 9,
+              "pullbackObserved": false,
+              "reasons": [
+                "ema9_distance_extended"
+              ]
+            },
+            "contextBadges": [
+              {
+                "kind": "vwap_distance",
+                "label": "1.8 ATR from VWAP",
+                "value": 1.7820720343997374,
+                "unit": "atr"
+              },
+              {
+                "kind": "expansion_run",
+                "label": "9 expansion bars",
+                "value": 9,
+                "unit": "bars"
+              }
+            ],
+            "atrTravelledSinceEpisodeStart": 1.159574625430778,
+            "nearestReference": {
+              "label": "Nearest upside reference: SWING_LOW",
+              "levelId": "2025-10-01:SWING_LOW:1759323900000:355.703500",
+              "kind": "SWING_LOW",
+              "price": 355.7035,
+              "distancePct": 0.015042879235215042,
+              "distanceAtr": 0.1107807901082061,
+              "expectedMoveFraction": null,
+              "relevanceScore": 79.76386978450181
+            },
+            "dataQualityBadge": "ok",
+            "feedModeBadge": "SIP",
+            "notice": "NOT AN ENTRY — open the chart.",
+            "extensionWarning": "EXTENDED — do not chase"
+          }
+        }
+      ],
+      "detectionCounters": {
+        "processedMinutes": 1,
+        "detectionRanMinutes": 1,
+        "guardSuppressedByReason": {},
+        "incompleteBatchMinutes": 0,
+        "nonRegularMinutes": 0,
+        "eventsDetected": 1
+      },
+      "compactionState": {
+        "recentEntryEvents": [
+          {
+            "eventId": "c:NOW_IN_PLAY|a3:GLD:1759330020000:1759330020000:1759330020000",
+            "type": "NOW_IN_PLAY",
+            "symbol": "GLD",
+            "at": 1759330020000,
+            "qualifiedAt": 1759330020000,
+            "emittedAt": 1759330020000,
+            "episodeId": "a3:GLD:1759330020000",
+            "payload": {
+              "episodeId": "a3:GLD:1759330020000",
+              "symbol": "GLD",
+              "at": 1759330020000,
+              "attentionScore": 80.87150311232011,
+              "core": 0.8087150311232012,
+              "rawCore": 0.8087150311232012,
+              "inPlayEnterThreshold": 0.8,
+              "feedMode": "sip",
+              "subWindow": "regular",
+              "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v4:sip:regular:population-82f216fdd69d:alert-verified-42b9fb71b210:exit-0.66-15",
+              "axes": {
+                "participation": {
+                  "input": 3.614799872160343,
+                  "inputKind": "z",
+                  "normalized": 0.7322016931302985,
+                  "scoringRole": "core"
+                },
+                "displacement": {
+                  "input": 3.2533700380772146,
+                  "inputKind": "z",
+                  "normalized": 0.8932238312213443,
+                  "scoringRole": "core"
+                },
+                "idiosyncrasy": {
+                  "input": 7.240926175880486,
+                  "inputKind": "z",
+                  "normalized": 0.9793849397556399,
+                  "scoringRole": "modifier"
+                }
+              },
+              "freshness": "Extended",
+              "freshnessDetail": {
+                "minutesSinceEpisodeStart": 1,
+                "atrTravelledSinceEpisodeStart": 1.159574625430778,
+                "distanceFromVwapAtr": 1.7820720343997374,
+                "distanceFromEma9Atr": 1.744552920705888,
+                "consecutiveExpansionBars": 9,
+                "pullbackObserved": false,
+                "reasons": [
+                  "ema9_distance_extended"
+                ]
+              },
+              "contextBadges": [
+                {
+                  "kind": "vwap_distance",
+                  "label": "1.8 ATR from VWAP",
+                  "value": 1.7820720343997374,
+                  "unit": "atr"
+                },
+                {
+                  "kind": "expansion_run",
+                  "label": "9 expansion bars",
+                  "value": 9,
+                  "unit": "bars"
+                }
+              ],
+              "atrTravelledSinceEpisodeStart": 1.159574625430778,
+              "nearestReference": {
+                "label": "Nearest upside reference: SWING_LOW",
+                "levelId": "2025-10-01:SWING_LOW:1759323900000:355.703500",
+                "kind": "SWING_LOW",
+                "price": 355.7035,
+                "distancePct": 0.015042879235215042,
+                "distanceAtr": 0.1107807901082061,
+                "expectedMoveFraction": null,
+                "relevanceScore": 79.76386978450181
+              },
+              "dataQualityBadge": "ok",
+              "feedModeBadge": "SIP",
+              "notice": "NOT AN ENTRY — open the chart.",
+              "extensionWarning": "EXTENDED — do not chase"
+            }
+          }
+        ],
+        "primaryDeliveries": [
+          {
+            "kind": "alert",
+            "tier": "primary",
+            "deliveryId": "delivery:c:NOW_IN_PLAY|a3:GLD:1759330020000:1759330020000:1759330020000",
+            "at": 1759330020000,
+            "event": {
+              "eventId": "c:NOW_IN_PLAY|a3:GLD:1759330020000:1759330020000:1759330020000",
+              "type": "NOW_IN_PLAY",
+              "symbol": "GLD",
+              "at": 1759330020000,
+              "qualifiedAt": 1759330020000,
+              "emittedAt": 1759330020000,
+              "episodeId": "a3:GLD:1759330020000",
+              "payload": {
+                "episodeId": "a3:GLD:1759330020000",
+                "symbol": "GLD",
+                "at": 1759330020000,
+                "attentionScore": 80.87150311232011,
+                "core": 0.8087150311232012,
+                "rawCore": 0.8087150311232012,
+                "inPlayEnterThreshold": 0.8,
+                "feedMode": "sip",
+                "subWindow": "regular",
+                "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v4:sip:regular:population-82f216fdd69d:alert-verified-42b9fb71b210:exit-0.66-15",
+                "axes": {
+                  "participation": {
+                    "input": 3.614799872160343,
+                    "inputKind": "z",
+                    "normalized": 0.7322016931302985,
+                    "scoringRole": "core"
+                  },
+                  "displacement": {
+                    "input": 3.2533700380772146,
+                    "inputKind": "z",
+                    "normalized": 0.8932238312213443,
+                    "scoringRole": "core"
+                  },
+                  "idiosyncrasy": {
+                    "input": 7.240926175880486,
+                    "inputKind": "z",
+                    "normalized": 0.9793849397556399,
+                    "scoringRole": "modifier"
+                  }
+                },
+                "freshness": "Extended",
+                "freshnessDetail": {
+                  "minutesSinceEpisodeStart": 1,
+                  "atrTravelledSinceEpisodeStart": 1.159574625430778,
+                  "distanceFromVwapAtr": 1.7820720343997374,
+                  "distanceFromEma9Atr": 1.744552920705888,
+                  "consecutiveExpansionBars": 9,
+                  "pullbackObserved": false,
+                  "reasons": [
+                    "ema9_distance_extended"
+                  ]
+                },
+                "contextBadges": [
+                  {
+                    "kind": "vwap_distance",
+                    "label": "1.8 ATR from VWAP",
+                    "value": 1.7820720343997374,
+                    "unit": "atr"
+                  },
+                  {
+                    "kind": "expansion_run",
+                    "label": "9 expansion bars",
+                    "value": 9,
+                    "unit": "bars"
+                  }
+                ],
+                "atrTravelledSinceEpisodeStart": 1.159574625430778,
+                "nearestReference": {
+                  "label": "Nearest upside reference: SWING_LOW",
+                  "levelId": "2025-10-01:SWING_LOW:1759323900000:355.703500",
+                  "kind": "SWING_LOW",
+                  "price": 355.7035,
+                  "distancePct": 0.015042879235215042,
+                  "distanceAtr": 0.1107807901082061,
+                  "expectedMoveFraction": null,
+                  "relevanceScore": 79.76386978450181
+                },
+                "dataQualityBadge": "ok",
+                "feedModeBadge": "SIP",
+                "notice": "NOT AN ENTRY — open the chart.",
+                "extensionWarning": "EXTENDED — do not chase"
+              }
+            },
+            "capOverride": false,
+            "overrideReason": null
+          }
+        ],
+        "secondaryDigests": [],
+        "processedEventIds": [
+          "c:NOW_IN_PLAY|a3:GLD:1759330020000:1759330020000:1759330020000"
+        ]
+      },
+      "tradingDate": "2025-10-01",
+      "regularCountersStarted": true
+    },
+    "checksum": "13689b9306d0e0e1513a57fc3f690efe0f32d50f790f3008e9072ba5831a64db"
+  },
+  "snapshot": {
+    "schemaVersion": 1,
+    "engineInstanceId": "attention-live1-replay-verification",
+    "runId": "084650f3-8873-4810-8eb3-11a70b33f90f",
+    "sequence": 1,
+    "asOf": 1759330020000,
+    "tradingDate": "2025-10-01",
+    "minuteOfDay": 647,
+    "health": "degraded",
+    "ready": true,
+    "shadow": true,
+    "liveDeliveryEnabled": false,
+    "legacyAlertingEnabled": true,
+    "ingestionMode": "mock",
+    "feedMode": "iex_partial",
+    "feedBadge": "IEX PARTIAL",
+    "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v4:sip:regular:population-82f216fdd69d:alert-verified-42b9fb71b210:exit-0.66-15",
+    "baselineTableId": "phase-c-recorded-session",
+    "darkWindowReason": null,
+    "guard": {
+      "active": false,
+      "reason": "none",
+      "activeSince": null,
+      "contiguousMinutes": 5,
+      "requiredContiguousMinutes": 5
+    },
+    "rankedRows": [],
+    "eventsDetected": 1,
+    "envelopesCreated": 0,
+    "detectionStatus": "ran",
+    "detectionSuppressionReason": null,
+    "detectionCounters": {
+      "processedMinutes": 1,
+      "detectionRanMinutes": 1,
+      "guardSuppressedByReason": {},
+      "incompleteBatchMinutes": 0,
+      "nonRegularMinutes": 0,
+      "eventsDetected": 1
+    },
+    "statusMessage": "SHADOW — ALERTING DISABLED. faithful recorded-session event",
+    "cycleTimings": {
+      "providerFetchMs": 0,
+      "barReconciliationMs": 0,
+      "baselineResolutionMs": 0,
+      "axisComputationMs": 0,
+      "scoringMs": 0,
+      "stateMachineMs": 0,
+      "episodeEventMs": 0,
+      "checkpointWriteMs": 0,
+      "snapshotPublishMs": 0,
+      "totalCycleMs": 489.70939999999996
+    },
+    "cycleBudgetExceeded": false,
+    "watermarkLagMs": 27778493274,
+    "lagWarning": true
+  },
+  "events": [
+    {
+      "eventId": "c:NOW_IN_PLAY|a3:GLD:1759330020000:1759330020000:1759330020000",
+      "type": "NOW_IN_PLAY",
+      "symbol": "GLD",
+      "at": 1759330020000,
+      "qualifiedAt": 1759330020000,
+      "emittedAt": 1759330020000,
+      "episodeId": "a3:GLD:1759330020000",
+      "payload": {
+        "episodeId": "a3:GLD:1759330020000",
+        "symbol": "GLD",
+        "at": 1759330020000,
+        "attentionScore": 80.87150311232011,
+        "core": 0.8087150311232012,
+        "rawCore": 0.8087150311232012,
+        "inPlayEnterThreshold": 0.8,
+        "feedMode": "sip",
+        "subWindow": "regular",
+        "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v4:sip:regular:population-82f216fdd69d:alert-verified-42b9fb71b210:exit-0.66-15",
+        "axes": {
+          "participation": {
+            "input": 3.614799872160343,
+            "inputKind": "z",
+            "normalized": 0.7322016931302985,
+            "scoringRole": "core"
+          },
+          "displacement": {
+            "input": 3.2533700380772146,
+            "inputKind": "z",
+            "normalized": 0.8932238312213443,
+            "scoringRole": "core"
+          },
+          "idiosyncrasy": {
+            "input": 7.240926175880486,
+            "inputKind": "z",
+            "normalized": 0.9793849397556399,
+            "scoringRole": "modifier"
+          }
+        },
+        "freshness": "Extended",
+        "freshnessDetail": {
+          "minutesSinceEpisodeStart": 1,
+          "atrTravelledSinceEpisodeStart": 1.159574625430778,
+          "distanceFromVwapAtr": 1.7820720343997374,
+          "distanceFromEma9Atr": 1.744552920705888,
+          "consecutiveExpansionBars": 9,
+          "pullbackObserved": false,
+          "reasons": [
+            "ema9_distance_extended"
+          ]
+        },
+        "contextBadges": [
+          {
+            "kind": "vwap_distance",
+            "label": "1.8 ATR from VWAP",
+            "value": 1.7820720343997374,
+            "unit": "atr"
+          },
+          {
+            "kind": "expansion_run",
+            "label": "9 expansion bars",
+            "value": 9,
+            "unit": "bars"
+          }
+        ],
+        "atrTravelledSinceEpisodeStart": 1.159574625430778,
+        "nearestReference": {
+          "label": "Nearest upside reference: SWING_LOW",
+          "levelId": "2025-10-01:SWING_LOW:1759323900000:355.703500",
+          "kind": "SWING_LOW",
+          "price": 355.7035,
+          "distancePct": 0.015042879235215042,
+          "distanceAtr": 0.1107807901082061,
+          "expectedMoveFraction": null,
+          "relevanceScore": 79.76386978450181
+        },
+        "dataQualityBadge": "ok",
+        "feedModeBadge": "SIP",
+        "notice": "NOT AN ENTRY — open the chart.",
+        "extensionWarning": "EXTENDED — do not chase"
+      }
+    }
+  ],
+  "outbox": []
+}

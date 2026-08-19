@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "supervisorPid": 17620,
+  "supervisorStartedAt": 1787109174555,
+  "status": "running",
+  "childPid": 7768,
+  "childStartedAt": 1787109599000,
+  "childStartCount": 42,
+  "restartCount": 41,
+  "lastChildExit": {
+    "at": 1787109503960,
+    "code": 1,
+    "signal": null,
+    "reason": "main_rejected:Error: Runtime lease is held (Supabase: attention runtime lease already held)."
+  }
+}

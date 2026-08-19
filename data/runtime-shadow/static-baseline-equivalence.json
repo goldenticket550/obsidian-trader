@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "completedMinute": "2026-08-18T19:05:00.000Z",
+  "baselineTableId": "0a7f4c0b9b8dfe5f0c533541acd144b6436362e465ff3d870ca6542f580ef770",
+  "dynamicMs": 14607.310400000002,
+  "staticMs": 458.2233000000015,
+  "speedup": 31.878148492230654,
+  "dynamicStagesMs": {
+    "baselineResolutionMs": 13116.447600000045,
+    "axisComputationMs": 304.0239999999594,
+    "scoringMs": 0.3474999999962165,
+    "stateMachineMs": 13.257599999997183,
+    "episodeEventMs": 0.1929000000054657
+  },
+  "staticStagesMs": {
+    "baselineResolutionMs": 0.31650000002991874,
+    "axisComputationMs": 265.7537999999804,
+    "scoringMs": 0.06979999999020947,
+    "stateMachineMs": 6.483300000010786,
+    "episodeEventMs": 0.019299999989016214
+  },
+  "dynamicScored": 41,
+  "staticScored": 41,
+  "differences": [],
+  "equivalent": true
+}

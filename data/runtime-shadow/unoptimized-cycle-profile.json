@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "profile": "unoptimized_live_iex_minute",
+  "measuredAt": "2026-08-18T20:59:17.280Z",
+  "completedMinute": "2026-08-18T20:58:00.000Z",
+  "symbolsRequested": 68,
+  "historicalSessions": 40,
+  "scoredSymbols": 0,
+  "stagesMs": {
+    "providerFetchMs": 590.35,
+    "barReconciliationMs": 1.21,
+    "baselineResolutionMs": 9326.43,
+    "axisComputationMs": 47.34,
+    "scoringMs": 0,
+    "stateMachineMs": 0,
+    "episodeEventMs": 0,
+    "checkpointWriteMs": 0.79,
+    "snapshotPublishMs": 0,
+    "totalCycleMs": 10792.84
+  },
+  "unattributedSetupAndOrchestrationMs": 826.72,
+  "persistenceNote": "checkpointWriteMs is the atomic JsonFileRuntimeStore checkpoint+snapshot commit; snapshotPublishMs is zero because there is no separate physical publish operation.",
+  "acceleratedSoakStatus": "sequencing_only_not_acceptance_evidence",
+  "stateArtifact": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\runtime-shadow\\profile-unoptimized-state-a1c77b87-aefb-453c-a016-670e0d38b13f.json"
+}

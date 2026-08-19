@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "fencingToken": 4,
+  "lease": {
+    "engineInstanceId": "attention-shadow-iex-static-v1",
+    "ownerRunId": "df50bdc1-4c5d-418a-99e1-e498215a0127",
+    "fencingToken": 4,
+    "acquiredAt": 1787086560790,
+    "expiresAt": 1787087251006
+  },
+  "controls": {
+    "version": 1,
+    "attentionLiveAlertingEnabled": false,
+    "legacyAlertingEnabled": true,
+    "activeAlertEngine": "legacy",
+    "updatedAt": 1787089638501,
+    "reason": "authorized_shadow_alerting_disabled"
+  },
+  "checkpoint": {
+    "schemaVersion": 1,
+    "identity": {
+      "engineInstanceId": "attention-shadow-iex-static-v1",
+      "runId": "df50bdc1-4c5d-418a-99e1-e498215a0127",
+      "userId": "local-shadow",
+      "universeHash": "2b9cd60cdb207bd49335898aeaa67545cc6f240c059d4a784cabe3f7986b8a57",
+      "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+      "configHash": "849cbbfc5469547a868d4c81be89ef76d8cdefda4ea15fe5b7faba8afb7855b1",
+      "feedMode": "iex_partial",
+      "baselineTableId": "0a7f4c0b9b8dfe5f0c533541acd144b6436362e465ff3d870ca6542f580ef770"
+    },
+    "sequence": 108,
+    "watermarkAt": 1787087100000,
+    "createdAt": 1787087161006,
+    "ingestionMode": "iex_rest_polling",
+    "guard": {
+      "active": false,
+      "reason": "none",
+      "activeSince": null,
+      "contiguousMinutes": 5,
+      "requiredContiguousMinutes": 5
+    },
+    "processorState": {
+      "schemaVersion": 2,
+      "baselineTableId": "0a7f4c0b9b8dfe5f0c533541acd144b6436362e465ff3d870ca6542f580ef770",
+      "a3": {
+        "history": null,
+        "symbols": {}
+      },
+      "events": {
+        "schemaVersion": 1,
+        "alerts": [],
+        "suppressions": [],
+        "pending": [],
+        "emitted": [],
+        "symbols": []
+      }
+    },
+    "deliveryState": {
+      "sessionEvents": [],
+      "detectionCounters": {
+        "processedMinutes": 17,
+        "detectionRanMinutes": 0,
+        "guardSuppressedByReason": {
+          "gap_reconciliation": 6
+        },
+        "incompleteBatchMinutes": 0,
+        "nonRegularMinutes": 11,
+        "eventsDetected": 0
+      },
+      "compactionState": {
+        "recentEntryEvents": [],
+        "primaryDeliveries": [],
+        "secondaryDigests": [],
+        "processedEventIds": []
+      },
+      "tradingDate": "2026-08-18",
+      "regularCountersStarted": false
+    },
+    "checksum": "0491565b5ad7a82ed04eceb78f4bdda0fb1f31d907d565d83ea16ec385ee4136"
+  },
+  "snapshot": {
+    "schemaVersion": 1,
+    "engineInstanceId": "attention-shadow-iex-static-v1",
+    "runId": "df50bdc1-4c5d-418a-99e1-e498215a0127",
+    "sequence": 108,
+    "asOf": 1787087100000,
+    "tradingDate": "2026-08-18",
+    "minuteOfDay": 1025,
+    "health": "dark_window",
+    "ready": false,
+    "shadow": true,
+    "liveDeliveryEnabled": false,
+    "legacyAlertingEnabled": true,
+    "ingestionMode": "iex_rest_polling",
+    "feedMode": "iex_partial",
+    "feedBadge": "IEX PARTIAL",
+    "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+    "baselineTableId": "0a7f4c0b9b8dfe5f0c533541acd144b6436362e465ff3d870ca6542f580ef770",
+    "darkWindowReason": "unavailable_on_partial_feed",
+    "guard": {
+      "active": false,
+      "reason": "none",
+      "activeSince": null,
+      "contiguousMinutes": 5,
+      "requiredContiguousMinutes": 5
+    },
+    "rankedRows": [],
+    "eventsDetected": 0,
+    "envelopesCreated": 0,
+    "detectionStatus": "suppressed",
+    "detectionSuppressionReason": "non_regular",
+    "detectionCounters": {
+      "processedMinutes": 17,
+      "detectionRanMinutes": 0,
+      "guardSuppressedByReason": {
+        "gap_reconciliation": 6
+      },
+      "incompleteBatchMinutes": 0,
+      "nonRegularMinutes": 11,
+      "eventsDetected": 0
+    },
+    "statusMessage": "SHADOW — ALERTING DISABLED. Unavailable on partial feed",
+    "cycleTimings": {
+      "providerFetchMs": 653.4483999999939,
+      "barReconciliationMs": 2.2841999999945983,
+      "baselineResolutionMs": 0,
+      "axisComputationMs": 0,
+      "scoringMs": 0,
+      "stateMachineMs": 0,
+      "episodeEventMs": 0,
+      "checkpointWriteMs": 0,
+      "snapshotPublishMs": 0,
+      "totalCycleMs": 672.2297999999719
+    },
+    "cycleBudgetExceeded": false,
+    "watermarkLagMs": 1683,
+    "lagWarning": false
+  },
+  "events": [],
+  "outbox": []
+}

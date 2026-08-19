@@ -1,0 +1,43 @@
+{
+  "rotatedAt": "2026-08-18T23:54:52.786Z",
+  "backupPath": "C:\\Users\\golde\\projects\\obsidian-trader\\data\\runtime-shadow\\runtime-state-static-v1.pre-open-coverage.json",
+  "mismatchFields": [
+    "universeHash",
+    "calibrationId",
+    "baselineTableId"
+  ],
+  "priorSequence": 108,
+  "priorIdentity": {
+    "engineInstanceId": "attention-shadow-iex-static-v1",
+    "runId": "df50bdc1-4c5d-418a-99e1-e498215a0127",
+    "userId": "local-shadow",
+    "universeHash": "2b9cd60cdb207bd49335898aeaa67545cc6f240c059d4a784cabe3f7986b8a57",
+    "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-82f216fdd69d",
+    "configHash": "849cbbfc5469547a868d4c81be89ef76d8cdefda4ea15fe5b7faba8afb7855b1",
+    "feedMode": "iex_partial",
+    "baselineTableId": "0a7f4c0b9b8dfe5f0c533541acd144b6436362e465ff3d870ca6542f580ef770"
+  },
+  "expectedIdentity": {
+    "engineInstanceId": "attention-shadow-iex-static-v1",
+    "userId": "local-shadow",
+    "universeHash": "da45bb8793968392c2f872da51bc33caa9331a17251426badde96c5e12b077f7",
+    "calibrationId": "mode-map-v3:measure-v1:curve-v3:state-v3:iex_partial:regular:population-492b6bc31e5e",
+    "configHash": "849cbbfc5469547a868d4c81be89ef76d8cdefda4ea15fe5b7faba8afb7855b1",
+    "feedMode": "iex_partial",
+    "baselineTableId": "0bdc723e1df978fce3842255a31997e0f1b40d4f3f6c4ed85f6024b2eb817775"
+  },
+  "cleared": {
+    "checkpoint": true,
+    "snapshot": true,
+    "events": 0,
+    "outbox": 0
+  },
+  "controlsPreserved": {
+    "version": 1,
+    "attentionLiveAlertingEnabled": false,
+    "legacyAlertingEnabled": true,
+    "activeAlertEngine": "legacy",
+    "updatedAt": 1787089638501,
+    "reason": "authorized_shadow_alerting_disabled"
+  }
+}
