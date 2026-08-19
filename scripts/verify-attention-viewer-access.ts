@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
 import { createAdminClient } from "../lib/supabase/admin";
 import { loadEnvLocal } from "../lib/replay/env";
 
@@ -43,11 +44,11 @@ async function findUser(email: string) {
 async function main(): Promise<void> {
   loadEnvLocal();
   const email = process.argv[2]?.trim().toLowerCase();
-  if (!email) throw new Error("Usage: npx tsx scripts/verify-attention-viewer-access.ts <email>");
+  if (!email) throw new Error("Usage: npx tsx scripts/verify-attention-viewer-access.ts <email> [site-url]");
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const engineInstanceId = process.env.ATTENTION_ENGINE_INSTANCE_ID;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const siteUrl = process.argv[3]?.trim() || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   if (!url || !anonKey || !engineInstanceId) throw new Error("Supabase and attention runtime environment are required.");
 
   const admin = createAdminClient();
@@ -79,6 +80,39 @@ async function main(): Promise<void> {
     throw verifyError ?? new Error("Magic-link session did not resolve to the invited viewer.");
   }
 
+  const responseCookies: Array<{ name: string; value: string }> = [];
+  const ssr = createServerClient(url, anonKey, {
+    cookies: {
+      getAll: () => [],
+      setAll: (cookies) => { responseCookies.splice(0, responseCookies.length, ...cookies); },
+    },
+  });
+  const { error: sessionCookieError } = await ssr.auth.setSession({
+    access_token: sessionData.session.access_token,
+    refresh_token: sessionData.session.refresh_token,
+  });
+  if (sessionCookieError || responseCookies.length === 0) {
+    throw sessionCookieError ?? new Error("Supabase SSR session cookies were not created.");
+  }
+  const cookieHeader = responseCookies.map((cookie) => `${cookie.name}=${cookie.value}`).join("; ");
+  const productionOrigin = siteUrl.replace(/\/$/, "");
+  const productionResponses = await Promise.all([
+    fetch(`${productionOrigin}/attention`, { headers: { cookie: cookieHeader }, redirect: "manual" }),
+    fetch(`${productionOrigin}/api/attention/access`, { headers: { cookie: cookieHeader } }),
+    fetch(`${productionOrigin}/api/attention/live`, { headers: { cookie: cookieHeader } }),
+    fetch(`${productionOrigin}/api/attention/events?limit=200`, { headers: { cookie: cookieHeader } }),
+    fetch(`${productionOrigin}/api/labels?date=2026-08-19`, { headers: { cookie: cookieHeader } }),
+  ]);
+  const [pageResponse, accessResponse, liveResponse, eventsResponse, labelsResponse] = productionResponses;
+  const pageHtml = await pageResponse.text();
+  const [accessText, liveText, eventsText] = await Promise.all([accessResponse.text(), liveResponse.text(), eventsResponse.text()]);
+  const parseJson = <T>(response: Response, body: string): T | null => response.headers.get("content-type")?.includes("application/json") ? JSON.parse(body) as T : null;
+  const accessBody = parseJson<{ role?: string }>(accessResponse, accessText);
+  const liveBody = parseJson<{ snapshot?: { sequence?: number; health?: string; shadow?: boolean; liveDeliveryEnabled?: boolean; statusMessage?: string; feedBadge?: string; ingestionMode?: string; darkWindowReason?: string | null } }>(liveResponse, liveText);
+  const eventsBody = parseJson<{ events?: unknown[]; detection?: { status?: string; reason?: string | null } }>(eventsResponse, eventsText);
+  if (pageResponse.status !== 200 || !pageHtml.includes("Live Attention") || accessResponse.status !== 200 || accessBody?.role !== "viewer" || liveResponse.status !== 200 || !liveBody?.snapshot || eventsResponse.status !== 200 || labelsResponse.status !== 403) {
+    throw new Error(`Production viewer E2E failed: ${JSON.stringify({ cookies: responseCookies.map((cookie) => ({ name: cookie.name, length: cookie.value.length })), page: pageResponse.status, pageLocation: pageResponse.headers.get("location"), pageRendered: pageHtml.includes("Live Attention"), access: accessResponse.status, accessType: accessResponse.headers.get("content-type"), role: accessBody?.role, live: liveResponse.status, liveType: liveResponse.headers.get("content-type"), events: eventsResponse.status, eventsType: eventsResponse.headers.get("content-type"), labels: labelsResponse.status })}`);
+  }
   const scannerReads: Record<string, number> = {};
   for (const table of SCANNER_READ_TABLES) {
     let query = viewer.from(table).select("*", { count: "exact", head: true });
@@ -159,6 +193,19 @@ async function main(): Promise<void> {
       privateDelete: "denied",
       membershipUpdate: "denied",
       membershipDelete: "denied",
+      production: {
+        origin: productionOrigin,
+        attentionPageStatus: pageResponse.status,
+        attentionPageRendered: true,
+        accessStatus: accessResponse.status,
+        role: accessBody.role,
+        liveStatus: liveResponse.status,
+        eventsStatus: eventsResponse.status,
+        labelsStatus: labelsResponse.status,
+        snapshot: liveBody.snapshot,
+        eventCount: eventsBody?.events?.length ?? 0,
+        detection: eventsBody?.detection ?? null,
+      },
     }, null, 2));
   } finally {
     await admin.from("watchlists").delete().eq("id", probe.id);

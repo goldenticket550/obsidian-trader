@@ -45,7 +45,7 @@ Run viewer administration only on the trusted owner machine; it uses the server-
 - Grant: `npm run attention:viewer -- grant person@example.com`
 - List: `npm run attention:viewer -- list`
 - Revoke: `npm run attention:viewer -- revoke person@example.com`
-- Verify: `npx tsx scripts/verify-attention-viewer-access.ts person@example.com`
+- Verify production: `npx tsx scripts/verify-attention-viewer-access.ts person@example.com https://obsidian-trader-blue.vercel.app`
 
 Grant creates and emails an invitation when no auth user exists, then records a `viewer` membership with `ATTENTION_USER_ID` as grantor. Existing users receive only the membership and can request a normal link at `/login?redirectTo=/attention`. Revoke removes the membership but leaves the auth account; it can no longer read scanner rows.
 

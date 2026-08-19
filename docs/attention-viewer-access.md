@@ -42,7 +42,7 @@ The three replay-label tables described by migration `0008_label_assistant.sql` 
 After granting a disposable viewer, run:
 
 ```powershell
-npx tsx scripts/verify-attention-viewer-access.ts viewer@example.com
+npx tsx scripts/verify-attention-viewer-access.ts viewer@example.com https://obsidian-trader-blue.vercel.app
 ```
 
 The verifier authenticates with a magic-link token, requires one readable instance/snapshot/membership, checks every private table returns zero rows, attempts INSERT on every table, tests private UPDATE/DELETE against a disposable row, tests membership escalation/removal, and cleans up the disposable private row.
