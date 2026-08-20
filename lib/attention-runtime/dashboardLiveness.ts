@@ -1,25 +1,47 @@
 import { exchangeSessionForTimestamp } from "@/lib/attention/exchangeCalendar";
 import type { LiveAttentionSnapshot } from "./contracts";
 
-export const WORKER_STALE_AFTER_MS = 2 * 60_000;
+export const SNAPSHOT_DELAY_AFTER_MS = 2 * 60_000;
+export const WORKER_HEARTBEAT_STALE_AFTER_MS = 3 * 60_000;
 
 export interface DashboardWorkerLiveness {
   ageMs: number | null;
   regularSession: boolean;
   workerDown: boolean;
-  label: "NO SNAPSHOT" | "WORKER DOWN" | "CURRENT" | "LAST SNAPSHOT";
+  dataDelayed: boolean;
+  heartbeatAgeMs: number | null;
+  label: "NO SNAPSHOT" | "WORKER DOWN" | "DATA DELAYED" | "CURRENT" | "LAST SNAPSHOT";
+}
+
+export interface WorkerHeartbeat {
+  heartbeatAt: number | null;
+  health: string | null;
 }
 
 export function dashboardWorkerLiveness(
   snapshot: Pick<LiveAttentionSnapshot, "asOf"> | null,
   now = Date.now(),
-  staleAfterMs = WORKER_STALE_AFTER_MS,
+  worker: WorkerHeartbeat | null = null,
+  heartbeatStaleAfterMs = WORKER_HEARTBEAT_STALE_AFTER_MS,
+  snapshotDelayAfterMs = SNAPSHOT_DELAY_AFTER_MS,
 ): DashboardWorkerLiveness {
   const regularSession = exchangeSessionForTimestamp(new Date(now)) === "regular";
-  if (!snapshot) return { ageMs: null, regularSession, workerDown: regularSession, label: "NO SNAPSHOT" };
+  const heartbeatAgeMs = worker?.heartbeatAt === null || worker?.heartbeatAt === undefined
+    ? null
+    : Math.max(0, now - worker.heartbeatAt);
+  const heartbeatFailed = worker?.health === "failed";
+  const heartbeatStale = heartbeatAgeMs !== null && heartbeatAgeMs > heartbeatStaleAfterMs;
+  const workerDown = regularSession && (heartbeatFailed || heartbeatStale);
+  if (!snapshot) return {
+    ageMs: null, heartbeatAgeMs, regularSession, workerDown, dataDelayed: false,
+    label: workerDown ? "WORKER DOWN" : "NO SNAPSHOT",
+  };
   const ageMs = Math.max(0, now - snapshot.asOf);
-  const workerDown = regularSession && ageMs > staleAfterMs;
-  return { ageMs, regularSession, workerDown, label: workerDown ? "WORKER DOWN" : regularSession ? "CURRENT" : "LAST SNAPSHOT" };
+  const dataDelayed = regularSession && ageMs > snapshotDelayAfterMs;
+  return {
+    ageMs, heartbeatAgeMs, regularSession, workerDown, dataDelayed,
+    label: workerDown ? "WORKER DOWN" : dataDelayed ? "DATA DELAYED" : regularSession ? "CURRENT" : "LAST SNAPSHOT",
+  };
 }
 
 export function formatSnapshotAge(ageMs: number | null): string {

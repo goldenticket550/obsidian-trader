@@ -48,7 +48,7 @@ describe("LR8 on-page live alert feed", () => {
     const detected = event();
     vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => String(input).includes("/events")
       ? json({ events: [detected], detection: { status: "ran", reason: null, counters: live.detectionCounters } })
-      : json({ snapshot: live })));
+      : json({ snapshot: live, instance: { heartbeat_at: new Date().toISOString(), health: "ready" } })));
     render(<LiveAttentionPage />);
     await screen.findByText("AAOI", { selector: "article span" });
     expect(screen.getByText("Extended").className).toContain("text-red-200");
@@ -71,7 +71,7 @@ describe("LR8 on-page live alert feed", () => {
     closed.eventsDetected = 0;
     vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => String(input).includes("/events")
       ? json({ events: [], detection: { status: "suppressed", reason: "non_regular", counters: closed.detectionCounters } })
-      : json({ snapshot: closed })));
+      : json({ snapshot: closed, instance: { heartbeat_at: new Date().toISOString(), health: "dark_window" } })));
 
     render(<LiveAttentionPage />);
 
@@ -89,9 +89,9 @@ describe("LR8 on-page live alert feed", () => {
     stale.health = "dark_window"; stale.ready = false; stale.darkWindowReason = "unavailable_on_partial_feed";
     vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => String(input).includes("/events")
       ? json({ events: [], detection: { status: "suppressed", reason: "non_regular", counters: stale.detectionCounters } })
-      : json({ snapshot: stale })));
+      : json({ snapshot: stale, instance: { heartbeat_at: "2026-08-19T09:25:00Z", health: "failed" } })));
     render(<LiveAttentionPage />);
-    await screen.findByText(/WORKER DOWN/);
+    await screen.findByText("WORKER DOWN — LIVE DATA IS STALE", { selector: "h2" });
     expect(screen.queryByText(/MARKET CLOSED/)).toBeNull();
     expect(screen.queryByText(/Market closed/)).toBeNull();
   });

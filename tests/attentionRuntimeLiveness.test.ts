@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dashboardWorkerLiveness, WORKER_STALE_AFTER_MS } from "@/lib/attention-runtime/dashboardLiveness";
+import { dashboardWorkerLiveness, SNAPSHOT_DELAY_AFTER_MS, WORKER_HEARTBEAT_STALE_AFTER_MS } from "@/lib/attention-runtime/dashboardLiveness";
 import { explainSelfReferentialBenchmark } from "@/lib/attention-runtime/referenceQuality";
 import { nextSupervisorStateAfterSpawn, type SupervisorLivenessState } from "@/lib/attention-runtime/processLiveness";
 import type { LiveAttentionRow } from "@/lib/attention-runtime/contracts";
@@ -19,10 +19,18 @@ const row: LiveAttentionRow = {
 };
 
 describe("live runtime liveness contract", () => {
-  it("declares the worker down after two stale minutes during the regular session", () => {
+  it("does not call a healthy heartbeat down when the completed minute is delayed", () => {
     const now = Date.parse("2026-08-18T14:00:00Z");
-    expect(dashboardWorkerLiveness({ asOf: now - WORKER_STALE_AFTER_MS }, now).workerDown).toBe(false);
-    expect(dashboardWorkerLiveness({ asOf: now - WORKER_STALE_AFTER_MS - 1 }, now)).toMatchObject({ workerDown: true, label: "WORKER DOWN" });
+    expect(dashboardWorkerLiveness({ asOf: now - SNAPSHOT_DELAY_AFTER_MS - 1 }, now, { heartbeatAt: now - 15_000, health: "ready" }))
+      .toMatchObject({ workerDown: false, dataDelayed: true, label: "DATA DELAYED" });
+  });
+
+  it("declares the worker down only when its heartbeat is stale or failed", () => {
+    const now = Date.parse("2026-08-18T14:00:00Z");
+    expect(dashboardWorkerLiveness({ asOf: now - 30_000 }, now, { heartbeatAt: now - WORKER_HEARTBEAT_STALE_AFTER_MS - 1, health: "ready" }))
+      .toMatchObject({ workerDown: true, label: "WORKER DOWN" });
+    expect(dashboardWorkerLiveness({ asOf: now - 30_000 }, now, { heartbeatAt: now, health: "failed" }))
+      .toMatchObject({ workerDown: true, label: "WORKER DOWN" });
   });
 
   it("does not call an intentionally dark partial-feed window a worker outage", () => {

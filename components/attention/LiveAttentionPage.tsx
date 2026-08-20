@@ -15,6 +15,7 @@ interface DetectionResponse {
 
 interface ApiBody {
   snapshot?: LiveAttentionSnapshot | null;
+  instance?: { heartbeat_at?: string | null; health?: string | null } | null;
   events?: AttentionEvent[];
   detection?: DetectionResponse;
   status?: string;
@@ -58,6 +59,7 @@ function suppressionLabel(reason: string | null | undefined): string {
 
 export default function LiveAttentionPage() {
   const [snapshot, setSnapshot] = useState<LiveAttentionSnapshot | null>(null);
+  const [workerHeartbeat, setWorkerHeartbeat] = useState<{ heartbeatAt: number | null; health: string | null } | null>(null);
   const [events, setEvents] = useState<AttentionEvent[]>([]);
   const [detection, setDetection] = useState<DetectionResponse>({ status: "unknown", reason: "unknown", counters: null });
   const [clock, setClock] = useState(() => Date.now());
@@ -93,6 +95,10 @@ export default function LiveAttentionPage() {
         const body = liveResult.value;
         if (body.snapshot) setSnapshot(body.snapshot);
         else if (body.status === "worker_not_registered") setSnapshot(null);
+        if (body.instance) setWorkerHeartbeat({
+          heartbeatAt: body.instance.heartbeat_at ? Date.parse(body.instance.heartbeat_at) : null,
+          health: body.instance.health ?? null,
+        });
         setStatus(body.snapshot?.statusMessage ?? body.status ?? body.error ?? "No worker snapshot");
         updated = true;
       } else {
@@ -134,11 +140,13 @@ export default function LiveAttentionPage() {
     };
   }, []);
 
-  const liveness = dashboardWorkerLiveness(snapshot, clock);
+  const liveness = dashboardWorkerLiveness(snapshot, clock, workerHeartbeat);
   const livenessClass = connectionUnavailable
     ? "bg-amber-950 text-amber-200"
     : liveness.workerDown
     ? "bg-red-950 text-red-300"
+    : liveness.dataDelayed
+    ? "bg-amber-950 text-amber-200"
     : liveness.label === "CURRENT" ? "bg-emerald-950 text-emerald-300"
     : "bg-slate-800 text-slate-300";
   const rankingsVisible = Boolean(snapshot && !connectionUnavailable && !liveness.workerDown && !snapshot.darkWindowReason && !signedOut);
@@ -183,9 +191,13 @@ export default function LiveAttentionPage() {
 
     {!signedOut && !connectionUnavailable && liveness.workerDown && <section role="alert" className="rounded border-2 border-red-500 bg-red-950 p-5 text-red-100">
       <h2 className="text-xl font-bold">WORKER DOWN — LIVE DATA IS STALE</h2>
-      <p className="mt-2">The last completed snapshot is {formatSnapshotAge(liveness.ageMs)}. Rankings are hidden because they are not live; recorded alerts remain below.</p>
+      <p className="mt-2">The worker heartbeat is {formatSnapshotAge(liveness.heartbeatAgeMs)}. Rankings are hidden because the worker is not live; recorded alerts remain below.</p>
     </section>}
 
+    {!signedOut && !connectionUnavailable && !liveness.workerDown && liveness.dataDelayed && <section role="status" className="rounded border-2 border-amber-500 bg-amber-950 p-5 text-amber-100">
+      <h2 className="text-xl font-bold">DATA DELAYED — WORKER IS HEALTHY</h2>
+      <p className="mt-2">The last completed snapshot is {formatSnapshotAge(liveness.ageMs)}. The worker heartbeat is current, so this is processing or market-data lag, not an outage.</p>
+    </section>}
     {snapshot?.lagWarning && <section role="alert" className="rounded border-2 border-orange-500 bg-orange-950 p-5 text-orange-100">
       <h2 className="text-xl font-bold">PROCESSING LAG — WATERMARK IS BEHIND</h2>
       <p className="mt-2">The last cycle crossed a minute boundary or the watermark is more than one minute late. Treat rankings as delayed.</p>
