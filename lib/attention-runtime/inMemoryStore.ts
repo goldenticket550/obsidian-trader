@@ -12,8 +12,18 @@ import type {
 
 function clone<T>(value: T): T { return structuredClone(value); }
 
+function canonicalizeJson(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalizeJson);
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    return Object.fromEntries(Object.keys(record).sort().map((key) => [key, canonicalizeJson(record[key])]));
+  }
+  return value;
+}
+
 export function checkpointChecksum(checkpoint: Omit<RuntimeCheckpoint, "checksum">): string {
-  return createHash("sha256").update(JSON.stringify(checkpoint)).digest("hex");
+  // Supabase stores the checkpoint as jsonb, which does not preserve object-key insertion order.
+  return createHash("sha256").update(JSON.stringify(canonicalizeJson(checkpoint))).digest("hex");
 }
 
 export function assertCheckpointCompatible(checkpoint: RuntimeCheckpoint, identity: RuntimeIdentity): void {
