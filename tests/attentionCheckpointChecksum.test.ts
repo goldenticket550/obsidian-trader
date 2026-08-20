@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assertCheckpointCompatible, checkpointChecksum } from "@/lib/attention-runtime/inMemoryStore";
+import { assertCheckpointCompatible, canRollForwardEmptyLegacyCheckpoint, checkpointChecksum } from "@/lib/attention-runtime/inMemoryStore";
 import type { RuntimeCheckpoint, RuntimeIdentity } from "@/lib/attention-runtime/contracts";
 
 const identity: RuntimeIdentity = {
@@ -48,5 +48,37 @@ describe("runtime checkpoint checksum", () => {
 
     expect(checkpointChecksum(unsigned)).toBe(checksum);
     expect(() => assertCheckpointCompatible(reordered, identity)).not.toThrow();
+  });
+
+  it("only rolls forward an empty identity-matching legacy checkpoint", () => {
+    const checkpoint: RuntimeCheckpoint = {
+      schemaVersion: 1,
+      identity,
+      sequence: 24,
+      watermarkAt: Date.parse("2026-08-20T03:27:00Z"),
+      createdAt: Date.parse("2026-08-20T03:27:01Z"),
+      ingestionMode: "iex_rest_polling",
+      guard: {
+        active: false,
+        reason: "none",
+        activeSince: null,
+        contiguousMinutes: 5,
+        requiredContiguousMinutes: 5,
+      },
+      processorState: null,
+      deliveryState: {
+        sessionEvents: [],
+        regularCountersStarted: false,
+        detectionCounters: { detectionRanMinutes: 0, eventsDetected: 0 },
+      },
+      checksum: "pre-canonical-checksum",
+    };
+
+    expect(canRollForwardEmptyLegacyCheckpoint(checkpoint, identity)).toBe(true);
+    expect(canRollForwardEmptyLegacyCheckpoint({ ...checkpoint, processorState: {} }, identity)).toBe(false);
+    expect(canRollForwardEmptyLegacyCheckpoint({
+      ...checkpoint,
+      identity: { ...identity, configHash: "other" },
+    }, identity)).toBe(false);
   });
 });

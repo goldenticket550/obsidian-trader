@@ -3,7 +3,7 @@ import { DEFAULT_ALERT_DELIVERY_RATE_CONFIG, type AttentionAlertDelivery } from 
 import type { AttentionEvent } from "@/lib/attention/attentionEvents";
 import { compactAttentionAlertDeliveriesIncremental, emptyIncrementalAlertDeliveryState, trimIncrementalAlertDeliveryState, type IncrementalAlertDeliveryState } from "@/lib/attention/incrementalAlertDelivery";
 import { exchangeCalendarDay } from "@/lib/attention/exchangeCalendar";
-import { assertCheckpointCompatible, checkpointChecksum } from "./inMemoryStore";
+import { assertCheckpointCompatible, canRollForwardEmptyLegacyCheckpoint, checkpointChecksum } from "./inMemoryStore";
 import type { LiveIngestionSource } from "./ingestion";
 import type {
   LiveAttentionSnapshot,
@@ -173,7 +173,16 @@ export class AttentionLiveWorker {
     this.lease = await this.store.acquireLease(this.config.identity, now, this.config.leaseTtlMs ?? 90_000);
     const checkpoint = await this.store.loadCheckpoint(this.config.identity);
     if (!checkpoint) return;
-    assertCheckpointCompatible(checkpoint, this.config.identity);
+    try {
+      assertCheckpointCompatible(checkpoint, this.config.identity);
+    } catch (error) {
+      if (!(error instanceof Error)
+        || error.message !== "Runtime checkpoint checksum mismatch."
+        || !canRollForwardEmptyLegacyCheckpoint(checkpoint, this.config.identity)) throw error;
+      this.sequence = checkpoint.sequence;
+      console.warn(`[WARN] component="attention-worker" type="legacy_empty_checkpoint_roll_forward" sequence=${checkpoint.sequence}`);
+      return;
+    }
     this.sequence = checkpoint.sequence;
     this.delivery = deliveryState(checkpoint.deliveryState);
     this.processor.restore(checkpoint.processorState);

@@ -34,6 +34,25 @@ export function assertCheckpointCompatible(checkpoint: RuntimeCheckpoint, identi
   }
 }
 
+export function canRollForwardEmptyLegacyCheckpoint(checkpoint: RuntimeCheckpoint, identity: RuntimeIdentity): boolean {
+  for (const key of ["engineInstanceId", "userId", "universeHash", "calibrationId", "configHash", "baselineTableId", "feedMode"] as const) {
+    if (checkpoint.identity[key] !== identity[key]) return false;
+  }
+  if (checkpoint.schemaVersion !== 1 || checkpoint.ingestionMode !== "iex_rest_polling") return false;
+  if (checkpoint.processorState !== null || checkpoint.guard.active) return false;
+  if (!checkpoint.deliveryState || typeof checkpoint.deliveryState !== "object") return false;
+  const delivery = checkpoint.deliveryState as {
+    sessionEvents?: unknown[];
+    regularCountersStarted?: boolean;
+    detectionCounters?: { detectionRanMinutes?: number; eventsDetected?: number };
+  };
+  return Array.isArray(delivery.sessionEvents)
+    && delivery.sessionEvents.length === 0
+    && delivery.regularCountersStarted !== true
+    && delivery.detectionCounters?.detectionRanMinutes === 0
+    && delivery.detectionCounters.eventsDetected === 0;
+}
+
 export class InMemoryRuntimeStore implements RuntimeStore {
   private lease: WorkerLease | null = null;
   private fencingToken = 0;
